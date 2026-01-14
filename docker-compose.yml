@@ -1,0 +1,80 @@
+services:
+  aeon-dev:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      target: builder # For dev, we usually want the builder stage or a dev variant to have compilers
+    image: aeon-dev:latest
+    container_name: aeon-dev
+    volumes:
+      - .:/app
+    working_dir: /app
+    ulimits:
+      memlock: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    # Keep running for exec
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+
+  # ==========================================================================
+  # Benchmark Clean Room
+  # ==========================================================================
+  # Isolated environment for reproducible benchmark measurements.
+  # Usage: docker compose run --rm aeon-bench
+  # ==========================================================================
+  aeon-bench:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      target: builder
+    image: aeon-bench:latest
+    container_name: aeon-bench
+    volumes:
+      - .:/app
+      # Mount results directory for output persistence
+      - ./results:/app/results
+    working_dir: /app
+    # Disable init process for minimal overhead
+    init: false
+    # Lock memory to prevent swapping during benchmarks
+    ulimits:
+      memlock: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    # CPU pinning for reproducibility (Linux only, ignored on macOS)
+    # Pin to first 4 cores to avoid context switching jitter
+    cpuset: "0-3"
+    # Resource isolation
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '4'
+          memory: 4G
+    # Environment variables for benchmark configuration
+    environment:
+      # Disable Python output buffering for real-time progress
+      PYTHONUNBUFFERED: "1"
+      # Use performance governor if available
+      CPU_GOVERNOR: "performance"
+      # Disable ASLR for reproducible memory layout (requires privileged)
+      # ASLR_DISABLE: "1"
+      # Default command: run the verification benchmark suite
+    command: >
+      bash -c "
+        echo '=== Aeon Benchmark Clean Room ===' &&
+        echo 'Building C++ benchmarks...' &&
+        cmake --build build --target aeon_bench -j$(nproc) &&
+        echo 'Running verification suite...' &&
+        python3 scripts/verify_benchmarks.py --iterations 50 --warmup 10 &&
+        echo 'Benchmark complete. Results in results/benchmark_final.json'
+      "

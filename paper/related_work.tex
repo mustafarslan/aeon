@@ -1,0 +1,24 @@
+\section{Related Work}
+\label{sec:related_work}
+
+We position Aeon within the broader landscape of neural memory systems, contrasting its Cognitive Operating System architecture against existing approaches in retrieval, memory management, and neuro-symbolic reasoning. While individual components of Aeon have precedents in isolation, we argue that the lack of a unified, high-performance kernel has limited the emergence of truly long-horizon agents.
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+The dominant paradigm for grounding Large Language Models (LLMs) is Retrieval-Augmented Generation (RAG), typically implemented using Dense Passage Retrieval (DPR) \cite{karpukhin2020dense} and Approximate Nearest Neighbor (ANN) search indices like FAISS \cite{faiss2017} or HNSW \cite{malkov2018hnsw}. These systems rely on what we characterize as "Flat RAG": a single, monolithic vector space where every query is treated as an independent event, disconnected from temporal or causal context.
+
+The primary limitation of Flat RAG is the phenomenon of \textit{Vector Haze}. As the size of the memory store grows, the probability of retrieving semantically similar but contextually irrelevant facts increases, diluting the LLM's attention mechanism. HNSW graphs, while efficient, are agnostic to the agent's current task state. Aeon addresses this via \textit{The Atlas}, a hierarchical spatial indexing system. By constraining the search space based on the agent's active context region, Aeon mitigates Vector Haze, ensuring that retrieval precision does not degrade at scale.
+
+\subsection{Memory-Augmented LLMs}
+Attempts to give LLMs persistent memory have largely operated at the application layer. Systems like MemGPT \cite{memgpt2023} introduce an OS-like abstraction for managing context windows, distinguishing between main context and external storage. Similarly, earlier works on Neural Turing Machines (NTM) \cite{graves2014ntm} proposed differentiable memory banks.
+
+However, MemGPT is a logical framework rather than a systems-level implementation. It functions in "User Space" (typically Python), relying on the LLM itself to manage memory calls via prompt engineering. This introduces significant latency and leaves the physical layout of memory unmanaged. Aeon moves this responsibility to "The Kernel," implementing memory management in high-performance C++23. By treating memory operations as low-level system calls, Aeon achieves sub-millisecond retrieval latencies that are impossible with prompt-based management.
+
+\subsection{Neuro-Symbolic Knowledge Graphs}
+To address the lack of structure in vector stores, Neuro-Symbolic approaches like GraphRAG \cite{edge2024graphrag} and integration with graph databases (e.g., Neo4j) have gained traction. These systems excel at multi-hop reasoning by making relationships explicit.
+
+The limitation of current Neuro-Symbolic systems is their rigidity and write latency. Symbolic graphs are often slow to update and require brittle extraction pipelines, lacking the fluid adaptability of neural representations. Aeon's \textit{Trace} module introduces a hybrid architecture: it utilizes neural embeddings for nodes to maintain semantic fluidity, while employing symbolic edges to enforce causal constraints. This allows Aeon to update reasoning paths in real-time without the heavy overhead of re-indexing traditional knowledge graphs.
+
+\subsection{Operating System Primitives for AI}
+Finally, the concept of an "AI Kernel" has been proposed in various forms, often serving as a metaphor for cloud orchestration layers or "Glue Code" libraries like LangChain \cite{langchain2022}. While these frameworks provide essential developer tooling, they do not function as operating systems in the traditional sense; they do not manage physical memory layout, thread scheduling, or cache coherency.
+
+Aeon distinguishes itself by implementing true OS primitives tailored for semantic data. The \textit{Semantic Lookaside Buffer (SLB)} is a direct parallel to the Translation Lookaside Buffer (TLB) in CPU architecture. Instead of just caching raw vectors, the SLB predicts and prefetches semantic clusters relevant to the current thread of thought. This moves the paradigm from reactive retrieval to proactive memory management, solving the "Context Bottleneck" at the architectural level.

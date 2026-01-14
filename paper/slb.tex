@@ -1,0 +1,87 @@
+\section{The Semantic Lookaside Buffer}
+\label{sec:slb}
+
+The core contribution of Aeon is the \textbf{\mbox{Semantic} \mbox{Lookaside} \mbox{Buffer} (SLB)}, a high-performance caching mechanism designed to alleviate the latency overhead of traversing massive high-dimensional indices. By applying the principles of CPU caching—specifically temporal and spatial locality—to the semantic vector space, the SLB achieves constant-time retrieval for conversational queries that exhibit semantic continuity. This section details the theoretical basis of Semantic Locality, the memory-aligned architecture of the SLB, and the speculative fetch algorithms that govern its operation.
+
+\subsection{Theory: Semantic Locality}
+\label{subsec:semantic_locality}
+
+Traditional caching strategies, such as Least Recently Used (LRU) or Least Frequently Used (LFU), rely on address transparency and the assumption that repeated access to the exact same memory address is common. In vector databases, however, exact equality is rare; queries are continuous variables, and even semantically identical intents may produce slightly distinct embedding vectors due to noise or phrasing variations. Thus, we introduce the concept of \textbf{\mbox{Semantic} \mbox{Inertia}}.
+
+\textbf{Hypothesis (\mbox{Semantic} \mbox{Inertia}):} In a continuous human-computer dialogue, the topic vector $\mathbf{t}_i$ at turn $i$ is highly positively correlated with the topic vector $\mathbf{t}_{i+1}$ at turn $i+1$. Consequently, the navigation path required to satisfy query $\mathbf{q}_{i+1}$ is likely a small perturbation of the path taken for $\mathbf{q}_i$.
+
+Formally, let $\mathcal{S}$ be the high-dimensional semantic space and $\mathbf{q}_i \in \mathcal{S}$ be the query vector at step $i$. We posit that the conditional probability of the distance between subsequent queries being within a small locality radius $\epsilon$ is significantly non-zero:
+\[
+P\left( \text{dist}(\mathbf{q}_{i+1}, \mathbf{q}_i) < \epsilon \right) \approx 1
+\]
+where $\text{dist}(\cdot, \cdot)$ is the cosine distance metric.
+
+This implies that for a significant subset of queries, the optimal search starting point is not the global Root of the hierarchical navigable small world (HNSW) graph or the Atlas tree, but rather the result of the previous query. If the semantic delta is sufficiently small, the target node for $\mathbf{q}_{i+1}$ is likely the same node as $\mathbf{q}_i$, or one of its immediate semantic neighbors. By caching these recent access points, we can bypass the $O(\log N)$ tree traversal entirely.
+
+\subsection{Architecture of the SLB}
+\label{subsec:slb_architecture}
+
+The SLB is implemented as a software-managed cache, distinct from the OS page cache. Its primary design constraint is \textbf{\mbox{Memory} \mbox{Hierarchy} \mbox{Latency}}. A standard main memory access (DRAM) takes approximately $100\text{ns}$, while an L1 cache access takes $\approx 1\text{ns}$. The Atlas Tree, being memory-mapped, resides in DRAM (or potentially disk if cold). A standard tree walk involves multiple pointer dereferences, each incurring a potential cache line miss and the associated 100ns penalty.
+
+To mitigate this, the SLB is structured as a small, contiguous ring buffer $B$ of fixed size $K$, where $K$ is tuned to fit entirely within the L1/L2 CPU cache (typically $K=64$).
+
+Each entry $e_k \in B$ is a tuple:
+\[
+e_k = \{ \mathbf{c}_{node}, \text{ptr}_{atlas} \}
+\]
+where $\mathbf{c}_{node} \in \mathbb{R}^{D}$ is the centroid of the cached node and $\text{ptr}_{atlas}$ is the direct memory pointer (or offset) to the full node structure in the Atlas memory map.
+
+\textbf{Search Strategy: Brute-Force SIMD.}
+Crucially, we do not use an approximate nearest neighbor index for the SLB itself. Because $K$ is small ($64$), we can perform an exhaustive linear scan of all entries using AVX-512 instructions. The cost of this operation is $O(K)$, but due to perfect hardware prefetching and zero pointer chasing, the wall-clock time is significantly lower than even a few steps of an $O(\log N)$ tree traversal. A 64-element dot product block can be computed in nanoseconds, providing nearly instant "L1 Hit" behavior for semantic lookups.
+
+\subsection{The Speculative Fetch Algorithm}
+\label{subsec:speculative_fetch}
+
+The SLB operates on a speculative basis. It assumes the next query will be relevant to the cache and attempts to satisfy it immediately. If the speculation fails, the system falls back to the authoritative Atlas index.
+
+The lookup procedure, defined in Algorithm \ref{alg:slb_lookup}, proceeds as follows:
+
+\begin{enumerate}
+    \item \textbf{Scan:} Upon receiving a query $\mathbf{q}$, the system computes the similarity scores $s_k = \cos(\mathbf{q}, \mathbf{b}_k)$ for all $k \in B$ in parallel.
+    \item \textbf{Best Match:} It identifies the best candidate $s_{best} = \max_k s_k$.
+    \item \textbf{Threshold Check:} The score is compared against a strict similarity threshold $\tau_{hit}$ (e.g., $0.85$).
+    \begin{itemize}
+        \item If $s_{best} > \tau_{hit}$, it is a \textbf{\mbox{CACHE} \mbox{HIT}}. The system immediately returns the associated $\text{ptr}_{atlas}$, bypassing the tree interaction entirely.
+        \item If $s_{best} \le \tau_{hit}$, it is a \textbf{\mbox{CACHE} \mbox{MISS}}. The system initiates the standard Atlas Tree Search.
+    \end{itemize}
+    \item \textbf{Update:} The result of the query (whether from a hit or a miss-then-retrieval) is inserted into the SLB. We employ a simplified Least Recently Used (LRU) eviction policy, implemented via the ring buffer pointer or a lightweight timestamp, to ensure fresh context is prioritized.
+\end{enumerate}
+
+\begin{algorithm}
+\caption{SLB\_Lookup Checking Procedure}
+\label{alg:slb_lookup}
+\begin{algorithmic}[1]
+\Require Query vector $\mathbf{q}$, Threshold $\tau_{hit}$, SLB Buffer $B$
+\Ensure Best matching Node pointer $p$ or NULL
+
+\State $s_{best} \gets -1.0$
+\State $idx_{best} \gets -1$
+
+\Comment{Vectorized Loop (AVX-512)}
+\For{$k \gets 0$ to $K-1$}
+    \State $s \gets \text{SIMD\_DotProduct}(\mathbf{q}, B[k].\mathbf{c}_{node})$
+    \If{$s > s_{best}$}
+        \State $s_{best} \gets s$
+        \State $idx_{best} \gets k$
+    \EndIf
+\EndFor
+
+\If{$s_{best} > \tau_{hit}$}
+    \State \Return $B[idx_{best}].\text{ptr}_{atlas}$ \Comment{Cache Hit}
+\Else
+    \State \Return \textbf{null} \Comment{Cache Miss - Fallback to Atlas}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Predictive Prefetching}
+\label{subsec:predictive_prefetching}
+
+While the current implementation focuses on reducing lookup latency, the SLB architecture enables powerful future optimization such as \textbf{Async~Prefetching}. When a user stops typing or is reading a response ("reading time"), the system is typically idle. We can exploit this downtime. Upon a successful SLB hit, the system can speculatively load the \textit{children} of the hit node from the main memory-mapped file into the SLB.
+
+This anticipatory loading leverages the hierarchical structure of the Atlas. If a user is querying a specific sub-topic (e.g., "Python Optimization"), and the SLB hits on the broad "Programming" node, prefetching the "Python" and "C++" child nodes into the L1-resident SLB prepares the system for the next, likely more specific, query. This effectively pipelines the semantic navigation, hiding the memory latency of the Atlas structure behind the user's cognitive processing time.

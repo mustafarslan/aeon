@@ -1,0 +1,58 @@
+# .gitignore for Project Aeon
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- C++ / CMake ---
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.o
+*.so
+*.dylib
+*.a
+compile_commands.json
+
+# --- OS / Editor ---
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# --- LaTeX (Paper) ---
+# Ignore build artifacts but keep source (.tex, .bib, figures)
+paper/*.aux
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.toc
+paper/*.bbl
+paper/*.blg
+paper/*.pdf
+
+# --- Paper Source Code Option ---
+# Uncomment the line below if you want to exclude the ENTIRE paper folder 
+# (e.g. for double-blind review privacy in a public repo)
+# paper/
+
+# --- Results ---
+# Ignore large raw data dumps, but keep the README
+results/*.csv
+results/*.raw
+# keeping JSON results for reference, but ignore if they get too large
+# results/*.json

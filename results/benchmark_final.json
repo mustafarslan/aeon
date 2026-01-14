@@ -1,0 +1,124 @@
+{
+  "timestamp": "2026-01-14T14:44:33.369121",
+  "platform": {
+    "system": "Darwin",
+    "release": "25.2.0",
+    "machine": "arm64",
+    "processor": "arm",
+    "python_version": "3.14.0",
+    "cpu_count": 16
+  },
+  "configuration": {
+    "warmup_iterations": 3,
+    "measurement_iterations": 10,
+    "noise_threshold": 0.1,
+    "latency_limit_ms": 200.0
+  },
+  "benchmarks": {
+    "BM_MathKernel": {
+      "name": "BM_MathKernel",
+      "unit": "ns",
+      "iterations": 10,
+      "warmup_iterations": 3,
+      "samples": [
+        49.80377843532297,
+        50.294683308567784,
+        50.215826387238664,
+        50.251325001181335,
+        50.64634160148944,
+        50.986078578710675,
+        50.58609612516616,
+        51.2011070594032,
+        51.73599099840603,
+        50.895709698439966
+      ],
+      "mean": 50.66169371939262,
+      "median": 50.6162188633278,
+      "p99": 51.73599099840603,
+      "stddev": 0.5626264335261103,
+      "min_val": 49.80377843532297,
+      "max_val": 51.73599099840603,
+      "noise_warning": false
+    },
+    "AtlasFixture/WarmSearch": {
+      "name": "AtlasFixture/WarmSearch",
+      "unit": "\u00b5s",
+      "iterations": 10,
+      "warmup_iterations": 3,
+      "samples": [
+        521.9005474171648,
+        526.6754799680508,
+        527.7396626011388,
+        528.6054385222149,
+        535.2356944182258,
+        533.9463326318762,
+        532.9787710271422,
+        534.3265286668944,
+        534.1656021798566,
+        538.0855315389549
+      ],
+      "mean": 531.3659588971519,
+      "median": 533.4625518295093,
+      "p99": 538.0855315389549,
+      "stddev": 4.92561424909137,
+      "min_val": 521.9005474171648,
+      "max_val": 538.0855315389549,
+      "noise_warning": false
+    },
+    "AtlasFixture/ColdSearch": {
+      "name": "AtlasFixture/ColdSearch",
+      "unit": "\u00b5s",
+      "iterations": 10,
+      "warmup_iterations": 3,
+      "samples": [
+        529.3141926526167,
+        537.2345680460242,
+        530.8837355613455,
+        538.4970231511852,
+        535.8265904195691,
+        539.3449844950397,
+        534.8685741944382,
+        539.1897736962413,
+        543.9654815905457,
+        545.013290263309
+      ],
+      "mean": 537.4138214070315,
+      "median": 537.8657955986047,
+      "p99": 545.013290263309,
+      "stddev": 5.011194423398795,
+      "min_val": 529.3141926526167,
+      "max_val": 545.013290263309,
+      "noise_warning": false
+    },
+    "python_binding_init": {
+      "name": "python_binding_init",
+      "unit": "\u00b5s",
+      "iterations": 10,
+      "warmup_iterations": 3,
+      "samples": [
+        168.709,
+        190.5,
+        157.75,
+        181.5,
+        158.958,
+        160.292,
+        163.959,
+        161.167,
+        221.791,
+        374.125
+      ],
+      "mean": 193.8751,
+      "median": 166.334,
+      "p99": 374.125,
+      "stddev": 66.40284053905793,
+      "min_val": 157.75,
+      "max_val": 374.125,
+      "noise_warning": true
+    }
+  },
+  "warnings": [
+    "python_binding_init: High variance detected"
+  ],
+  "passed": true,
+  "failure_reason": null
+}
