@@ -134,8 +134,11 @@ public:
   /**
    * @brief Stubs for future prefetching logic.
    */
-  void prefetch_neighbors(uint64_t node_id) {
-    // TODO: Phase 9+
+  void prefetch_neighbors([[maybe_unused]] uint64_t node_id) {
+    // Phase 2 Optimization:
+    // Future implementation will prefetch the memory page of the parent's
+    // children list. For now, this is a placeholder hook for the SLB
+    // prefetcher.
   }
 
 private:

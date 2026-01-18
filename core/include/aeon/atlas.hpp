@@ -74,6 +74,15 @@ public:
                         std::string_view metadata);
 
   /**
+   * @brief Removes the last n nodes from the delta buffer.
+   * Thread-safe (exclusive lock).
+   *
+   * @param n Number of nodes to remove
+   * @return size_t Number of nodes actually removed
+   */
+  size_t prune_delta_tail(size_t n);
+
+  /**
    * @brief Returns the total number of nodes in the atlas.
    */
   size_t size() const;
