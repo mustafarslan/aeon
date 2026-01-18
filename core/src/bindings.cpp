@@ -1,5 +1,6 @@
 #include "aeon/atlas.hpp"
 #include "aeon/core.hpp"
+#include "aeon/trace.hpp"
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/stl/filesystem.h>
@@ -64,6 +65,14 @@ NB_MODULE(core, m) {
           "Insert into in-memory Delta Buffer (immediate availability)")
 
       .def(
+          "prune_delta_tail",
+          [](aeon::Atlas &self, size_t n) {
+            nb::gil_scoped_release release;
+            return self.prune_delta_tail(n);
+          },
+          "n"_a, "Remove last N nodes from delta buffer (for rollback)")
+
+      .def(
           "navigate_raw",
           [](aeon::Atlas &self, const std::vector<float> &query) {
             if (query.size() != 768)
@@ -73,11 +82,18 @@ NB_MODULE(core, m) {
             // release logic for debugging) Ideally we release GIL, but
             // investigating SegFault.
 
-            std::vector<aeon::Atlas::ResultNode> results =
-                self.navigate(std::span<const float>(query.data(), 768));
+            size_t num_bytes = 0;
+            std::vector<aeon::Atlas::ResultNode> results;
 
-            size_t count = results.size();
-            size_t num_bytes = count * sizeof(aeon::Atlas::ResultNode);
+            {
+              // RE-ENABLED GIL RELEASE for production concurrency
+              nb::gil_scoped_release release;
+              results =
+                  self.navigate(std::span<const float>(query.data(), 768));
+            }
+            // GIL is re-acquired here
+
+            num_bytes = results.size() * sizeof(aeon::Atlas::ResultNode);
 
             // Allocate raw byte buffer
             uint8_t *data = new uint8_t[num_bytes];
@@ -102,8 +118,7 @@ NB_MODULE(core, m) {
             std::vector<aeon::Atlas::ResultNode> results =
                 self.get_children(parent_id);
 
-            size_t count = results.size();
-            size_t num_bytes = count * sizeof(aeon::Atlas::ResultNode);
+            size_t num_bytes = results.size() * sizeof(aeon::Atlas::ResultNode);
 
             uint8_t *data = new uint8_t[num_bytes];
             if (num_bytes > 0) {
@@ -127,4 +142,27 @@ NB_MODULE(core, m) {
                 std::span<const uint64_t>(node_ids.data(), node_ids.size()));
           },
           "node_ids"_a, "Pre-fill SLB cache with node IDs for warm start");
+
+  // --- Trace Manager (Graph Consolidation) ---
+  nb::class_<aeon::TraceManager>(m, "TraceManager")
+      .def(nb::init<>())
+      .def("size", &aeon::TraceManager::size)
+      .def("add_node", &aeon::TraceManager::add_node, "id"_a, "role"_a,
+           "text"_a, "timestamp"_a)
+      .def("add_edge", &aeon::TraceManager::add_edge, "source"_a, "target"_a,
+           "type"_a)
+      .def("has_node", &aeon::TraceManager::has_node, "id"_a)
+      .def("consolidate", &aeon::TraceManager::consolidate, "node_ids"_a,
+           "summary"_a,
+           "Consolidate multiple nodes into a single summary node, rewiring "
+           "edges.")
+      .def(
+          "get_successors",
+          [](aeon::TraceManager &self, const std::string &id) {
+            (void)self;
+            (void)id;
+            // Stub for now.
+            return std::vector<std::string>{};
+          },
+          "id"_a);
 }

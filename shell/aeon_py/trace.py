@@ -25,6 +25,7 @@ class UserNode:
 class SystemNode:
     text: str
     timestamp: float
+    vector: Optional[List[float]] = None
     id: str = field(default_factory=lambda: f"s_{uuid.uuid4().hex[:8]}")
     type: str = "SystemNode"
 
@@ -88,14 +89,19 @@ class TraceGraph:
         self.cursor = node.id
         return node.id
 
-    def add_system_event(self, text: str) -> str:
+    def add_system_event(self, text: str, vector: Union[List[float], np.ndarray, None] = None) -> str:
         """
         Records a system response.
         Links to previous node (UserNode) with NEXT.
         """
+        vec_list = None
+        if vector is not None:
+             vec_list = vector.tolist() if isinstance(vector, np.ndarray) else vector
+
         node = SystemNode(
             text=text,
-            timestamp=time.time()
+            timestamp=time.time(),
+            vector=vec_list
         )
         
         self.graph.add_node(node.id, **asdict(node))
@@ -136,6 +142,50 @@ class TraceGraph:
             # In a real system, we'd archive old chains. 
             # flexible warning or logic here.
             pass
+
+    def prune_tail(self, n_events: int) -> int:
+        """
+        Removes the last N 'spine' events (User/System nodes) from the graph active tail.
+        Used for rollback synchronization with the LookaheadBuffer.
+        
+        Args:
+             n_events: Number of User/System steps to backtrack.
+             
+        Returns:
+             Number of spine nodes actually removed.
+        """
+        if not self.cursor or n_events <= 0:
+            return 0
+            
+        removed_count = 0
+        current_id = self.cursor
+        
+        # Traverse backwards n_events steps
+        for _ in range(n_events):
+            if not current_id:
+                break
+                
+            # Identify predecessor in the spine (EdgeType.NEXT points TO current)
+            preds = list(self.graph.predecessors(current_id))
+            prev_node = None
+            for p in preds:
+                edge_data = self.graph.get_edge_data(p, current_id)
+                if edge_data.get('relation') == EdgeType.NEXT.value:
+                    prev_node = p
+                    break
+            
+            # Identify any side-chains (Concepts) linked strictly to this node?
+            # If we remove a UserNode, we might leave orphaned Concept nodes if they have no other parents.
+            # But ConceptNodes are shared/idempotent. We shouldn't delete them unless we strictly track refcounts.
+            # For this implementation, we leave Concepts (they are harmless knowledge references).
+            # We ONLY remove the conversation spine node.
+            
+            self.graph.remove_node(current_id)
+            removed_count += 1
+            current_id = prev_node
+            
+        self.cursor = current_id
+        return removed_count
 
     def save(self, path: Union[str, Path]) -> None:
         """Serialize graph to JSON."""

@@ -60,7 +60,7 @@ public:
   std::string db_path = "bench_atlas.bin";
   std::vector<float> query;
 
-  void SetUp(const benchmark::State &state) override {
+  void SetUp([[maybe_unused]] const benchmark::State &state) override {
     // Create a temporary Atlas file
     // Note: For a serious benchmark, we'd want a large pre-built DB.
     // Here we build a small one on the fly to measure pure latency overhead.
@@ -80,20 +80,11 @@ public:
     query = generate_vector(DIM, 99999);
   }
 
-  void TearDown(const benchmark::State &state) override {
+  void TearDown([[maybe_unused]] const benchmark::State &state) override {
     atlas.reset();
     std::filesystem::remove(db_path);
   }
 };
-
-static void BM_WarmSearch(benchmark::State &state) {
-  // Setup (called once per run, but we need the fixture data)
-  // Actually, Fixture SetUp is called per-case.
-  // We need to manage the resource manually or use the fixture logic.
-  // Using simple manual setup inside the function for clarity if Fixture is
-  // overkill but Fixed is better for larger setups. Let's rely on the Fixture
-  // logic above if we register it correctly.
-}
 
 BENCHMARK_F(AtlasFixture, WarmSearch)(benchmark::State &state) {
   std::span<const float> q{query};

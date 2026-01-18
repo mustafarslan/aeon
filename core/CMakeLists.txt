@@ -15,23 +15,25 @@ find_package(nanobind CONFIG REQUIRED)
 if(MSVC)
     add_compile_options(/arch:AVX2 /O2)
 else()
-    # Base aggressive flags
+    # Base aggressive flags - generally safe
     add_compile_options(-march=native -Wall -Wextra -pedantic)
-    
-    # Release-specific optimizations
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -flto")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 endif()
 
-# --- Core Library (C++) ---
-# This library holds the pure C++ logic, usable by C++ apps independently
 # --- Core Library (C++) ---
 # This library holds the pure C++ logic, usable by C++ apps independently
 add_library(aeon_core STATIC
     src/core.cpp
     src/atlas.cpp
     src/simd_impl.cpp
+    src/trace.cpp
 )
+# Apply dangerous optimizations ONLY to the core library (math kernels)
+# This prevents breaking GTest which relies on Infinity/NaN
+if(NOT MSVC)
+    target_compile_options(aeon_core PRIVATE -O3 -ffast-math -flto)
+    # Set debug flags for non-MSVC
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+endif()
 
 target_include_directories(aeon_core PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

@@ -250,6 +250,16 @@ uint64_t Atlas::insert_delta(std::span<const float> vector,
   return new_id;
 }
 
+size_t Atlas::prune_delta_tail(size_t n) {
+  std::unique_lock lock(delta_mutex_);
+  size_t to_remove = std::min(n, delta_buffer_.size());
+  if (to_remove > 0) {
+    // Vector resize removes from the end
+    delta_buffer_.resize(delta_buffer_.size() - to_remove);
+  }
+  return to_remove;
+}
+
 uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
                        std::string_view metadata) {
   auto *header = file_.get_header();
