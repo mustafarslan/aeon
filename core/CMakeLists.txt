@@ -13,10 +13,34 @@ find_package(nanobind CONFIG REQUIRED)
 
 # --- Compiler Optimizations ---
 if(MSVC)
-    add_compile_options(/arch:AVX2 /O2)
+    # Enable AVX2 and maximum optimization for Windows
+    # Fallback to C++20 if C++23 is not fully supported by the compiler yet
+    add_compile_options(/arch:AVX2 /O2 /std:c++20)
 else()
     # Base aggressive flags - generally safe
     add_compile_options(-march=native -Wall -Wextra -pedantic)
+endif()
+
+# --- BLAS Abstraction ---
+if(APPLE)
+    # macOS: Use Accelerate framework
+    find_library(ACCELERATE_FRAMEWORK Accelerate)
+    if(NOT ACCELERATE_FRAMEWORK)
+        message(FATAL_ERROR "Accelerate framework not found on macOS")
+    endif()
+    # We will link this later to the core target
+elseif(WIN32)
+    # Windows: Use OpenBLAS (vcpkg or system)
+    find_package(OpenBLAS CONFIG)
+    if(NOT OpenBLAS_FOUND)
+         # Try generic BLAS/LAPACK lookup if pkg-config/vcpkg fails
+         find_package(BLAS)
+         find_package(LAPACK)
+    endif()
+else()
+    # Linux: Standard BLAS/LAPACK
+    find_package(BLAS REQUIRED)
+    find_package(LAPACK REQUIRED)
 endif()
 
 # --- Core Library (C++) ---
@@ -27,6 +51,20 @@ add_library(aeon_core STATIC
     src/simd_impl.cpp
     src/trace.cpp
 )
+
+# Link BLAS
+if(APPLE)
+    target_link_libraries(aeon_core PUBLIC ${ACCELERATE_FRAMEWORK})
+elseif(WIN32)
+    if(OpenBLAS_FOUND)
+       target_link_libraries(aeon_core PUBLIC OpenBLAS::OpenBLAS)
+    elseif(BLAS_FOUND)
+       target_link_libraries(aeon_core PUBLIC ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+    endif()
+else()
+    target_link_libraries(aeon_core PUBLIC ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
+endif()
+
 # Apply dangerous optimizations ONLY to the core library (math kernels)
 # This prevents breaking GTest which relies on Infinity/NaN
 if(NOT MSVC)
@@ -61,7 +99,6 @@ set_target_properties(aeon_py_core PROPERTIES OUTPUT_NAME "core")
 install(TARGETS aeon_py_core DESTINATION .)
 
 # --- Testing ---
-# --- Testing ---
 if(BUILD_TESTING)
     enable_testing()
 
@@ -87,8 +124,12 @@ if(BUILD_TESTING)
         GTest::gtest_main
     )
 
-    # Default to C++23 for tests
-    target_compile_features(aeon_tests PRIVATE cxx_std_23)
+    # Default to C++23 for tests, fallback to 20 for MSVC
+    if(MSVC)
+        target_compile_features(aeon_tests PRIVATE cxx_std_20)
+    else()
+        target_compile_features(aeon_tests PRIVATE cxx_std_23)
+    endif()
 
     # --- Benchmarks ---
     # Add Google Benchmark
@@ -105,14 +146,23 @@ if(BUILD_TESTING)
         tests/benchmark_math.cpp
     )
     target_link_libraries(aeon_benchmark_legacy PRIVATE aeon_core)
-    target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_23)
+    
+    if(MSVC)
+         target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_20)
+    else()
+         target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_23)
+    endif()
 
     # New Google Benchmark Suite
     add_executable(aeon_bench
         benchmarks/bench_main.cpp
     )
     target_link_libraries(aeon_bench PRIVATE aeon_core benchmark::benchmark_main)
-    target_compile_features(aeon_bench PRIVATE cxx_std_23)
+    if(MSVC)
+        target_compile_features(aeon_bench PRIVATE cxx_std_20)
+    else()
+        target_compile_features(aeon_bench PRIVATE cxx_std_23)
+    endif()
 endif()
 
 # --- Advanced Optimizations ---
