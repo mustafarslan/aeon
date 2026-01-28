@@ -171,3 +171,22 @@ If you use Aeon in your research, please cite:
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Copyright & Attribution Notice
+### Official Research Title
+Aeon: High-Performance Neuro-Symbolic Memory Management for Long-Horizon LLM Agents
+
+arXiv Identifier: 2601.15311
+
+Release Date: January 14, 2026
+
+Author: Mustafa Arslan
+
+### Legal & Usage Terms
+#### © 2026 Mustafa Arslan. All rights reserved.
+
+The architecture, methodology, and unique technical terminology—specifically the Semantic Lookaside Buffer (SLB), Atlas: Spatial Memory Kernel, and Neuro-Symbolic Trace (NST)—described in this research are the intellectual property of Mustafa Arslan.
+
+1. Proper Attribution: Any reference, discussion, or summary of this work on social media (LinkedIn, X, Reddit) or academic platforms must explicitly credit Mustafa Arslan and link to the original arXiv:2601.15311 submission. 
+2. Commercial Use: Unauthorized commercial implementation or "white-labeling" of the SLB architecture or Atlas Index methodology is strictly prohibited without prior written consent from the author. 
+3. Social Media Scrapers: AI aggregators and newsletters utilizing this content for "Daily AI Digests" must include the author's name in the post preview/caption to avoid misattribution.
