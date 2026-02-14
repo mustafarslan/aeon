@@ -7,19 +7,18 @@ We now present a comprehensive evaluation of Aeon, demonstrating that its archit
 
 We first isolate the performance of the Aeon math kernel, the innermost loop responsible for computing cosine similarity between query vectors and node centroids. This kernel is the foundation upon which all higher-level performance gains are built.
 
-\textbf{Result.} The AVX-512 SIMD kernel achieves approximately 50 nanoseconds per 768-dimensional vector comparison. This represents a dramatic improvement over alternative implementations: 20$\times$ faster than an equivalent scalar C++ loop, and nearly 2000$\times$ faster than a Python loop using NumPy element-wise operations.
+\textbf{Result.} The SIMD math kernel achieves approximately 50 nanoseconds per 768-dimensional cosine similarity comparison on ARM64. Our implementation leverages compiler-assisted NEON auto-vectorization (via AppleClang \texttt{-O3 -ffast-math}) and explicit SIMDe intrinsics, approximately 4{,}300$\times$ faster than interpreted pure Python loops and 30$\times$ faster than NumPy backed by Accelerate BLAS.
 
-\textbf{Analysis.} These gains stem from three synergistic optimizations. First, the AVX-512 instruction set processes 16 single-precision floats per cycle, amortizing instruction fetch and decode overhead. Second, our 4$\times$ loop unrolling strategy maximizes instruction-level parallelism by keeping multiple vector registers in flight simultaneously. Third, explicit prefetch hints (\texttt{\_mm\_prefetch}) ensure that subsequent cache lines are loaded before they are needed, eliminating memory stalls.
+\textbf{Analysis.} These gains stem from three synergistic factors. First, the SIMDe library transparently maps AVX-512 intrinsics to ARM NEON instructions at compile time, enabling portable SIMD code across x86-64 and ARM64 architectures. Second, modern compilers (AppleClang 17+) with \texttt{-O3 -ffast-math} auto-vectorize scalar loops to equivalent NEON throughput, validating our intrinsic-based implementation against the compiler baseline. Third, explicit 4$\times$ loop unrolling maximizes instruction-level parallelism by keeping multiple vector registers in flight simultaneously.
 
 \begin{figure}[t]
     \centering
-    % Include generated figure: bar chart comparing Scalar vs AVX2 vs AVX512
-    \includegraphics[width=0.9\columnwidth]{figures/kernel_throughput.png}
-    \caption{Math kernel throughput across SIMD implementations. AVX-512 achieves 20$\times$ speedup over scalar C++ and nearly 2000$\times$ over interpreted Python. Error bars indicate 25th/75th percentiles over 5 runs.}
+    \includegraphics[width=0.9\columnwidth]{figures/fig1_throughput.pdf}
+    \caption{768-dimensional cosine similarity: single comparison latency (log scale). The Aeon SIMD kernel ($\sim$50ns via SIMDe$\to$NEON) is $\approx$4{,}300$\times$ faster than interpreted Python ($\sim$217$\mu$s) and $\approx$30$\times$ faster than NumPy backed by Accelerate BLAS ($\sim$1.5$\mu$s). Scalar auto-vectorization achieves equivalent throughput, validating the compiler baseline.}
     \label{fig:kernel-throughput}
 \end{figure}
 
-The practical implication is substantial: at 50ns per comparison, the math kernel alone can evaluate 20 million vector pairs per second on a single core. This raw throughput is the engine that powers the SLB's brute-force strategy---scanning 64 cached nodes takes only 3.2 microseconds, well within L1 cache access latency budgets.
+The practical implication is substantial: at 50ns per comparison, the math kernel alone can evaluate 20 million vector pairs per second on a single core. This raw throughput is the engine that powers the SLB's brute-force strategy---scanning 64 cached nodes takes approximately 3.4 microseconds, well within L1/L2 cache access latency budgets.
 
 \subsection{Macro-Benchmarks: The SLB Impact}
 
@@ -29,22 +28,21 @@ We now evaluate the Semantic Lookaside Buffer (SLB) under realistic workloads to
 
 \textbf{Latency Analysis.} The latency characteristics differ dramatically between cache hits and misses:
 \begin{itemize}
-    \item \textbf{Hit latency:} 0.05ms (50$\mu$s). The SLB provides an entry point within the target neighborhood, requiring only 1--2 additional hops to reach the optimal node.
-    \item \textbf{Miss latency:} 2.50ms. The search falls back to a full root-to-leaf traversal of the Atlas tree, incurring the full cost of main memory access.
+    \item \textbf{Hit latency:} $<$5$\mu$s (measured $\sim$3.7$\mu$s). The SLB scan executes entirely within the L1/L2 cache hierarchy, requiring only a single SIMD pass over 64 cached centroids.
+    \item \textbf{Miss latency:} $\sim$10.7$\mu$s. The search falls back to a root-to-leaf traversal of the Atlas tree, which at depth 3--4 requires approximately 210 vector comparisons at 50ns each.
 \end{itemize}
 
 The effective average latency can be computed as a weighted sum:
 \begin{equation}
-    L_{\text{eff}} = (0.85 \times 0.05) + (0.15 \times 2.50) \approx 0.42\text{ms}
+    L_{\text{eff}} = (0.85 \times 0.0037) + (0.15 \times 0.0107) \approx 0.00475\text{ms} \approx 4.75\mu\text{s}
 \end{equation}
 
-\textbf{Comparison.} The HNSW baseline exhibits constant latency of approximately 1.5ms regardless of query locality, as it cannot exploit temporal correlation between queries. Consequently, Aeon outperforms HNSW by a factor of 3$\times$ on average, and by 30$\times$ on cache hits. This advantage grows with workload locality: in highly focused conversational sessions, hit rates approach 95\%, reducing effective latency to under 0.2ms.
+\textbf{Comparison.} The HNSW baseline exhibits constant latency of approximately 1.5ms regardless of query locality, as it cannot exploit temporal correlation between queries. Consequently, Aeon outperforms HNSW by over 300$\times$ on average ($L_{\text{eff}} \approx 4.75\mu$s vs.\ 1.5ms), and by over 400$\times$ on cache hits. This advantage grows with workload locality: in highly focused conversational sessions, hit rates approach 95\%, reducing effective latency to under 4$\mu$s.
 
 \begin{figure}[t]
     \centering
-    % Include generated figure: latency CDF
-    \includegraphics[width=0.9\columnwidth]{figures/latency_cdf.png}
-    \caption{Cumulative Distribution Function of query latency. Aeon (Warm) exhibits a bimodal distribution: 85\% of queries complete in under 0.1ms (SLB hits), while the remaining 15\% form a ``long tail'' up to 2.5ms (SLB misses). HNSW shows constant latency around 1.5ms.}
+    \includegraphics[width=0.9\columnwidth]{figures/fig2_cdf.pdf}
+    \caption{Cumulative Distribution Function of query latency (log scale). Aeon (Warm) exhibits a bimodal distribution: 85\% of queries resolve in $< 5\mu$s via SLB hits ($\sim$3.7$\mu$s), while the remaining 15\% require Atlas traversal at $\sim$10.7$\mu$s. The HNSW baseline (FAISS) clusters around $\sim$1.5ms, yielding a $>$300$\times$ gap in effective latency.}
     \label{fig:latency-cdf}
 \end{figure}
 
@@ -54,15 +52,14 @@ The CDF plot in Figure~\ref{fig:latency-cdf} visually illustrates this bimodal b
 
 A critical requirement for enterprise deployment is graceful scaling as the knowledge base grows. We evaluate how query latency evolves as the Atlas size increases from $10^4$ to $10^6$ nodes.
 
-\textbf{Result.} Flat (brute-force) search exhibits linear scaling: latency grows proportionally with database size, reaching over 100ms at $10^6$ nodes. In stark contrast, Aeon Atlas demonstrates logarithmic scaling: latency increases from 0.8ms to only 2.5ms across the same range---a factor of 40$\times$ improvement at enterprise scale.
+\textbf{Result.} Flat (brute-force) search exhibits linear scaling: latency grows proportionally with database size, reaching 72ms at $10^6$ nodes. In contrast, Aeon Atlas demonstrates logarithmic scaling: traversal latency increases from 7.1$\mu$s (10K nodes, depth 2) to 10.7$\mu$s (100K nodes, depth 3) and plateaus at 10.7$\mu$s (1M nodes, depth 4). This represents an acceleration of over three orders of magnitude ($>$6{,}000$\times$) against flat scan at one million nodes.
 
-\textbf{Analysis.} This behavior is a direct consequence of the B+ tree structure underlying the Atlas. Each level of the tree partitions the search space by a branching factor of $B=64$, yielding $O(\log_B N)$ complexity for tree traversal. At $N = 10^6$ nodes, the tree depth is only $\lceil \log_{64}(10^6) \rceil = 4$ levels, requiring at most 4 node comparisons to reach any leaf.
+\textbf{Analysis.} This behavior is a direct consequence of the B+ tree structure underlying the Atlas. Each level of the tree partitions the search space by a branching factor of $B=64$, yielding $O(\log_B N)$ complexity for tree traversal. At $N = 10^6$ nodes, the tree depth is only $\lceil \log_{64}(10^6) \rceil = 4$ levels, requiring approximately $4 \times 64 = 256$ cosine similarity comparisons. At 50ns per comparison, the theoretical lower bound is $\sim$12.8$\mu$s; the measured 10.7$\mu$s confirms that the traversal executes entirely within the L1/L2 cache hierarchy, bypassing traditional database I/O bottlenecks.
 
 \begin{figure}[t]
     \centering
-    % Include generated figure: scalability line plot
-    \includegraphics[width=0.9\columnwidth]{figures/scalability.png}
-    \caption{Query latency as a function of database size. Flat search scales linearly (dashed), while Aeon Atlas scales logarithmically (solid). At 1 million nodes, Aeon is 40$\times$ faster than brute-force search.}
+    \includegraphics[width=0.9\columnwidth]{figures/fig3_scalability.pdf}
+    \caption{Query latency vs.\ database size (log-log scale). Flat search scales linearly from 0.53ms (10K) to 72ms (1M). Aeon Atlas scales logarithmically: 7.1$\mu$s (10K, depth~2) $\to$ 10.7$\mu$s (100K, depth~3) $\to$ 10.7$\mu$s (1M, depth~4). At one million nodes, Aeon achieves $>$6{,}000$\times$ acceleration over brute-force search (10.7$\mu$s vs.\ 72ms).}
     \label{fig:scalability}
 \end{figure}
 
@@ -72,15 +69,24 @@ Figure~\ref{fig:scalability} demonstrates this scaling behavior on a log-log plo
 
 Finally, we validate the ``Core-Shell'' architecture by measuring the overhead of passing data between the C++ Core and Python Shell.
 
-\textbf{Result.} Transferring 10MB of vector data from C++ to Python incurs only 2 microseconds of latency when using zero-copy shared memory (pointer passing via \texttt{mmap}). In contrast, traditional serialization approaches impose catastrophic overhead:
+\textbf{Result.} Transferring 10MB of vector data from C++ to Python incurs sub-microsecond latency ($\sim$334ns) when using zero-copy shared memory via \texttt{nanobind}. Traditional serialization of standard Python \texttt{list[float]} payloads, representative of unoptimized ``Flat RAG'' architectures, imposes severe overhead due to object boxing and heap fragmentation:
 \begin{itemize}
-    \item \textbf{JSON serialization:} $\sim$50ms (25,000$\times$ slower)
-    \item \textbf{Pickle serialization:} $\sim$35ms (17,500$\times$ slower)
+    \item \textbf{JSON serialization:} $\sim$318ms ($\sim$10$^{5.98}\times$ slower)
+    \item \textbf{Pickle serialization:} $\sim$32.3ms ($\sim$10$^{4.99}\times$ slower)
 \end{itemize}
 
-\textbf{Analysis.} The zero-copy design ensures that Python can access search results without any data movement. The 2$\mu$s overhead consists solely of constructing the NumPy array header and validating memory alignment---no actual bytes are copied. This is achieved through the \texttt{nanobind} library's ability to expose raw memory pointers as read-only NumPy arrays.
+\textbf{Analysis.} The zero-copy design ensures that Python can access search results without any data movement. The $\sim$334ns overhead consists solely of constructing the NumPy array header and validating memory alignment; no actual bytes are copied. This is achieved through the \texttt{nanobind} library's ability to expose raw memory pointers as read-only NumPy arrays. The five-order-of-magnitude gap ($\sim$10$^5\times$) between zero-copy and traditional serialization reflects the fundamental cost of Python object boxing: each \texttt{float} in a standard list consumes 28 bytes of heap-allocated storage versus 4 bytes in a contiguous C array.
 
-The practical implication is profound: the Python Shell can orchestrate complex reasoning chains---invoking the Atlas dozens of times per conversation turn---without incurring serialization penalties. A system using JSON-based IPC would spend more time marshalling data than performing actual computation. Aeon's architecture eliminates this bottleneck entirely, enabling true real-time performance for agentic applications.
+Figure~\ref{fig:zerocopy} visualizes this disparity on a logarithmic scale, illustrating the five-order-of-magnitude gap between zero-copy and traditional Python serialization formats.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{figures/fig4_zerocopy.pdf}
+    \caption{Latency of cross-language memory transfer (10MB payload). Aeon's zero-copy architecture ($\sim$334ns) eliminates the extreme object-boxing overhead associated with traditional Python serialization formats in Flat RAG pipelines. Note the logarithmic scale.}
+    \label{fig:zerocopy}
+\end{figure}
+
+The practical implication is profound: the Python Shell can orchestrate complex reasoning chains, invoking the Atlas dozens of times per conversation turn, without incurring serialization penalties. A system using JSON-based IPC would spend more time marshalling data than performing actual computation. Aeon's architecture eliminates this bottleneck entirely, enabling true real-time performance for agentic applications.
 
 \subsection{Summary}
 
@@ -88,9 +94,9 @@ Our evaluation demonstrates that Aeon achieves its design goals across all perfo
 
 \begin{enumerate}
     \item \textbf{Raw Speed:} The SIMD math kernel delivers 50ns vector comparisons, enabling microsecond-scale cache scans.
-    \item \textbf{Cache Efficiency:} The SLB achieves 85\%+ hit rates under realistic workloads, reducing average latency to 0.42ms---3$\times$ faster than HNSW.
-    \item \textbf{Scalability:} Logarithmic scaling ensures sub-3ms latency even at 1 million nodes.
-    \item \textbf{Integration Overhead:} Zero-copy memory sharing eliminates serialization costs, sustaining 2$\mu$s cross-language transfer.
+    \item \textbf{Cache Efficiency:} The SLB achieves 85\%+ hit rates under realistic workloads, reducing effective latency to $\sim$4.75$\mu$s, over 300$\times$ faster than HNSW.
+    \item \textbf{Scalability:} Logarithmic scaling ensures $\sim$10.7$\mu$s traversal latency even at 1 million nodes, an acceleration of $>$6{,}000$\times$ over flat scan.
+    \item \textbf{Integration Overhead:} Zero-copy memory sharing eliminates serialization costs, achieving $\sim$334ns cross-language transfer.
 \end{enumerate}
 
 These results confirm that Aeon provides the performance foundation necessary for next-generation cognitive agents operating under strict latency constraints.

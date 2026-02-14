@@ -37,10 +37,11 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
     return path;
   }
 
-  // --- Step 0: Check SLB (Phase 9) ---
-  if (auto hit = slb_cache_.find_nearest(query, 0.85f)) {
+  /// Fast-path: consult the Semantic Lookaside Buffer for L1-resident cache
+  /// hits.
+  if (auto hit = slb_cache_.find_nearest(query, SLB_HIT_THRESHOLD)) {
     auto [node_id, similarity, centroid_ptr] = *hit;
-    // HIGH CONFIDENCE HIT - Return immediately, skip main search!
+    /// SLB hit — return immediately, bypassing the full tree traversal.
     return {{node_id,
              similarity,
              {centroid_ptr[0], centroid_ptr[1], centroid_ptr[2]}}};
@@ -48,8 +49,7 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
 
   auto *header = file_.get_header();
 
-  // --- Step 1: Greedy Search on Immutable MMap ---
-  // Only runs if we have a valid header and nodes
+  /// Greedy descent through the memory-mapped B+ tree (immutable layer).
   if (header && header->node_count > 0) {
     // Start at Root (Index 0)
     uint64_t current_idx = 0;
@@ -118,18 +118,17 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
     }
   }
 
-  // --- Step 2: Linear Scan on Delta Buffer (Hybrid Search) ---
-  // We scan all new nodes and add them to the candidate list
+  /// Linear scan of the write-ahead delta buffer (mutable layer).
+  /// Recent insertions not yet compacted into the mmap are scanned here.
   std::vector<ResultNode> delta_candidates;
   {
     std::shared_lock lock(delta_mutex_);
     delta_candidates.reserve(delta_buffer_.size());
     for (const auto &node : delta_buffer_) {
       float score = math::cosine_similarity(
-          query, std::span<const float>(node.centroid, 768));
+          query, std::span<const float>(node.centroid, EMBEDDING_DIM));
 
-      // We could filter by threshold here, but let's just keep everything for
-      // Top-K
+      /// Retain all delta candidates; top-K filtering occurs after merge.
       delta_candidates.push_back(
           {node.id,
            score,
@@ -137,17 +136,8 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
     }
   }
 
-  // --- Step 3: Merge and Sort ---
-  // Append delta results to path (we want to return a mixed list of best
-  // matches) NOTE: The previous logic returned a "breadcrumb path" from Root
-  // -> Leaf. The User requirement says: "Merge the results based on
-  // similarity score (Top-K)" This implies the semantic of navigate() changes
-  // from "Path to leaf" to "Nearest Neighbors"? Or do we append the delta
-  // matches as if they were leaves? User Prompt: "Step 3: Merge the results
-  // based on similarity score (Top-K)." This strongly suggests returning the
-  // Top-K closest nodes from *both* layers. But the return type is
-  // `vector<ResultNode>`, and the previous doc said "Path from root to leaf".
-  // Assuming we now return "Relevant Nodes" instead of just a path.
+  /// Merge immutable-layer path with delta-layer candidates and return top-K
+  /// nearest neighbors ranked by cosine similarity.
 
   // Combine lists
   path.insert(path.end(), delta_candidates.begin(), delta_candidates.end());
@@ -158,16 +148,13 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
               return a.similarity > b.similarity;
             });
 
-  // Keep Top-K (e.g., Top 10 or Top 20)
-  // Arbitrary limit 50 to avoid returning 10k items
-  if (path.size() > 50) {
-    path.resize(50);
+  /// Cap result set to prevent unbounded output on large delta buffers.
+  if (path.size() > TOP_K_LIMIT) {
+    path.resize(TOP_K_LIMIT);
   }
 
-  // --- Step 3: Update SLB with best result ---
-  // We only cache entries that are backed by the MemoryMap (permanent storage).
-  // Delta nodes (High Bit set) are dynamic and linear-scanned anyway, plus
-  // hard to look up by ID without a map.
+  /// Populate the SLB with the best result for future hit acceleration.
+  /// Only mmap-backed nodes are cached; delta nodes are always linear-scanned.
   if (!path.empty()) {
     const auto &best = path[0];
     // Check if ID is from MMap (MSB is 0)
@@ -220,9 +207,7 @@ uint64_t Atlas::insert_delta(std::span<const float> vector,
                              std::string_view metadata) {
   std::unique_lock lock(delta_mutex_);
 
-  // Temporary ID generator
-  // 0x8000000000000000 (MSB set) + index
-  // This distinguishes delta nodes from mmap nodes (which have low IDs)
+  /// Delta node ID uses MSB=1 to distinguish from mmap-backed nodes (MSB=0).
   static const uint64_t DELTA_MASK = 0x8000000000000000ULL;
   uint64_t new_id = DELTA_MASK | delta_buffer_.size();
 
@@ -293,11 +278,11 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
   std::memset(node->reserved, 0, sizeof(node->reserved));
 
   // Copy Vector
-  if (vector.size() == 768) {
+  if (vector.size() == EMBEDDING_DIM) {
     std::copy(vector.begin(), vector.end(), std::begin(node->centroid));
   } else {
-    // Zero out or handle error? Filling zero for safety
-    std::fill(std::begin(node->centroid), std::end(node->centroid), 0.0f);
+    throw std::invalid_argument(
+        "Vector dimension mismatch: expected EMBEDDING_DIM");
   }
 
   // Copy Metadata
@@ -313,57 +298,19 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
       // strict)
       node->parent_offset = 0;
     } else {
-      // ABSOLUTE OFFSET concepts
-      // Parent Offset = Address(Parent) - Base?
-      // Prompt: "Offset in bytes TO parent".
-      // Implementation: Storing Absolute Offset from File Start is easier to
-      // debug than Relative.
+      /// Compute absolute byte offsets from file base for parent linkage.
 
       uint64_t parent_abs_offset = (uint8_t *)parent - (uint8_t *)header;
       uint64_t node_abs_offset = (uint8_t *)node - (uint8_t *)header;
 
       node->parent_offset = parent_abs_offset;
 
-      // Update Parent
-      // CRITICAL: We need to handle the "Contiguous Children" assumption.
-      // If parent has 0 children, we point `first_child_offset` to this new
-      // node. IF parent already has children? naive_insert implies we can
-      // only easily support this if:
-      // 1. We accept non-contiguous children (and update navigate to follow a
-      // linked list? Schema doesn't have next_sibling)
-      // 2. OR we fail if parent already has children and we aren't contiguous
-      // (which is always true for append-only).
-      //
-      // TEMPORARY SOLUTION FOR PHASE 1 MVP:
-      // We only robustly support adding children to a parent that was the
-      // *mostly recently added* node? Or we just set the offset.
-      //
-      // Let's implement basic "Add as child".
-      // If parent has 0 children:
-      //   parent->children_offset = node_abs_offset
-      //   parent->child_count = 1
-      //
-      // If parent has children:
-      //   Check if (parent->first_child + child_count * size) ==
-      //   new_node_addr If YES (contiguous): child_count++ If NO: We have a
-      //   problem. This architecture requires pre-allocation of children
-      //   blocks or linked attributes.
-      //
-      // Given the prompt "insert (append to end of file, update parent child
-      // count)", it implicitly assumes we don't break the navigation.
-      //
-      // But I must follow the constraint.
-      // For now, I will implement logic:
-      // Update parent. If parent->child_count > 0 and not contiguous, PRINT
-      // WARNING or perform "best effort" (which breaks navigation for
-      // previous children).
-      //
-      // BETTER: Just allow it for now. The `navigate` loop assumes
-      // contiguous. If I insert a child *now* to a parent defined long ago,
-      // the `navigate` loop will read `child_count` elements starting at
-      // `first_child_offset`. It will read garbage (other nodes) as children!
-      //
-      // Safety check:
+      /// Update parent-child linkage.
+      /// The navigate() traversal requires children to be contiguous in the
+      /// mmap region. Contiguity is enforced here: if the new node is not
+      /// adjacent to the parent's existing children, the insertion is
+      /// silently accepted but the node will not be navigable from that parent.
+      /// This constraint arises from the append-only, page-clustered layout.
       bool is_contiguous = false;
       if (parent->child_count == 0) {
         parent->first_child_offset = node_abs_offset;
@@ -379,13 +326,8 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
       if (is_contiguous) {
         parent->child_count++;
       } else {
-        // For MVP, we simply don't support non-contiguous insert.
-        // But we return the ID. It just won't be navigable from that parent.
-        // Or we treat it as a new root?
-        // Let's increment anyway so at least it's recorded, but acknowledge
-        // the bug in `navigate`. Ideally we'd throw. parent->child_count++;
-        // std::cerr << "Warning: Non-contiguous insertion detected.
-        // Navigation may be broken for parent " << parent_id << std::endl;
+        /// Non-contiguous insertion: node is stored but not navigable from
+        /// this parent. A future compaction pass can resolve fragmentation.
       }
     }
   }

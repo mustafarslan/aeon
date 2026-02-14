@@ -1,0 +1,157 @@
+\begin{thebibliography}{18}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Karpukhin et~al.(2020)Karpukhin, Oguz, Min, Lewis, Wu, Edunov, Chen,
+  and Yih}]{karpukhin2020dense}
+\bibinfo{author}{V.~Karpukhin}, \bibinfo{author}{B.~Oguz},
+  \bibinfo{author}{S.~Min}, \bibinfo{author}{P.~Lewis},
+  \bibinfo{author}{L.~Wu}, \bibinfo{author}{S.~Edunov},
+  \bibinfo{author}{D.~Chen}, \bibinfo{author}{W.-t. Yih},
+\newblock \bibinfo{title}{Dense passage retrieval for open-domain question
+  answering},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2004.04906}
+  (\bibinfo{year}{2020}).
+%Type = Article
+\bibitem[{Arslan(2026)}]{arslan2026aeon}
+\bibinfo{author}{M.~Arslan},
+\newblock \bibinfo{title}{{Aeon}: High-performance neuro-symbolic memory
+  management for long-horizon {LLM} agents},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2601.15311}
+  (\bibinfo{year}{2026}).
+%Type = Article
+\bibitem[{Liu et~al.(2023)Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and
+  Liang}]{liu2023lost}
+\bibinfo{author}{N.~F. Liu}, \bibinfo{author}{K.~Lin},
+  \bibinfo{author}{J.~Hewitt}, \bibinfo{author}{A.~Paranjape},
+  \bibinfo{author}{M.~Bevilacqua}, \bibinfo{author}{F.~Petroni},
+  \bibinfo{author}{P.~Liang},
+\newblock \bibinfo{title}{Lost in the middle: How language models use long
+  contexts},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2307.03172}
+  (\bibinfo{year}{2023}).
+%Type = Article
+\bibitem[{Zhang et~al.(2026)}]{zhang2026continuum}
+\bibinfo{author}{Y.~Zhang}, et~al.,
+\newblock \bibinfo{title}{Continuum memory architectures for long-horizon {LLM}
+  agents},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2601.09913}
+  (\bibinfo{year}{2026}).
+%Type = Book
+\bibitem[{Kahneman(2011)}]{kahneman2011}
+\bibinfo{author}{D.~Kahneman}, \bibinfo{title}{Thinking, Fast and Slow},
+  \bibinfo{publisher}{Farrar, Straus and Giroux}, \bibinfo{address}{New York},
+  \bibinfo{year}{2011}.
+%Type = Article
+\bibitem[{Kim et~al.(2025)}]{cognitiverouting2025}
+\bibinfo{author}{S.~Kim}, et~al.,
+\newblock \bibinfo{title}{Cognitive decision routing in large language models:
+  When to think fast, when to think slow},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2508.16636}
+  (\bibinfo{year}{2025}).
+%Type = Article
+\bibitem[{Liu et~al.(2025)}]{graphagentmem2025}
+\bibinfo{author}{C.~Liu}, et~al.,
+\newblock \bibinfo{title}{Graph-based agent memory: Taxonomy, techniques, and
+  applications},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2602.05665}
+  (\bibinfo{year}{2025}).
+%Type = Inproceedings
+\bibitem[{Zhang et~al.(2025)Zhang, Kuzborskij, Lee, Leng, and
+  Liu}]{dagmath2025}
+\bibinfo{author}{Y.~Zhang}, \bibinfo{author}{I.~Kuzborskij},
+  \bibinfo{author}{J.~D. Lee}, \bibinfo{author}{C.~Leng},
+  \bibinfo{author}{F.~Liu},
+\newblock \bibinfo{title}{{DAG-Math}: Graph-guided mathematical reasoning in
+  {LLM}s},
+\newblock in: \bibinfo{booktitle}{Advances in Neural Information Processing
+  Systems (NeurIPS)}, \bibinfo{year}{2025}.
+%Type = Article
+\bibitem[{Malkov and Yashunin(2018)}]{malkov2018hnsw}
+\bibinfo{author}{Y.~A. Malkov}, \bibinfo{author}{D.~A. Yashunin},
+\newblock \bibinfo{title}{Efficient and robust approximate nearest neighbor
+  search using hierarchical navigable small world graphs},
+\newblock \bibinfo{journal}{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence} \bibinfo{volume}{42} (\bibinfo{year}{2018})
+  \bibinfo{pages}{824--836}.
+%Type = Article
+\bibitem[{Rajesh et~al.(2025)Rajesh, Holur, Duan, Chong, and
+  Roychowdhury}]{zhong2025episodic}
+\bibinfo{author}{S.~Rajesh}, \bibinfo{author}{P.~Holur},
+  \bibinfo{author}{C.~Duan}, \bibinfo{author}{D.~Chong},
+  \bibinfo{author}{V.~Roychowdhury},
+\newblock \bibinfo{title}{Beyond fact retrieval: Episodic memory for {RAG} with
+  generative semantic workspaces},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2511.07587}
+  (\bibinfo{year}{2025}).
+%Type = Article
+\bibitem[{Liao et~al.(2025)}]{dztdpo2025}
+\bibinfo{author}{Y.~Liao}, et~al.,
+\newblock \bibinfo{title}{{DZ-TDPO}: Non-destructive temporal alignment for
+  mutable state tracking in long-context dialogue},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2512.03704}
+  (\bibinfo{year}{2025}).
+%Type = Inproceedings
+\bibitem[{Li et~al.(2024)}]{kgcache2024}
+\bibinfo{author}{X.~Li}, et~al.,
+\newblock \bibinfo{title}{Knowledge graph-enhanced semantic cache for
+  low-latency and cost-effective inference in large language models},
+\newblock in: \bibinfo{booktitle}{IEEE International Conference on Big Data},
+  \bibinfo{publisher}{IEEE}, \bibinfo{year}{2024}.
+%Type = Article
+\bibitem[{Sun and Zeng(2025)}]{hmem2025}
+\bibinfo{author}{H.~Sun}, \bibinfo{author}{S.~Zeng},
+\newblock \bibinfo{title}{Hierarchical memory for high-efficiency long-term
+  reasoning in {LLM} agents},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2507.22925}
+  (\bibinfo{year}{2025}).
+%Type = Article
+\bibitem[{Edge et~al.(2024)Edge, Trinh, Cheng, Bradley, Chao, Mody, Ben-David,
+  and Larson}]{edge2024graphrag}
+\bibinfo{author}{D.~Edge}, \bibinfo{author}{H.~Trinh},
+  \bibinfo{author}{N.~Cheng}, \bibinfo{author}{J.~Bradley},
+  \bibinfo{author}{A.~Chao}, \bibinfo{author}{A.~Mody},
+  \bibinfo{author}{S.~Ben-David}, \bibinfo{author}{C.~Larson},
+\newblock \bibinfo{title}{From local to global: A graph {RAG} approach to
+  query-focused summarization},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2404.16130}
+  (\bibinfo{year}{2024}).
+%Type = Inproceedings
+\bibitem[{Huang et~al.(2025)}]{sysrag2025}
+\bibinfo{author}{J.~Huang}, et~al.,
+\newblock \bibinfo{title}{Reasoning {RAG} via system 1 or system 2},
+\newblock in: \bibinfo{booktitle}{Findings of the Association for Computational
+  Linguistics: ACL-IJCNLP}, \bibinfo{year}{2025}.
+%Type = Article
+\bibitem[{Zhang et~al.(2026)}]{equirouter2026}
+\bibinfo{author}{Y.~Zhang}, et~al.,
+\newblock \bibinfo{title}{When routing collapses: On the degenerate convergence
+  of {LLM} routers},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2602.03478}
+  (\bibinfo{year}{2026}).
+%Type = Article
+\bibitem[{Wang et~al.(2025)}]{cast2025}
+\bibinfo{author}{S.~Wang}, et~al.,
+\newblock \bibinfo{title}{{cAST}: Enhancing code retrieval-augmented generation
+  with structural chunking via abstract syntax tree},
+\newblock \bibinfo{journal}{arXiv preprint arXiv:2506.15655}
+  (\bibinfo{year}{2025}).
+%Type = Article
+\bibitem[{Chen et~al.(2025)}]{lmsleep2025}
+\bibinfo{author}{Y.~Chen}, et~al.,
+\newblock \bibinfo{title}{Language models need sleep: Learning to self modify
+  and consolidate memories},
+\newblock \bibinfo{journal}{OpenReview}  (\bibinfo{year}{2025}).
+  \bibinfo{note}{\url{https://openreview.net/pdf?id=iiZy6xyVVE}}.
+
+\end{thebibliography}

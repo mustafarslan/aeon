@@ -1,18 +1,15 @@
 #include "aeon/trace.hpp"
 #include <stdexcept>
-#include <uuid/uuid.h> // Need UUID generation or passed from Python?
-// For C++ UUID, we usually use libuuid or just dummy random.
-// Let's generate a simple ID in C++ or rely on Python passing it?
-// The prompt signature says: consolidate(node_ids, summary) -> string (new ID).
-// So C++ must generate ID. We'll use a simple random hex generator to avoid ext
-// deps if possible, or just use time-based.
+#include <uuid/uuid.h>
+/// Lightweight random hex ID generator to avoid an external UUID dependency.
 #include <iomanip>
 #include <random>
 #include <sstream>
 
 namespace aeon {
 
-// Helper: UUID v4 ish
+/// Generates a pseudo-random summary node identifier ("sum_" prefix + 8 hex
+/// digits).
 std::string generate_uuid() {
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -85,7 +82,7 @@ std::string TraceManager::consolidate(const std::vector<std::string> &node_ids,
   // - Internal edges (can be ignored/archived)
 
   std::string start_node = node_ids.front();
-  std::string end_node = node_ids.back(); // Assuming order!
+  std::string end_node = node_ids.back();
 
   // Create Summary Node
   std::string summary_id = generate_uuid();

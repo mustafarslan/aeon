@@ -179,7 +179,7 @@ public:
     data_ = nullptr;
 
     if (ftruncate(fd_, new_size) != 0) {
-      // Re-attempt to map old size? For now just fail.
+      /// ftruncate failed; the previous mapping was already released.
       return std::unexpected(StorageError::AllocationFailed);
     }
 

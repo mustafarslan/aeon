@@ -10,6 +10,15 @@ namespace aeon {
 constexpr uint64_t ATLAS_MAGIC = 0x41544C41535F3031;
 constexpr uint64_t ATLAS_VERSION = 1;
 
+/// Canonical embedding vector dimensionality (e.g., all-MiniLM-L12-v2 output).
+constexpr size_t EMBEDDING_DIM = 768;
+
+/// Maximum result set size returned by navigate() to cap unbounded output.
+constexpr size_t TOP_K_LIMIT = 50;
+
+/// Default SLB similarity threshold for cache hit classification.
+constexpr float SLB_HIT_THRESHOLD = 0.85f;
+
 /**
  * @brief Global file header for the memory-mapped region.
  * Ensures we are reading a valid Atlas file.
@@ -44,8 +53,8 @@ struct alignas(64) Node {
   uint8_t reserved[36];        // 0x1C: Padding to reach offset 64
 
   // --- Data Block (Aligned) ---
-  // 768 floats * 4 bytes = 3072 bytes
-  float centroid[768]; // 0x40: Semantic vector (Starts at 64)
+  // EMBEDDING_DIM floats * 4 bytes = 3072 bytes
+  float centroid[EMBEDDING_DIM]; // 0x40: Semantic vector (Starts at 64)
 
   // --- Metadata Block ---
   char metadata[256]; // 0xC40: Fixed description

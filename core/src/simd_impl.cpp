@@ -2,19 +2,22 @@
 #include <iostream>
 #include <vector>
 
-#if defined(__x86_64__) || defined(_M_X64)
-#include <immintrin.h>
-#if defined(_MSC_VER)
-#include <intrin.h>
-#else
-#include <cpuid.h>
-#endif
-#endif
+// ---------------------------------------------------------------------------
+// SIMDe: Portable SIMD — translates AVX-512/AVX2 intrinsics to native ARM
+// NEON on Apple Silicon. This enables the same x86 SIMD code paths to compile
+// and execute on ARM64 via compile-time instruction translation.
+// See: https://github.com/simd-everywhere/simde
+// ---------------------------------------------------------------------------
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#include <simde/x86/avx2.h>
+#include <simde/x86/avx512.h>
+#include <simde/x86/fma.h>
+#include <simde/x86/sse.h>
 
 namespace aeon::simd {
 
 // ----------------------------------------------------------------------------
-// 1. Scalar Implementation
+// 1. Scalar Implementation (baseline, no SIMD)
 // ----------------------------------------------------------------------------
 float similarity_scalar(std::span<const float> a, std::span<const float> b) {
   float dot = 0.0f;
@@ -37,27 +40,22 @@ float similarity_scalar(std::span<const float> a, std::span<const float> b) {
 }
 
 // ----------------------------------------------------------------------------
-// 2. AVX2 Implementation
+// 2. AVX2 Implementation (via SIMDe → NEON on ARM64)
 // ----------------------------------------------------------------------------
-#if defined(__x86_64__) || defined(_M_X64)
 
-// Helper for horizontal sum of AVX register
+// Helper for horizontal sum of 256-bit register
 static inline float hsum256_ps(__m256 v) {
   __m128 lo = _mm256_castps256_ps128(v);
   __m128 hi = _mm256_extractf128_ps(v, 1);
   __m128 sum = _mm_add_ps(lo, hi);
-  // sum is now 4 floats
-  __m128 shuf = _mm_movehdup_ps(sum); // broadcast 1->0, 3->2
+  __m128 shuf = _mm_movehdup_ps(sum);
   __m128 sums = _mm_add_ps(sum, shuf);
-  shuf = _mm_movehl_ps(shuf, sums); // high half -> low half
+  shuf = _mm_movehl_ps(shuf, sums);
   sums = _mm_add_ss(sums, shuf);
   return _mm_cvtss_f32(sums);
 }
 
-// Attribute target allows compiling AVX2 instructions even without global
-// -march=haswell
-__attribute__((target("avx2,fma"))) float
-similarity_avx2(std::span<const float> a, std::span<const float> b) {
+float similarity_avx2(std::span<const float> a, std::span<const float> b) {
   size_t n = a.size();
   size_t i = 0;
 
@@ -118,26 +116,26 @@ similarity_avx2(std::span<const float> a, std::span<const float> b) {
   return dot / (std::sqrt(norm_a) * std::sqrt(norm_b));
 }
 
-// Aligned version: assumes pointers are 64-byte aligned (or at least 32-byte
-// for AVX2)
-__attribute__((target("avx2,fma"))) float
-similarity_avx2_aligned(std::span<const float> a, std::span<const float> b) {
-  // Only safe if BOTH are aligned.
-  // In our case, internal Nodes are aligned. Query might not be.
-  // But this function signature suggests full alignment?
-  // Actually, we can use mixed load if only one is aligned.
-  // Let's assume this is called when we know internal structure usage.
-  // For now, let's just implement it assuming strict alignment for both to
-  // satisfy the "Advanced Improvement".
-  return similarity_avx2(
-      a, b); // Placeholder if we can't guarantee query alignment
+// Aligned version delegates to unaligned (SIMDe handles alignment)
+float similarity_avx2_aligned(std::span<const float> a,
+                              std::span<const float> b) {
+  return similarity_avx2(a, b);
 }
 
 // ----------------------------------------------------------------------------
-// 3. AVX-512 Implementation
+// 3. AVX-512 Implementation (via SIMDe → NEON on ARM64)
 // ----------------------------------------------------------------------------
-__attribute__((target("avx512f"))) float
-similarity_avx512(std::span<const float> a, std::span<const float> b) {
+
+// Manual horizontal sum for 512-bit register (SIMDe lacks _mm512_reduce_add_ps)
+static inline float hsum512_ps(__m512 v) {
+  __m256 lo = _mm512_castps512_ps256(v);
+  __m256 hi = _mm256_castpd_ps(
+      _mm256_castsi256_pd(_mm256_castps_si256(_mm512_extractf32x8_ps(v, 1))));
+  __m256 sum = _mm256_add_ps(lo, hi);
+  return hsum256_ps(sum);
+}
+
+float similarity_avx512(std::span<const float> a, std::span<const float> b) {
   size_t n = a.size();
   size_t i = 0;
 
@@ -153,9 +151,9 @@ similarity_avx512(std::span<const float> a, std::span<const float> b) {
     sum_bb = _mm512_fmadd_ps(vb, vb, sum_bb);
   }
 
-  float dot = _mm512_reduce_add_ps(sum_dot);
-  float norm_a = _mm512_reduce_add_ps(sum_aa);
-  float norm_b = _mm512_reduce_add_ps(sum_bb);
+  float dot = hsum512_ps(sum_dot);
+  float norm_a = hsum512_ps(sum_aa);
+  float norm_b = hsum512_ps(sum_bb);
 
   for (; i < n; ++i) {
     dot += a[i] * b[i];
@@ -168,44 +166,15 @@ similarity_avx512(std::span<const float> a, std::span<const float> b) {
   return dot / (std::sqrt(norm_a) * std::sqrt(norm_b));
 }
 
-#else // Non-x86 fallback
-float similarity_avx2(std::span<const float> a, std::span<const float> b) {
-  return similarity_scalar(a, b);
-}
-float similarity_avx2_aligned(std::span<const float> a,
-                              std::span<const float> b) {
-  return similarity_scalar(a, b);
-}
-float similarity_avx512(std::span<const float> a, std::span<const float> b) {
-  return similarity_scalar(a, b);
-}
-#endif
-
 // ----------------------------------------------------------------------------
 // Runtime Dispatch
 // ----------------------------------------------------------------------------
 SimilarityFn get_best_similarity_impl() {
-#if defined(__x86_64__) || defined(_M_X64)
-#if defined(_MSC_VER)
-  int regs[4];
-  __cpuid(regs, 7); // Leaf 7
-  bool has_avx2 = (regs[1] & (1 << 5));
-  bool has_avx512f = (regs[1] & (1 << 16));
-#else
-  unsigned int eax, ebx, ecx, edx;
-  // Check leaf 7 for extended features
-  if (__get_cpuid(7, &eax, &ebx, &ecx, &edx)) {
-    bool has_avx2 = (ebx & (1 << 5));
-    bool has_avx512f = (ebx & (1 << 16));
-
-    if (has_avx512f)
-      return similarity_avx512;
-    if (has_avx2)
-      return similarity_avx2;
-  }
-#endif
-#endif
-  return similarity_scalar;
+  // With SIMDe, AVX-512 intrinsics are translated to NEON at compile time.
+  // On ARM64, we always use the AVX-512 path (best vectorization width).
+  // On x86, we could still do runtime CPUID checks, but SIMDe handles
+  // the translation transparently.
+  return similarity_avx512;
 }
 
 } // namespace aeon::simd
