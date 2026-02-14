@@ -30,21 +30,12 @@ inline float dot_product(std::span<const float> a, std::span<const float> b) {
 }
 
 /**
- * @brief Computes Cosine Similarity: (A . B) / (|A| * |B|)
- * Assumes vectors are NOT normalized.
- * NOTE: The optimized SIMD kernels in `simd_impl` typically compute
- * dot product AND norms in one pass for efficiency.
- * However, the current interface separates them.
+ * @brief Computes Cosine Similarity: (A · B) / (|A| × |B|).
+ * Assumes vectors are NOT pre-normalized.
  *
- * To fully utilize the 4x unrolled kernel that does dot+norm,
- * we should ideally expose a `cosine_similarity` function in `simd_impl`.
- *
- * Refactoring:
- * Use the scalar fallback logic on top of dot_product if we only have
- * dot_product, BUT `simd_impl.hpp` EXPOSES `similarity_xxx` which returns
- * cosine similarity directly!
- *
- * So we should use that.
+ * The underlying SIMD kernel computes dot product and norms in a single fused
+ * pass for cache efficiency. Dispatch selects AVX-512 → AVX-2 → scalar at
+ * static initialization time.
  */
 inline float cosine_similarity(std::span<const float> a,
                                std::span<const float> b) {
@@ -58,21 +49,13 @@ inline float cosine_similarity(std::span<const float> a,
 }
 
 /**
- * @brief Computes Cosine Similarity optimized for pre-normalized vectors.
- * If A and B are unit vectors, CosSim(A, B) = Dot(A, B).
+ * @brief Cosine similarity optimized for pre-normalized (unit) vectors.
+ * For unit vectors, cos(A, B) = dot(A, B). Currently delegates to the
+ * general kernel; a dedicated dot-product-only SIMD path can be added
+ * as a future optimization.
  */
 inline float cosine_similarity_normalized(std::span<const float> a,
                                           std::span<const float> b) {
-  // For normalized vectors, we just need dot product.
-  // We can add a dot_product kernel to simd_impl later if needed,
-  // but for now let's rely on the heavier kernel or scalar loop?
-  // Actually, using the full kernel is wasteful if we don't need norms.
-  // Phase 7 requirement focused on "Math Kernel" which is usually Cosine
-  // Similarity. We will stick to the heavy kernel for general case. For
-  // normalized: purely scalar dot product or a new SIMD dot product? Let's
-  // implement a simple SIMD dot product in simd_impl if needed, but the prompt
-  // asked for "similarity_avx2/512". I will use `cosine_similarity` logic for
-  // now to be safe.
   return cosine_similarity(a, b);
 }
 

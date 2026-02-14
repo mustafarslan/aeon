@@ -78,6 +78,24 @@ target_include_directories(aeon_core PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
+# Require C++23 for std::span, std::expected, concepts, CTAD, etc.
+if(MSVC)
+    target_compile_features(aeon_core PUBLIC cxx_std_20)
+else()
+    target_compile_features(aeon_core PUBLIC cxx_std_23)
+endif()
+
+# --- SIMDe: Portable SIMD (AVX-512/AVX2 → NEON on ARM64) ---
+find_path(SIMDE_INCLUDE_DIR NAMES simde/x86/avx512.h
+    HINTS /opt/homebrew/include /usr/local/include
+)
+if(SIMDE_INCLUDE_DIR)
+    message(STATUS "SIMDe found at: ${SIMDE_INCLUDE_DIR}")
+    target_include_directories(aeon_core PUBLIC ${SIMDE_INCLUDE_DIR})
+else()
+    message(WARNING "SIMDe not found — SIMD kernels will not compile on ARM64")
+endif()
+
 # Export headers for other targets
 set_target_properties(aeon_core PROPERTIES
     CXX_VISIBILITY_PRESET hidden
@@ -163,6 +181,28 @@ if(BUILD_TESTING)
     else()
         target_compile_features(aeon_bench PRIVATE cxx_std_23)
     endif()
+
+    # --- IEEE WCCI 2026 Benchmark Suite ---
+    # Test 1: Math Kernel Throughput (§6.1)
+    add_executable(bench_kernel_throughput
+        benchmarks/bench_kernel_throughput.cpp
+    )
+    target_link_libraries(bench_kernel_throughput PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_kernel_throughput PRIVATE cxx_std_23)
+
+    # Test 2: SLB Latency (§6.2)
+    add_executable(bench_slb_latency
+        benchmarks/bench_slb_latency.cpp
+    )
+    target_link_libraries(bench_slb_latency PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_slb_latency PRIVATE cxx_std_23)
+
+    # Test 3: Spatial Index Scalability (§6.3)
+    add_executable(bench_scalability
+        benchmarks/bench_scalability.cpp
+    )
+    target_link_libraries(bench_scalability PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_scalability PRIVATE cxx_std_23)
 endif()
 
 # --- Advanced Optimizations ---

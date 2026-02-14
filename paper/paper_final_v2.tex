@@ -1,0 +1,423 @@
+% ============================================================================
+% Aeon: High-Performance Neuro-Symbolic Memory Management
+%       for Long-Horizon LLM Agents
+% ============================================================================
+% arXiv v2 — Standalone File (pronoun + tone revision)
+% Based on: paper_final.tex + all \input{} sections
+% Revision: Pronoun normalization (solo author) + em-dash reduction
+% ============================================================================
+
+\documentclass[10pt,twocolumn]{article}
+
+% ============================================================================
+% Packages
+% ============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Page geometry
+\usepackage[margin=1in]{geometry}
+
+% Mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Graphics and figures
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\graphicspath{{figures/}}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    tabsize=2
+}
+
+% Hyperlinks (load last among standard packages)
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
+
+% ============================================================================
+% Metadata
+% ============================================================================
+\title{%
+    \textbf{Aeon}: High-Performance Neuro-Symbolic Memory Management \\
+    for Long-Horizon LLM Agents%
+}
+
+\author{%
+    Mustafa Arslan \\
+    \textit{Independent Researcher, Istanbul, Turkey}
+}
+
+\date{}
+
+% ============================================================================
+% Document
+% ============================================================================
+\begin{document}
+
+\maketitle
+
+% ----------------------------------------------------------------------------
+% Abstract
+% ----------------------------------------------------------------------------
+\begin{abstract}
+Large Language Models (LLMs) are fundamentally constrained by the quadratic computational cost of self-attention and the ``Lost in the Middle'' phenomenon, where reasoning capabilities degrade as context windows expand. Existing solutions, primarily ``Flat RAG'' architectures relying on vector databases, treat memory as an unstructured bag of embeddings. This approach fails to capture the hierarchical and temporal structure of long-horizon interactions, leading to ``Vector Haze'': the retrieval of disjointed facts lacking episodic continuity. This paper proposes \textbf{Aeon}, a Neuro-Symbolic Cognitive Operating System that redefines memory not as a static store, but as a managed OS resource. Aeon structures memory into a \textbf{Memory Palace} (a spatial index implemented via \textsc{Atlas}, a SIMD-accelerated \textbf{Page-Clustered Vector Index} that combines small-world graph navigation with B+ Tree-style disk locality to minimize read amplification) and a \textbf{Trace} (a neuro-symbolic episodic graph). The \textbf{Semantic Lookaside Buffer (SLB)}, a predictive caching mechanism, exploits conversational locality to achieve sub-millisecond retrieval latencies. Benchmarks on Apple M4 Max demonstrate that Aeon achieves $< 5\mu$s effective retrieval latency on conversational workloads (with 85\%+ SLB hit rates), while ensuring state consistency via a sub-microsecond zero-copy C++/Python bridge ($\sim$334ns for 10MB payloads), effectively enabling persistent, structured memory for autonomous agents.
+\end{abstract}
+
+% ----------------------------------------------------------------------------
+% Section 1: Introduction
+% ----------------------------------------------------------------------------
+\section{Introduction}
+
+The rapid evolution of Large Language Models (LLMs) has been defined by a relentless scaling of parameters and training data, yet the fundamental architecture remains bound by the \textit{Context Bottleneck}. The Transformer's self-attention mechanism, while transformative, imposes a quadratic time and space complexity, $O(N^2)$, relative to the input sequence length. Although recent optimization techniques (sparse attention, RingAttention, and hardware-aware kernel fusion) have theoretically extended context windows to 1 million tokens and beyond, the utility of this context does not scale linearly. Empirical evidence highlights a distinct degradation in reasoning capabilities over these extended horizons, a phenomenon widely characterized as being ``Lost in the Middle'' \cite{liu2023lost}. When relevant information is buried in the center of a massive context window, model performance deteriorates, often below the baseline of closed-book inference. As autonomous agents are tasked with increasingly complex, long-horizon objectives spanning days or weeks, the reliance on these transient, volatile context windows becomes untenable. The model cannot simply attend to all of history; it must select what is potentially relevant before attention is even applied. However, the selection mechanism itself is often limited by the same architectural constraints it seeks to mitigate. The simplistic view of context as a sliding window is insufficient for general-purpose autonomy. Instead, what is required is a memory architecture that is as persistent, structured, and deterministically managed as the storage hierarchies found in classical operating systems.
+
+The prevailing industry response to the context limitation has been the widespread adoption of Retrieval-Augmented Generation (RAG). In its most common form, ``Flat RAG,'' this approach offloads information preservation to vector databases that perform Approximate Nearest Neighbor (ANN) search over unstructured lists of embeddings. Technologies such as HNSW (Hierarchical Navigable Small World) graphs or inverted file indices allow for efficient retrieval of semantically similar chunks. However, while effective for simple, one-shot question-answering tasks, Flat RAG fails to model the \textit{structure} of extended interaction. It treats memory as a featureless plane (a ``bag of vectors'') where the temporal evolution of a conversation, the causal lineage of decisions, and the hierarchical relationship between concepts are lost. This failure mode is termed ``Vector Haze'': the retrieval of semantically similar but episodically disjointed facts that confuse rather than aid the agent. A Flat RAG system has no notion of ``where'' it is in a conversation; it only knows ``what'' matches the current query vector in high-dimensional space. It lacks the ability to backtrack to a previous state, to branch a conversation into potential futures, or to understand the narrative arc that led to the current moment. For an agent to maintain coherence over thousands of turns, it requires more than a semantic search engine; it requires a state machine that understands the topology of its own experience.
+
+This paper proposes a paradigm shift from treating memory as a passive database retrieval problem to treating it as an active resource management problem within a \textbf{Cognitive Operating System}. In this view, memory management becomes analogous to virtual memory management in traditional OS kernels. \textbf{Aeon} formalizes these operations. \textit{Allocation} corresponds to the deliberate writing of new semantic concepts into a structured \textit{Atlas}; \textit{paging} transforms into the loading of relevant semantic clusters into a \textbf{Semantic Lookaside Buffer (SLB)} for immediate, low-latency access; and \textit{context switching} is re-framed as the deterministic movement between branches of a decision tree. By enforcing these rigorous abstractions, Aeon transforms the probabilistic chaos of vector search into a deterministic navigational process. This empowers the agent to utilize a ``Memory Palace,'' a spatial index where information is stored not just by what it means, but by where it belongs relative to other concepts in the agent's ontology. This spatial locality enables the system to predictively pre-fetch memory, much like a CPU pre-fetches instructions based on spatial and temporal locality, drastically reducing the latency penalty of retrieval and allowing the agent to ``think'' at the speed of conversation.
+
+The contributions of this paper are threefold. First, it introduces \textbf{Atlas}, a high-performance, memory-mapped B+ Tree that organizes uniform vectors into a navigable, hierarchical index. Unlike HNSW or IVFPQ indices which optimize purely for recall at the expense of insert performance and structure, Atlas optimizes for semantic locality and stable modification. It utilizes a custom SIMD-accelerated math kernel to perform metric comparisons, ensuring that the tree structure strictly adheres to the geometry of the embedding space. Second, the paper presents the \textbf{Trace}, a neuro-symbolic directed acyclic graph (DAG) that explicitly tracks the agent's episodic state. The Trace records the traversal path of the agent, creating distinct nodes for User inputs, System responses, and intermediate thoughts, linked by typed edges (CAUSAL, NEXT, REFERS\_TO). This enables capabilities such as backtracking and context anchoring that are impossible in flat vector stores. Finally, the paper demonstrates the implementation of a zero-copy architecture bridging C++23 and Python. By harnessing the \texttt{nanobind} library, Aeon exposes internal C++ memory structures as read-only NumPy arrays, eliminating serialization overhead. This allows Aeon to achieve effective retrieval latencies of $< 5\mu$s on standard conversational workloads, validating the feasibility of this Cognitive OS approach for real-time, interactive agents that require both the speed of systems programming and the flexibility of high-level reasoning.
+
+% ----------------------------------------------------------------------------
+% Section 2: Related Work
+% ----------------------------------------------------------------------------
+\section{Related Work}
+\label{sec:related_work}
+
+Aeon is positioned within the broader landscape of neural memory systems, contrasting its Cognitive Operating System architecture against existing approaches in retrieval, memory management, and neuro-symbolic reasoning. While individual components of Aeon have precedents in isolation, the lack of a unified, high-performance kernel has limited the emergence of truly long-horizon agents.
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+The dominant paradigm for grounding Large Language Models (LLMs) is Retrieval-Augmented Generation (RAG), typically implemented using Dense Passage Retrieval (DPR) \cite{karpukhin2020dense} and Approximate Nearest Neighbor (ANN) search indices like FAISS \cite{faiss2017} or HNSW \cite{malkov2018hnsw}. These systems rely on what is characterized here as ``Flat RAG'': a single, monolithic vector space where every query is treated as an independent event, disconnected from temporal or causal context.
+
+The primary limitation of Flat RAG is the phenomenon of \textit{Vector Haze}. As the size of the memory store grows, the probability of retrieving semantically similar but contextually irrelevant facts increases, diluting the LLM's attention mechanism. HNSW graphs, while efficient, are agnostic to the agent's current task state. Aeon addresses this via \textit{The Atlas}, a hierarchical spatial indexing system. By constraining the search space based on the agent's active context region, Aeon mitigates Vector Haze, ensuring that retrieval precision does not degrade at scale.
+
+\subsection{Memory-Augmented LLMs}
+Attempts to give LLMs persistent memory have largely operated at the application layer. Systems like MemGPT \cite{memgpt2023} introduce an OS-like abstraction for managing context windows, distinguishing between main context and external storage. Similarly, earlier works on Neural Turing Machines (NTM) \cite{graves2014ntm} proposed differentiable memory banks.
+
+However, MemGPT is a logical framework rather than a systems-level implementation. It functions in ``User Space'' (typically Python), relying on the LLM itself to manage memory calls via prompt engineering. This introduces significant latency and leaves the physical layout of memory unmanaged. Aeon moves this responsibility to ``The Kernel,'' implementing memory management in high-performance C++23. By treating memory operations as low-level system calls, Aeon achieves sub-microsecond retrieval latencies that are impossible with prompt-based management.
+
+\subsection{Neuro-Symbolic Knowledge Graphs}
+To address the lack of structure in vector stores, Neuro-Symbolic approaches like GraphRAG \cite{edge2024graphrag} and integration with graph databases (e.g., Neo4j) have gained traction. These systems excel at multi-hop reasoning by making relationships explicit.
+
+The limitation of current Neuro-Symbolic systems is their rigidity and write latency. Symbolic graphs are often slow to update and require brittle extraction pipelines, lacking the fluid adaptability of neural representations. Aeon's \textit{Trace} module introduces a hybrid architecture: it utilizes neural embeddings for nodes to maintain semantic fluidity, while employing symbolic edges to enforce causal constraints. This allows Aeon to update reasoning paths in real-time without the heavy overhead of re-indexing traditional knowledge graphs.
+
+\subsection{Operating System Primitives for AI}
+Finally, the concept of an ``AI Kernel'' has been proposed in various forms, often serving as a metaphor for cloud orchestration layers or ``Glue Code'' libraries like LangChain \cite{langchain2022}. While these frameworks provide essential developer tooling, they do not function as operating systems in the traditional sense; they do not manage physical memory layout, thread scheduling, or cache coherency.
+
+Aeon distinguishes itself by implementing true OS primitives tailored for semantic data. The \textit{Semantic Lookaside Buffer (SLB)} is a direct parallel to the Translation Lookaside Buffer (TLB) in CPU architecture. Instead of just caching raw vectors, the SLB predicts and prefetches semantic clusters relevant to the current thread of thought. This moves the paradigm from reactive retrieval to proactive memory management, solving the ``Context Bottleneck'' at the architectural level.
+
+% ----------------------------------------------------------------------------
+% Section 3: System Architecture
+% ----------------------------------------------------------------------------
+\section{System Architecture}
+\label{sec:architecture}
+
+Aeon implements a hybrid \textit{Cognitive Kernel} architecture designed to bridge the gap between high-performance systems programming and high-level AI reasoning. The system is architected to satisfy strict latency constraints ($< 200$ms end-to-end memory retrieval) while maintaining the flexibility required for complex agentic workflows.
+
+\subsection{Design Philosophy: The Core-Shell Model}
+The central design philosophy of Aeon is the \textit{Core-Shell} separation of concerns, ensuring that computational intensity and logical complexity are handled by the most appropriate runtime environments.
+
+\begin{itemize}
+    \item \textbf{The Core (Ring 0):} Implemented in C++23, the Core is responsible for all high-frequency, low-latency operations. This includes vector similarity search, tree traversal, and memory management. It operates directly on raw memory pages and leverages hardware acceleration (SIMD AVX-512 via SIMDe) to maximize throughput.
+    \item \textbf{The Shell (Ring 3):} Implemented in Python 3.12, the Shell manages high-level control logic, including Large Language Model (LLM) interaction, prompt engineering, and graph topology management. It serves as the ``cognitive'' layer that orchestrates the system's behavior.
+\end{itemize}
+
+The critical invariant of this architecture is the \textbf{Zero-Copy Constraint}: Data is never serialized or copied between the Core and the Shell during normal operation. Instead, ownership of data resides in the Core, and the Shell operates on read-only views of shared memory pages. This eliminates the marshaling overhead typical of foreign function interfaces (FFI).
+
+\subsection{The Atlas: Spatial Memory Kernel}
+The \textit{Atlas} is the foundational data structure of Aeon's long-term memory, functioning as a spatial index for semantic vectors. It is implemented as a specialized Hierarchical Navigable Small World (HNSW) variant, optimized for on-disk storage.
+
+\subsubsection{Data Structure}
+We define a memory node formally as a tuple $N$:
+\begin{equation}
+    N = \{id, \mathbf{v}, \mathcal{C}, \text{meta}\}
+\end{equation}
+where:
+\begin{itemize}
+    \item $id \in \mathbb{N}^{64}$ is a unique 64-bit identifier.
+    \item $\mathbf{v} \in \mathbb{R}^{768}$ is the semantic embedding vector (occupying $768 \times 4$ bytes).
+    \item $\mathcal{C}$ is the set of child pointers (offsets in the memory file).
+    \item $\text{meta}$ is a fixed-size metadata block for timestamping and source tracking.
+\end{itemize}
+
+\subsubsection{Storage and Access}
+The Atlas resides entirely on persistent storage (NVMe SSD) but is mapped into the process's virtual address space using the POSIX \texttt{mmap} system call. This allows the OS virtual memory subsystem to handle page caching transparently. Standard C++ heap allocations (e.g., \texttt{new}, \texttt{malloc}) are explicitly avoided for node data to ensure data contiguity and cache locality.
+
+\subsubsection{Greedy SIMD Descent}
+Retrieval is performed using a \textit{Greedy SIMD Descent} algorithm. Given a query vector $\mathbf{q}$, and starting at a candidate node $n$, the algorithm computes the cosine similarity score $S_i$ for all children $i \in \mathcal{C}_n$:
+\begin{equation}
+    S_i = \cos(\mathbf{q}, \mathbf{c}_i) = \frac{\mathbf{q} \cdot \mathbf{c}_i}{\|\mathbf{q}\| \|\mathbf{c}_i\|}
+\end{equation}
+The system selects the next node $k = \arg\max_i S_i$ and recurses until a local optimum (leaf) is reached.
+The complexity of this descent is $O(\log_B M)$, where $B$ is the effective branching factor and $M$ is the total number of nodes in the Atlas. All vector operations are vectorized using AVX-512 intrinsics via the SIMDe portability layer, enabling 16 floating-point operations per cycle on x86-64 and equivalent throughput on ARM64 via NEON translation.
+
+\subsection{The Trace: Episodic Context Graph}
+While the Atlas provides spatial lookup, the \textit{Trace} provides temporal and causal context. It is structured as a Directed Acyclic Graph (DAG) $G = (V, E)$.
+
+\subsubsection{Node Types}
+The vertex set $V$ consists of heterogeneous node types representing different cognitive events:
+\begin{itemize}
+    \item $V_{user}$: Represents input from the human user.
+    \item $V_{system}$: Represents responses generated by the agent.
+    \item $V_{concept}$: Represents abstract semantic clusters retrieved from the Atlas.
+\end{itemize}
+
+\subsubsection{Edge Structure}
+The edge set $E$ defines two primary relationship types:
+\begin{enumerate}
+    \item \textbf{Temporal Edges ($E_{next}$):} Provide the strict chronological sequence of the conversation. Traversing $E_{next}$ reconstructs the linear dialogue history.
+    \item \textbf{Reference Edges ($E_{ref}$):} Connect episodic nodes to their semantic grounding in the Atlas. An edge $(u, a) \in E_{ref}$ implies that concept $a$ was active or referenced during event $u$.
+\end{enumerate}
+
+\subsubsection{Navigation}
+The Trace enables the LLM to perform ``backtracking.'' By traversing $E_{next}^{-1}$ (inverse temporal edges), the agent can effectively ``rewind'' its cognitive state to a previous turn to resolve ambiguities or correct context drift.
+
+\subsection{The Zero-Copy Interface}
+To strictly enforce the Zero-Copy Constraint, Aeon utilizes \texttt{nanobind} to expose C++ memory structures to Python. The interface wraps raw C++ pointers in a Python Capsule, which is then reinterpreted as a NumPy array buffer.
+
+To ensure memory safety, the Python view is explicitly marked as \texttt{read\_only}. Any attempt to modify the underlying memory from the Shell raises a runtime exception, protecting the integrity of the core index.
+
+\begin{algorithm}
+\caption{Zero-Copy Memory Mapping}
+\begin{algorithmic}
+\State \textbf{Input:} C++ Vector $\mathbf{v}_{ptr}$
+\State \textbf{Output:} Python NumPy Array $np\_view$
+\State $capsule \leftarrow$ \texttt{PyCapsule\_New}($\mathbf{v}_{ptr}$, NULL)
+\State $np\_view \leftarrow$ \texttt{PyArray\_FromBuffer}(capsule, dtype=\text{float32})
+\State $np\_view$.flags.writeable $\leftarrow$ \textbf{False}
+\State \Return $np\_view$
+\end{algorithmic}
+\end{algorithm}
+
+% ----------------------------------------------------------------------------
+% Section 4: The Semantic Lookaside Buffer (SLB)
+% ----------------------------------------------------------------------------
+\section{The Semantic Lookaside Buffer}
+\label{sec:slb}
+
+The core contribution of Aeon is the \textbf{\mbox{Semantic} \mbox{Lookaside} \mbox{Buffer} (SLB)}, a high-performance caching mechanism designed to alleviate the latency overhead of traversing massive high-dimensional indices. By applying the principles of CPU caching (specifically temporal and spatial locality) to the semantic vector space, the SLB achieves constant-time retrieval for conversational queries that exhibit semantic continuity. This section details the theoretical basis of Semantic Locality, the memory-aligned architecture of the SLB, and the speculative fetch algorithms that govern its operation.
+
+\subsection{Theory: Semantic Locality}
+\label{subsec:semantic_locality}
+
+Traditional caching strategies, such as Least Recently Used (LRU) or Least Frequently Used (LFU), rely on address transparency and the assumption that repeated access to the exact same memory address is common. In vector databases, however, exact equality is rare; queries are continuous variables, and even semantically identical intents may produce slightly distinct embedding vectors due to noise or phrasing variations. Thus, the concept of \textbf{\mbox{Semantic} \mbox{Inertia}} is introduced.
+
+\textbf{Hypothesis (\mbox{Semantic} \mbox{Inertia}):} In a continuous human-computer dialogue, the topic vector $\mathbf{t}_i$ at turn $i$ is highly positively correlated with the topic vector $\mathbf{t}_{i+1}$ at turn $i+1$. Consequently, the navigation path required to satisfy query $\mathbf{q}_{i+1}$ is likely a small perturbation of the path taken for $\mathbf{q}_i$.
+
+Formally, let $\mathcal{S}$ be the high-dimensional semantic space and $\mathbf{q}_i \in \mathcal{S}$ be the query vector at step $i$. The following is posited: the conditional probability of the distance between subsequent queries being within a small locality radius $\epsilon$ is significantly non-zero:
+\[
+P\left( \text{dist}(\mathbf{q}_{i+1}, \mathbf{q}_i) < \epsilon \right) \approx 1
+\]
+where $\text{dist}(\cdot, \cdot)$ is the cosine distance metric.
+
+This implies that for a significant subset of queries, the optimal search starting point is not the global Root of the hierarchical navigable small world (HNSW) graph or the Atlas tree, but rather the result of the previous query. If the semantic delta is sufficiently small, the target node for $\mathbf{q}_{i+1}$ is likely the same node as $\mathbf{q}_i$, or one of its immediate semantic neighbors. By caching these recent access points, the $O(\log N)$ tree traversal can be bypassed entirely.
+
+\subsection{Architecture of the SLB}
+\label{subsec:slb_architecture}
+
+The SLB is implemented as a software-managed cache, distinct from the OS page cache. Its primary design constraint is \textbf{\mbox{Memory} \mbox{Hierarchy} \mbox{Latency}}. A standard main memory access (DRAM) takes approximately $100\text{ns}$, while an L1 cache access takes $\approx 1\text{ns}$. The Atlas Tree, being memory-mapped, resides in DRAM (or potentially disk if cold). A standard tree walk involves multiple pointer dereferences, each incurring a potential cache line miss and the associated 100ns penalty.
+
+To mitigate this, the SLB is structured as a small, contiguous ring buffer $B$ of fixed size $K$, where $K$ is tuned to fit entirely within the L1/L2 CPU cache (typically $K=64$).
+
+Each entry $e_k \in B$ is a tuple:
+\[
+e_k = \{ \mathbf{c}_{node}, \text{ptr}_{atlas} \}
+\]
+where $\mathbf{c}_{node} \in \mathbb{R}^{D}$ is the centroid of the cached node and $\text{ptr}_{atlas}$ is the direct memory pointer (or offset) to the full node structure in the Atlas memory map.
+
+\textbf{Search Strategy: Brute-Force SIMD.}
+Crucially, an approximate nearest neighbor index is not used for the SLB itself. Because $K$ is small ($64$), an exhaustive linear scan of all entries can be performed using AVX-512 instructions. The cost of this operation is $O(K)$, but due to perfect hardware prefetching and zero pointer chasing, the wall-clock time is significantly lower than even a few steps of an $O(\log N)$ tree traversal. A 64-element dot product block can be computed in nanoseconds, providing nearly instant ``L1 Hit'' behavior for semantic lookups.
+
+\subsection{The Speculative Fetch Algorithm}
+\label{subsec:speculative_fetch}
+
+The SLB operates on a speculative basis. It assumes the next query will be relevant to the cache and attempts to satisfy it immediately. If the speculation fails, the system falls back to the authoritative Atlas index.
+
+The lookup procedure, defined in Algorithm \ref{alg:slb_lookup}, proceeds as follows:
+
+\begin{enumerate}
+    \item \textbf{Scan:} Upon receiving a query $\mathbf{q}$, the system computes the similarity scores $s_k = \cos(\mathbf{q}, \mathbf{b}_k)$ for all $k \in B$ in parallel.
+    \item \textbf{Best Match:} It identifies the best candidate $s_{best} = \max_k s_k$.
+    \item \textbf{Threshold Check:} The score is compared against a strict similarity threshold $\tau_{hit}$ (e.g., $0.85$).
+    \begin{itemize}
+        \item If $s_{best} > \tau_{hit}$, it is a \textbf{\mbox{CACHE} \mbox{HIT}}. The system immediately returns the associated $\text{ptr}_{atlas}$, bypassing the tree interaction entirely.
+        \item If $s_{best} \le \tau_{hit}$, it is a \textbf{\mbox{CACHE} \mbox{MISS}}. The system initiates the standard Atlas Tree Search.
+    \end{itemize}
+    \item \textbf{Update:} The result of the query (whether from a hit or a miss-then-retrieval) is inserted into the SLB. A simplified Least Recently Used (LRU) eviction policy, implemented via the ring buffer pointer or a lightweight timestamp, ensures fresh context is prioritized.
+\end{enumerate}
+
+\begin{algorithm}
+\caption{SLB\_Lookup Checking Procedure}
+\label{alg:slb_lookup}
+\begin{algorithmic}[1]
+\Require Query vector $\mathbf{q}$, Threshold $\tau_{hit}$, SLB Buffer $B$
+\Ensure Best matching Node pointer $p$ or NULL
+
+\State $s_{best} \gets -1.0$
+\State $idx_{best} \gets -1$
+
+\Comment{Vectorized Loop (AVX-512)}
+\For{$k \gets 0$ to $K-1$}
+    \State $s \gets \text{SIMD\_DotProduct}(\mathbf{q}, B[k].\mathbf{c}_{node})$
+    \If{$s > s_{best}$}
+        \State $s_{best} \gets s$
+        \State $idx_{best} \gets k$
+    \EndIf
+\EndFor
+
+\If{$s_{best} > \tau_{hit}$}
+    \State \Return $B[idx_{best}].\text{ptr}_{atlas}$ \Comment{Cache Hit}
+\Else
+    \State \Return \textbf{null} \Comment{Cache Miss - Fallback to Atlas}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Predictive Prefetching}
+\label{subsec:predictive_prefetching}
+
+While the current implementation focuses on reducing lookup latency, the SLB architecture enables powerful future optimization such as \textbf{Async~Prefetching}. When a user stops typing or is reading a response (``reading time''), the system is typically idle. This downtime can be exploited. Upon a successful SLB hit, the system can speculatively load the \textit{children} of the hit node from the main memory-mapped file into the SLB.
+
+This anticipatory loading leverages the hierarchical structure of the Atlas. If a user is querying a specific sub-topic (e.g., ``Python Optimization''), and the SLB hits on the broad ``Programming'' node, prefetching the ``Python'' and ``C++'' child nodes into the L1-resident SLB prepares the system for the next, likely more specific, query. This effectively pipelines the semantic navigation, hiding the memory latency of the Atlas structure behind the user's cognitive processing time.
+
+% ----------------------------------------------------------------------------
+% Section 5: Experimental Methodology
+% ----------------------------------------------------------------------------
+\section{Experimental Methodology}
+\label{sec:methodology}
+
+This section describes the experimental setup used to evaluate Aeon's performance characteristics. All experiments were conducted five times, and the median value is reported along with the 25th and 75th percentiles to account for variance.
+
+\subsection{Hardware Environment}
+
+Aeon is evaluated on a single Apple M4 Max workstation, representing a high-end consumer-grade ARM64 platform. The system specification is as follows:
+
+\begin{itemize}
+    \item \textbf{CPU:} Apple M4 Max, 16-core (12 Performance cores, 4 Efficiency cores), ARM64 architecture.
+    \item \textbf{Memory:} 64GB Unified Memory (LPDDR5X) with 546GB/s memory bandwidth.
+    \item \textbf{Instruction Set:} ARM NEON SIMD. For portability, AVX-512 equivalence is achieved via the SIMDe translation layer~\cite{simde}, enabling direct compilation of x86 SIMD intrinsics to native ARM instructions.
+    \item \textbf{Storage:} 1TB NVMe SSD (Apple internal controller).
+\end{itemize}
+
+All native benchmarks were compiled with \texttt{clang-17} using \texttt{-O3 -march=native -flto -ffast-math} optimization flags. Experiments were run under two operating system configurations:
+\begin{enumerate}
+    \item \textbf{macOS 26.2 (Tahoe):} Native execution for baseline latency measurements.
+    \item \textbf{Linux (Debian 12, via Docker):} Containerized execution using Rosetta 2 emulation to evaluate cross-platform deployment scenarios.
+\end{enumerate}
+
+To minimize interference, all experiments were run with Efficiency cores disabled, Spotlight indexing paused, and no background applications active. CPU frequency scaling was disabled to ensure consistent clock speeds.
+
+\subsection{Datasets}
+
+Aeon is evaluated using synthetic datasets designed to stress-test the Atlas index under controlled conditions.
+
+\subsubsection{Synthetic Atlas: Dense Forest}
+A ``Dense Forest'' of synthetic vectors is generated to simulate a large-scale knowledge base. Each vector is sampled from a multivariate Gaussian distribution centered at randomly chosen cluster centroids. Dataset sizes are varied across three orders of magnitude:
+
+\begin{itemize}
+    \item $N = 10^4$ nodes (small, fits entirely in L3 cache).
+    \item $N = 10^5$ nodes (medium, representative of a substantial personal knowledge base).
+    \item $N = 10^6$ nodes (large, simulates enterprise-scale deployments).
+\end{itemize}
+
+All vectors have dimensionality $D = 768$, matching the embedding dimension of widely-used models such as BERT~\cite{devlin2019bert} and Llama-2~\cite{touvron2023llama}.
+
+\subsubsection{Workload Traces}
+Two distinct workload profiles are defined to simulate real-world query patterns:
+
+\begin{enumerate}
+    \item \textbf{Uniform Random:} Query vectors are sampled uniformly at random from the embedding space. This represents a worst-case scenario for any caching strategy, as there is no temporal or semantic correlation between consecutive queries.
+    \item \textbf{Conversational Walk:} Query vectors are generated by performing a random walk on the semantic graph. Starting from an initial query, subsequent queries are drawn from the neighborhood of the previous result, introducing high semantic locality. This simulates realistic chatbot workloads where user queries exhibit ``semantic inertia.''
+\end{enumerate}
+
+\subsection{Baselines}
+
+Aeon is compared against two baseline systems representing the spectrum from naive to state-of-the-art approaches:
+
+\begin{itemize}
+    \item \textbf{Baseline A (Flat Search):} A brute-force linear scan over all $N$ vectors. Similarity is computed using a vectorized dot product kernel. This represents the performance floor, equivalent to a naive NumPy implementation or basic RAG retrieval without indexing.
+    \item \textbf{Baseline B (HNSW):} Hierarchical Navigable Small World graph~\cite{malkov2018hnsw}, the de facto industry standard for approximate nearest neighbor search. The FAISS~\cite{johnson2019faiss} implementation is used with default parameters (\texttt{M=32}, \texttt{efConstruction=200}, \texttt{efSearch=64}).
+\end{itemize}
+
+Two configurations of Aeon are evaluated to isolate the contribution of the Semantic Lookaside Buffer (SLB):
+
+\begin{itemize}
+    \item \textbf{Aeon (Cold):} Atlas search with the SLB disabled. The search always starts from the root node.
+    \item \textbf{Aeon (Warm):} Atlas search with the SLB enabled. The system exploits semantic locality by using cached nodes as starting points for subsequent searches.
+\end{itemize}
+
+\subsection{Metrics}
+
+The following metrics are reported to provide a comprehensive performance profile:
+
+\begin{itemize}
+    \item \textbf{P99 Latency (ms):} The 99th percentile latency for a single query. Tail latency is critical for interactive applications, as it directly impacts perceived UI responsiveness.
+    \item \textbf{QPS (Queries Per Second):} Throughput measured under sustained load. Peak QPS is reported when queries are issued in a tight loop with no artificial delays.
+    \item \textbf{Memory Footprint (MB):} Resident Set Size (RSS) as measured by the \texttt{/proc/[pid]/statm} interface on Linux, or the \texttt{footprint} metric from \texttt{libproc} on macOS.
+    \item \textbf{Cache Hit Rate (\%):} For the Warm configuration, the percentage of queries where the SLB provided a valid starting node closer to the target than the root node. A hit is defined as $\text{sim}(q, n_{\text{slb}}) > \text{sim}(q, n_{\text{root}})$.
+\end{itemize}
+
+All latency measurements are taken using \texttt{std::chrono::high\_resolution\_clock} with nanosecond precision. The first 100 queries from each run are excluded to allow the system to reach a steady state (warm caches, JIT compilation for Python components).
+
+% ----------------------------------------------------------------------------
+% Section 6: Evaluation
+% ----------------------------------------------------------------------------
+\input{evaluation}
+
+% ----------------------------------------------------------------------------
+% Section 7: Conclusion
+% ----------------------------------------------------------------------------
+\section{Conclusion}
+
+This paper introduced \textbf{Aeon}, a Cognitive Operating System designed to address the fundamental limitations of stateless Large Language Models in long-horizon agentic contexts. The central argument is that the prevailing view of LLM memory as a simple retrieval problem is insufficient; instead, it must be treated as an active resource management task, governed by principles analogous to those found in classical operating system kernels. By formalizing semantic memory management, this work demonstrates that the chaotic, probabilistic nature of vector search can be transformed into a deterministic, navigable process.
+
+\subsection{Key Contributions}
+
+This work makes three primary contributions. First, an architecture built upon the \textbf{Core-Shell Zero-Copy} model was presented. The tight integration of a high-performance C++23 kernel (the \textit{Atlas}) with a flexible Python reasoning layer (the \textit{Trace}) via \texttt{nanobind} and shared memory proves viable for achieving both the latency requirements of real-time interaction and the expressiveness needed for complex neuro-symbolic reasoning. This separation of concerns allows each layer to be optimized independently without sacrificing the holistic performance of the system.
+
+Second, it was demonstrated that the \textbf{Semantic Lookaside Buffer (SLB)} reduces effective retrieval latency by over two orders of magnitude for conversational workloads. By exploiting the inherent ``semantic inertia'' of human dialogue (the empirical observation that consecutive topics are highly correlated), semantically likely nodes are pre-positioned in a small, L1/L2 cache-resident structure. Evaluation showed consistent hit rates exceeding 85\% under realistic access patterns, validating the core hypothesis that semantic locality is a predictable and exploitable property.
+
+Third, the \textbf{Trace} graph provides a level of interpretability and control that is absent in purely neural approaches. By recording episodic state as a traversable directed acyclic graph, Aeon functions as a ``Glass Box.'' Every decision can be traced back through its causal lineage. This capability (enabling backtracking, context anchoring, and principled reasoning about the agent's own history) represents a significant step towards building AI systems that are not only powerful but also auditable and trustworthy.
+
+\subsection{Limitations}
+
+Several limitations in the current design are acknowledged. The \textit{Atlas} currently relies on \textbf{static embedding models} (e.g., BERT-based encoders). When the semantic landscape of the world evolves (new concepts emerge, or the meaning of existing terms shifts), the embeddings do not adapt. While the \textit{Delta Buffer} provides a mechanism for ingesting new knowledge without a full rebuild, the underlying semantic geometry remains fixed. Addressing true concept drift will eventually require either online fine-tuning of the encoder or a more sophisticated approach to embedding management.
+
+Furthermore, Aeon is presently a \textbf{single-modality} system, operating exclusively on text. Modern AI agents increasingly interact with the world through images, audio, and structured data. A truly general Cognitive OS must eventually support multimodal vector representations within the same spatial index, enabling unified retrieval across diverse input streams, an avenue left for future investigation.
+
+\subsection{Future Work}
+
+Aeon represents a first step toward a new paradigm in AI memory management, and several exciting directions remain. Future work envisions \textbf{Multi-Tenancy and Hardware-Enforced Isolation}. As Aeon evolves to serve multiple users, the secure partitioning of memory spaces becomes paramount. The use of hardware enclaves, such as Intel SGX or ARM CCA, is being investigated to provide cryptographic guarantees of data isolation at the memory level.
+
+A \textbf{``Dreaming'' Process} is also proposed: an offline background task that activates during idle periods. This process would perform garbage collection on the \textit{Atlas}, defragmenting the spatial index, and consolidate the verbose \textit{Trace} into compressed, long-term episodic summaries. This is analogous to the memory consolidation processes hypothesized to occur during biological sleep, enabling more efficient long-term storage and faster retrieval.
+
+Finally, the aim is to integrate \textbf{Neuro-Symbolic Reasoning} more deeply into the architecture. While the Trace currently serves as a graph database, overlaying a formal logic layer (such as a Prolog or Datalog interpreter) would allow for verifiable deduction over the agent's experience. This would enable the construction of proofs, the detection of logical contradictions within memories, and a bridge between the statistical world of embeddings and the formal world of symbolic AI.
+
+\subsection{Closing Remarks}
+
+The path forward for AI agents lies not in ever-larger context windows, but in smarter, more structured memory. Aeon demonstrates that a principled approach, drawing inspiration from decades of operating systems research, can yield substantial performance and quality improvements. This work aims to contribute a useful foundation for researchers and practitioners seeking to build the next generation of persistent, coherent, and interpretable AI agents.
+
+% ============================================================================
+% Bibliography
+% ============================================================================
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

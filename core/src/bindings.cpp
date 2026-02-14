@@ -45,7 +45,7 @@ NB_MODULE(core, m) {
           "insert",
           [](aeon::Atlas &self, uint64_t parent, const std::vector<float> &vec,
              const std::string &meta) {
-            if (vec.size() != 768)
+            if (vec.size() != aeon::EMBEDDING_DIM)
               throw std::invalid_argument("Vector must be 768-dim");
             return self.insert(parent, std::span<const float>(vec), meta);
           },
@@ -55,7 +55,7 @@ NB_MODULE(core, m) {
           "insert_delta",
           [](aeon::Atlas &self, const std::vector<float> &vec,
              const std::string &meta) {
-            if (vec.size() != 768)
+            if (vec.size() != aeon::EMBEDDING_DIM)
               throw std::invalid_argument("Vector must be 768-dim");
             // Release GIL while waiting for mutex/inserting
             nb::gil_scoped_release release;
@@ -75,21 +75,18 @@ NB_MODULE(core, m) {
       .def(
           "navigate_raw",
           [](aeon::Atlas &self, const std::vector<float> &query) {
-            if (query.size() != 768)
+            if (query.size() != aeon::EMBEDDING_DIM)
               throw std::invalid_argument("Vector must be 768-dim");
 
-            // 1. Run C++ Search (Block GIL during search? No, we removed
-            // release logic for debugging) Ideally we release GIL, but
-            // investigating SegFault.
+            // Release GIL during C++ search for Python-side concurrency.
 
             size_t num_bytes = 0;
             std::vector<aeon::Atlas::ResultNode> results;
 
             {
-              // RE-ENABLED GIL RELEASE for production concurrency
               nb::gil_scoped_release release;
-              results =
-                  self.navigate(std::span<const float>(query.data(), 768));
+              results = self.navigate(
+                  std::span<const float>(query.data(), aeon::EMBEDDING_DIM));
             }
             // GIL is re-acquired here
 
@@ -161,7 +158,7 @@ NB_MODULE(core, m) {
           [](aeon::TraceManager &self, const std::string &id) {
             (void)self;
             (void)id;
-            // Stub for now.
+            /// Successor traversal — reserved for future graph query API.
             return std::vector<std::string>{};
           },
           "id"_a);

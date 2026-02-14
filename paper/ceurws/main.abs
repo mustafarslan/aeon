@@ -1,0 +1,26 @@
+Large Language Models are fundamentally constrained by the quadratic cost of
+self-attention and the empirically observed degradation of reasoning as context
+windows expand, a failure mode known as the ``Lost in the Middle'' phenomenon.
+Existing Retrieval-Augmented Generation (RAG) architectures treat agent memory
+as an unstructured bag of embeddings, leading to \emph{Vector Haze}: the
+retrieval of semantically similar yet episodically disconnected facts that
+confuse the agent rather than aid it. This paper proposes a dual-layer
+Cognitive Operating System that redefines memory as a managed, structured
+resource. \textbf{Layer~1}, the Micro-Graph Kernel (Aeon), formalizes episodic
+memory as a neuro-symbolic Directed Acyclic Graph (DAG) with formally defined
+temporal, causal, and referential edge families, and introduces the
+\emph{Semantic Lookaside Buffer} (SLB), a predictive caching mechanism that
+exploits conversational locality to achieve $O(K)$ retrieval complexity against
+a buffer of $K$ centroids, bypassing the $O(\log N)$ cost of global index
+traversal. \textbf{Layer~2}, the Macro-Graph Router (PandoraLM), implements a
+dual-process cognitive router inspired by Kahneman's \emph{Thinking, Fast and
+Slow}, dynamically selecting between rapid vector search and deliberate
+multi-hop graph reasoning. The paper provides formal complexity analyses for
+each retrieval mode, demonstrates through a concrete scenario how AST-aware
+graph retrieval resolves polymorphic inheritance chains that defeat flat
+chunking, details a deterministic ReBAC security model that eliminates
+Time-of-Check to Time-of-Use vulnerabilities in agentic pipelines, and
+proposes a biologically inspired \emph{Memory Consolidation} process (the
+migration of transient episodic traces into the persistent spatial index,
+termed the \emph{Memory Palace}) with explicit graph-pruning invariants for
+bridging episodic traces with enterprise knowledge graphs.
