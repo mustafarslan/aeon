@@ -1,4 +1,5 @@
 import numpy as np
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional
 from . import core
@@ -133,3 +134,25 @@ class AeonClient:
         except Exception:
             # Ignore errors on empty atlas
             pass
+
+    @contextmanager
+    def safe_memory_view(self):
+        """
+        Context manager for safe zero-copy memory access.
+        
+        While inside this block, the underlying mmap region is protected
+        by an EBR epoch guard — grow() will not reclaim it. Use this
+        when holding numpy views across multiple operations.
+        
+        Usage:
+            with client.safe_memory_view():
+                results = client.query(embedding)
+                # Memory is pinned — safe to slice, index, pass around
+                process(results)
+        """
+        guard = self.atlas.acquire_read_guard()
+        try:
+            yield guard
+        finally:
+            # EpochGuard.__exit__ releases the epoch slot
+            pass  # guard goes out of scope, releasing automatically

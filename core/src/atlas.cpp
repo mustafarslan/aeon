@@ -13,6 +13,8 @@
 namespace aeon {
 
 Atlas::Atlas(std::filesystem::path path) {
+  // Wire EBR manager BEFORE opening file (grow() needs it)
+  file_.set_epoch_manager(&epoch_mgr_);
   auto result = file_.open(path);
   if (!result) {
     throw std::runtime_error("Failed to open Atlas storage");
@@ -22,6 +24,8 @@ Atlas::Atlas(std::filesystem::path path) {
 }
 
 Atlas::~Atlas() = default;
+
+EpochGuard Atlas::acquire_read_guard() { return epoch_mgr_.enter_guard(); }
 
 size_t Atlas::size() const {
   if (auto *header = file_.get_header()) {
@@ -40,12 +44,19 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
   /// Fast-path: consult the Semantic Lookaside Buffer for L1-resident cache
   /// hits.
   if (auto hit = slb_cache_.find_nearest(query, SLB_HIT_THRESHOLD)) {
-    auto [node_id, similarity, centroid_ptr] = *hit;
     /// SLB hit — return immediately, bypassing the full tree traversal.
-    return {{node_id,
-             similarity,
-             {centroid_ptr[0], centroid_ptr[1], centroid_ptr[2]}}};
+    return {{hit->node_id,
+             hit->similarity,
+             {hit->centroid_preview[0], hit->centroid_preview[1],
+              hit->centroid_preview[2]}}};
   }
+
+  // CRITICAL: Acquire epoch guard before ANY mmap pointer access.
+  // This prevents grow() from munmapping the data we're reading.
+  auto guard = epoch_mgr_.enter_guard();
+
+  // Shared lock: allows concurrent readers, blocks only during insert().
+  std::shared_lock<std::shared_mutex> read_lock(write_mutex_);
 
   auto *header = file_.get_header();
 
@@ -171,6 +182,9 @@ std::vector<Atlas::ResultNode> Atlas::navigate(std::span<const float> query) {
 std::vector<Atlas::ResultNode> Atlas::get_children(uint64_t parent_id) {
   std::vector<Atlas::ResultNode> children;
 
+  auto guard = epoch_mgr_.enter_guard();
+  std::shared_lock<std::shared_mutex> read_lock(write_mutex_);
+
   auto *header = file_.get_header();
   if (!header || parent_id >= header->node_count) {
     return children;
@@ -247,11 +261,14 @@ size_t Atlas::prune_delta_tail(size_t n) {
 
 uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
                        std::string_view metadata) {
+  // Serialize all mmap-mutating operations (exclusive lock)
+  std::unique_lock<std::shared_mutex> write_lock(write_mutex_);
+
   auto *header = file_.get_header();
 
   // Check capacity
   if (header->node_count >= header->capacity) {
-    // Grow by 50% or +1000
+    // Grow by 50% or +100
     size_t new_cap = header->capacity * 1.5;
     if (new_cap < header->capacity + 100)
       new_cap = header->capacity + 100;
@@ -259,6 +276,8 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
     if (!file_.grow(new_cap)) {
       throw std::runtime_error("Failed to grow Atlas file");
     }
+    // After grow, old mmap is retired — advance epoch for reclamation
+    epoch_mgr_.advance_epoch();
     // reload header after remap
     header = file_.get_header();
   }

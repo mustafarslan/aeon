@@ -1,9 +1,11 @@
 #pragma once
 
+#include "aeon/epoch.hpp"
 #include "aeon/schema.hpp"
 #include "aeon/slb.hpp"
 #include "aeon/storage.hpp"
 #include <filesystem>
+#include <mutex>
 #include <shared_mutex>
 #include <span>
 #include <string_view>
@@ -15,6 +17,13 @@ class Atlas {
 public:
   explicit Atlas(std::filesystem::path path);
   ~Atlas();
+
+  /**
+   * @brief Acquire an EBR read guard for safe zero-copy memory access.
+   * While the guard is active, mmap regions will not be reclaimed.
+   * Expose to Python as a context manager.
+   */
+  EpochGuard acquire_read_guard();
 
   /**
    * @brief Navigates the tree to find the closest leaf to the query vector.
@@ -94,7 +103,10 @@ public:
   void load_context(std::span<const uint64_t> node_ids);
 
 private:
+  EpochManager epoch_mgr_;
   storage::MemoryFile file_;
+  std::shared_mutex
+      write_mutex_; ///< RW lock: shared for reads, exclusive for writes
   std::vector<Node> delta_buffer_;
   mutable std::shared_mutex delta_mutex_;
   SemanticCache slb_cache_;

@@ -14,6 +14,15 @@ using namespace nb::literals;
 NB_MODULE(core, m) {
   m.doc() = "Aeon Core C++23 High-Performance Backend";
 
+  // --- EBR Guard (Python Context Manager) ---
+  nb::class_<aeon::EpochGuard>(m, "EpochGuard")
+      .def("__enter__", [](nb::object self) -> nb::object { return self; })
+      .def("__exit__", [](aeon::EpochGuard &self, nb::args) { self.release(); })
+      .def("release", &aeon::EpochGuard::release,
+           "Explicitly release the epoch guard (idempotent)")
+      .def("is_active", &aeon::EpochGuard::is_active,
+           "Check if the guard is still protecting memory");
+
   // --- Core Utils ---
   m.def("version", &aeon::core::version, "Get the library version");
 
@@ -138,7 +147,13 @@ NB_MODULE(core, m) {
             self.load_context(
                 std::span<const uint64_t>(node_ids.data(), node_ids.size()));
           },
-          "node_ids"_a, "Pre-fill SLB cache with node IDs for warm start");
+          "node_ids"_a, "Pre-fill SLB cache with node IDs for warm start")
+
+      .def(
+          "acquire_read_guard",
+          [](aeon::Atlas &self) { return self.acquire_read_guard(); },
+          nb::rv_policy::move, nb::keep_alive<0, 1>(),
+          "Acquire EBR read guard for safe zero-copy memory access");
 
   // --- Trace Manager (Graph Consolidation) ---
   nb::class_<aeon::TraceManager>(m, "TraceManager")

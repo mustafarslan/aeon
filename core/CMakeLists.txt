@@ -135,11 +135,14 @@ if(BUILD_TESTING)
         tests/test_math.cpp
         tests/test_storage.cpp
         tests/test_atlas.cpp
+        tests/test_epoch.cpp
+        tests/test_concurrency.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 
         aeon_core 
         GTest::gtest_main
+        pthread
     )
 
     # Default to C++23 for tests, fallback to 20 for MSVC

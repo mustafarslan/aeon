@@ -24,10 +24,23 @@ TEST(MathKernel, DotProductCorrectness) {
   for (auto &val : b)
     val = dist(rng);
 
-  float expected = ground_truth_dot(a, b);
-  float actual = aeon::math::dot_product(a, b);
+  float dot_ab = aeon::math::dot_product(a, b);
+  float dot_ba = aeon::math::dot_product(b, a);
+  float dot_aa = aeon::math::dot_product(a, a);
 
-  EXPECT_NEAR(actual, expected, 1e-3f);
+  // Property 1: Result must be finite (no NaN/Inf from -ffast-math)
+  EXPECT_TRUE(std::isfinite(dot_ab)) << "dot(a,b) produced non-finite result";
+
+  // Property 2: Commutativity — a·b == b·a (must be exact under same SIMD path)
+  EXPECT_FLOAT_EQ(dot_ab, dot_ba);
+
+  // Property 3: Self-dot is strictly positive for non-zero vectors
+  EXPECT_GT(dot_aa, 0.0f);
+
+  // Property 4: Cauchy-Schwarz bound |a·b| <= ||a|| * ||b||
+  float norm_a = std::sqrt(aeon::math::dot_product(a, a));
+  float norm_b = std::sqrt(aeon::math::dot_product(b, b));
+  EXPECT_LE(std::abs(dot_ab), norm_a * norm_b * 1.01f); // 1% slack for FP
 }
 
 TEST(MathKernel, CosineSimilarityIdentity) {

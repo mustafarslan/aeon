@@ -1,7 +1,9 @@
 #pragma once
 
+#include "aeon/epoch.hpp"
 #include "aeon/schema.hpp"
 #include <algorithm>
+#include <atomic>
 #include <expected>
 #include <filesystem>
 #include <string>
@@ -38,21 +40,26 @@ public:
 
   // Enable move
   MemoryFile(MemoryFile &&other) noexcept
-      : fd_(other.fd_), data_(other.data_), size_(other.size_) {
+      : fd_(other.fd_), data_(other.data_.load(std::memory_order_relaxed)),
+        size_(other.size_), epoch_mgr_(other.epoch_mgr_) {
     other.fd_ = -1;
-    other.data_ = nullptr;
+    other.data_.store(nullptr, std::memory_order_relaxed);
     other.size_ = 0;
+    other.epoch_mgr_ = nullptr;
   }
 
   MemoryFile &operator=(MemoryFile &&other) noexcept {
     if (this != &other) {
       close();
       fd_ = other.fd_;
-      data_ = other.data_;
+      data_.store(other.data_.load(std::memory_order_relaxed),
+                  std::memory_order_relaxed);
       size_ = other.size_;
+      epoch_mgr_ = other.epoch_mgr_;
       other.fd_ = -1;
-      other.data_ = nullptr;
+      other.data_.store(nullptr, std::memory_order_relaxed);
       other.size_ = 0;
+      other.epoch_mgr_ = nullptr;
     }
     return *this;
   }
@@ -86,7 +93,7 @@ public:
       if (ptr == MAP_FAILED) {
         return std::unexpected(StorageError::AllocationFailed);
       }
-      data_ = static_cast<uint8_t *>(ptr);
+      data_.store(static_cast<uint8_t *>(ptr), std::memory_order_release);
 
       // Advise kernel to use Huge Pages if possible (2MB pages)
       // Reduces TLB misses for large datasets.
@@ -120,7 +127,7 @@ public:
       if (ptr == MAP_FAILED) {
         return std::unexpected(StorageError::AllocationFailed);
       }
-      data_ = static_cast<uint8_t *>(ptr);
+      data_.store(static_cast<uint8_t *>(ptr), std::memory_order_release);
 
       // Advise kernel to use Huge Pages if possible (2MB pages)
       // Reduces TLB misses for large datasets.
@@ -148,10 +155,18 @@ public:
     return {};
   }
 
+  /// Set the EpochManager for deferred reclamation in grow().
+  void set_epoch_manager(aeon::EpochManager *mgr) { epoch_mgr_ = mgr; }
+
   void close() {
-    if (data_) {
-      munmap(data_, size_);
-      data_ = nullptr;
+    // Drain all active readers before unmapping
+    if (epoch_mgr_) {
+      epoch_mgr_->drain_readers();
+    }
+    auto *d = data_.load(std::memory_order_acquire);
+    if (d) {
+      munmap(d, size_);
+      data_.store(nullptr, std::memory_order_release);
     }
     if (fd_ != -1) {
       ::close(fd_);
@@ -164,35 +179,45 @@ public:
    * @brief Expands the file to hold new_capacity nodes.
    */
   std::expected<void, StorageError> grow(size_t new_capacity) {
-    if (!data_)
+    auto *current_data = data_.load(std::memory_order_acquire);
+    if (!current_data)
       return std::unexpected(StorageError::IOError);
 
-    auto current_header = get_header();
+    auto *current_header = reinterpret_cast<AtlasHeader *>(current_data);
     if (new_capacity <= current_header->capacity) {
       return {}; // No need to grow
     }
 
     size_t new_size = sizeof(AtlasHeader) + (new_capacity * sizeof(Node));
 
-    // Must unmap before truncating in some OSes/Safe practice
-    munmap(data_, size_);
-    data_ = nullptr;
-
+    // 1. Extend file FIRST (safe while old mapping still exists)
     if (ftruncate(fd_, new_size) != 0) {
-      /// ftruncate failed; the previous mapping was already released.
       return std::unexpected(StorageError::AllocationFailed);
     }
 
-    void *ptr =
+    // 2. Create NEW mapping covering the extended file
+    void *new_ptr =
         mmap(nullptr, new_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
-    if (ptr == MAP_FAILED) {
+    if (new_ptr == MAP_FAILED) {
       return std::unexpected(StorageError::AllocationFailed);
     }
 
-    data_ = static_cast<uint8_t *>(ptr);
+    // 3. Capture old mapping for deferred reclamation
+    void *old_data = current_data;
+    size_t old_size = size_;
+
+    // 4. Atomically swap to new mapping (release ensures visibility)
+    data_.store(static_cast<uint8_t *>(new_ptr), std::memory_order_release);
     size_ = new_size;
 
-    // Update header
+    // 5. Retire old mapping via EBR (deferred munmap)
+    if (epoch_mgr_ && old_data) {
+      epoch_mgr_->retire(old_data, old_size);
+    } else if (old_data) {
+      munmap(old_data, old_size); // Fallback: immediate cleanup
+    }
+
+    // Update header on new mapping
     get_header()->capacity = new_capacity;
 
     return {};
@@ -200,31 +225,38 @@ public:
 
   // --- Accessors ---
 
-  AtlasHeader *get_header() { return reinterpret_cast<AtlasHeader *>(data_); }
+  AtlasHeader *get_header() {
+    auto *d = data_.load(std::memory_order_acquire);
+    return d ? reinterpret_cast<AtlasHeader *>(d) : nullptr;
+  }
   const AtlasHeader *get_header() const {
-    return reinterpret_cast<const AtlasHeader *>(data_);
+    auto *d = data_.load(std::memory_order_acquire);
+    return d ? reinterpret_cast<const AtlasHeader *>(d) : nullptr;
   }
 
   Node *get_node(size_t index) {
-    if (index >= get_header()->capacity)
+    auto *header = get_header();
+    if (!header || index >= header->capacity)
       return nullptr;
-    // Strict pointer arithmetic: base + header + index * stride
-    // We cast to uintptr_t or char* to do byte math, then cast to Node*
     size_t offset = sizeof(AtlasHeader) + (index * sizeof(Node));
-    return reinterpret_cast<Node *>(data_ + offset);
+    return reinterpret_cast<Node *>(data_.load(std::memory_order_acquire) +
+                                    offset);
   }
 
   const Node *get_node(size_t index) const {
-    if (index >= get_header()->capacity)
+    auto *header = get_header();
+    if (!header || index >= header->capacity)
       return nullptr;
     size_t offset = sizeof(AtlasHeader) + (index * sizeof(Node));
-    return reinterpret_cast<const Node *>(data_ + offset);
+    return reinterpret_cast<const Node *>(
+        data_.load(std::memory_order_acquire) + offset);
   }
 
 private:
   int fd_ = -1;
-  uint8_t *data_ = nullptr;
+  std::atomic<uint8_t *> data_{nullptr};
   size_t size_ = 0;
+  aeon::EpochManager *epoch_mgr_ = nullptr;
 };
 
 } // namespace aeon::storage
