@@ -739,6 +739,26 @@ bool TraceManager::has_session(const char *session_id) const {
   return session_tails_.contains(std::string(session_id ? session_id : ""));
 }
 
+bool TraceManager::tombstone_event(uint64_t event_id) {
+  std::unique_lock lock(rw_mutex_);
+
+  // Locate the event (const resolve, then cast — safe: we hold unique_lock
+  // and the target memory is mutable mmap or delta buffer).
+  const TraceEvent *cev = resolve_event(event_id);
+  if (!cev)
+    return false; // event not found
+
+  // Already tombstoned? No-op.
+  if (cev->flags & TRACE_FLAG_TOMBSTONE)
+    return false;
+
+  // const_cast is safe: we hold the exclusive write lock, and the underlying
+  // storage (mmap region or delta buffer) is inherently mutable.
+  auto *ev = const_cast<TraceEvent *>(cev);
+  ev->flags |= TRACE_FLAG_TOMBSTONE;
+  return true;
+}
+
 bool TraceManager::drop_session(const char *session_id) {
   std::unique_lock lock(rw_mutex_);
   return session_tails_.erase(std::string(session_id ? session_id : "")) > 0;

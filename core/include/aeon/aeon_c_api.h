@@ -167,6 +167,27 @@ AEON_API aeon_error_t aeon_atlas_create(const char *path, uint32_t dim,
                                         aeon_atlas_t **out_atlas);
 
 /**
+ * @brief Options for extended Atlas creation (V4.1).
+ */
+typedef struct {
+  uint32_t dim;               /**< Embedding dim (0 = default 768) */
+  uint32_t quantization_type; /**< 0=FP32, 1=INT8_SYMMETRIC */
+  int enable_wal;             /**< 1=enable WAL (default), 0=disable */
+} aeon_atlas_options_t;
+
+/**
+ * @brief Create an Atlas with extended configuration.
+ *
+ * @param[in]  path      File path. Created if it doesn't exist.
+ * @param[in]  opts      Configuration options (quantization, WAL, dim).
+ * @param[out] out_atlas  Receives the opaque Atlas handle.
+ * @return AEON_OK on success, error code on failure.
+ */
+AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
+                                           const aeon_atlas_options_t *opts,
+                                           aeon_atlas_t **out_atlas);
+
+/**
  * @brief Returns the embedding dimensionality of an Atlas instance.
  *
  * @param[in]  atlas   Atlas handle.
@@ -415,6 +436,19 @@ AEON_API aeon_error_t aeon_trace_size(aeon_trace_t *trace, size_t *out_size);
  * are copied to the new generation blob file.
  */
 AEON_API aeon_error_t aeon_trace_compact(aeon_trace_t *trace);
+
+/**
+ * @brief Tombstone a trace event by ID.
+ *
+ * Sets TRACE_FLAG_TOMBSTONE on the event. Tombstoned events are excluded
+ * during the next compact() call, enabling garbage collection.
+ *
+ * @param[in] trace    Trace handle.
+ * @param[in] event_id Event ID to tombstone.
+ * @return AEON_OK if tombstoned, AEON_ERR_NODE_NOT_FOUND if not found.
+ */
+AEON_API aeon_error_t aeon_trace_tombstone_event(aeon_trace_t *trace,
+                                                 uint64_t event_id);
 
 /**
  * @brief Retrieve the full text for a trace event from the blob arena.

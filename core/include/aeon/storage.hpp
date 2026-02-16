@@ -64,22 +64,26 @@ public:
   /**
    * @brief Opens or creates a memory mapped file.
    *
-   * For NEW files: initializes AtlasHeader with the provided dim and
-   * metadata_size, computes node_byte_stride, and writes the header.
+   * For NEW files: initializes AtlasHeader with the provided dim,
+   * metadata_size, and quantization_type. Computes node_byte_stride
+   * with quantization awareness (INT8 = 1B/dim vs FP32 = 4B/dim).
    *
    * For EXISTING files: reads dim, metadata_size, and node_byte_stride
-   * from the on-disk AtlasHeader. The caller's dim/metadata_size params
-   * are ignored — the file is authoritative.
+   * from the on-disk AtlasHeader. The caller's params are ignored —
+   * the file is authoritative.
    *
    * @param path             File path
    * @param initial_capacity Initial node slots (new files only)
    * @param dim              Embedding dimensionality (new files only)
    * @param metadata_size    Metadata block size (new files only)
+   * @param quantization_type QUANT_FP32 or QUANT_INT8_SYMMETRIC (new files
+   * only)
    */
   std::expected<void, StorageError>
   open(const std::filesystem::path &path, size_t initial_capacity = 1000,
        uint32_t dim = EMBEDDING_DIM_DEFAULT,
-       uint32_t metadata_size = METADATA_SIZE_DEFAULT) {
+       uint32_t metadata_size = METADATA_SIZE_DEFAULT,
+       uint32_t quantization_type = QUANT_FP32) {
     bool exists = std::filesystem::exists(path);
 
 #if defined(AEON_PLATFORM_WINDOWS)
@@ -96,8 +100,8 @@ public:
     }
 
     if (!exists) {
-      // ── New file: compute stride and write header ──
-      stride_ = compute_node_stride(dim, metadata_size);
+      // ── New file: compute stride with quantization awareness ──
+      stride_ = compute_node_stride(dim, metadata_size, quantization_type);
 
       size_ = sizeof(AtlasHeader) + (initial_capacity * stride_);
       if (!platform::file_resize(handle_, size_)) {
@@ -121,6 +125,7 @@ public:
       header->dim = dim;
       header->metadata_size = metadata_size;
       header->node_byte_stride = stride_;
+      header->quantization_type = quantization_type;
       std::fill(std::begin(header->reserved), std::end(header->reserved), 0);
 
     } else {

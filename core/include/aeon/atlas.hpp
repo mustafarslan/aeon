@@ -19,6 +19,14 @@
 
 namespace aeon {
 
+/// Configuration for Atlas construction (V4.1).
+struct AtlasOptions {
+  uint32_t dim = 0; ///< 0 = default 768
+  uint32_t quantization_type =
+      QUANT_FP32;         ///< QUANT_FP32 or QUANT_INT8_SYMMETRIC
+  bool enable_wal = true; ///< WAL for crash recovery
+};
+
 class Atlas {
 public:
   /**
@@ -31,6 +39,21 @@ public:
    * @param dim  Embedding dimensionality (new files only; 0 = default 768)
    */
   explicit Atlas(std::filesystem::path path, uint32_t dim = 0);
+
+  /**
+   * @brief Opens or creates an Atlas with explicit configuration options.
+   *
+   * For NEW files: uses opts.dim, opts.quantization_type to initialize the
+   * on-disk layout. opts.enable_wal controls whether the Write-Ahead Log
+   * is created for crash recovery.
+   *
+   * For EXISTING files: dim and quantization_type are read from the on-disk
+   * header. enable_wal still controls WAL behavior for this session.
+   *
+   * @param path File path (.bin)
+   * @param opts Configuration options
+   */
+  Atlas(std::filesystem::path path, AtlasOptions opts);
   ~Atlas();
 
   // Non-copyable, non-movable (owns epoch state, mutexes, mmap)
@@ -157,6 +180,7 @@ private:
   uint32_t metadata_size_ = METADATA_SIZE_DEFAULT;
   size_t node_byte_stride_ = 0;
   uint32_t quantization_type_ = QUANT_FP32; // V4.1 Phase 3: cached from header
+  bool enable_wal_ = true;                  // V4.1: WAL toggle for benchmarking
 
   // ─── Core state ───
   EpochManager epoch_mgr_;

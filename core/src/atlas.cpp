@@ -19,9 +19,13 @@ namespace aeon {
 // Construction / Destruction
 // ═══════════════════════════════════════════════════════════════════════════
 
-Atlas::Atlas(std::filesystem::path path, uint32_t dim) : atlas_path_(path) {
+Atlas::Atlas(std::filesystem::path path, uint32_t dim)
+    : Atlas(std::move(path), AtlasOptions{.dim = dim}) {}
+
+Atlas::Atlas(std::filesystem::path path, AtlasOptions opts)
+    : atlas_path_(std::move(path)), enable_wal_(opts.enable_wal) {
   // Resolve effective dim: 0 means "use file's dim or default"
-  uint32_t effective_dim = (dim == 0) ? EMBEDDING_DIM_DEFAULT : dim;
+  uint32_t effective_dim = (opts.dim == 0) ? EMBEDDING_DIM_DEFAULT : opts.dim;
 
   // Determine generation from existing files
   // Look for atlas_genN.bin pattern, or use path directly
@@ -30,8 +34,9 @@ Atlas::Atlas(std::filesystem::path path, uint32_t dim) : atlas_path_(path) {
   file_ = std::make_unique<storage::MemoryFile>();
   file_->set_epoch_manager(&epoch_mgr_);
 
-  auto result = file_->open(path, /*initial_capacity=*/1000, effective_dim,
-                            METADATA_SIZE_DEFAULT);
+  auto result =
+      file_->open(atlas_path_, /*initial_capacity=*/1000, effective_dim,
+                  METADATA_SIZE_DEFAULT, opts.quantization_type);
   if (!result) {
     throw std::runtime_error("Failed to open Atlas storage");
   }
@@ -46,11 +51,13 @@ Atlas::Atlas(std::filesystem::path path, uint32_t dim) : atlas_path_(path) {
   // Pre-allocate delta arena for ~10,000 nodes worth of contiguous memory
   delta_buffer_bytes_.reserve(10000 * node_byte_stride_);
 
-  // ── V4.1 WAL: crash recovery ──
+  // ── V4.1 WAL: crash recovery (optional) ──
   wal_path_ = atlas_path_;
   wal_path_ += ".wal";
-  replay_wal();
-  open_wal();
+  if (enable_wal_) {
+    replay_wal();
+    open_wal();
+  }
 }
 
 Atlas::~Atlas() = default;
@@ -488,7 +495,7 @@ uint64_t Atlas::insert_delta(std::span<const float> vector,
       hash::fnv1a_64(payload.data(), static_cast<size_t>(node_byte_stride_));
 
   // ── Step 2: lock(wal_mutex_) → WAL write + flush → unlock ──
-  {
+  if (enable_wal_) {
     std::lock_guard<std::mutex> wal_lock(wal_mutex_);
     if (wal_stream_.is_open()) {
       WalRecordHeader wal_hdr{};
@@ -1034,8 +1041,10 @@ void Atlas::compact_mmap() {
   // Silently ignore deletion errors (file may already be gone)
 
   // ── V4.1: Truncate WAL — all delta data is now in the compacted file ──
-  truncate_wal();
-  open_wal();
+  if (enable_wal_) {
+    truncate_wal();
+    open_wal();
+  }
 
   epoch_mgr_.advance_epoch();
 }

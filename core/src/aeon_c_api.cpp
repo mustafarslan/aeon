@@ -73,6 +73,30 @@ AEON_API aeon_error_t aeon_atlas_create(const char *path, uint32_t dim,
   }
 }
 
+AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
+                                           const aeon_atlas_options_t *opts,
+                                           aeon_atlas_t **out_atlas) {
+  if (!path || !opts || !out_atlas)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    aeon::AtlasOptions cpp_opts;
+    cpp_opts.dim = opts->dim;
+    cpp_opts.quantization_type = opts->quantization_type;
+    cpp_opts.enable_wal = (opts->enable_wal != 0);
+
+    auto *atlas = new aeon::Atlas(std::filesystem::path(path), cpp_opts);
+    *out_atlas = reinterpret_cast<aeon_atlas_t *>(atlas);
+    return AEON_OK;
+  } catch (const std::bad_alloc &) {
+    return AEON_ERR_OUT_OF_MEMORY;
+  } catch (const std::runtime_error &) {
+    return AEON_ERR_FILE_IO;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
 AEON_API aeon_error_t aeon_atlas_destroy(aeon_atlas_t *atlas) {
   if (!atlas)
     return AEON_OK; // No-op for NULL — safe idempotent behavior
@@ -447,6 +471,19 @@ AEON_API aeon_error_t aeon_trace_compact(aeon_trace_t *trace) {
     return AEON_OK;
   } catch (const std::runtime_error &) {
     return AEON_ERR_FILE_IO;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
+AEON_API aeon_error_t aeon_trace_tombstone_event(aeon_trace_t *trace,
+                                                 uint64_t event_id) {
+  if (!trace)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    bool found = to_trace(trace)->tombstone_event(event_id);
+    return found ? AEON_OK : AEON_ERR_NODE_NOT_FOUND;
   } catch (...) {
     return AEON_ERR_UNKNOWN;
   }

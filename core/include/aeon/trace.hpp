@@ -128,6 +128,20 @@ public:
   /// Check if a session has any events.
   bool has_session(const char *session_id) const;
 
+  /**
+   * @brief Tombstone a trace event by ID.
+   *
+   * Sets TRACE_FLAG_TOMBSTONE on the event's flags field. Tombstoned events
+   * are excluded during compact(), enabling garbage collection of dead blobs.
+   *
+   * Thread-safe: acquires unique_lock on rw_mutex_.
+   *
+   * @param event_id  The event ID to tombstone.
+   * @return true if the event was found and tombstoned, false if not found
+   *         or already tombstoned.
+   */
+  bool tombstone_event(uint64_t event_id);
+
   /// Drop a session's tail pointer (does NOT delete events from disk).
   /// Used for session cleanup when an NPC despawns.
   bool drop_session(const char *session_id);

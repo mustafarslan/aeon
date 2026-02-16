@@ -274,7 +274,7 @@ if(BUILD_TESTING)
     add_executable(bench_quantization
         tests/bench_quantization.cpp
     )
-    target_link_libraries(bench_quantization PRIVATE aeon_core)
+    target_link_libraries(bench_quantization PRIVATE aeon_core benchmark::benchmark)
     target_compile_features(bench_quantization PRIVATE cxx_std_23)
 
     # Test 6: Multi-Tenant SLB Thrashing (V3 §7.1 — 10K NPC proof)
@@ -290,6 +290,27 @@ if(BUILD_TESTING)
     )
     target_link_libraries(bench_tiered_atlas PRIVATE aeon_core benchmark::benchmark)
     target_compile_features(bench_tiered_atlas PRIVATE cxx_std_23)
+
+    # V4.1 Test 8: Quantization Efficiency — INT8 vs FP32 (Latency + Storage)
+    add_executable(bench_quantization_efficiency
+        benchmarks/bench_quantization_efficiency.cpp
+    )
+    target_link_libraries(bench_quantization_efficiency PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_quantization_efficiency PRIVATE cxx_std_23)
+
+    # V4.1 Test 9: WAL Overhead — Durability Cost Measurement
+    add_executable(bench_wal_overhead
+        benchmarks/bench_wal_overhead.cpp
+    )
+    target_link_libraries(bench_wal_overhead PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_wal_overhead PRIVATE cxx_std_23)
+
+    # V4.1 Test 10: Trace GC — Tombstoning & Shadow Compaction
+    add_executable(bench_trace_gc
+        benchmarks/bench_trace_gc.cpp
+    )
+    target_link_libraries(bench_trace_gc PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_trace_gc PRIVATE cxx_std_23)
 endif()
 
 # --- Advanced Optimizations ---
