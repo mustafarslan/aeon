@@ -1,0 +1,189 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 26,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "BUILD_TESTING": "ON"
+            }
+        },
+        {
+            "name": "dev",
+            "displayName": "Development (local)",
+            "description": "Local development with debug info and native arch optimization",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "AEON_CI_BUILD": "OFF"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "Release (production)",
+            "description": "Full production optimization with LTO and fast-math",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "AEON_CI_BUILD": "OFF",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+            }
+        },
+        {
+            "name": "ci-linux",
+            "displayName": "CI — Linux (GCC/Clang)",
+            "description": "CI build for Ubuntu runners. Uses portable AVX2 via -march=x86-64-v3",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "AEON_CI_BUILD": "ON"
+            },
+            "condition": {
+                "type": "notEquals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "ci-macos",
+            "displayName": "CI — macOS (AppleClang ARM64)",
+            "description": "CI build for macOS ARM64 runners. Native NEON via -mcpu=apple-m1",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "AEON_CI_BUILD": "ON"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            }
+        },
+        {
+            "name": "ci-windows",
+            "displayName": "CI — Windows (MSVC)",
+            "description": "CI build for Windows runners. MSVC with /O2 /arch:AVX2",
+            "inherits": "default",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "AEON_CI_BUILD": "ON"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "ci-ios",
+            "displayName": "CI — iOS (cross-compile stub)",
+            "description": "Future: iOS cross-compilation. Requires CMAKE_TOOLCHAIN_FILE.",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_SYSTEM_NAME": "iOS",
+                "CMAKE_OSX_ARCHITECTURES": "arm64",
+                "BUILD_TESTING": "OFF",
+                "AEON_CI_BUILD": "ON"
+            }
+        },
+        {
+            "name": "ci-android",
+            "displayName": "CI — Android (cross-compile stub)",
+            "description": "Future: Android NDK cross-compilation. Requires ANDROID_NDK.",
+            "inherits": "default",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_SYSTEM_NAME": "Android",
+                "CMAKE_ANDROID_ARCH_ABI": "arm64-v8a",
+                "CMAKE_ANDROID_API": "24",
+                "BUILD_TESTING": "OFF",
+                "AEON_CI_BUILD": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "dev",
+            "configurePreset": "dev"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        },
+        {
+            "name": "ci-linux",
+            "configurePreset": "ci-linux"
+        },
+        {
+            "name": "ci-macos",
+            "configurePreset": "ci-macos"
+        },
+        {
+            "name": "ci-windows",
+            "configurePreset": "ci-windows"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "dev",
+            "configurePreset": "dev",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "default"
+            }
+        },
+        {
+            "name": "release",
+            "configurePreset": "release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "ci-linux",
+            "configurePreset": "ci-linux",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "timeout": 300
+            }
+        },
+        {
+            "name": "ci-macos",
+            "configurePreset": "ci-macos",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "timeout": 300
+            }
+        },
+        {
+            "name": "ci-windows",
+            "configurePreset": "ci-windows",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
+            },
+            "execution": {
+                "timeout": 300
+            }
+        }
+    ]
+}

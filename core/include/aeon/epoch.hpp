@@ -15,21 +15,34 @@
  *   Writer grow:   data_.store(new_ptr, release) → retire(old) → epoch++
  *   Reclaim scan:  slot.load(acquire) for each active reader
  *
+ * Cache-line isolation:
+ *   All per-reader atomic slots are padded to CACHE_LINE_SIZE (64 bytes)
+ *   to eliminate false sharing across CPU cores. The global epoch counter
+ *   is similarly isolated.
+ *
  * @see storage.hpp — MemoryFile::grow() uses retire() for deferred munmap
  * @see atlas.hpp   — Atlas::navigate() acquires EpochGuard before mmap access
  */
 
+#include "aeon/platform.hpp"
 #include <array>
 #include <atomic>
 #include <cstdint>
 #include <mutex>
-#include <sys/mman.h>
 #include <thread>
 #include <vector>
 
 namespace aeon {
 
-/// Maximum concurrent readers. Sized to fit in a single cache line group.
+// ---------------------------------------------------------------------------
+// Cache-line size: 64 bytes is correct for all target architectures
+// (x86-64 L1d, ARM Cortex-A, Apple M-series). We avoid
+// std::hardware_destructive_interference_size because Apple Clang
+// advertises the feature-test macro but does not provide the constant.
+// ---------------------------------------------------------------------------
+inline constexpr std::size_t CACHE_LINE_SIZE = 64;
+
+/// Maximum concurrent readers. Sized for industrial multi-tenant workloads.
 constexpr size_t MAX_READERS = 64;
 
 /// Sentinel: slot is claimed but reader is not currently in an epoch.
@@ -42,6 +55,26 @@ struct RetiredRegion {
   uint64_t retired_at_epoch;
 };
 
+// ---------------------------------------------------------------------------
+// Cache-line padded atomics — each lives on its own cache line to prevent
+// false sharing when multiple cores concurrently access adjacent reader slots.
+// ---------------------------------------------------------------------------
+
+/// Cache-line aligned atomic uint64_t for per-reader epoch announcements.
+struct alignas(CACHE_LINE_SIZE) AlignedAtomicU64 {
+  std::atomic<uint64_t> value{EPOCH_NOT_READING};
+};
+
+/// Cache-line aligned atomic bool for per-reader slot ownership flags.
+struct alignas(CACHE_LINE_SIZE) AlignedAtomicBool {
+  std::atomic<bool> value{false};
+};
+
+/// Cache-line aligned global epoch counter (isolated from reader arrays).
+struct alignas(CACHE_LINE_SIZE) AlignedEpochCounter {
+  std::atomic<uint64_t> value{1};
+};
+
 // Forward declaration
 class EpochGuard;
 
@@ -51,24 +84,26 @@ class EpochGuard;
  * Thread-safe. Readers call enter_guard() to protect their read window.
  * Writers call retire() to defer munmap, then advance_epoch() to trigger
  * reclamation of regions no longer referenced by any active reader.
+ *
+ * All per-reader slots are cache-line padded (alignas(64)) to eliminate
+ * false sharing. The global epoch counter is similarly isolated.
  */
 class EpochManager {
 public:
-  EpochManager() {
-    for (auto &slot : reader_epochs_) {
-      slot.store(EPOCH_NOT_READING, std::memory_order_relaxed);
-    }
-    for (auto &claimed : slot_claimed_) {
-      claimed.store(false, std::memory_order_relaxed);
-    }
-  }
+  EpochManager() = default;
 
   ~EpochManager() {
+    // Invalidate thread-local cached slot before destruction to prevent
+    // stale pointer matches in subsequent EpochManager instances (e.g.
+    // sequential GTest cases allocating EpochManager on the same stack
+    // address).
+    reset_thread_local_slot();
+
     // Reclaim all remaining retired regions on destruction
     std::lock_guard<std::mutex> lock(retired_mutex_);
     for (auto &r : retired_) {
       if (r.addr) {
-        munmap(r.addr, r.size);
+        platform::mem_unmap(r.addr, r.size);
       }
     }
     retired_.clear();
@@ -86,12 +121,9 @@ public:
    * @throws std::runtime_error if all slots are exhausted after spin-backoff.
    */
   size_t acquire_slot() {
-    // Thread-local cache: each thread claims a slot once
-    thread_local size_t cached_slot = SIZE_MAX;
-    thread_local EpochManager *cached_mgr = nullptr;
-
-    if (cached_mgr == this && cached_slot < MAX_READERS) {
-      return cached_slot;
+    auto &tls = tls_slot_cache();
+    if (tls.mgr == this && tls.slot < MAX_READERS) {
+      return tls.slot;
     }
 
     // Spin with exponential backoff to find a free slot
@@ -99,13 +131,13 @@ public:
     for (int attempt = 0; attempt < MAX_ATTEMPTS; ++attempt) {
       for (size_t i = 0; i < MAX_READERS; ++i) {
         bool expected = false;
-        if (slot_claimed_[i].compare_exchange_strong(
+        if (slot_claimed_[i].value.compare_exchange_strong(
                 expected, true, std::memory_order_acq_rel)) {
           // Successfully claimed slot i
-          reader_epochs_[i].store(EPOCH_NOT_READING,
-                                  std::memory_order_release);
-          cached_slot = i;
-          cached_mgr = this;
+          reader_epochs_[i].value.store(EPOCH_NOT_READING,
+                                        std::memory_order_release);
+          tls.slot = i;
+          tls.mgr = this;
           return i;
         }
       }
@@ -118,9 +150,30 @@ public:
       }
     }
 
-    throw std::runtime_error(
-        "EBR: All reader slots exhausted (MAX_READERS=" +
-        std::to_string(MAX_READERS) + ")");
+    throw std::runtime_error("EBR: All reader slots exhausted (MAX_READERS=" +
+                             std::to_string(MAX_READERS) + ")");
+  }
+
+  /**
+   * @brief Reset the thread-local cached slot for this EpochManager.
+   *
+   * Must be called when an EpochManager is being destroyed or reset between
+   * test runs. Without this, thread-local slot caching causes stale references
+   * across test boundaries (the root cause of the TSan flake in
+   * RetireBlockedByActiveReader).
+   */
+  void reset_thread_local_slot() {
+    auto &tls = tls_slot_cache();
+    if (tls.mgr == this) {
+      // Release the slot so it can be reused
+      if (tls.slot < MAX_READERS) {
+        reader_epochs_[tls.slot].value.store(EPOCH_NOT_READING,
+                                             std::memory_order_release);
+        slot_claimed_[tls.slot].value.store(false, std::memory_order_release);
+      }
+      tls.slot = SIZE_MAX;
+      tls.mgr = nullptr;
+    }
   }
 
   /**
@@ -131,8 +184,8 @@ public:
    * the writer's reclamation scan before the reader proceeds to access data.
    */
   void enter(size_t slot) {
-    uint64_t epoch = global_epoch_.load(std::memory_order_acquire);
-    reader_epochs_[slot].store(epoch, std::memory_order_release);
+    uint64_t epoch = global_epoch_.value.load(std::memory_order_acquire);
+    reader_epochs_[slot].value.store(epoch, std::memory_order_release);
   }
 
   /**
@@ -142,7 +195,8 @@ public:
    * before the slot is marked as idle (happens-before the writer's scan).
    */
   void exit(size_t slot) {
-    reader_epochs_[slot].store(EPOCH_NOT_READING, std::memory_order_release);
+    reader_epochs_[slot].value.store(EPOCH_NOT_READING,
+                                     std::memory_order_release);
   }
 
   /**
@@ -155,7 +209,7 @@ public:
    *        structural mutations (grow, compaction). Triggers try_reclaim().
    */
   void advance_epoch() {
-    global_epoch_.fetch_add(1, std::memory_order_acq_rel);
+    global_epoch_.value.fetch_add(1, std::memory_order_acq_rel);
     try_reclaim();
   }
 
@@ -165,7 +219,7 @@ public:
    *        the current epoch.
    */
   void retire(void *addr, size_t size) {
-    uint64_t epoch = global_epoch_.load(std::memory_order_acquire);
+    uint64_t epoch = global_epoch_.value.load(std::memory_order_acquire);
     std::lock_guard<std::mutex> lock(retired_mutex_);
     retired_.push_back({addr, size, epoch});
   }
@@ -186,7 +240,7 @@ public:
                              [safe_epoch](const RetiredRegion &r) {
                                if (r.retired_at_epoch < safe_epoch) {
                                  if (r.addr) {
-                                   munmap(r.addr, r.size);
+                                   platform::mem_unmap(r.addr, r.size);
                                  }
                                  return true; // Remove from list
                                }
@@ -204,9 +258,9 @@ public:
     for (int attempt = 0; attempt < MAX_DRAIN_ATTEMPTS; ++attempt) {
       bool all_idle = true;
       for (size_t i = 0; i < MAX_READERS; ++i) {
-        if (slot_claimed_[i].load(std::memory_order_acquire)) {
+        if (slot_claimed_[i].value.load(std::memory_order_acquire)) {
           uint64_t val =
-              reader_epochs_[i].load(std::memory_order_acquire);
+              reader_epochs_[i].value.load(std::memory_order_acquire);
           if (val != EPOCH_NOT_READING) {
             all_idle = false;
             break;
@@ -227,7 +281,7 @@ public:
 
   /// Get current global epoch (for debugging/testing).
   uint64_t current_epoch() const {
-    return global_epoch_.load(std::memory_order_acquire);
+    return global_epoch_.value.load(std::memory_order_acquire);
   }
 
   /// Get count of pending retired regions (for testing).
@@ -237,14 +291,27 @@ public:
   }
 
 private:
-  /// Global monotonically increasing epoch counter.
-  std::atomic<uint64_t> global_epoch_{1};
+  /// Thread-local slot cache shared between acquire_slot() and
+  /// reset_thread_local_slot(). Must be a static method returning a reference
+  /// to a thread_local, since C++ thread_local at function scope creates
+  /// separate instances per function.
+  struct TLSSlotCache {
+    size_t slot = SIZE_MAX;
+    EpochManager *mgr = nullptr;
+  };
+  static TLSSlotCache &tls_slot_cache() {
+    thread_local TLSSlotCache cache;
+    return cache;
+  }
 
-  /// Per-reader epoch announcement slots.
-  std::array<std::atomic<uint64_t>, MAX_READERS> reader_epochs_;
+  /// Global monotonically increasing epoch counter (cache-line isolated).
+  AlignedEpochCounter global_epoch_;
 
-  /// Ownership bitfield for slot allocation (1 = claimed by a thread).
-  std::array<std::atomic<bool>, MAX_READERS> slot_claimed_;
+  /// Per-reader epoch announcement slots (each on its own cache line).
+  std::array<AlignedAtomicU64, MAX_READERS> reader_epochs_;
+
+  /// Ownership bitfield for slot allocation (each on its own cache line).
+  std::array<AlignedAtomicBool, MAX_READERS> slot_claimed_;
 
   /// Deferred reclamation queue.
   std::vector<RetiredRegion> retired_;
@@ -257,8 +324,8 @@ private:
   uint64_t min_active_epoch() const {
     uint64_t min_epoch = UINT64_MAX;
     for (size_t i = 0; i < MAX_READERS; ++i) {
-      if (slot_claimed_[i].load(std::memory_order_acquire)) {
-        uint64_t val = reader_epochs_[i].load(std::memory_order_acquire);
+      if (slot_claimed_[i].value.load(std::memory_order_acquire)) {
+        uint64_t val = reader_epochs_[i].value.load(std::memory_order_acquire);
         if (val != EPOCH_NOT_READING && val < min_epoch) {
           min_epoch = val;
         }

@@ -22,7 +22,7 @@ namespace aeon {
  */
 struct alignas(64) CacheEntry {
   uint64_t node_id;
-  float centroid[EMBEDDING_DIM];
+  float centroid[EMBEDDING_DIM_DEFAULT];
   /// LRU tick counter; 0 indicates an empty/invalid slot.
   uint64_t last_accessed_tick;
 };
@@ -133,6 +133,19 @@ public:
       }
     }
     update_entry(*lru, node_id, centroid);
+  }
+
+  /**
+   * @brief Resets the cache to empty state. Thread-safe.
+   * Used by compact_mmap() when node IDs are re-indexed.
+   */
+  void clear() {
+    std::unique_lock lock(mutex_);
+    for (auto &e : entries_) {
+      e.last_accessed_tick = 0;
+      e.node_id = 0;
+    }
+    tick_counter_.store(1, std::memory_order_relaxed);
   }
 
   /**

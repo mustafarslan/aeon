@@ -1,22 +1,13 @@
 #pragma once
 
 #include "aeon/epoch.hpp"
+#include "aeon/platform.hpp"
 #include "aeon/schema.hpp"
 #include <algorithm>
 #include <atomic>
 #include <expected>
 #include <filesystem>
 #include <string>
-
-// Platform specific includes for mmap
-#if defined(_WIN32)
-#error "Windows is not supported in this phase"
-#else
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#endif
 
 namespace aeon::storage {
 
@@ -40,25 +31,29 @@ public:
 
   // Enable move
   MemoryFile(MemoryFile &&other) noexcept
-      : fd_(other.fd_), data_(other.data_.load(std::memory_order_relaxed)),
-        size_(other.size_), epoch_mgr_(other.epoch_mgr_) {
-    other.fd_ = -1;
+      : handle_(other.handle_),
+        data_(other.data_.load(std::memory_order_relaxed)), size_(other.size_),
+        stride_(other.stride_), epoch_mgr_(other.epoch_mgr_) {
+    other.handle_ = platform::INVALID_FILE_HANDLE;
     other.data_.store(nullptr, std::memory_order_relaxed);
     other.size_ = 0;
+    other.stride_ = 0;
     other.epoch_mgr_ = nullptr;
   }
 
   MemoryFile &operator=(MemoryFile &&other) noexcept {
     if (this != &other) {
       close();
-      fd_ = other.fd_;
+      handle_ = other.handle_;
       data_.store(other.data_.load(std::memory_order_relaxed),
                   std::memory_order_relaxed);
       size_ = other.size_;
+      stride_ = other.stride_;
       epoch_mgr_ = other.epoch_mgr_;
-      other.fd_ = -1;
+      other.handle_ = platform::INVALID_FILE_HANDLE;
       other.data_.store(nullptr, std::memory_order_relaxed);
       other.size_ = 0;
+      other.stride_ = 0;
       other.epoch_mgr_ = nullptr;
     }
     return *this;
@@ -68,78 +63,82 @@ public:
 
   /**
    * @brief Opens or creates a memory mapped file.
-   * If creating, initializes the global header.
+   *
+   * For NEW files: initializes AtlasHeader with the provided dim and
+   * metadata_size, computes node_byte_stride, and writes the header.
+   *
+   * For EXISTING files: reads dim, metadata_size, and node_byte_stride
+   * from the on-disk AtlasHeader. The caller's dim/metadata_size params
+   * are ignored — the file is authoritative.
+   *
+   * @param path             File path
+   * @param initial_capacity Initial node slots (new files only)
+   * @param dim              Embedding dimensionality (new files only)
+   * @param metadata_size    Metadata block size (new files only)
    */
-  std::expected<void, StorageError> open(const std::filesystem::path &path,
-                                         size_t initial_capacity = 1000) {
+  std::expected<void, StorageError>
+  open(const std::filesystem::path &path, size_t initial_capacity = 1000,
+       uint32_t dim = EMBEDDING_DIM_DEFAULT,
+       uint32_t metadata_size = METADATA_SIZE_DEFAULT) {
     bool exists = std::filesystem::exists(path);
-    int flags = O_RDWR | O_CREAT;
-    fd_ = ::open(path.c_str(), flags, 0644);
 
-    if (fd_ == -1) {
+#if defined(AEON_PLATFORM_WINDOWS)
+    handle_ = platform::file_open(path.string().c_str());
+    if (handle_ != platform::INVALID_FILE_HANDLE) {
+      exists = platform::file_existed_before_open(handle_);
+    }
+#else
+    handle_ = platform::file_open(path.c_str(), 0644);
+#endif
+
+    if (handle_ == platform::INVALID_FILE_HANDLE) {
       return std::unexpected(StorageError::IOError);
     }
 
     if (!exists) {
-      // New file: Initialize header
-      size_ = sizeof(AtlasHeader) + (initial_capacity * sizeof(Node));
-      if (ftruncate(fd_, size_) != 0) {
+      // ── New file: compute stride and write header ──
+      stride_ = compute_node_stride(dim, metadata_size);
+
+      size_ = sizeof(AtlasHeader) + (initial_capacity * stride_);
+      if (!platform::file_resize(handle_, size_)) {
         return std::unexpected(StorageError::AllocationFailed);
       }
 
-      // Initial map to write header
-      void *ptr =
-          mmap(nullptr, size_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
-      if (ptr == MAP_FAILED) {
+      void *ptr = platform::mem_map(handle_, size_);
+      if (ptr == platform::MAP_FAILED_PTR) {
         return std::unexpected(StorageError::AllocationFailed);
       }
       data_.store(static_cast<uint8_t *>(ptr), std::memory_order_release);
 
-      // Advise kernel to use Huge Pages if possible (2MB pages)
-      // Reduces TLB misses for large datasets.
-      // MADV_HUGEPAGE is Linux specific. On Mac/BSD it might be MADV_HUGEPAGE
-      // or ignored.
-#if defined(__linux__) && defined(MADV_HUGEPAGE)
-      madvise(ptr, size_, MADV_HUGEPAGE);
-#endif
-      // Also advise random access since we jump around the tree
-      madvise(ptr, size_, MADV_RANDOM);
+      platform::advise_hugepage(ptr, size_);
+      platform::advise_random(ptr, size_);
 
-      // Write Header
       auto *header = get_header();
       header->magic = ATLAS_MAGIC;
       header->version = ATLAS_VERSION;
       header->node_count = 0;
       header->capacity = initial_capacity;
-      // Zero out padding
+      header->dim = dim;
+      header->metadata_size = metadata_size;
+      header->node_byte_stride = stride_;
       std::fill(std::begin(header->reserved), std::end(header->reserved), 0);
 
     } else {
-      // Existing file: Get size
-      struct stat sb;
-      if (fstat(fd_, &sb) == -1) {
+      // ── Existing file: read stride from header ──
+      size_ = platform::file_size(handle_);
+      if (size_ == 0) {
         return std::unexpected(StorageError::IOError);
       }
-      size_ = sb.st_size;
 
-      void *ptr =
-          mmap(nullptr, size_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
-      if (ptr == MAP_FAILED) {
+      void *ptr = platform::mem_map(handle_, size_);
+      if (ptr == platform::MAP_FAILED_PTR) {
         return std::unexpected(StorageError::AllocationFailed);
       }
       data_.store(static_cast<uint8_t *>(ptr), std::memory_order_release);
 
-      // Advise kernel to use Huge Pages if possible (2MB pages)
-      // Reduces TLB misses for large datasets.
-      // MADV_HUGEPAGE is Linux specific. On Mac/BSD it might be MADV_HUGEPAGE
-      // or ignored.
-#if defined(__linux__) && defined(MADV_HUGEPAGE)
-      madvise(ptr, size_, MADV_HUGEPAGE);
-#endif
-      // Also advise random access since we jump around the tree
-      madvise(ptr, size_, MADV_RANDOM);
+      platform::advise_hugepage(ptr, size_);
+      platform::advise_random(ptr, size_);
 
-      // Validate Header
       if (size_ < sizeof(AtlasHeader)) {
         return std::unexpected(StorageError::InvalidFormat);
       }
@@ -147,9 +146,21 @@ public:
       if (header->magic != ATLAS_MAGIC) {
         return std::unexpected(StorageError::InvalidFormat);
       }
-      if (header->version != ATLAS_VERSION) {
+      // Accept both V1 and V2 files
+      if (header->version != ATLAS_VERSION && header->version != 1) {
         return std::unexpected(StorageError::VersionMismatch);
       }
+
+      // V1 backward compat: if dim/stride not set, derive from V1 layout
+      if (header->version == 1 || header->dim == 0) {
+        header->dim = EMBEDDING_DIM_DEFAULT;
+        header->metadata_size = METADATA_SIZE_DEFAULT;
+        header->node_byte_stride =
+            compute_node_stride(EMBEDDING_DIM_DEFAULT, METADATA_SIZE_DEFAULT);
+        header->version = ATLAS_VERSION; // Upgrade in place
+      }
+
+      stride_ = header->node_byte_stride;
     }
 
     return {};
@@ -159,24 +170,24 @@ public:
   void set_epoch_manager(aeon::EpochManager *mgr) { epoch_mgr_ = mgr; }
 
   void close() {
-    // Drain all active readers before unmapping
     if (epoch_mgr_) {
       epoch_mgr_->drain_readers();
     }
     auto *d = data_.load(std::memory_order_acquire);
     if (d) {
-      munmap(d, size_);
+      platform::mem_unmap(d, size_);
       data_.store(nullptr, std::memory_order_release);
     }
-    if (fd_ != -1) {
-      ::close(fd_);
-      fd_ = -1;
+    if (handle_ != platform::INVALID_FILE_HANDLE) {
+      platform::file_close(handle_);
+      handle_ = platform::INVALID_FILE_HANDLE;
     }
     size_ = 0;
   }
 
   /**
    * @brief Expands the file to hold new_capacity nodes.
+   * Uses dynamic node_byte_stride for size calculations.
    */
   std::expected<void, StorageError> grow(size_t new_capacity) {
     auto *current_data = data_.load(std::memory_order_acquire);
@@ -185,42 +196,53 @@ public:
 
     auto *current_header = reinterpret_cast<AtlasHeader *>(current_data);
     if (new_capacity <= current_header->capacity) {
-      return {}; // No need to grow
+      return {};
     }
 
-    size_t new_size = sizeof(AtlasHeader) + (new_capacity * sizeof(Node));
+    size_t new_size = sizeof(AtlasHeader) + (new_capacity * stride_);
 
-    // 1. Extend file FIRST (safe while old mapping still exists)
-    if (ftruncate(fd_, new_size) != 0) {
+    if (!platform::file_resize(handle_, new_size)) {
       return std::unexpected(StorageError::AllocationFailed);
     }
 
-    // 2. Create NEW mapping covering the extended file
-    void *new_ptr =
-        mmap(nullptr, new_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
-    if (new_ptr == MAP_FAILED) {
+    void *new_ptr = platform::mem_map(handle_, new_size);
+    if (new_ptr == platform::MAP_FAILED_PTR) {
       return std::unexpected(StorageError::AllocationFailed);
     }
 
-    // 3. Capture old mapping for deferred reclamation
     void *old_data = current_data;
     size_t old_size = size_;
 
-    // 4. Atomically swap to new mapping (release ensures visibility)
     data_.store(static_cast<uint8_t *>(new_ptr), std::memory_order_release);
     size_ = new_size;
 
-    // 5. Retire old mapping via EBR (deferred munmap)
     if (epoch_mgr_ && old_data) {
       epoch_mgr_->retire(old_data, old_size);
     } else if (old_data) {
-      munmap(old_data, old_size); // Fallback: immediate cleanup
+      platform::mem_unmap(old_data, old_size);
     }
 
-    // Update header on new mapping
     get_header()->capacity = new_capacity;
 
     return {};
+  }
+
+  /**
+   * @brief Release resident pages back to the OS without unmapping.
+   * Uses dynamic stride for offset calculations.
+   */
+  void release_pages(size_t start_node, size_t count) {
+    auto *header = get_header();
+    if (!header || start_node >= header->capacity)
+      return;
+    count = std::min(count, static_cast<size_t>(header->capacity) - start_node);
+
+    size_t offset = sizeof(AtlasHeader) + (start_node * stride_);
+    size_t length = count * stride_;
+    auto *d = data_.load(std::memory_order_acquire);
+    if (d) {
+      platform::advise_dontneed(d + offset, length);
+    }
   }
 
   // --- Accessors ---
@@ -234,28 +256,38 @@ public:
     return d ? reinterpret_cast<const AtlasHeader *>(d) : nullptr;
   }
 
-  Node *get_node(size_t index) {
+  /**
+   * @brief Returns a NodeHeader* at the given index using dynamic byte stride.
+   *
+   * Pointer arithmetic: base + sizeof(AtlasHeader) + index * node_byte_stride.
+   * Every node starts on a 64-byte boundary (enforced by compute_node_stride).
+   */
+  NodeHeader *get_node(size_t index) {
     auto *header = get_header();
     if (!header || index >= header->capacity)
       return nullptr;
-    size_t offset = sizeof(AtlasHeader) + (index * sizeof(Node));
-    return reinterpret_cast<Node *>(data_.load(std::memory_order_acquire) +
-                                    offset);
-  }
-
-  const Node *get_node(size_t index) const {
-    auto *header = get_header();
-    if (!header || index >= header->capacity)
-      return nullptr;
-    size_t offset = sizeof(AtlasHeader) + (index * sizeof(Node));
-    return reinterpret_cast<const Node *>(
+    size_t offset = sizeof(AtlasHeader) + (index * stride_);
+    return reinterpret_cast<NodeHeader *>(
         data_.load(std::memory_order_acquire) + offset);
   }
 
+  const NodeHeader *get_node(size_t index) const {
+    auto *header = get_header();
+    if (!header || index >= header->capacity)
+      return nullptr;
+    size_t offset = sizeof(AtlasHeader) + (index * stride_);
+    return reinterpret_cast<const NodeHeader *>(
+        data_.load(std::memory_order_acquire) + offset);
+  }
+
+  /// Returns the cached node byte stride.
+  size_t stride() const noexcept { return stride_; }
+
 private:
-  int fd_ = -1;
+  platform::FileHandle handle_ = platform::INVALID_FILE_HANDLE;
   std::atomic<uint8_t *> data_{nullptr};
   size_t size_ = 0;
+  size_t stride_ = 0; ///< Cached from AtlasHeader::node_byte_stride
   aeon::EpochManager *epoch_mgr_ = nullptr;
 };
 

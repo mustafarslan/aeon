@@ -12,14 +12,29 @@ list(APPEND CMAKE_PREFIX_PATH "${nanobind_ROOT}")
 find_package(nanobind CONFIG REQUIRED)
 
 # --- Compiler Optimizations ---
+option(AEON_CI_BUILD "Use portable SIMD flags for CI runners" OFF)
+
 if(MSVC)
-    # Enable AVX2 and maximum optimization for Windows
-    # Fallback to C++20 if C++23 is not fully supported by the compiler yet
-    add_compile_options(/arch:AVX2 /O2 /std:c++20)
+    # MSVC: AVX2 + fast-math + latest C++ standard (C++23 experimental)
+    add_compile_options(/O2 /fp:fast /arch:AVX2 /std:c++latest /permissive-)
 else()
-    # Base aggressive flags - generally safe
-    add_compile_options(-march=native -Wall -Wextra -pedantic)
+    # Clang/GCC: architecture-specific optimization
+    if(AEON_CI_BUILD)
+        if(APPLE)
+            # CI macOS ARM64: target Apple M1 baseline (covers M1/M2/M3/M4)
+            add_compile_options(-mcpu=apple-m1 -O3 -ffast-math -Wall -Wextra)
+        else()
+            # CI Linux x86-64: portable AVX2 level (x86-64-v3)
+            add_compile_options(-march=x86-64-v3 -O3 -ffast-math -Wall -Wextra)
+        endif()
+    else()
+        # Local development: use native arch for maximum performance
+        add_compile_options(-march=native -Wall -Wextra -pedantic)
+    endif()
 endif()
+
+# --- Threads (cross-platform: pthreads on POSIX, win32 threads on Windows) ---
+find_package(Threads REQUIRED)
 
 # --- BLAS Abstraction ---
 if(APPLE)
@@ -78,9 +93,9 @@ target_include_directories(aeon_core PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 
-# Require C++23 for std::span, std::expected, concepts, CTAD, etc.
+# Require C++23. MSVC /std:c++latest enables all experimental C++23 features.
 if(MSVC)
-    target_compile_features(aeon_core PUBLIC cxx_std_20)
+    target_compile_features(aeon_core PUBLIC cxx_std_23)
 else()
     target_compile_features(aeon_core PUBLIC cxx_std_23)
 endif()
@@ -116,6 +131,46 @@ set_target_properties(aeon_py_core PROPERTIES OUTPUT_NAME "core")
 # Output definitions (install rules handled by scikit-build-core)
 install(TARGETS aeon_py_core DESTINATION .)
 
+# --- Universal C-API Shared Library ---
+# Builds libaeon.so (Linux), libaeon.dylib (macOS), aeon.dll (Windows)
+# Target platforms: Unreal Engine, Godot, Unity (C#/P/Invoke), iOS, Android JNI
+add_library(aeon_shared SHARED
+    src/aeon_c_api.cpp
+)
+
+target_link_libraries(aeon_shared PRIVATE aeon_core Threads::Threads)
+target_compile_features(aeon_shared PRIVATE cxx_std_23)
+
+# AEON_BUILDING_SHARED triggers __declspec(dllexport) on Windows
+# and __attribute__((visibility("default"))) on POSIX for AEON_API symbols.
+target_compile_definitions(aeon_shared PRIVATE AEON_BUILDING_SHARED)
+
+# Hide all symbols by default; only AEON_API-annotated symbols are exported.
+# This prevents C++ name mangling from leaking into the flat C ABI.
+set_target_properties(aeon_shared PROPERTIES
+    OUTPUT_NAME "aeon"
+    CXX_VISIBILITY_PRESET hidden
+    C_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+    # macOS: set install_name for framework embedding
+    MACOSX_RPATH ON
+    # Windows: put DLL next to executables for testing
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+if(NOT MSVC)
+    # Safe optimizations for the C-API wrapper (no -ffast-math — it's a thin wrapper)
+    target_compile_options(aeon_shared PRIVATE -O2 -flto)
+endif()
+
+# Install rules for SDK distribution
+install(TARGETS aeon_shared
+    LIBRARY DESTINATION lib      # .so / .dylib
+    ARCHIVE DESTINATION lib      # .lib (Windows import library)
+    RUNTIME DESTINATION bin      # .dll (Windows)
+)
+install(FILES include/aeon/aeon_c_api.h DESTINATION include/aeon)
+
 # --- Testing ---
 if(BUILD_TESTING)
     enable_testing()
@@ -137,20 +192,21 @@ if(BUILD_TESTING)
         tests/test_atlas.cpp
         tests/test_epoch.cpp
         tests/test_concurrency.cpp
+        tests/test_wal.cpp
+        tests/test_blob_arena.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 
         aeon_core 
         GTest::gtest_main
-        pthread
+        Threads::Threads
     )
 
-    # Default to C++23 for tests, fallback to 20 for MSVC
-    if(MSVC)
-        target_compile_features(aeon_tests PRIVATE cxx_std_20)
-    else()
-        target_compile_features(aeon_tests PRIVATE cxx_std_23)
-    endif()
+    target_compile_features(aeon_tests PRIVATE cxx_std_23)
+
+    # Register GTest cases with CTest for discovery
+    include(GoogleTest)
+    gtest_discover_tests(aeon_tests)
 
     # --- Benchmarks ---
     # Add Google Benchmark
@@ -168,22 +224,14 @@ if(BUILD_TESTING)
     )
     target_link_libraries(aeon_benchmark_legacy PRIVATE aeon_core)
     
-    if(MSVC)
-         target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_20)
-    else()
-         target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_23)
-    endif()
+    target_compile_features(aeon_benchmark_legacy PRIVATE cxx_std_23)
 
     # New Google Benchmark Suite
     add_executable(aeon_bench
         benchmarks/bench_main.cpp
     )
     target_link_libraries(aeon_bench PRIVATE aeon_core benchmark::benchmark_main)
-    if(MSVC)
-        target_compile_features(aeon_bench PRIVATE cxx_std_20)
-    else()
-        target_compile_features(aeon_bench PRIVATE cxx_std_23)
-    endif()
+    target_compile_features(aeon_bench PRIVATE cxx_std_23)
 
     # --- IEEE WCCI 2026 Benchmark Suite ---
     # Test 1: Math Kernel Throughput (§6.1)
@@ -206,6 +254,34 @@ if(BUILD_TESTING)
     )
     target_link_libraries(bench_scalability PRIVATE aeon_core benchmark::benchmark)
     target_compile_features(bench_scalability PRIVATE cxx_std_23)
+
+    # Test 4: EBR Hostile Contention (Phase 1 — P99 latency proof)
+    add_executable(bench_ebr_contention
+        benchmarks/bench_ebr_contention.cpp
+    )
+    target_link_libraries(bench_ebr_contention PRIVATE aeon_core Threads::Threads)
+    target_compile_features(bench_ebr_contention PRIVATE cxx_std_23)
+
+    # Test 5: Beam Search Scalability (Phase 3 — 1M node proof)
+    add_executable(bench_beam_search
+        benchmarks/bench_beam_search.cpp
+    )
+    target_link_libraries(bench_beam_search PRIVATE aeon_core Threads::Threads)
+    target_compile_features(bench_beam_search PRIVATE cxx_std_23)
+
+    # Test 6: Multi-Tenant SLB Thrashing (V3 §7.1 — 10K NPC proof)
+    add_executable(bench_multitenant_slb
+        benchmarks/bench_multitenant_slb.cpp
+    )
+    target_link_libraries(bench_multitenant_slb PRIVATE aeon_core benchmark::benchmark Threads::Threads)
+    target_compile_features(bench_multitenant_slb PRIVATE cxx_std_23)
+
+    # Test 7: Tiered Edge-to-Cloud Atlas (V3 §7.2 — cold miss detection)
+    add_executable(bench_tiered_atlas
+        benchmarks/bench_tiered_atlas.cpp
+    )
+    target_link_libraries(bench_tiered_atlas PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_tiered_atlas PRIVATE cxx_std_23)
 endif()
 
 # --- Advanced Optimizations ---

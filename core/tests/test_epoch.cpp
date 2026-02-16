@@ -1,11 +1,27 @@
 #include "aeon/epoch.hpp"
+#include "aeon/platform.hpp"
 #include <algorithm>
 #include <gtest/gtest.h>
-#include <sys/mman.h>
 #include <thread>
 #include <vector>
 
 using namespace aeon;
+
+// TSan slows execution 10-50x. Scale all timing-sensitive sleeps accordingly.
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define AEON_TSAN_ACTIVE 1
+#endif
+#endif
+#if defined(__SANITIZE_THREAD__) && !defined(AEON_TSAN_ACTIVE)
+#define AEON_TSAN_ACTIVE 1
+#endif
+
+#ifdef AEON_TSAN_ACTIVE
+constexpr int TSAN_MULTIPLIER = 20;
+#else
+constexpr int TSAN_MULTIPLIER = 1;
+#endif
 
 // ============================================================================
 // EpochManager Unit Tests
@@ -126,10 +142,19 @@ TEST(EpochGuard, MultipleGuardsOnDifferentThreads) {
 TEST(EpochManager, RetireAndReclaim) {
   EpochManager mgr;
 
-  // Allocate via mmap — matches munmap in try_reclaim()
+  // Allocate via platform::mem_map — matches platform::mem_unmap in
+  // try_reclaim() On POSIX, we need anonymous mmap for testing. Use
+  // platform-aware allocation.
+#if defined(AEON_PLATFORM_WINDOWS)
+  // On Windows, allocate via VirtualAlloc for anonymous memory
+  void *ptr =
+      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  ASSERT_NE(ptr, nullptr);
+#else
   void *ptr = mmap(nullptr, 4096, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   ASSERT_NE(ptr, MAP_FAILED);
+#endif
 
   mgr.retire(ptr, 4096);
   EXPECT_EQ(mgr.retired_count(), 1);
@@ -142,9 +167,15 @@ TEST(EpochManager, RetireAndReclaim) {
 TEST(EpochManager, RetireBlockedByActiveReader) {
   EpochManager mgr;
 
+#if defined(AEON_PLATFORM_WINDOWS)
+  void *ptr =
+      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  ASSERT_NE(ptr, nullptr);
+#else
   void *ptr = mmap(nullptr, 4096, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   ASSERT_NE(ptr, MAP_FAILED);
+#endif
 
   // Reader holds a guard
   auto guard = mgr.enter_guard();
@@ -166,10 +197,17 @@ TEST(EpochManager, RetireBlockedByActiveReader) {
 TEST(EpochManager, MultipleRetirementsAcrossEpochs) {
   EpochManager mgr;
 
+#if defined(AEON_PLATFORM_WINDOWS)
+  void *ptr1 =
+      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+  void *ptr2 =
+      VirtualAlloc(nullptr, 4096, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+#else
   void *ptr1 = mmap(nullptr, 4096, PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   void *ptr2 = mmap(nullptr, 4096, PROT_READ | PROT_WRITE,
                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+#endif
 
   mgr.retire(ptr1, 4096);
   mgr.advance_epoch();
@@ -186,13 +224,14 @@ TEST(EpochManager, DrainReaders) {
 
   std::thread reader([&]() {
     auto guard = mgr.enter_guard();
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(50 * TSAN_MULTIPLIER));
     guard.release();
     guard_released.store(true, std::memory_order_release);
   });
 
   // Give reader time to acquire guard
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::this_thread::sleep_for(std::chrono::milliseconds(10 * TSAN_MULTIPLIER));
 
   // drain_readers should block until reader releases
   mgr.drain_readers();

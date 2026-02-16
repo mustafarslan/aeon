@@ -1,0 +1,124 @@
+name: Aeon Cross-Platform Build & Test
+
+on:
+  push:
+    branches: [main, master, triality-integration]
+  pull_request:
+    branches: [main, master, triality-integration]
+
+env:
+  BUILD_TYPE: Release
+  AEON_CI_BUILD: "ON"
+
+jobs:
+  build-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # ── Linux: GCC 14, x86-64, AVX2 via SIMDe ──
+          - os: ubuntu-24.04
+            compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
+            preset: ci-linux
+            install_deps: |
+              sudo apt-get update -qq
+              sudo apt-get install -y --no-install-recommends \
+                cmake ninja-build libsimde-dev
+            artifact_suffix: linux-gcc
+
+          # ── Linux: Clang 18, x86-64, AVX2 via SIMDe ──
+          - os: ubuntu-24.04
+            compiler: clang
+            cc: clang-18
+            cxx: clang++-18
+            preset: ci-linux
+            install_deps: |
+              sudo apt-get update -qq
+              sudo apt-get install -y --no-install-recommends \
+                cmake ninja-build libsimde-dev clang-18
+            artifact_suffix: linux-clang
+
+          # ── macOS: AppleClang, ARM64, native NEON ──
+          - os: macos-14
+            compiler: appleclang
+            cc: clang
+            cxx: clang++
+            preset: ci-macos
+            install_deps: |
+              brew install cmake ninja simde
+            artifact_suffix: macos-arm64
+
+          # ── Windows: MSVC 17, x86-64, AVX2 ──
+          - os: windows-latest
+            compiler: msvc
+            cc: cl
+            cxx: cl
+            preset: ci-windows
+            install_deps: |
+              choco install cmake ninja -y
+              git clone --depth 1 https://github.com/simd-everywhere/simde.git "$env:RUNNER_TEMP\simde"
+            artifact_suffix: windows-msvc
+
+    name: "${{ matrix.os }} (${{ matrix.compiler }})"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Dependencies
+        shell: bash
+        run: ${{ matrix.install_deps }}
+        if: runner.os != 'Windows'
+
+      - name: Install Dependencies (Windows)
+        shell: pwsh
+        run: ${{ matrix.install_deps }}
+        if: runner.os == 'Windows'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python build dependencies
+        run: pip install nanobind numpy scikit-build-core
+
+      # ── Configure ──
+      - name: Configure (POSIX)
+        if: runner.os != 'Windows'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:SIMDE_INCLUDE_DIR = "$env:RUNNER_TEMP\simde"
+          cmake --preset ${{ matrix.preset }} `
+            -DSIMDE_INCLUDE_DIR="$env:SIMDE_INCLUDE_DIR"
+
+      # ── Build ──
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      # ── Test ──
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }} --output-on-failure
+
+      # ── Upload test results ──
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.artifact_suffix }}
+          path: |
+            build/ci-*/Testing/
+            build/ci-*/bin/
+          retention-days: 14
