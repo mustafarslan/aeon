@@ -102,7 +102,11 @@ endif()
 
 # --- SIMDe: Portable SIMD (AVX-512/AVX2 → NEON on ARM64) ---
 find_path(SIMDE_INCLUDE_DIR NAMES simde/x86/avx512.h
-    HINTS /opt/homebrew/include /usr/local/include
+    HINTS
+        ${SIMDE_INCLUDE_DIR}  # Allow -DSIMDE_INCLUDE_DIR override from CI
+        /opt/homebrew/include
+        /usr/local/include
+        /usr/include
 )
 if(SIMDE_INCLUDE_DIR)
     message(STATUS "SIMDe found at: ${SIMDE_INCLUDE_DIR}")

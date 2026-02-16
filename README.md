@@ -1,7 +1,7 @@
 # Aeon Memory OS
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/aeon-ag/aeon)
-[![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/aeon-ag/aeon/releases)
+[![CI](https://github.com/mustafarslan/aeon/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/mustafarslan/aeon/actions)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/mustafarslan/aeon/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **Aeon** is a persistent, crash-recoverable **Semantic Memory Engine** for AI agents, game engines, and robotics. It provides a shared memory substrate where thousands of independent agents — or a single massively parallel system — can *remember, retrieve, and forget* knowledge in real time.
@@ -23,7 +23,7 @@
 | **Shadow Compaction** | "Redis-style" stutter-free garbage collection for 60 FPS real-time apps. |
 | **Multi-Tenant C-API** | Strictly typed, session-routed C interface for Unity, Unreal, and Godot. |
 | **Hierarchical SLB** | Sharded Semantic Lookaside Buffer (L1/L2) handling 100,000+ concurrent sessions. |
-| **Trace Block Index** | Sub-linear `O(|V|/1024)` search over episodic history using block centroid scanning. |
+| **Trace Block Index** | Sub-linear `O(\|V\|/1024)` search over episodic history using block centroid scanning. |
 
 ---
 
@@ -62,15 +62,17 @@ graph TD
 
 ### Prerequisites
 
-- CMake 3.25+
+- CMake 3.26+
 - C++23 Compiler (Clang 16+, GCC 13+, MSVC 19.34+)
 - Python 3.10+
+- SIMDe (portable SIMD — installed via `brew install simde`, `apt install libsimde-dev`, or from source)
+- BLAS/LAPACK (via Accelerate on macOS, OpenBLAS on Linux/Windows)
 
 ### Build from Source
 
 ```bash
 # Clone repository
-git clone https://github.com/aeon-ag/aeon.git
+git clone https://github.com/mustafarslan/aeon.git
 cd aeon
 
 # Configure and build (Development Preset)
@@ -83,7 +85,7 @@ cmake --build build/dev --parallel
 ```python
 import aeon
 
-# 1. Open an Atlas (768-dim, INT8 quantized, WAL enabled)
+# 1. Open an Atlas (768-dimensional embedding space)
 atlas = aeon.Atlas("memory/atlas.bin", dim=768)
 
 # 2. Insert detailed knowledge
@@ -152,7 +154,7 @@ Benchmarks run on Apple M4 Max (16 cores, active cooling). Full report: [`reprod
 |---|---|---|
 | **Atlas Insert (FP32)** | 2.23 µs | 448K ops/sec |
 | **Atlas Insert (INT8)** | 2.11 µs | 475K ops/sec |
-| **WAL Overhead** | < 1% | 2.23µs with vs 2.23µs without |
+| **WAL Overhead** | < 1% | Negligible: 2.23µs with WAL vs 2.23µs without |
 | **SLB Cache Hit** | 3.56 µs | FP32 always, even INT8 Atlas |
 | **Navigate (100K FP32)** | 10.5 µs | Beam search, dim=768 |
 | **Navigate (100K INT8)** | 3.09 µs | 3.4× faster than FP32 |
@@ -174,7 +176,7 @@ Benchmarks run on Apple M4 Max (16 cores, active cooling). Full report: [`reprod
 |---|---|---|
 | 10K | 7.1 µs | 1.8 µs |
 | 100K | 10.5 µs | 3.1 µs |
-| 1M | 10.5 µs | — |
+| 1M | 10.5 µs | 3.1 µs |
 
 ---
 
@@ -185,6 +187,17 @@ Benchmarks run on Apple M4 Max (16 cores, active cooling). Full report: [`reprod
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, WAL protocol, Blob Arena, INT8 architecture decisions |
 | [INTERNALS.md](INTERNALS.md) | Data structures, on-disk formats, SIMD kernels, WAL record layout |
 | [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md) | API walkthrough, insert/navigate lifecycles, integration examples |
+
+---
+
+## Platform Support
+
+| Platform | Architecture | SIMD Backend | Status |
+|---|---|---|---|
+| **macOS** | ARM64 (Apple Silicon) | Native NEON + SDOT | ✅ Tier 1 |
+| **Linux** | x86-64 | AVX2/AVX-512 via SIMDe | ✅ Tier 1 |
+| **Windows** | x86-64 | AVX2 via SIMDe + MSVC | ✅ Tier 2 |
+| **iOS / Android** | ARM64 | Native NEON (cross-compile) | 🔜 Planned |
 
 ---
 

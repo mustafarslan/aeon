@@ -25,7 +25,7 @@ jobs:
             install_deps: |
               sudo apt-get update -qq
               sudo apt-get install -y --no-install-recommends \
-                cmake ninja-build libsimde-dev
+                cmake ninja-build libsimde-dev libopenblas-dev
             artifact_suffix: linux-gcc
 
           # ── Linux: Clang 18, x86-64, AVX2 via SIMDe ──
@@ -37,7 +37,7 @@ jobs:
             install_deps: |
               sudo apt-get update -qq
               sudo apt-get install -y --no-install-recommends \
-                cmake ninja-build libsimde-dev clang-18
+                cmake ninja-build libsimde-dev libopenblas-dev clang-18
             artifact_suffix: linux-clang
 
           # ── macOS: AppleClang, ARM64, native NEON ──
@@ -58,6 +58,7 @@ jobs:
             preset: ci-windows
             install_deps: |
               choco install cmake ninja -y
+              vcpkg install openblas:x64-windows
               git clone --depth 1 https://github.com/simd-everywhere/simde.git "$env:RUNNER_TEMP\simde"
             artifact_suffix: windows-msvc
 
@@ -100,9 +101,11 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $env:SIMDE_INCLUDE_DIR = "$env:RUNNER_TEMP\simde"
+          $simdeDir = "$env:RUNNER_TEMP\simde"
+          $vcpkgToolchain = "$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
           cmake --preset ${{ matrix.preset }} `
-            -DSIMDE_INCLUDE_DIR="$env:SIMDE_INCLUDE_DIR"
+            -DSIMDE_INCLUDE_DIR="$simdeDir" `
+            -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
 
       # ── Build ──
       - name: Build
