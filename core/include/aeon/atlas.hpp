@@ -2,7 +2,9 @@
 
 #include "aeon/epoch.hpp"
 #include "aeon/hash.hpp"
+#include "aeon/quantization.hpp"
 #include "aeon/schema.hpp"
+#include "aeon/simd_impl.hpp"
 #include "aeon/slb.hpp"
 #include "aeon/storage.hpp"
 #include <atomic>
@@ -154,6 +156,7 @@ private:
   uint32_t dim_ = 0;
   uint32_t metadata_size_ = METADATA_SIZE_DEFAULT;
   size_t node_byte_stride_ = 0;
+  uint32_t quantization_type_ = QUANT_FP32; // V4.1 Phase 3: cached from header
 
   // ─── Core state ───
   EpochManager epoch_mgr_;

@@ -534,10 +534,7 @@ void TraceManager::compact() {
       ++live_count;
   }
 
-  // Create new file
-  size_t new_file_size =
-      sizeof(TraceFileHeader) + live_count * sizeof(TraceEvent);
-  // Pre-allocate extra for future growth
+  // Create new file — pre-allocate extra for future growth
   size_t alloc_size =
       sizeof(TraceFileHeader) +
       std::max(live_count * 2, live_count + 1024) * sizeof(TraceEvent);

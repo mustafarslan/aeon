@@ -283,4 +283,189 @@ SimilarityFn get_best_similarity_impl() {
 #endif
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// INT8 Dot Product — Phase 3: 4× Spatial Compression
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ----------------------------------------------------------------------------
+// INT8 Scalar Baseline (portable — works on any platform)
+// ----------------------------------------------------------------------------
+int32_t dot_int8_scalar(std::span<const int8_t> a, std::span<const int8_t> b,
+                        uint32_t dim) {
+  int32_t acc = 0;
+  uint32_t n =
+      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+
+  // 4× manual unrolling for ILP
+  uint32_t i = 0;
+  for (; i + 3 < n; i += 4) {
+    acc += static_cast<int32_t>(a[i]) * static_cast<int32_t>(b[i]);
+    acc += static_cast<int32_t>(a[i + 1]) * static_cast<int32_t>(b[i + 1]);
+    acc += static_cast<int32_t>(a[i + 2]) * static_cast<int32_t>(b[i + 2]);
+    acc += static_cast<int32_t>(a[i + 3]) * static_cast<int32_t>(b[i + 3]);
+  }
+  for (; i < n; ++i) {
+    acc += static_cast<int32_t>(a[i]) * static_cast<int32_t>(b[i]);
+  }
+  return acc;
+}
+
+// ----------------------------------------------------------------------------
+// INT8 NEON — uses vdotq_s32 (SDOT) on ARMv8.2+ (Apple M-series)
+// ----------------------------------------------------------------------------
+#if defined(__aarch64__) || defined(__ARM_NEON) || defined(_M_ARM64)
+int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
+                      uint32_t dim) {
+  uint32_t n =
+      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+  uint32_t i = 0;
+
+  // SDOT accumulates 4 × (s8 * s8) → s32 per lane, 4 lanes = 16 elements
+  int32x4_t acc0 = vdupq_n_s32(0);
+  int32x4_t acc1 = vdupq_n_s32(0);
+
+  const int8_t *pa = a.data();
+  const int8_t *pb = b.data();
+
+  // Process 32 elements per iteration (2× unroll of 16-element vdotq)
+  for (; i + 31 < n; i += 32) {
+    int8x16_t va0 = vld1q_s8(pa + i);
+    int8x16_t vb0 = vld1q_s8(pb + i);
+    int8x16_t va1 = vld1q_s8(pa + i + 16);
+    int8x16_t vb1 = vld1q_s8(pb + i + 16);
+
+    acc0 = vdotq_s32(acc0, va0, vb0);
+    acc1 = vdotq_s32(acc1, va1, vb1);
+  }
+
+  // Process 16 elements
+  for (; i + 15 < n; i += 16) {
+    int8x16_t va = vld1q_s8(pa + i);
+    int8x16_t vb = vld1q_s8(pb + i);
+    acc0 = vdotq_s32(acc0, va, vb);
+  }
+
+  // Horizontal sum
+  int32x4_t total = vaddq_s32(acc0, acc1);
+  int32_t result = vaddvq_s32(total);
+
+  // Scalar cleanup
+  for (; i < n; ++i) {
+    result += static_cast<int32_t>(pa[i]) * static_cast<int32_t>(pb[i]);
+  }
+
+  return result;
+}
+#else
+int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
+                      uint32_t dim) {
+  // Fallback to scalar on non-ARM platforms
+  return dot_int8_scalar(a, b, dim);
+}
+#endif
+
+// ----------------------------------------------------------------------------
+// INT8 AVX-512 VNNI via SIMDe — uses _mm512_dpbusd_epi32 with offset trick
+//
+// VNNI dpbusd expects unsigned × signed (u8 * s8 → s32).
+// Since both vectors are signed int8, we apply the offset trick:
+//   1. Convert query a[i] to unsigned: a'[i] = a[i] + 128 (flip MSB)
+//   2. Compute dot(a', b) via dpbusd
+//   3. Correct: dot(a, b) = dot(a', b) - 128 * sum(b)
+// ----------------------------------------------------------------------------
+int32_t dot_int8_avx512(std::span<const int8_t> a, std::span<const int8_t> b,
+                        uint32_t dim) {
+  uint32_t n =
+      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+  uint32_t i = 0;
+
+  // Accumulators for dpbusd result and sum(b) correction
+  __m512i acc_dot = _mm512_setzero_si512();
+  __m512i acc_sum_b = _mm512_setzero_si512();
+
+  // Broadcast 128 as bytes for the offset trick
+  const __m512i offset_128 = _mm512_set1_epi8(static_cast<char>(128u));
+  // For vpsadbw, we need all-zero to compute sum of unsigned bytes
+  const __m512i zero = _mm512_setzero_si512();
+
+  for (; i + 63 < n; i += 64) {
+    // Load 64 × int8 from each vector
+    __m512i va =
+        _mm512_loadu_si512(reinterpret_cast<const __m512i *>(a.data() + i));
+    __m512i vb =
+        _mm512_loadu_si512(reinterpret_cast<const __m512i *>(b.data() + i));
+
+    // Step 1: Convert query to unsigned by XOR with 0x80 (equivalent to +128
+    // for signed)
+    __m512i va_unsigned = _mm512_xor_si512(va, offset_128);
+
+    // Step 2: dpbusd — unsigned(a') × signed(b) → int32 accumulator
+    acc_dot = _mm512_dpbusd_epi32(acc_dot, va_unsigned, vb);
+
+    // Step 3: Accumulate sum(b) for correction
+    // Convert b to unsigned for vpsadbw: b_unsigned = b ^ 0x80
+    __m512i vb_unsigned = _mm512_xor_si512(vb, offset_128);
+    // vpsadbw computes sum of absolute differences against zero = sum of
+    // unsigned bytes Each 8-byte group → one uint64 in the result (8 groups per
+    // 512-bit register)
+    __m512i sad = _mm512_sad_epu8(vb_unsigned, zero);
+    acc_sum_b = _mm512_add_epi64(acc_sum_b, sad);
+  }
+
+  // ── Horizontal reduction of dot product accumulator (16 × int32 → 1) ──
+  // Pure register extraction chain — no memory stores.
+  // Step 1: 512 → two 256-bit halves, add them
+  __m256i dot_lo = _mm512_castsi512_si256(acc_dot);
+  __m256i dot_hi = _mm512_extracti32x8_epi32(acc_dot, 1);
+  __m256i dot_256 = _mm256_add_epi32(dot_lo, dot_hi);
+  // Step 2: 256 → two 128-bit halves, add them
+  __m128i dot_128_lo = _mm256_castsi256_si128(dot_256);
+  __m128i dot_128_hi = _mm256_extracti128_si256(dot_256, 1);
+  __m128i dot_128 = _mm_add_epi32(dot_128_lo, dot_128_hi);
+  // Step 3: horizontal add within 128-bit register (4 → 2 → 1)
+  dot_128 = _mm_hadd_epi32(dot_128, dot_128);
+  dot_128 = _mm_hadd_epi32(dot_128, dot_128);
+  int32_t dot_result = _mm_cvtsi128_si32(dot_128);
+
+  // ── Horizontal reduction of sum(b) accumulator (8 × int64 → 1) ──
+  // Pure register extraction chain — no memory stores.
+  // vpsadbw gave us sums of unsigned bytes. We need signed sum:
+  // b_unsigned[j] = b[j] ^ 0x80 = b[j] + 128 (for signed b[j])
+  // So sum(b_unsigned) = sum(b) + n_processed * 128
+  // Thus sum(b) = sum(b_unsigned) - n_processed * 128
+  // Step 1: 512 → two 256-bit halves, add them
+  __m256i sb_lo = _mm512_castsi512_si256(acc_sum_b);
+  __m256i sb_hi = _mm512_extracti64x4_epi64(acc_sum_b, 1);
+  __m256i sb_256 = _mm256_add_epi64(sb_lo, sb_hi);
+  // Step 2: 256 → two 128-bit halves, add them
+  __m128i sb_128_lo = _mm256_castsi256_si128(sb_256);
+  __m128i sb_128_hi = _mm256_extracti128_si256(sb_256, 1);
+  __m128i sb_128 = _mm_add_epi64(sb_128_lo, sb_128_hi);
+  // Step 3: extract two i64 lanes and add
+  int64_t sum_b_unsigned =
+      _mm_cvtsi128_si64(sb_128) + _mm_extract_epi64(sb_128, 1);
+  int64_t sum_b = sum_b_unsigned - static_cast<int64_t>(i) * 128;
+
+  // Correction: dot(a, b) = dot(a', b) - 128 * sum(b)
+  int64_t corrected = static_cast<int64_t>(dot_result) - 128 * sum_b;
+
+  // Scalar cleanup for remainder
+  for (; i < n; ++i) {
+    corrected += static_cast<int32_t>(a[i]) * static_cast<int32_t>(b[i]);
+  }
+
+  return static_cast<int32_t>(corrected);
+}
+
+// ----------------------------------------------------------------------------
+// INT8 Runtime Dispatch
+// ----------------------------------------------------------------------------
+Int8DotFn get_best_int8_dot_impl() {
+#if defined(__aarch64__) || defined(__ARM_NEON) || defined(_M_ARM64)
+  return dot_int8_neon;
+#else
+  return dot_int8_avx512;
+#endif
+}
+
 } // namespace aeon::simd

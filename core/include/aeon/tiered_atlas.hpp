@@ -55,10 +55,15 @@ class TieredAtlas {
 public:
   explicit TieredAtlas(Atlas &atlas, TieredAtlasConfig config = {})
       : atlas_(atlas), config_(config) {
-    // Derive max_resident_nodes from budget if not explicitly set
+    // Derive max_resident_nodes from budget using the Atlas's actual
+    // per-node byte stride (header + centroid + metadata, 64B-aligned).
+    // This automatically adapts to FP32 vs INT8 quantization modes.
     if (config_.max_resident_nodes == 0 && config_.memory_budget_mb > 0) {
-      config_.max_resident_nodes =
-          (config_.memory_budget_mb * 1024ULL * 1024ULL) / sizeof(Node);
+      const size_t stride = atlas_.node_byte_stride();
+      if (stride > 0) {
+        config_.max_resident_nodes =
+            (config_.memory_budget_mb * 1024ULL * 1024ULL) / stride;
+      }
     }
   }
 

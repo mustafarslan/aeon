@@ -194,6 +194,7 @@ if(BUILD_TESTING)
         tests/test_concurrency.cpp
         tests/test_wal.cpp
         tests/test_blob_arena.cpp
+        tests/test_quantization.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 
@@ -268,6 +269,13 @@ if(BUILD_TESTING)
     )
     target_link_libraries(bench_beam_search PRIVATE aeon_core Threads::Threads)
     target_compile_features(bench_beam_search PRIVATE cxx_std_23)
+
+    # V4.1 Phase 3: INT8 Quantization Benchmark
+    add_executable(bench_quantization
+        tests/bench_quantization.cpp
+    )
+    target_link_libraries(bench_quantization PRIVATE aeon_core)
+    target_compile_features(bench_quantization PRIVATE cxx_std_23)
 
     # Test 6: Multi-Tenant SLB Thrashing (V3 §7.1 — 10K NPC proof)
     add_executable(bench_multitenant_slb

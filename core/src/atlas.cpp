@@ -41,6 +41,7 @@ Atlas::Atlas(std::filesystem::path path, uint32_t dim) : atlas_path_(path) {
   dim_ = header->dim;
   metadata_size_ = header->metadata_size;
   node_byte_stride_ = header->node_byte_stride;
+  quantization_type_ = header->quantization_type; // V4.1 Phase 3
 
   // Pre-allocate delta arena for ~10,000 nodes worth of contiguous memory
   delta_buffer_bytes_.reserve(10000 * node_byte_stride_);
@@ -142,6 +143,17 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
               hit->centroid_preview[2]}}};
   }
 
+  // ── V4.1 Phase 3: Quantize query ONCE if atlas is INT8 ──
+  const bool is_int8 = (quantization_type_ == QUANT_INT8_SYMMETRIC);
+  std::vector<int8_t> query_q;
+  float query_scale = 0.0f;
+  static const auto int8_dot_fn = simd::get_best_int8_dot_impl();
+
+  if (is_int8) {
+    query_q.resize(dim_);
+    quant::quantize_symmetric(query, query_q, query_scale);
+  }
+
   // Acquire epoch guard before ANY mmap pointer access
   auto guard = epoch_mgr_.enter_guard();
   std::shared_lock<std::shared_mutex> read_lock(write_mutex_);
@@ -161,9 +173,19 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
     if (!root)
       return path;
 
-    const float *root_centroid = node_centroid(root);
-    float root_score = math::cosine_similarity(
-        query, std::span<const float>(root_centroid, dim_));
+    float root_score;
+    if (is_int8) {
+      // INT8 path: dot product + dequantize
+      const int8_t *root_q = node_centroid_int8(root);
+      int32_t raw_dot =
+          int8_dot_fn(query_q, std::span<const int8_t>(root_q, dim_), dim_);
+      root_score = quant::dequantize_dot_product(raw_dot, query_scale,
+                                                 root->quant_scale);
+    } else {
+      const float *root_centroid = node_centroid(root);
+      root_score = math::cosine_similarity(
+          query, std::span<const float>(root_centroid, dim_));
+    }
     if constexpr (ApplyCSLS) {
       root_score -= root->hub_penalty;
     }
@@ -173,9 +195,12 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
 
     BeamCandidate overall_best = beam[0];
 
-    path.push_back({root->id,
-                    root_score,
-                    {root_centroid[0], root_centroid[1], root_centroid[2]}});
+    // Preview: use FP32 centroid for preview even in INT8 mode (first 3 dims)
+    const float *root_preview = is_int8 ? nullptr : node_centroid(root);
+    float p0 = root_preview ? root_preview[0] : 0.0f;
+    float p1 = root_preview ? root_preview[1] : 0.0f;
+    float p2 = root_preview ? root_preview[2] : 0.0f;
+    path.push_back({root->id, root_score, {p0, p1, p2}});
 
     // Beam descent loop
     bool has_children = true;
@@ -199,22 +224,34 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
         for (uint16_t i = 0; i < current->child_count; ++i) {
           NodeHeader *child = reinterpret_cast<NodeHeader *>(
               child_base + i * node_byte_stride_);
-          const float *child_centroid = node_centroid(child);
 
           // Prefetch next child's centroid into L1
           if (i + 1 < current->child_count) {
-            const float *next_centroid =
-                node_centroid(reinterpret_cast<NodeHeader *>(
-                    child_base + (i + 1) * node_byte_stride_));
+            auto *next_hdr = reinterpret_cast<NodeHeader *>(
+                child_base + (i + 1) * node_byte_stride_);
+            const void *next_data =
+                reinterpret_cast<const uint8_t *>(next_hdr) +
+                sizeof(NodeHeader);
 #if defined(__SSE__) || defined(__x86_64__) || defined(_M_X64)
-            _mm_prefetch((const char *)next_centroid, _MM_HINT_T0);
+            _mm_prefetch((const char *)next_data, _MM_HINT_T0);
 #else
-            __builtin_prefetch(next_centroid, 0, 3);
+            __builtin_prefetch(next_data, 0, 3);
 #endif
           }
 
-          float score = math::cosine_similarity(
-              query, std::span<const float>(child_centroid, dim_));
+          float score;
+          if (is_int8) {
+            const int8_t *child_q = node_centroid_int8(child);
+            int32_t raw_dot = int8_dot_fn(
+                query_q, std::span<const int8_t>(child_q, dim_), dim_);
+            // CRITICAL: dequantize BEFORE hub_penalty subtraction
+            score = quant::dequantize_dot_product(raw_dot, query_scale,
+                                                  child->quant_scale);
+          } else {
+            const float *child_centroid = node_centroid(child);
+            score = math::cosine_similarity(
+                query, std::span<const float>(child_centroid, dim_));
+          }
 
           if constexpr (ApplyCSLS) {
             score -= child->hub_penalty;
@@ -264,17 +301,38 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
 
       NodeHeader *best_node = file_->get_node(beam[best_in_beam].node_idx);
       if (best_node) {
-        const float *bc = node_centroid(best_node);
+        float bp0 = 0.0f, bp1 = 0.0f, bp2 = 0.0f;
+        if (!is_int8) {
+          const float *bc = node_centroid(best_node);
+          bp0 = bc[0];
+          bp1 = bc[1];
+          bp2 = bc[2];
+        }
         path.push_back(
-            {best_node->id, beam[best_in_beam].score, {bc[0], bc[1], bc[2]}});
+            {best_node->id, beam[best_in_beam].score, {bp0, bp1, bp2}});
       }
     }
 
     // Populate SLB with overall best (mmap-backed nodes only, MSB=0)
+    // SLB stores exclusively FP32 vectors. For INT8 nodes, we dequantize
+    // on-the-fly to FP32 before insertion. This keeps HierarchicalSLB
+    // completely unaware of quantization.
     NodeHeader *best = file_->get_node(overall_best.node_idx);
     if (best && (best->id & 0x8000000000000000ULL) == 0) {
-      slb_cache_.insert(best->id,
-                        std::span<const float>(node_centroid(best), dim_));
+      if (is_int8) {
+        // Dequantize INT8 → FP32 on-the-fly for SLB insertion
+        const int8_t *q_vec = node_centroid_int8(best);
+        std::vector<float> fp32_vec(dim_);
+        float s = best->quant_scale;
+        for (uint32_t d = 0; d < dim_; ++d) {
+          fp32_vec[d] = static_cast<float>(q_vec[d]) * s;
+        }
+        slb_cache_.insert(best->id,
+                          std::span<const float>(fp32_vec.data(), dim_));
+      } else {
+        slb_cache_.insert(best->id,
+                          std::span<const float>(node_centroid(best), dim_));
+      }
     }
   }
 
@@ -288,16 +346,32 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
       const NodeHeader *dnode = delta_get_node(i);
       if (!dnode)
         continue;
-      const float *dc = node_centroid(dnode);
 
-      float score =
-          math::cosine_similarity(query, std::span<const float>(dc, dim_));
+      float score;
+      if (is_int8) {
+        const int8_t *dq = node_centroid_int8(dnode);
+        int32_t raw_dot =
+            int8_dot_fn(query_q, std::span<const int8_t>(dq, dim_), dim_);
+        score = quant::dequantize_dot_product(raw_dot, query_scale,
+                                              dnode->quant_scale);
+      } else {
+        const float *dc = node_centroid(dnode);
+        score =
+            math::cosine_similarity(query, std::span<const float>(dc, dim_));
+      }
 
       if constexpr (ApplyCSLS) {
         score -= dnode->hub_penalty;
       }
 
-      delta_candidates.push_back({dnode->id, score, {dc[0], dc[1], dc[2]}});
+      float dp0 = 0.0f, dp1 = 0.0f, dp2 = 0.0f;
+      if (!is_int8) {
+        const float *dc = node_centroid(dnode);
+        dp0 = dc[0];
+        dp1 = dc[1];
+        dp2 = dc[2];
+      }
+      delta_candidates.push_back({dnode->id, score, {dp0, dp1, dp2}});
     }
   }
 
@@ -377,16 +451,33 @@ uint64_t Atlas::insert_delta(std::span<const float> vector,
   hdr->hub_penalty = 0.0f;
   std::memset(hdr->reserved, 0, sizeof(hdr->reserved));
 
-  // Copy centroid
-  float *centroid = node_centroid(hdr);
-  if (vector.size() == dim_) {
-    std::memcpy(centroid, vector.data(), dim_ * sizeof(float));
+  // Copy centroid — quantize if INT8
+  if (quantization_type_ == QUANT_INT8_SYMMETRIC) {
+    int8_t *centroid_q = node_centroid_int8(hdr);
+    if (vector.size() == dim_) {
+      float scale;
+      quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
+                                scale);
+      hdr->quant_scale = scale;
+      hdr->quant_zero_point = 0.0f;
+    } else {
+      std::memset(centroid_q, 0, dim_ * sizeof(int8_t));
+      hdr->quant_scale = 1.0f;
+      hdr->quant_zero_point = 0.0f;
+    }
   } else {
-    std::memset(centroid, 0, dim_ * sizeof(float));
+    float *centroid = node_centroid(hdr);
+    if (vector.size() == dim_) {
+      std::memcpy(centroid, vector.data(), dim_ * sizeof(float));
+    } else {
+      std::memset(centroid, 0, dim_ * sizeof(float));
+    }
+    hdr->quant_scale = 0.0f;
+    hdr->quant_zero_point = 0.0f;
   }
 
-  // Copy metadata
-  char *meta = node_metadata(hdr, dim_);
+  // Copy metadata (uses quant-aware accessor)
+  char *meta = node_metadata_q(hdr, dim_, quantization_type_);
   std::memset(meta, 0, metadata_size_);
   size_t meta_len =
       std::min(metadata.size(), static_cast<size_t>(metadata_size_ - 1));
@@ -482,15 +573,27 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
   node->hub_penalty = 0.0f;
   std::memset(node->reserved, 0, sizeof(node->reserved));
 
-  // Copy vector
+  // Copy vector — quantize if INT8
   if (vector.size() != dim_) {
     throw std::invalid_argument("Vector dimension mismatch: expected " +
                                 std::to_string(dim_));
   }
-  std::memcpy(node_centroid(node), vector.data(), dim_ * sizeof(float));
+
+  if (quantization_type_ == QUANT_INT8_SYMMETRIC) {
+    int8_t *centroid_q = node_centroid_int8(node);
+    float scale;
+    quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
+                              scale);
+    node->quant_scale = scale;
+    node->quant_zero_point = 0.0f;
+  } else {
+    std::memcpy(node_centroid(node), vector.data(), dim_ * sizeof(float));
+    node->quant_scale = 0.0f;
+    node->quant_zero_point = 0.0f;
+  }
 
   // Copy metadata
-  char *meta = node_metadata(node, dim_);
+  char *meta = node_metadata_q(node, dim_, quantization_type_);
   std::memset(meta, 0, metadata_size_);
   size_t meta_len =
       std::min(metadata.size(), static_cast<size_t>(metadata_size_ - 1));
