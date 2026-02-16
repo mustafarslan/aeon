@@ -25,7 +25,8 @@ jobs:
             install_deps: |
               sudo apt-get update -qq
               sudo apt-get install -y --no-install-recommends \
-                cmake ninja-build libsimde-dev libopenblas-dev
+                cmake ninja-build libopenblas-dev
+              git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
             artifact_suffix: linux-gcc
 
           # ── Linux: Clang 18, x86-64, AVX2 via SIMDe ──
@@ -37,7 +38,8 @@ jobs:
             install_deps: |
               sudo apt-get update -qq
               sudo apt-get install -y --no-install-recommends \
-                cmake ninja-build libsimde-dev libopenblas-dev clang-18
+                cmake ninja-build libopenblas-dev clang-18
+              git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
             artifact_suffix: linux-clang
 
           # ── macOS: AppleClang, ARM64, native NEON ──
@@ -90,8 +92,15 @@ jobs:
         run: pip install nanobind numpy scikit-build-core
 
       # ── Configure ──
-      - name: Configure (POSIX)
-        if: runner.os != 'Windows'
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: cmake --preset ${{ matrix.preset }} -DSIMDE_INCLUDE_DIR=/tmp/simde
+
+      - name: Configure (macOS)
+        if: runner.os == 'macOS'
         env:
           CC: ${{ matrix.cc }}
           CXX: ${{ matrix.cxx }}
