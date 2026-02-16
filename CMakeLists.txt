@@ -12,6 +12,10 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 option(BUILD_TESTING "Build tests" ON)
 
+if(BUILD_TESTING)
+    enable_testing()
+endif()
+
 # Configure runpath for development convenience
 if(APPLE)
     set(CMAKE_MACOSX_RPATH ON)

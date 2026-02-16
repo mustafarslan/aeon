@@ -1,78 +1,60 @@
-<div align="center">
+# Aeon Memory OS
 
-# Aeon
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/aeon-ag/aeon)
+[![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/aeon-ag/aeon/releases)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**Neuro-Symbolic Memory Kernel for Long-Horizon AI Agents**
+**Aeon** is a persistent, crash-recoverable **Semantic Memory Engine** for AI agents, game engines, and robotics. It provides a shared memory substrate where thousands of independent agents — or a single massively parallel system — can *remember, retrieve, and forget* knowledge in real time.
 
-[![C++23](https://img.shields.io/badge/C++-23-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://isocpp.org/) [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE) [![CMake 3.26+](https://img.shields.io/badge/CMake-3.26+-064F8C?style=for-the-badge&logo=cmake&logoColor=white)](https://cmake.org/)
-
-*A production C++23 memory system that gives AI agents the ability to remember, retrieve, and consolidate experience across unbounded conversation horizons.*
-
-[Quick Start](#quick-start) · [Architecture](#architecture) · [Benchmarks](#benchmarks) · [Paper](#paper) · [Contributing](#contributing)
-
-</div>
+> **V4.1 Frontier Release:** Write-Ahead Log for crash recovery, Sidecar Blob Arena for unlimited text storage, and INT8 Scalar Quantization for 3.1× file compression with 5.6× math speedup.
 
 ---
 
-## Why Aeon?
+## Key Features
 
-Large language models are stateless. Every turn starts from scratch. **Aeon** provides the missing **persistent, queryable memory** that transforms a stateless LLM into a long-horizon agent:
-
-| Problem | Aeon Solution |
-|---------|--------------|
-| Context window overflow | **Atlas** — page-clustered vector index with O(log N) greedy descent |
-| No episodic recall | **Trace** — directed acyclic graph of typed episodes |
-| Python GIL bottleneck | C++23 core with zero-copy **Nanobind** bindings |
-| Cache-miss latency | **Semantic Lookaside Buffer (SLB)** — L1-resident similarity cache |
-| SIMD portability | **SIMDe** abstraction: AVX-512 ↔ AVX2 ↔ NEON at compile time |
+| Feature | Description |
+|---|---|
+| **Dual-Layer Memory** | Combines **Atlas** (Spatial Index) for concepts and **Trace** (Episodic Log) for experiences. |
+| **Dynamic Dimensionality** | Single binary supports any embedding dim (384, 768, 1536) via runtime stride calculation. |
+| **Write-Ahead Log (WAL)** | Crash-recoverable durability with < 1% insert overhead via 3-step lock ordering. |
+| **INT8 Scalar Quantization** | 3.1× file compression (440MB → 141MB) with 4.70ns NEON SDOT dot product (5.6× vs FP32). |
+| **Sidecar Blob Arena** | Unlimited text storage for Trace events with 64-byte inline preview and generational GC. |
+| **Zero-Copy Architecture** | Mmap-backed C++ kernel with direct zero-copy bindings to Python (`nanobind`). |
+| **Shadow Compaction** | "Redis-style" stutter-free garbage collection for 60 FPS real-time apps. |
+| **Multi-Tenant C-API** | Strictly typed, session-routed C interface for Unity, Unreal, and Godot. |
+| **Hierarchical SLB** | Sharded Semantic Lookaside Buffer (L1/L2) handling 100,000+ concurrent sessions. |
+| **Trace Block Index** | Sub-linear `O(|V|/1024)` search over episodic history using block centroid scanning. |
 
 ---
 
 ## Architecture
 
+```mermaid
+graph TD
+    User["User / Agent"] -->|Request| Py["Python Shell (aeon.py)"]
+    Py -->|nanobind| C["C++ Kernel (libaeon)"]
+    
+    subgraph "Kernel (Ring 0)"
+        C -->|Insert/Query| Atlas["Atlas (Spatial)"]
+        C -->|Log Event| Trace["Trace (Episodic)"]
+        C -->|Cache| SLB["Hierarchical SLB (FP32)"]
+        
+        Atlas -->|MMap| AFile["atlas.bin"]
+        Atlas -->|WAL| AWal["atlas.bin.wal"]
+        Atlas -.->|INT8/FP32| QNode["Quantized Nodes"]
+        Trace -->|MMap| TFile["trace.bin"]
+        Trace -->|Blob| BFile["trace_blobs_gen0.bin"]
+        Trace -->|WAL| TWal["trace.bin.wal"]
+    end
+    
+    subgraph "Storage"
+        AFile
+        AWal
+        TFile
+        BFile
+        TWal
+    end
 ```
-                        ┌─────────────────────────────────────┐
-                        │         Python Shell (aeon_py)       │
-                        │  client · session · trace · server   │
-                        └──────────────┬──────────────────────┘
-                                       │  Nanobind (zero-copy)
-                        ┌──────────────▼──────────────────────┐
-                        │          C++23 Kernel (core/)        │
-                        │                                      │
-                        │  ┌────────────┐   ┌──────────────┐  │
-                        │  │   Atlas    │   │    Trace      │  │
-                        │  │  (Spatial) │   │  (Episodic)   │  │
-                        │  │  mmap B+   │   │   DAG + RAT   │  │
-                        │  │  + SLB     │   │              │  │
-                        │  └────────────┘   └──────────────┘  │
-                        │                                      │
-                        │  ┌──────────────────────────────────┐│
-                        │  │  SIMD Math Kernel (SIMDe)        ││
-                        │  │  AVX-512 · AVX2 · NEON           ││
-                        │  └──────────────────────────────────┘│
-                        │                                      │
-                        │  ┌──────────────────────────────────┐│
-                        │  │  Storage (mmap · zero-copy)      ││
-                        │  └──────────────────────────────────┘│
-                        └──────────────────────────────────────┘
-```
-
-### Core Abstractions
-
-| Component | Header | Purpose |
-|-----------|--------|---------|
-| **Atlas** | `core/include/aeon/atlas.hpp` | Page-clustered spatial vector index over memory-mapped storage |
-| **Trace** | `core/include/aeon/trace.hpp` | Episodic DAG with TEMPORAL, CAUSAL, and SEMANTIC edge types |
-| **SLB** | `core/include/aeon/slb.hpp` | Semantic Lookaside Buffer — 64-entry L1-resident similarity cache |
-| **Math Kernel** | `core/include/aeon/math_kernel.hpp` | SIMD-dispatched cosine similarity (AVX-512 → AVX2 → scalar) |
-| **Storage** | `core/include/aeon/storage.hpp` | `mmap`-backed allocator with in-place growth via `ftruncate` |
-| **Schema** | `core/include/aeon/schema.hpp` | Binary-stable `Node` layout (64-byte aligned, 3392 bytes) |
-
-### Key Design Decisions
-
-- **Immutable + Mutable Layers**: Atlas writes go to an in-memory delta buffer; reads merge the mmap-backed B+ tree with the delta layer. This avoids `msync` on every insert.
-- **SLB Hit Path**: Queries first probe the SLB (cosine similarity ≥ `SLB_HIT_THRESHOLD`). On hit, the full tree traversal is bypassed entirely — yielding sub-microsecond latency for conversational locality.
-- **Compile-Time Layout Verification**: `static_assert` enforces that `Node` is exactly 3392 bytes, trivially copyable, and that the `centroid` array starts at cache-line offset 64.
 
 ---
 
@@ -80,193 +62,132 @@ Large language models are stateless. Every turn starts from scratch. **Aeon** pr
 
 ### Prerequisites
 
-| Dependency | Version | Notes |
-|-----------|---------|-------|
-| C++ compiler | Clang 16+ / GCC 13+ | Must support C++23 |
-| CMake | 3.26+ | |
-| Python | 3.10+ | |
-| nanobind | 2.0+ | `pip install nanobind` |
-| SIMDe | latest | `brew install simde` (macOS) or system package |
+- CMake 3.25+
+- C++23 Compiler (Clang 16+, GCC 13+, MSVC 19.34+)
+- Python 3.10+
 
-### Install via pip
+### Build from Source
 
 ```bash
-# Clone and install (scikit-build-core handles CMake automatically)
-git clone https://github.com/mustafarslan/aeon.git
+# Clone repository
+git clone https://github.com/aeon-ag/aeon.git
 cd aeon
-pip install -e .
-```
 
-### Build from source (C++ only)
-
-```bash
-cd core
-
-# Configure and build
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
-
-# Build with tests and benchmarks
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-cmake --build build -j$(nproc)
-
-# Run tests
-./build/aeon_tests
-
-# Run benchmarks
-./build/aeon_bench
+# Configure and build (Development Preset)
+cmake --preset dev
+cmake --build build/dev --parallel
 ```
 
 ### Python Usage
 
 ```python
-from aeon_py import AeonClient
+import aeon
 
-# Initialize with a storage directory
-client = AeonClient(storage_dir="./memory")
+# 1. Open an Atlas (768-dim, INT8 quantized, WAL enabled)
+atlas = aeon.Atlas("memory/atlas.bin", dim=768)
 
-# Add an episode
-client.add_episode(
-    content="The user asked about quantum computing fundamentals",
-    embedding=model.encode("quantum computing fundamentals"),
+# 2. Insert detailed knowledge
+node_id = atlas.insert(
+    vector=[0.1, 0.5, ...], 
+    metadata="The mitochondrion is the powerhouse of the cell."
 )
 
-# Semantic search (zero-copy: NumPy → C++ without allocation)
-results = client.navigate(query_embedding, top_k=10)
+# 3. Search (Navigate)
+results = atlas.navigate(
+    query=[0.1, 0.4, ...], 
+    top_k=5
+)
+print(f"Nearest concept: {results[0].metadata}")
 ```
 
 ---
 
-## Repository Structure
+## C-API Example
 
-```
-aeon/
-├── core/                          # C++23 kernel
-│   ├── include/aeon/             # Public headers
-│   │   ├── schema.hpp            #   Binary-stable Node layout + constants
-│   │   ├── atlas.hpp             #   Spatial vector index
-│   │   ├── trace.hpp             #   Episodic DAG
-│   │   ├── slb.hpp               #   Semantic Lookaside Buffer
-│   │   ├── math_kernel.hpp       #   SIMD math dispatch
-│   │   ├── storage.hpp           #   mmap allocator
-│   │   └── simd_impl.hpp         #   AVX-512/AVX2/NEON kernels
-│   ├── src/                      # Implementation
-│   │   ├── atlas.cpp             #   Atlas: navigate, insert, delta merge
-│   │   ├── trace.cpp             #   Trace: DAG operations, consolidation
-│   │   ├── bindings.cpp          #   Nanobind Python ↔ C++ bridge
-│   │   └── simd_impl.cpp         #   SIMD kernel implementations
-│   ├── tests/                    # GTest unit tests
-│   ├── benchmarks/               # Google Benchmark suite
-│   └── CMakeLists.txt
-├── shell/aeon_py/                # Python shell
-│   ├── client.py                 #   High-level AeonClient API
-│   ├── session.py                #   Session management
-│   ├── trace.py                  #   Python-side Trace operations
-│   ├── server.py                 #   FastAPI server
-│   └── ...
-├── paper/                        # Academic paper (LaTeX)
-├── reproducibility_benchmarks/   # Benchmark suite for paper
-├── pyproject.toml                # scikit-build-core configuration
-└── LICENSE                       # MIT
-```
+Aeon provides a stable ABI for integration with game engines.
 
----
+```c
+#include "aeon_c_api.h"
 
-## Benchmarks
-
-Benchmark suite located in `core/benchmarks/`. Run with:
-
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-cmake --build build -j$(nproc)
-
-./build/bench_kernel_throughput   # §6.1: SIMD math throughput
-./build/bench_slb_latency         # §6.2: SLB hit/miss latency
-./build/bench_scalability         # §6.3: Atlas scaling characteristics
+int main() {
+    // V4.1: INT8 quantization + WAL
+    aeon_atlas_options_t opts = {
+        .dim = 768,
+        .quantization_type = 1,  // INT8_SYMMETRIC
+        .enable_wal = 1
+    };
+    
+    aeon_atlas_t* atlas;
+    aeon_error_t err = aeon_atlas_create_ex("game_memory.bin", &opts, &atlas);
+    
+    if (err == AEON_OK) {
+        // Insert (FP32 auto-quantized to INT8 on disk)
+        float vec[768] = { /* ... */ };
+        uint64_t id;
+        aeon_atlas_insert(atlas, 0, vec, 768, "NPC memory",
+                          "npc-42", &id);
+        
+        // Navigate (INT8 SDOT beam search, FP32 SLB cache)
+        aeon_result_node_t results[10];
+        size_t count;
+        aeon_atlas_navigate(atlas, vec, 768, 4, 0, "npc-42",
+                            results, 10, &count);
+        
+        aeon_atlas_drop_session(atlas, "npc-42");
+        aeon_atlas_destroy(atlas);
+    }
+    return 0;
+}
 ```
 
-### Benchmark Targets
+---
 
-| Binary | Measures |
-|--------|----------|
-| `bench_kernel_throughput` | Cosine similarity throughput (ops/sec) across vector dimensions |
-| `bench_slb_latency` | SLB cache hit vs. cold-start navigate latency |
-| `bench_scalability` | Insert and navigate scaling from 10³ to 10⁶ nodes |
-| `aeon_bench` | Combined Google Benchmark suite |
+## Performance
+
+Benchmarks run on Apple M4 Max (16 cores, active cooling). Full report: [`reproducibility_benchmarks/master_metrics.txt`](reproducibility_benchmarks/master_metrics.txt).
+
+### Core Latencies
+
+| Operation | Latency | Notes |
+|---|---|---|
+| **Atlas Insert (FP32)** | 2.23 µs | 448K ops/sec |
+| **Atlas Insert (INT8)** | 2.11 µs | 475K ops/sec |
+| **WAL Overhead** | < 1% | 2.23µs with vs 2.23µs without |
+| **SLB Cache Hit** | 3.56 µs | FP32 always, even INT8 Atlas |
+| **Navigate (100K FP32)** | 10.5 µs | Beam search, dim=768 |
+| **Navigate (100K INT8)** | 3.09 µs | 3.4× faster than FP32 |
+| **EBR P99 Read** | 750 ns | 15-reader hostile contention |
+| **Compaction Pause** | < 2 µs | Main thread stall |
+
+### INT8 Quantization Impact
+
+| Metric | FP32 | INT8 | Improvement |
+|---|---|---|---|
+| File Size (100K nodes) | 440 MB | 141 MB | **3.1× smaller** |
+| SIMD Dot Product | 26.5 ns | 4.70 ns | **5.6× faster** |
+| Navigate Latency | 10.5 µs | 3.09 µs | **3.4× faster** |
+| Relative Error | — | 0.069% | Negligible |
+
+### Scalability
+
+| Nodes | Navigate (FP32) | Navigate (INT8) |
+|---|---|---|
+| 10K | 7.1 µs | 1.8 µs |
+| 100K | 10.5 µs | 3.1 µs |
+| 1M | 10.5 µs | — |
 
 ---
 
-## Thread Safety
+## Documentation
 
-Aeon uses `std::shared_mutex` with a reader-writer pattern:
-
-| Operation | Lock Type | Contention |
-|-----------|-----------|------------|
-| `navigate()` | `shared_lock` (read) | Concurrent readers allowed |
-| `insert()` / `insert_delta()` | `unique_lock` (write) | Exclusive; blocks readers |
-| SLB `find_nearest()` | `shared_lock` (read) | Lock-free on hot path |
-| SLB `insert()` | `unique_lock` (write) | < 1μs critical section |
-
-The Python bindings release the GIL during all C++ operations, enabling true multi-threaded concurrency from Python.
-
----
-
-## Paper
-
-The theoretical foundations, design rationale, and experimental evaluation are documented in:
-
-> **Aeon: A Neuro-Symbolic Memory System for Long-Horizon LLM Agents**
-
-LaTeX source is in `paper/`. Pre-built PDFs:
-
-- `aeon_neuro_symbolic_memory_llm.pdf` — Full paper
-- `aeon_neuro_symbolic_memory_llm_v2.pdf` — Revised submission
-
----
-
-## Configuration Constants
-
-All architectural constants are defined in [`schema.hpp`](core/include/aeon/schema.hpp):
-
-```cpp
-constexpr size_t  EMBEDDING_DIM      = 768;    // Vector dimensionality
-constexpr size_t  TOP_K_LIMIT        = 50;     // Max navigate() results
-constexpr float   SLB_HIT_THRESHOLD  = 0.85f;  // SLB cache hit threshold
-```
-
-The `Node` struct is binary-stable at **3392 bytes** with `centroid` at cache-line offset 64, verified by `static_assert` at compile time.
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Ensure all tests pass: `cd core && cmake -B build -DBUILD_TESTING=ON && cmake --build build && ./build/aeon_tests`
-4. Submit a pull request
-
-### Code Style
-
-- C++23 with Doxygen-style `///` comments
-- `clang-format` with project `.clang-format` (if present)
-- All magic numbers must be `constexpr` in `schema.hpp`
+| Document | Description |
+|---|---|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, WAL protocol, Blob Arena, INT8 architecture decisions |
+| [INTERNALS.md](INTERNALS.md) | Data structures, on-disk formats, SIMD kernels, WAL record layout |
+| [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md) | API walkthrough, insert/navigate lifecycles, integration examples |
 
 ---
 
 ## License
 
-[MIT](LICENSE) © 2026 Mustafa Arslan
-
----
-
-## Citation
-
-If you use Aeon in your research, please cite:
-
-```bibtex
-@article{arslan2026aeon,
-  title   = {Aeon: A Neuro-Symbolic Memory System for Long-Horizon LLM Agents},
-  author  = {Arslan, Mustafa},
-  year    = {2026},
-}
-```
+MIT License. See [LICENSE](LICENSE) for details.

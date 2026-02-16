@@ -1,305 +1,153 @@
-import networkx as nx
-import numpy as np
-import json
-import uuid
-import time
-from dataclasses import dataclass, asdict, field
-from enum import Enum
+"""
+Aeon Episodic Trace — Python Wrapper over C++ mmap TraceManager.
+
+This module provides the Python-facing TraceGraph API, backed by the C++ kernel's
+mmap Trace Engine (trace_genN.bin). NetworkX has been REMOVED. All trace storage
+is handled in C++ via the nanobind `core.TraceManager` binding.
+
+Usage:
+    from aeon_py.trace import TraceGraph
+
+    trace = TraceGraph(path="memory/trace.bin")
+    event_id = trace.add_event("session-1", "user", "Hello, world!")
+    history = trace.get_history("session-1", limit=50)
+"""
+
+from __future__ import annotations
+
+import logging
 from pathlib import Path
-from typing import Any, Optional, Dict, List, Union
+from typing import Optional
 
-class EdgeType(str, Enum):
-    CAUSAL = "CAUSAL"       # User -> Concept
-    NEXT = "NEXT"           # User -> System / System -> User (Time flow)
-    REFERS_TO = "REFERS_TO" # System -> Concept
+logger = logging.getLogger(__name__)
 
-@dataclass
-class UserNode:
-    text: str
-    timestamp: float
-    vector: Optional[List[float]] = None
-    id: str = field(default_factory=lambda: f"u_{uuid.uuid4().hex[:8]}")
-    type: str = "UserNode"
+# Import the C++ nanobind core module
+try:
+    from aeon_py import core as _core
 
-@dataclass
-class SystemNode:
-    text: str
-    timestamp: float
-    vector: Optional[List[float]] = None
-    id: str = field(default_factory=lambda: f"s_{uuid.uuid4().hex[:8]}")
-    type: str = "SystemNode"
+    _HAS_CORE = True
+except ImportError:
+    _HAS_CORE = False
+    logger.warning(
+        "aeon_py.core not available — TraceGraph will run in stub mode. "
+        "Build the C++ extension with `cmake --build build` first."
+    )
 
-@dataclass
-class ConceptNode:
-    atlas_id: int
-    similarity: float
-    id: str = field(init=False)
-    type: str = "ConceptNode"
-
-    def __post_init__(self):
-        # Deterministic ID for idempotency: Concept 123 is always 'c_123'
-        self.id = f"c_{self.atlas_id}"
-
-class TraceEncoder(json.JSONEncoder):
-    """Custom encoder for Dataclasses and NumPy types."""
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return super().default(obj)
 
 class TraceGraph:
+    """Episodic trace graph backed by C++ mmap TraceManager.
+
+    All storage and indexing is performed in C++. This Python class is
+    a thin ergonomic wrapper that:
+      - Creates or opens the mmap trace file
+      - Converts Python strings to C++ calls
+      - Returns Python dicts from get_history()
     """
-    Episodic memory graph (DAG) tracking conversation history.
-    Stores User queries, System responses, and Atlas Concepts.
-    """
-    
-    __slots__ = ['graph', 'cursor']
 
-    def __init__(self) -> None:
-        self.graph = nx.DiGraph()
-        self.cursor: Optional[str] = None # ID of the active/latest node
+    # Role enum (mirrors C++ TraceRole)
+    ROLE_USER = 0
+    ROLE_SYSTEM = 1
+    ROLE_CONCEPT = 2
+    ROLE_SUMMARY = 3
 
-    def add_user_event(self, text: str, vector: Union[List[float], np.ndarray, None] = None) -> str:
-        """
-        Records a user query.
-        Links to previous node with NEXT if cursor exists.
-        """
-        # Convert numpy to list for storage if needed
-        vec_list = None
-        if vector is not None:
-             vec_list = vector.tolist() if isinstance(vector, np.ndarray) else vector
+    _ROLE_MAP = {
+        "user": ROLE_USER,
+        "system": ROLE_SYSTEM,
+        "concept": ROLE_CONCEPT,
+        "summary": ROLE_SUMMARY,
+    }
 
-        node = UserNode(
-            text=text,
-            timestamp=time.time(),
-            vector=vec_list
-        )
-        
-        # Add to graph
-        self.graph.add_node(node.id, **asdict(node))
-        
-        # Link temporal flow
-        if self.cursor:
-            self.link(self.cursor, node.id, EdgeType.NEXT)
-            
-        self.cursor = node.id
-        return node.id
-
-    def add_system_event(self, text: str, vector: Union[List[float], np.ndarray, None] = None) -> str:
+    def __init__(self, path: Optional[str | Path] = None):
         """
-        Records a system response.
-        Links to previous node (UserNode) with NEXT.
-        """
-        vec_list = None
-        if vector is not None:
-             vec_list = vector.tolist() if isinstance(vector, np.ndarray) else vector
-
-        node = SystemNode(
-            text=text,
-            timestamp=time.time(),
-            vector=vec_list
-        )
-        
-        self.graph.add_node(node.id, **asdict(node))
-        
-        if self.cursor:
-            self.link(self.cursor, node.id, EdgeType.NEXT)
-            
-        self.cursor = node.id
-        return node.id
-
-    def add_concept(self, atlas_id: int, similarity: float) -> str:
-        """
-        Adds a Concept node. Idempotent.
-        Does NOT update cursor (Concept is a leaf/side reference).
-        """
-        node = ConceptNode(atlas_id=atlas_id, similarity=float(similarity))
-        
-        if node.id not in self.graph:
-            self.graph.add_node(node.id, **asdict(node))
-        
-        # We assume concepts are immutable singleton-like entities in the graph
-        # We don't update attributes if it exists.
-        
-        return node.id
-
-    def link(self, source_id: str, target_id: str, relation: EdgeType) -> None:
-        """Create a typed edge between nodes."""
-        if source_id in self.graph and target_id in self.graph:
-            self.graph.add_edge(source_id, target_id, relation=relation.value)
-
-    def prune(self, max_nodes: int = 10000) -> None:
-        """
-        Simple safety valve to prevent unbounded growth.
-        Removes oldest nodes if excessive.
-        """
-        if self.graph.number_of_nodes() > max_nodes:
-            # This is a naive implementation. 
-            # In a real system, we'd archive old chains. 
-            # flexible warning or logic here.
-            pass
-
-    def prune_tail(self, n_events: int) -> int:
-        """
-        Removes the last N 'spine' events (User/System nodes) from the graph active tail.
-        Used for rollback synchronization with the LookaheadBuffer.
-        
         Args:
-             n_events: Number of User/System steps to backtrack.
-             
-        Returns:
-             Number of spine nodes actually removed.
+            path: File path for mmap-backed trace. None = in-memory only.
         """
-        if not self.cursor or n_events <= 0:
-            return 0
-            
-        removed_count = 0
-        current_id = self.cursor
-        
-        # Traverse backwards n_events steps
-        for _ in range(n_events):
-            if not current_id:
-                break
-                
-            # Identify predecessor in the spine (EdgeType.NEXT points TO current)
-            preds = list(self.graph.predecessors(current_id))
-            prev_node = None
-            for p in preds:
-                edge_data = self.graph.get_edge_data(p, current_id)
-                if edge_data.get('relation') == EdgeType.NEXT.value:
-                    prev_node = p
-                    break
-            
-            # Identify any side-chains (Concepts) linked strictly to this node?
-            # If we remove a UserNode, we might leave orphaned Concept nodes if they have no other parents.
-            # But ConceptNodes are shared/idempotent. We shouldn't delete them unless we strictly track refcounts.
-            # For this implementation, we leave Concepts (they are harmless knowledge references).
-            # We ONLY remove the conversation spine node.
-            
-            self.graph.remove_node(current_id)
-            removed_count += 1
-            current_id = prev_node
-            
-        self.cursor = current_id
-        return removed_count
+        if not _HAS_CORE:
+            self._manager = None
+            logger.warning("TraceGraph running in stub mode (no C++ backend)")
+            return
 
-    def save(self, path: Union[str, Path]) -> None:
-        """Serialize graph to JSON."""
-        self.graph.graph['cursor'] = self.cursor
-        data = nx.node_link_data(self.graph)
-        p = Path(path)
-        p.parent.mkdir(parents=True, exist_ok=True)
-        with open(p, 'w') as f:
-            json.dump(data, f, cls=TraceEncoder, indent=2)
-
-    @classmethod
-    def load(cls, path: Union[str, Path]) -> 'TraceGraph':
-        """Load graph from JSON."""
-        p = Path(path)
-        if not p.exists():
-            return cls()
-            
-        with open(p, 'r') as f:
-            data = json.load(f)
-            
-        instance = cls()
-        instance.graph = nx.node_link_graph(data)
-        
-        # Restore cursor: find the last added NEXT node? 
-        # Or just manually set if we tracked it in metadata.
-        # For now, let's look for a node with out_degree=0 in NEXT edges?
-        # Or simplistic: last node in list? No order guarantee.
-        # Better: Save cursor in graph graph-level attributes.
-        
-        # If the loaded graph has 'graph' attributes (nx supports this)
-        if 'cursor' in data.get('graph', {}): # type: ignore
-             instance.cursor = data['graph']['cursor'] # type: ignore
+        if path is not None:
+            self._manager = _core.TraceManager(str(path))
         else:
-             # Fallback: find a node with no outgoing NEXT edges? Too complex for now.
-             pass
-             
-        return instance
+            self._manager = _core.TraceManager()
 
-    def to_viz_json(self) -> Dict[str, Any]:
-        """
-        Returns simplified JSON for Frontend Visualization (React Flow / D3).
-        """
-        nodes = []
-        for n_id, attrs in self.graph.nodes(data=True):
-            # Extract label based on type
-            label = "Unknown"
-            if attrs.get('type') == "UserNode":
-                label = attrs.get('text', '')[:30]
-            elif attrs.get('type') == "SystemNode":
-                label = attrs.get('text', '')[:30]
-            elif attrs.get('type') == "ConceptNode":
-                label = f"Room {attrs.get('atlas_id')}"
-                
-            nodes.append({
-                "id": n_id,
-                "label": label,
-                "type": attrs.get('type'),
-                "details": attrs # include full details for tooltip
-            })
-            
-        edges = []
-        for u, v, attrs in self.graph.edges(data=True):
-            edges.append({
-                "source": u,
-                "target": v,
-                "type": attrs.get('relation')
-            })
-            
-        return {"nodes": nodes, "edges": edges}
+    def add_event(
+        self,
+        session_id: str,
+        role: str,
+        text: str,
+        atlas_id: int = 0,
+    ) -> int:
+        """Append an episodic event for a session.
 
-    def get_recent_concept_ids(self, limit: int = 64) -> List[int]:
+        Args:
+            session_id: Multi-tenant session UUID.
+            role: One of "user", "system", "concept", "summary".
+            text: Text preview (max 439 chars, truncated in C++).
+            atlas_id: Linked Atlas concept node ID (0 if none).
+
+        Returns:
+            The new event's unique monotonic ID.
         """
-        Retrieves IDs of recently accessed Atlas concepts.
-        Traverses the conversation spine backwards from the cursor.
+        if self._manager is None:
+            return 0
+
+        role_int = self._ROLE_MAP.get(role.lower(), self.ROLE_USER)
+        return self._manager.append_event(session_id, role_int, text, atlas_id)
+
+    def get_history(
+        self, session_id: str, limit: int = 100
+    ) -> list[dict]:
+        """Retrieve session history in reverse chronological order.
+
+        Args:
+            session_id: Session UUID.
+            limit: Maximum events to return.
+
+        Returns:
+            List of event dicts with keys: id, prev_id, atlas_id,
+            timestamp, role, flags, session_id, text.
         """
-        if not self.cursor or self.cursor not in self.graph:
+        if self._manager is None:
             return []
 
-        concept_ids = []
-        visited_concepts = set()
-        
-        # Start at cursor
-        current_id = self.cursor
-        
-        # Safety counter
-        iterations = 0
-        max_iterations = 1000
+        return self._manager.get_history(session_id, limit)
 
-        while current_id and len(concept_ids) < limit and iterations < max_iterations:
-            iterations += 1
-            
-            # 1. Get concepts linked from current node
-            if current_id in self.graph:
-                for neighbor in self.graph.successors(current_id):
-                    edge_data = self.graph.get_edge_data(current_id, neighbor)
-                    relation = edge_data.get('relation')
-                    
-                    if relation in [EdgeType.CAUSAL.value, EdgeType.REFERS_TO.value]:
-                        node_attrs = self.graph.nodes[neighbor]
-                        if node_attrs.get('type') == "ConceptNode":
-                            c_id = node_attrs.get('atlas_id')
-                            if c_id is not None and c_id not in visited_concepts:
-                                visited_concepts.add(c_id)
-                                concept_ids.append(c_id)
-            
-            # 2. Move to previous spine node (NEXT edge points TO current, so we look for predecessor)
-            preds = list(self.graph.predecessors(current_id))
-            prev_node = None
-            for p in preds:
-                edge_data = self.graph.get_edge_data(p, current_id)
-                if edge_data.get('relation') == EdgeType.NEXT.value:
-                    prev_node = p
-                    break
-            
-            current_id = prev_node
-            
-        return concept_ids
+    def compact(self) -> None:
+        """Shadow compaction — defragment trace file."""
+        if self._manager is not None:
+            self._manager.compact()
+
+    def has_session(self, session_id: str) -> bool:
+        """Check if a session has any events."""
+        if self._manager is None:
+            return False
+        return self._manager.has_session(session_id)
+
+    def drop_session(self, session_id: str) -> bool:
+        """Drop session tail pointer (NPC despawn cleanup)."""
+        if self._manager is None:
+            return False
+        return self._manager.drop_session(session_id)
+
+    @property
+    def size(self) -> int:
+        """Total event count (mmap + delta)."""
+        if self._manager is None:
+            return 0
+        return self._manager.size()
+
+    @property
+    def mmap_event_count(self) -> int:
+        """Event count in mmap file only."""
+        if self._manager is None:
+            return 0
+        return self._manager.mmap_event_count()
+
+    @property
+    def delta_event_count(self) -> int:
+        """Event count in delta buffer only."""
+        if self._manager is None:
+            return 0
+        return self._manager.delta_event_count()

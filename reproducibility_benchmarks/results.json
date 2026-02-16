@@ -1,0 +1,269 @@
+{
+  "timestamp": "2026-02-15T16:23:54+0300",
+  "hardware": {
+    "cpu_model": "Apple M4 Max",
+    "cpu_arch": "arm64",
+    "cpu_cores_physical": 16,
+    "cpu_cores_logical": 16,
+    "ram_gb": 64.0,
+    "os_name": "Darwin",
+    "os_version": "25.3.0",
+    "simd_level": "ARM NEON (native)",
+    "python_version": "3.14.3",
+    "numpy_version": "2.4.1"
+  },
+  "benchmarks": [
+    {
+      "name": "BM_Scalar",
+      "median_ns": 49.601627827176834,
+      "mean_ns": 49.601627827176834,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_Scalar_4xUnrolled",
+      "median_ns": 143.02962532955357,
+      "mean_ns": 143.02962532955357,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SIMDe_AVX2",
+      "median_ns": 64.28991309290218,
+      "mean_ns": 64.28991309290218,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SIMDe_AVX512",
+      "median_ns": 51.37589817995089,
+      "mean_ns": 51.37589817995089,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_RuntimeDispatched",
+      "median_ns": 51.46673120907031,
+      "mean_ns": 51.46673120907031,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SLB_RawScan_64",
+      "median_ns": 3622.443068686256,
+      "mean_ns": 3622.443068686256,
+      "stddev_ns": 0.0,
+      "unit": "ns",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SLB_CacheHit",
+      "median_ns": 3648.4901994707006,
+      "mean_ns": 3648.4901994707006,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "AtlasFixture/BM_SLB_CacheMiss_WarmAtlas",
+      "median_ns": 3682.166635121412,
+      "mean_ns": 3682.166635121412,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "AtlasFixture/BM_AtlasTraversal_Only",
+      "median_ns": 87.37411947876541,
+      "mean_ns": 87.37411947876541,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_FlatScan/10000/iterations:3",
+      "median_ns": 633111.0004490862,
+      "mean_ns": 633111.0004490862,
+      "stddev_ns": 0.0,
+      "unit": "ms",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_FlatScan/100000/iterations:3",
+      "median_ns": 7133514.004332635,
+      "mean_ns": 7133514.004332635,
+      "stddev_ns": 0.0,
+      "unit": "ms",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_FlatScan/1000000/iterations:3",
+      "median_ns": 88262097.33282061,
+      "mean_ns": 88262097.33282061,
+      "stddev_ns": 0.0,
+      "unit": "ms",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "ScalabilityFixture/BM_AtlasTraversal/10000",
+      "median_ns": 7328.234006012218,
+      "mean_ns": 7328.234006012218,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "ScalabilityFixture/BM_AtlasTraversal/100000",
+      "median_ns": 10834.463542227686,
+      "mean_ns": 10834.463542227686,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "ScalabilityFixture/BM_AtlasTraversal/1000000",
+      "median_ns": 10885.788298227795,
+      "mean_ns": 10885.788298227795,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Sequential/100",
+      "median_ns": 5509.8005536250375,
+      "mean_ns": 5509.8005536250375,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Sequential/1000",
+      "median_ns": 5517.610362617195,
+      "mean_ns": 5517.610362617195,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Sequential/10000",
+      "median_ns": 5521.556987666913,
+      "mean_ns": 5521.556987666913,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Concurrent/10000/threads:1",
+      "median_ns": 5512.057782900655,
+      "mean_ns": 5512.057782900655,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Concurrent/10000/threads:2",
+      "median_ns": 2835.7903971568353,
+      "mean_ns": 2835.7903971568353,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Concurrent/10000/threads:4",
+      "median_ns": 1441.068034720079,
+      "mean_ns": 1441.068034720079,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_MultiTenant_SLB_Concurrent/10000/threads:8",
+      "median_ns": 730.1154087815096,
+      "mean_ns": 730.1154087815096,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SLB_CacheIsolation/16",
+      "median_ns": 885.9730016842207,
+      "mean_ns": 885.9730016842207,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SLB_CacheIsolation/32",
+      "median_ns": 1755.6404354552012,
+      "mean_ns": 1755.6404354552012,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "BM_SLB_CacheIsolation/64",
+      "median_ns": 3549.790299714361,
+      "mean_ns": 3549.790299714361,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "TieredAtlasFixture/BM_TieredAtlas_WarmQuery",
+      "median_ns": 98.01507766836231,
+      "mean_ns": 98.01507766836231,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "TieredAtlasFixture/BM_TieredAtlas_ColdMiss",
+      "median_ns": 18027.28875526162,
+      "mean_ns": 18027.28875526162,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    },
+    {
+      "name": "TieredAtlasFixture/BM_RawNavigate_Baseline",
+      "median_ns": 88.36206309029708,
+      "mean_ns": 88.36206309029708,
+      "stddev_ns": 0.0,
+      "unit": "us",
+      "iterations": 3,
+      "extra": {}
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+#include "aeon/schema.hpp"
 #include "aeon/storage.hpp"
 #include <filesystem>
 #include <gtest/gtest.h>
@@ -30,7 +31,7 @@ TEST_F(StorageTest, Persistence) {
     file.open(test_path, 10);
     auto *node = file.get_node(0);
     node->id = 12345;
-    node->centroid[0] = 3.14f;
+    aeon::node_centroid(node)[0] = 3.14f;
   } // Close
 
   {
@@ -38,7 +39,7 @@ TEST_F(StorageTest, Persistence) {
     file.open(test_path); // Reopen
     auto *node = file.get_node(0);
     EXPECT_EQ(node->id, 12345);
-    EXPECT_FLOAT_EQ(node->centroid[0], 3.14f);
+    EXPECT_FLOAT_EQ(aeon::node_centroid(node)[0], 3.14f);
   }
 }
 

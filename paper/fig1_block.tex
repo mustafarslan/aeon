@@ -1,0 +1,24 @@
+FP32 & 10.5\,$\mu$s & 440\,MB & 1.0$\times$ \\
+INT8 & 3.09\,$\mu$s & 141\,MB & 3.1$\times$ \\
+\midrule
+\textbf{Speedup} & \textbf{3.4$\times$} & \textbf{3.1$\times$} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 3.4$\times$ traversal speedup combines two effects: (1)~the 5.6$\times$ faster per-comparison kernel, partially offset by (2)~the fixed overhead of tree navigation (pointer chasing, branching logic). The 3.1$\times$ spatial compression directly reduces I/O bandwidth requirements.
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\linewidth]{fig1a_dot_product.pdf}
+        \caption{Dot Product}
+        \label{fig:quant-dot}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.32\textwidth}
+        \includegraphics[width=\linewidth]{fig1b_traversal.pdf}
+        \caption{Tree Traversal}
+        \label{fig:quant-traversal}
+    \end{subfigure}
+    \hfill

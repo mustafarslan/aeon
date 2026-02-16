@@ -22,7 +22,7 @@ namespace aeon {
  */
 struct alignas(64) CacheEntry {
   uint64_t node_id;
-  float centroid[EMBEDDING_DIM];
+  float centroid[EMBEDDING_DIM_DEFAULT];
   /// LRU tick counter; 0 indicates an empty/invalid slot.
   uint64_t last_accessed_tick;
 };
@@ -48,15 +48,25 @@ public:
   }
 
   /**
+   * @brief Thread-safe SLB hit result. Copies centroid preview instead of
+   * returning a raw pointer into CacheEntry storage (which can be evicted
+   * concurrently after the shared_lock releases).
+   */
+  struct SLBHit {
+    uint64_t node_id;
+    float similarity;
+    std::array<float, 3> centroid_preview;
+  };
+
+  /**
    * @brief Scans the cache for the nearest neighbor to the query.
    *
    * @param query 768-dim query vector
    * @param threshold Minimum similarity to consider a "Hit" (default 0.85)
-   * @return std::optional<tuple<id, score, const float*>> if a match >
-   * threshold is found
+   * @return std::optional<SLBHit> Safe result with copied preview data
    */
-  std::optional<std::tuple<uint64_t, float, const float *>>
-  find_nearest(std::span<const float> query, float threshold = 0.85f) {
+  std::optional<SLBHit> find_nearest(std::span<const float> query,
+                                     float threshold = 0.85f) {
     std::shared_lock lock(mutex_);
 
     float best_score = -2.0f;
@@ -81,12 +91,10 @@ public:
     }
 
     if (found && best_score >= threshold) {
-      // Return ID, Score, and Pointer to internal centroid storage
-      // NOTE: The returned pointer references internal CacheEntry storage.
-      // Under the shared_mutex contract, this pointer remains valid for the
-      // duration of the caller's read scope. Single-session workloads
-      // (the dominant Aeon access pattern) make concurrent eviction rare.
-      return std::make_tuple(best_id, best_score, best_centroid);
+      // Return safe copy — no dangling pointer risk after lock release
+      return SLBHit{best_id,
+                    best_score,
+                    {best_centroid[0], best_centroid[1], best_centroid[2]}};
     }
 
     return std::nullopt;
@@ -125,6 +133,19 @@ public:
       }
     }
     update_entry(*lru, node_id, centroid);
+  }
+
+  /**
+   * @brief Resets the cache to empty state. Thread-safe.
+   * Used by compact_mmap() when node IDs are re-indexed.
+   */
+  void clear() {
+    std::unique_lock lock(mutex_);
+    for (auto &e : entries_) {
+      e.last_accessed_tick = 0;
+      e.node_id = 0;
+    }
+    tick_counter_.store(1, std::memory_order_relaxed);
   }
 
   /**
