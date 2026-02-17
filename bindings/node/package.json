@@ -8,13 +8,17 @@
         "build": "cmake-js compile -T aeon_node -a arm64",
         "rebuild": "cmake-js rebuild -T aeon_node -a arm64",
         "clean": "cmake-js clean",
-        "bench": "node bench_bridge.js"
+        "bench": "node bench_bridge.js",
+        "bench:lobotomy": "ts-node bench_lobotomy.ts"
     },
     "dependencies": {
         "node-addon-api": "^8.0.0"
     },
     "devDependencies": {
-        "cmake-js": "^7.3.0"
+        "cmake-js": "^7.3.0",
+        "typescript": "^5.7.0",
+        "ts-node": "^10.9.0",
+        "@types/node": "^22.0.0"
     },
     "os": [
         "darwin"

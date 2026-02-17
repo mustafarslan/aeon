@@ -21,6 +21,20 @@ export interface NavigateResult {
 }
 
 /**
+ * A single trace event returned by traceGetHistory.
+ */
+export interface TraceHistoryEvent {
+    /** Unique event identifier (uint64_t — BigInt). */
+    id: bigint;
+    /** Role as integer (matches AEON_ROLE_* C-API enum). */
+    role: number;
+    /** Full text content retrieved from blob arena (or inline preview). */
+    text: string;
+    /** Nanosecond UNIX timestamp (uint64_t — BigInt). */
+    timestamp: bigint;
+}
+
+/**
  * AeonDB — Production-grade interface to the Aeon Memory OS.
  *
  * Manages an Atlas (semantic vector index) and a Trace (episodic WAL store)
@@ -140,6 +154,18 @@ export class AeonDB {
      * Returns the total number of events in the Trace (mmap + delta buffer).
      */
     traceSize(): number;
+
+    /**
+     * Retrieve session history (newest first) with full text from blob arena.
+     *
+     * SYNCHRONOUS: Executes on the V8 main thread.
+     *
+     * @param sessionId - Session UUID filter ("" for default/all sessions).
+     * @param limit     - Maximum events to return (capped at 1000).
+     * @returns Array of { id, role, text, timestamp } sorted newest-first.
+     * @throws {Error} If the C-API call fails.
+     */
+    traceGetHistory(sessionId: string, limit: number): TraceHistoryEvent[];
 
     /**
      * Explicitly release all native resources.

@@ -108,17 +108,18 @@ public:
    * @brief Register the AeonDB class with the Node.js module exports.
    */
   static Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    Napi::Function func =
-        DefineClass(env, "AeonDB",
-                    {
-                        InstanceMethod<&AeonDB::AtlasInsert>("atlasInsert"),
-                        InstanceMethod<&AeonDB::AtlasNavigate>("atlasNavigate"),
-                        InstanceMethod<&AeonDB::TraceAppend>("traceAppend"),
-                        InstanceMethod<&AeonDB::AtlasSize>("atlasSize"),
-                        InstanceMethod<&AeonDB::TraceSize>("traceSize"),
-                        InstanceMethod<&AeonDB::Close>("close"),
-                        InstanceMethod<&AeonDB::IsClosed>("isClosed"),
-                    });
+    Napi::Function func = DefineClass(
+        env, "AeonDB",
+        {
+            InstanceMethod<&AeonDB::AtlasInsert>("atlasInsert"),
+            InstanceMethod<&AeonDB::AtlasNavigate>("atlasNavigate"),
+            InstanceMethod<&AeonDB::TraceAppend>("traceAppend"),
+            InstanceMethod<&AeonDB::TraceGetHistory>("traceGetHistory"),
+            InstanceMethod<&AeonDB::AtlasSize>("atlasSize"),
+            InstanceMethod<&AeonDB::TraceSize>("traceSize"),
+            InstanceMethod<&AeonDB::Close>("close"),
+            InstanceMethod<&AeonDB::IsClosed>("isClosed"),
+        });
 
     Napi::FunctionReference *constructor = new Napi::FunctionReference();
     *constructor = Napi::Persistent(func);
@@ -487,6 +488,113 @@ private:
     AEON_CHECK(env, aeon_trace_size(trace_, &size), "trace_size");
 
     return Napi::Number::New(env, static_cast<double>(size));
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // traceGetHistory(sessionId: string, limit: number)
+  //   → Array<{ id: bigint, role: number, text: string, timestamp: bigint }>
+  //
+  // Wraps aeon_trace_get_history + aeon_trace_get_event_text for each
+  // returned event. Heap-allocates via std::vector — no stack bombs.
+  // Node.js dictates the limit — no silent truncation.
+  // SYNCHRONOUS: executes on V8 main thread.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Napi::Value TraceGetHistory(const Napi::CallbackInfo &info) {
+    Napi::Env env = info.Env();
+    if (!CheckLive(env))
+      return env.Undefined();
+
+    // ── Argument validation ──────────────────────────────────────────────
+    if (info.Length() < 2) {
+      Napi::TypeError::New(env, "traceGetHistory requires 2 arguments: "
+                                "(sessionId: string, limit: number)")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    if (!info[0].IsString()) {
+      Napi::TypeError::New(env, "sessionId must be a string")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    if (!info[1].IsNumber()) {
+      Napi::TypeError::New(env, "limit must be a number")
+          .ThrowAsJavaScriptException();
+      return env.Undefined();
+    }
+
+    std::string session_id = info[0].As<Napi::String>().Utf8Value();
+    uint32_t limit = info[1].As<Napi::Number>().Uint32Value();
+    if (limit == 0)
+      limit = 1;
+
+    // ── Heap-allocated event buffer ──────────────────────────────────────
+    // No stack allocation. No silent cap. Node.js dictates the limit.
+    // Each aeon_trace_event_t is 512 bytes; std::vector handles it safely.
+    std::vector<aeon_trace_event_t> events(limit);
+    size_t actual_count = 0;
+
+    AEON_CHECK(env,
+               aeon_trace_get_history(trace_, session_id.c_str(), events.data(),
+                                      static_cast<size_t>(limit),
+                                      &actual_count),
+               "trace_get_history");
+
+    // ── Marshal results to JS Array ──────────────────────────────────────
+    Napi::Array js_results = Napi::Array::New(env, actual_count);
+
+    // Reusable text buffer for blob reads. We track capacity manually
+    // and use C++23 resize_and_overwrite to bypass zero-initialization
+    // on growth — critical for hot-path FFI where blobs may be large.
+    std::string text_buf;
+    size_t text_buf_cap = 0;
+
+    for (size_t i = 0; i < actual_count; ++i) {
+      const aeon_trace_event_t &evt = events[i];
+
+      Napi::Object obj = Napi::Object::New(env);
+      obj.Set("id", Napi::BigInt::New(env, evt.id));
+      obj.Set("role", Napi::Number::New(env, static_cast<double>(evt.role)));
+      obj.Set("timestamp", Napi::BigInt::New(env, evt.timestamp));
+
+      // Retrieve full text from blob arena
+      if (evt.blob_size > 0) {
+        const size_t needed = static_cast<size_t>(evt.blob_size) + 1;
+
+        // Grow capacity only when needed — monotonically increasing.
+        if (needed > text_buf_cap) {
+          text_buf.reserve(needed);
+          text_buf_cap = needed;
+        }
+
+        // C++23 resize_and_overwrite: sets .size() without zero-fill.
+        // The lambda receives (buf, count) and returns actual chars written.
+        size_t actual_len = 0;
+        aeon_error_t rc = AEON_OK;
+        text_buf.resize_and_overwrite(needed, [&](char *buf, size_t count) {
+          rc = aeon_trace_get_event_text(trace_, evt.blob_offset, evt.blob_size,
+                                         buf, count, &actual_len);
+          return (rc == AEON_OK) ? actual_len : size_t{0};
+        });
+
+        if (rc == AEON_OK) {
+          obj.Set("text",
+                  Napi::String::New(env, text_buf.data(), text_buf.size()));
+        } else {
+          // Fallback to inline preview
+          obj.Set("text", Napi::String::New(env, evt.text_preview));
+        }
+      } else {
+        // No blob — use inline preview
+        obj.Set("text", Napi::String::New(env, evt.text_preview));
+      }
+
+      js_results.Set(static_cast<uint32_t>(i), obj);
+    }
+
+    return js_results;
   }
 
   // ═══════════════════════════════════════════════════════════════════════

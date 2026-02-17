@@ -1,0 +1,39 @@
+{
+    "compilerOptions": {
+        /* ─── Strict Enterprise Typings ──────────────────────────────── */
+        "strict": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "exactOptionalPropertyTypes": false,
+        "forceConsistentCasingInFileNames": true,
+        /* ─── Module Resolution (CommonJS — native addon) ─────────────── */
+        "target": "ES2022",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        /* ─── Output ─────────────────────────────────────────────────── */
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "skipLibCheck": true,
+        /* ─── Paths ──────────────────────────────────────────────────── */
+        "rootDir": ".",
+        "baseUrl": "."
+    },
+    "include": [
+        "src/**/*.ts",
+        "bench_lobotomy.ts",
+        "index.d.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "build",
+        "dist"
+    ]
+}
