@@ -8,6 +8,7 @@ Production-ready bindings for the Aeon Memory OS C-API (`aeon_c_api.h`).
 |----------|------|-----------------|
 | **C# (.NET)** | [`csharp/AeonMemory.cs`](csharp/AeonMemory.cs) | Unity 2022+, Godot 4.x, .NET 6/8 |
 | **C++ (Header-Only)** | [`cpp_unreal/AeonClient.hpp`](cpp_unreal/AeonClient.hpp) | Unreal Engine 5.x, Standalone C++ |
+| **Node.js (N-API)** | [`node/`](node/) | OpenClaw Agent Framework, macOS Apple Silicon |
 | **Python** | `shell/aeon_py/` (nanobind) | Cloud, HPC, Edge Orchestration |
 
 ---
@@ -93,6 +94,52 @@ void AMyNPC::BeginPlay()
 1. Build `libaeon` as a shared library from CMake.
 2. Add to your Unreal plugin's `ThirdParty/` folder.
 3. Update your `.Build.cs` to link `aeon` and add the include path.
+
+---
+
+## Node.js — OpenClaw Agent Framework (macOS Apple Silicon)
+
+### Zero-Copy V8 Blood-Brain Barrier
+
+> [!CAUTION]
+> All vector data MUST be passed as `Float32Array`. The bridge extracts the raw `float*`
+> pointer directly — no copies, no V8 heap allocations. Do NOT modify the array during
+> a synchronous call.
+
+```javascript
+const { AeonDB } = require('@aeon/node-mac');
+
+const db = new AeonDB('/data/atlas.bin', '/data/trace.wal', 768, 1); // INT8
+
+// Zero-copy insert
+const vec = new Float32Array(768);
+crypto.getRandomValues(new Uint8Array(vec.buffer)); // fill with data
+const nodeId = db.atlasInsert(0n, vec, 'concept:memory');
+
+// Sub-10µs synchronous navigate
+const results = db.atlasNavigate(vec, 10);
+for (const r of results) {
+    console.log(`Node ${r.id}: similarity=${r.score.toFixed(4)}`);
+}
+
+// WAL-backed trace append
+const eventId = db.traceAppend(0, 'User asked about quantum computing');
+
+db.close(); // MUST call — prevents file handle leaks
+```
+
+### Node.js Bridge Build
+
+```bash
+cd bindings/node
+npm install
+npm run build    # cmake-js compile -T aeon_node -a arm64
+npm run bench    # Run latency benchmark
+```
+
+> [!IMPORTANT]
+> Requires `libaeon.dylib` to be pre-built. From the project root:
+> `cmake --build build --target aeon_shared`
 
 ---
 

@@ -1,0 +1,30 @@
+{
+    "name": "@aeon/node-mac",
+    "version": "4.1.0",
+    "description": "Ultra-low-latency Node.js native bridge for the Aeon V4.1 Memory OS kernel (macOS Apple Silicon)",
+    "main": "build/Release/aeon_node.node",
+    "types": "index.d.ts",
+    "scripts": {
+        "build": "cmake-js compile -T aeon_node -a arm64",
+        "rebuild": "cmake-js rebuild -T aeon_node -a arm64",
+        "clean": "cmake-js clean",
+        "bench": "node bench_bridge.js"
+    },
+    "dependencies": {
+        "node-addon-api": "^8.0.0"
+    },
+    "devDependencies": {
+        "cmake-js": "^7.3.0"
+    },
+    "os": [
+        "darwin"
+    ],
+    "cpu": [
+        "arm64"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "license": "MIT",
+    "private": true
+}
