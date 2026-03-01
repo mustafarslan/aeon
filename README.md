@@ -6,8 +6,9 @@
 
 **Aeon** is a persistent, crash-recoverable **Semantic Memory Engine** for AI agents, game engines, and robotics. It provides a shared memory substrate where thousands of independent agents — or a single massively parallel system — can *remember, retrieve, and forget* knowledge in real time.
 
-> **V4.1 Frontier Release:** Write-Ahead Log for crash recovery, Sidecar Blob Arena for unlimited text storage, and INT8 Scalar Quantization for 3.1× file compression with 5.6× math speedup.
+> **V3 Frontier Release:** Write-Ahead Log for crash recovery, Sidecar Blob Arena for unlimited text storage, and INT8 Scalar Quantization for 3.1× file compression with 5.6× math speedup.
 
+> **ArXiv Preprint:** arXiv:2601.15311
 ---
 
 ## Key Features
