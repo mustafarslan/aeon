@@ -68,7 +68,7 @@ static void BM_Scalar(benchmark::State &state) {
   std::span<const float> sa{a}, sb{b};
 
   for (auto _ : state) {
-    float sim = aeon::simd::similarity_scalar(sa, sb);
+    float sim = aeon::simd::similarity_scalar(sa.data(), sb.data(), DIM);
     benchmark::DoNotOptimize(sim);
   }
   state.SetItemsProcessed(state.iterations());
@@ -102,7 +102,7 @@ static void BM_SIMDe_AVX2(benchmark::State &state) {
   std::span<const float> sa{a}, sb{b};
 
   for (auto _ : state) {
-    float sim = aeon::simd::similarity_avx2(sa, sb);
+    float sim = aeon::simd::similarity_avx2(sa.data(), sb.data(), DIM);
     benchmark::DoNotOptimize(sim);
   }
   state.SetItemsProcessed(state.iterations());
@@ -119,7 +119,7 @@ static void BM_SIMDe_AVX512(benchmark::State &state) {
   std::span<const float> sa{a}, sb{b};
 
   for (auto _ : state) {
-    float sim = aeon::simd::similarity_avx512(sa, sb);
+    float sim = aeon::simd::similarity_avx512(sa.data(), sb.data(), DIM);
     benchmark::DoNotOptimize(sim);
   }
   state.SetItemsProcessed(state.iterations());

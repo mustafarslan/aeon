@@ -71,6 +71,11 @@ constexpr uint32_t QUANT_FP32 = 0;
 /// 4× spatial compression vs FP32.
 constexpr uint32_t QUANT_INT8_SYMMETRIC = 1;
 
+/// INT8 Anisotropic Quantization: Golden Section Search optimized scale,
+/// zero_point = 0. 4× spatial compression vs FP32. Preserves geometry of highly
+/// anisotropic distributions.
+constexpr uint32_t QUANT_INT8_ANISOTROPIC = 2;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // AtlasHeader — 64-byte file header with dynamic layout fields
 // ═══════════════════════════════════════════════════════════════════════════
@@ -171,7 +176,8 @@ constexpr size_t compute_node_stride(uint32_t dim,
  */
 constexpr size_t compute_node_stride(uint32_t dim, uint32_t metadata_size,
                                      uint32_t quant_type) noexcept {
-  size_t payload_size = (quant_type == QUANT_INT8_SYMMETRIC)
+  size_t payload_size = (quant_type == QUANT_INT8_SYMMETRIC ||
+                         quant_type == QUANT_INT8_ANISOTROPIC)
                             ? dim * sizeof(int8_t)
                             : dim * sizeof(float);
   return align_up(sizeof(NodeHeader) + payload_size + metadata_size,
@@ -223,15 +229,19 @@ inline const char *node_metadata(const NodeHeader *hdr, uint32_t dim) noexcept {
 /// sizeof(float).
 inline char *node_metadata_q(NodeHeader *hdr, uint32_t dim,
                              uint32_t quant_type) noexcept {
-  size_t payload = (quant_type == QUANT_INT8_SYMMETRIC) ? dim * sizeof(int8_t)
-                                                        : dim * sizeof(float);
+  size_t payload = (quant_type == QUANT_INT8_SYMMETRIC ||
+                    quant_type == QUANT_INT8_ANISOTROPIC)
+                       ? dim * sizeof(int8_t)
+                       : dim * sizeof(float);
   return reinterpret_cast<char *>(reinterpret_cast<uint8_t *>(hdr) +
                                   sizeof(NodeHeader) + payload);
 }
 inline const char *node_metadata_q(const NodeHeader *hdr, uint32_t dim,
                                    uint32_t quant_type) noexcept {
-  size_t payload = (quant_type == QUANT_INT8_SYMMETRIC) ? dim * sizeof(int8_t)
-                                                        : dim * sizeof(float);
+  size_t payload = (quant_type == QUANT_INT8_SYMMETRIC ||
+                    quant_type == QUANT_INT8_ANISOTROPIC)
+                       ? dim * sizeof(int8_t)
+                       : dim * sizeof(float);
   return reinterpret_cast<const char *>(reinterpret_cast<const uint8_t *>(hdr) +
                                         sizeof(NodeHeader) + payload);
 }

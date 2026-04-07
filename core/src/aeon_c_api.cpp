@@ -84,6 +84,20 @@ AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
     cpp_opts.dim = opts->dim;
     cpp_opts.quantization_type = opts->quantization_type;
     cpp_opts.enable_wal = (opts->enable_wal != 0);
+    cpp_opts.max_backtrack_steps = opts->max_backtrack_steps;
+
+    switch (opts->metric) {
+    case AEON_METRIC_L2:
+      cpp_opts.metric = aeon::simd::MetricType::L2;
+      break;
+    case AEON_METRIC_INNER_PRODUCT:
+      cpp_opts.metric = aeon::simd::MetricType::InnerProduct;
+      break;
+    case AEON_METRIC_COSINE:
+    default:
+      cpp_opts.metric = aeon::simd::MetricType::Cosine;
+      break;
+    }
 
     auto *atlas = new aeon::Atlas(std::filesystem::path(path), cpp_opts);
     *out_atlas = reinterpret_cast<aeon_atlas_t *>(atlas);

@@ -64,7 +64,13 @@ add_library(aeon_core STATIC
     src/core.cpp
     src/atlas.cpp
     src/simd_impl.cpp
+    src/metric_dispatch.cpp
     src/trace.cpp
+    src/avq.cpp
+    src/benchmark_harness.cpp
+    src/platform_io.cpp
+    src/buffer_pool.cpp
+    src/shadow_pager.cpp
 )
 
 # Link BLAS
@@ -199,6 +205,8 @@ if(BUILD_TESTING)
         tests/test_wal.cpp
         tests/test_blob_arena.cpp
         tests/test_quantization.cpp
+        tests/test_avq.cpp
+        tests/test_metric_dispatch.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 
@@ -302,7 +310,13 @@ if(BUILD_TESTING)
     target_link_libraries(bench_quantization_efficiency PRIVATE aeon_core benchmark::benchmark)
     target_compile_features(bench_quantization_efficiency PRIVATE cxx_std_23)
 
-    # V4.1 Test 9: WAL Overhead — Durability Cost Measurement
+    add_executable(bench_avq_recall
+        benchmarks/bench_avq_recall.cpp
+    )
+    target_link_libraries(bench_avq_recall PRIVATE aeon_core benchmark::benchmark benchmark::benchmark_main Threads::Threads)
+    target_compile_features(bench_avq_recall PRIVATE cxx_std_23)
+    target_compile_options(bench_avq_recall PRIVATE -O3 -ffast-math)
+    
     add_executable(bench_wal_overhead
         benchmarks/bench_wal_overhead.cpp
     )

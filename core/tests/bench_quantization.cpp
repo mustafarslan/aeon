@@ -17,6 +17,7 @@
  */
 
 #include "aeon/math_kernel.hpp"
+#include "aeon/metric_dispatch.hpp"
 #include "aeon/quantization.hpp"
 #include "aeon/schema.hpp"
 #include "aeon/simd_impl.hpp"
@@ -98,7 +99,7 @@ BENCHMARK_DEFINE_F(QuantMicroFixture, BM_INT8_DotScalar)
   for (auto _ : state) {
     benchmark::DoNotOptimize(q_a.data());
     benchmark::DoNotOptimize(q_b.data());
-    int32_t result = aeon::simd::dot_int8_scalar(q_a, q_b, DIM);
+    int32_t result = aeon::simd::dot_int8_scalar(q_a.data(), q_b.data(), DIM);
     benchmark::DoNotOptimize(result);
     benchmark::ClobberMemory();
   }
@@ -116,12 +117,15 @@ BENCHMARK_REGISTER_F(QuantMicroFixture, BM_INT8_DotScalar)
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(QuantMicroFixture, BM_INT8_DotBest)
 (benchmark::State &state) {
-  auto best_fn = aeon::simd::get_best_int8_dot_impl();
+  auto best_fn =
+      aeon::simd::MetricDispatcher::resolve(
+          aeon::simd::MetricType::InnerProduct, aeon::simd::QuantType::INT8)
+          ->compute_i8;
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(q_a.data());
     benchmark::DoNotOptimize(q_b.data());
-    int32_t result = best_fn(q_a, q_b, DIM);
+    int32_t result = best_fn(q_a.data(), q_b.data(), DIM);
     benchmark::DoNotOptimize(result);
     benchmark::ClobberMemory();
   }
@@ -138,12 +142,15 @@ BENCHMARK_REGISTER_F(QuantMicroFixture, BM_INT8_DotBest)
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(QuantMicroFixture, BM_INT8_DotDequantize)
 (benchmark::State &state) {
-  auto best_fn = aeon::simd::get_best_int8_dot_impl();
+  auto best_fn =
+      aeon::simd::MetricDispatcher::resolve(
+          aeon::simd::MetricType::InnerProduct, aeon::simd::QuantType::INT8)
+          ->compute_i8;
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(q_a.data());
     benchmark::DoNotOptimize(q_b.data());
-    int32_t raw = best_fn(q_a, q_b, DIM);
+    int32_t raw = best_fn(q_a.data(), q_b.data(), DIM);
     float result = aeon::quant::dequantize_dot_product(raw, scale_a, scale_b);
     benchmark::DoNotOptimize(result);
     benchmark::ClobberMemory();
@@ -191,12 +198,15 @@ static void BM_FootprintAndAccuracy(benchmark::State &state) {
   aeon::quant::quantize_symmetric(vec_a, q_a, scale_a);
   aeon::quant::quantize_symmetric(vec_b, q_b, scale_b);
 
-  auto best_fn = aeon::simd::get_best_int8_dot_impl();
+  auto best_fn =
+      aeon::simd::MetricDispatcher::resolve(
+          aeon::simd::MetricType::InnerProduct, aeon::simd::QuantType::INT8)
+          ->compute_i8;
 
   for (auto _ : state) {
     benchmark::DoNotOptimize(q_a.data());
     benchmark::DoNotOptimize(q_b.data());
-    int32_t raw = best_fn(q_a, q_b, DIM);
+    int32_t raw = best_fn(q_a.data(), q_b.data(), DIM);
     float approx = aeon::quant::dequantize_dot_product(raw, scale_a, scale_b);
     benchmark::DoNotOptimize(approx);
     benchmark::ClobberMemory();
@@ -216,7 +226,7 @@ static void BM_FootprintAndAccuracy(benchmark::State &state) {
   float fp32_dot = 0.0f;
   for (uint32_t i = 0; i < DIM; ++i)
     fp32_dot += vec_a[i] * vec_b[i];
-  int32_t int8_raw = best_fn(q_a, q_b, DIM);
+  int32_t int8_raw = best_fn(q_a.data(), q_b.data(), DIM);
   float int8_approx =
       aeon::quant::dequantize_dot_product(int8_raw, scale_a, scale_b);
   float rel_err = std::fabs(fp32_dot) > 1e-6f

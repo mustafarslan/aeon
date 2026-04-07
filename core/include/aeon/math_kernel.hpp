@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aeon/simd_impl.hpp"
+#include "aeon/metric_dispatch.hpp"
 #include <cmath>
 #include <concepts>
 #include <numeric>
@@ -25,8 +25,9 @@ inline float dot_product(std::span<const float> a, std::span<const float> b) {
   }
 
   // Thread-safe one-time initialization of best kernel
-  static const auto kernel = aeon::simd::get_best_similarity_impl();
-  return kernel(a, b);
+  static const auto *kernel_def = aeon::simd::MetricDispatcher::resolve(
+      aeon::simd::MetricType::Cosine, aeon::simd::QuantType::FP32);
+  return kernel_def->compute_f32(a.data(), b.data(), a.size());
 }
 
 /**
@@ -44,8 +45,9 @@ inline float cosine_similarity(std::span<const float> a,
   }
 
   // The kernels in simd_impl return cosine similarity (dot / (normA * normB))
-  static const auto kernel = aeon::simd::get_best_similarity_impl();
-  return kernel(a, b);
+  static const auto *kernel_def = aeon::simd::MetricDispatcher::resolve(
+      aeon::simd::MetricType::Cosine, aeon::simd::QuantType::FP32);
+  return kernel_def->compute_f32(a.data(), b.data(), a.size());
 }
 
 /**

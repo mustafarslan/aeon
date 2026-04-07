@@ -2,6 +2,7 @@
 
 #include "aeon/epoch.hpp"
 #include "aeon/hash.hpp"
+#include "aeon/metric_dispatch.hpp"
 #include "aeon/quantization.hpp"
 #include "aeon/schema.hpp"
 #include "aeon/simd_impl.hpp"
@@ -25,6 +26,9 @@ struct AtlasOptions {
   uint32_t quantization_type =
       QUANT_FP32;         ///< QUANT_FP32 or QUANT_INT8_SYMMETRIC
   bool enable_wal = true; ///< WAL for crash recovery
+  simd::MetricType metric =
+      simd::MetricType::Cosine;      ///< Default distance metric
+  uint32_t max_backtrack_steps = 10; ///< Tuning for Greedy SIMD Descent
 };
 
 class Atlas {

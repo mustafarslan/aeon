@@ -73,16 +73,16 @@ typedef enum {
 } aeon_error_t;
 
 /* ═══════════════════════════════════════════════════════════════════════════
- * OPAQUE POINTER — aeon_atlas_t
+ * OPAQUE POINTERS — Strict C11 Encapsulation
  *
  * The C-API consumer (Unreal Blueprint, Unity C# P/Invoke, Godot GDExtension,
- * Android JNI) sees only an opaque handle. All C++ internals (mmap, EBR,
- * SLB cache, delta buffer) are completely hidden behind this pointer.
+ * Android JNI, Rust FFI) sees only an opaque handle. All C++ internals (mmap,
+ * EBR, SLB cache, delta buffer, STL collections) are completely hidden behind
+ * this pointer.
  * ═══════════════════════════════════════════════════════════════════════════
  */
 typedef struct aeon_atlas_s aeon_atlas_t;
-
-/** Opaque handle to a Trace episodic memory store. */
+typedef struct aeon_index_s aeon_index_t;
 typedef struct aeon_trace_s aeon_trace_t;
 
 /**
@@ -167,12 +167,36 @@ AEON_API aeon_error_t aeon_atlas_create(const char *path, uint32_t dim,
                                         aeon_atlas_t **out_atlas);
 
 /**
+ * @brief Hardware-agnostic metric definitions for dispatch alignment.
+ */
+typedef enum {
+  AEON_METRIC_COSINE = 0,
+  AEON_METRIC_L2 = 1,
+  AEON_METRIC_INNER_PRODUCT = 2
+} aeon_metric_type_t;
+
+/**
+ * @brief Queryable SIMD Instruction sets executing locally.
+ */
+typedef enum {
+  AEON_SIMD_SCALAR = 0,
+  AEON_SIMD_AVX2 = 1,
+  AEON_SIMD_AVX512 = 2,
+  AEON_SIMD_NEON = 3
+} aeon_simd_tier_t;
+
+/**
  * @brief Options for extended Atlas creation (V4.1).
  */
 typedef struct {
-  uint32_t dim;               /**< Embedding dim (0 = default 768) */
-  uint32_t quantization_type; /**< 0=FP32, 1=INT8_SYMMETRIC */
-  int enable_wal;             /**< 1=enable WAL (default), 0=disable */
+  uint32_t dim; /**< Embedding dim (0 = default 768) */
+  uint32_t
+      quantization_type; /**< 0=FP32, 1=INT8_SYMMETRIC, 2=INT8_ANISOTROPIC */
+  aeon_metric_type_t
+      metric;     /**< Distance metric: 0=Cosine, 1=L2, 2=InnerProduct */
+  int enable_wal; /**< 1=enable WAL (default), 0=disable */
+  uint32_t max_backtrack_steps; /**< tuning for Greedy SIMD Descent to escape
+                                   local optima */
 } aeon_atlas_options_t;
 
 /**
@@ -186,6 +210,14 @@ typedef struct {
 AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
                                            const aeon_atlas_options_t *opts,
                                            aeon_atlas_t **out_atlas);
+
+/**
+ * @brief Introspects the optimal instruction tier autodetected by the
+ * framework.
+ *
+ * @return Active local tier execution block.
+ */
+AEON_API aeon_simd_tier_t aeon_dispatch_detected_tier(void);
 
 /**
  * @brief Returns the embedding dimensionality of an Atlas instance.

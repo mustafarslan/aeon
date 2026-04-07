@@ -10,6 +10,7 @@
  *  5. Dequantization math
  */
 
+#include "aeon/metric_dispatch.hpp"
 #include "aeon/quantization.hpp"
 #include "aeon/schema.hpp"
 #include "aeon/simd_impl.hpp"
@@ -161,7 +162,7 @@ TEST_F(QuantizationTest, DotProductScalarVsReference) {
   }
 
   // Scalar SIMD implementation
-  int32_t simd_dot = simd::dot_int8_scalar(q_a, q_b, DIM);
+  int32_t simd_dot = simd::dot_int8_scalar(q_a.data(), q_b.data(), DIM);
   EXPECT_EQ(simd_dot, ref_dot)
       << "Scalar INT8 dot product does not match reference";
 }
@@ -175,11 +176,13 @@ TEST_F(QuantizationTest, DotProductDispatchedVsScalar) {
   quant::quantize_symmetric(vec_a, q_a, scale_a);
   quant::quantize_symmetric(vec_b, q_b, scale_b);
 
-  int32_t scalar_dot = simd::dot_int8_scalar(q_a, q_b, DIM);
+  int32_t scalar_dot = simd::dot_int8_scalar(q_a.data(), q_b.data(), DIM);
 
   // Get best implementation for this platform (NEON on ARM, AVX-512 on x86)
-  auto best_fn = simd::get_best_int8_dot_impl();
-  int32_t best_dot = best_fn(q_a, q_b, DIM);
+  auto best_fn = simd::MetricDispatcher::resolve(simd::MetricType::InnerProduct,
+                                                 simd::QuantType::INT8)
+                     ->compute_i8;
+  int32_t best_dot = best_fn(q_a.data(), q_b.data(), DIM);
 
   EXPECT_EQ(best_dot, scalar_dot)
       << "Dispatched INT8 dot product differs from scalar baseline";
@@ -202,8 +205,10 @@ TEST_F(QuantizationTest, DotProductVariousDimensions) {
       ref += static_cast<int32_t>(q_a[i]) * static_cast<int32_t>(q_b[i]);
     }
 
-    auto best_fn = simd::get_best_int8_dot_impl();
-    int32_t result = best_fn(q_a, q_b, dim);
+    auto best_fn = simd::MetricDispatcher::resolve(
+                       simd::MetricType::InnerProduct, simd::QuantType::INT8)
+                       ->compute_i8;
+    int32_t result = best_fn(q_a.data(), q_b.data(), dim);
 
     EXPECT_EQ(result, ref) << "INT8 dot product mismatch at dim=" << dim;
   }
@@ -243,8 +248,10 @@ TEST_F(QuantizationTest, EndToEndQuantDot) {
   quant::quantize_symmetric(vec_b, q_b, scale_b);
 
   // INT8 dot product + dequantize
-  auto best_fn = simd::get_best_int8_dot_impl();
-  int32_t raw_dot = best_fn(q_a, q_b, DIM);
+  auto best_fn = simd::MetricDispatcher::resolve(simd::MetricType::InnerProduct,
+                                                 simd::QuantType::INT8)
+                     ->compute_i8;
+  int32_t raw_dot = best_fn(q_a.data(), q_b.data(), DIM);
   float approx_dot = quant::dequantize_dot_product(raw_dot, scale_a, scale_b);
 
   // Relative error should be within ~2% for dim=384

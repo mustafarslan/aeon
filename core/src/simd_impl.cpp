@@ -19,11 +19,11 @@ namespace aeon::simd {
 // ----------------------------------------------------------------------------
 // 1. Scalar Implementation (baseline, no SIMD)
 // ----------------------------------------------------------------------------
-float similarity_scalar(std::span<const float> a, std::span<const float> b) {
+float similarity_scalar(const float *a, const float *b, uint32_t dim) {
   float dot = 0.0f;
   float norm_a = 0.0f;
   float norm_b = 0.0f;
-  size_t n = a.size();
+  uint32_t n = dim;
 
   for (size_t i = 0; i < n; ++i) {
     float val_a = a[i];
@@ -55,9 +55,9 @@ static inline float hsum256_ps(__m256 v) {
   return _mm_cvtss_f32(sums);
 }
 
-float similarity_avx2(std::span<const float> a, std::span<const float> b) {
-  size_t n = a.size();
-  size_t i = 0;
+float similarity_avx2(const float *a, const float *b, uint32_t dim) {
+  uint32_t n = dim;
+  uint32_t i = 0;
 
   __m256 sum_dot = _mm256_setzero_ps();
   __m256 sum_aa = _mm256_setzero_ps();
@@ -65,14 +65,14 @@ float similarity_avx2(std::span<const float> a, std::span<const float> b) {
 
   // 4x Unrolling (32 floats per iteration)
   for (; i + 31 < n; i += 32) {
-    __m256 va0 = _mm256_loadu_ps(a.data() + i);
-    __m256 vb0 = _mm256_loadu_ps(b.data() + i);
-    __m256 va1 = _mm256_loadu_ps(a.data() + i + 8);
-    __m256 vb1 = _mm256_loadu_ps(b.data() + i + 8);
-    __m256 va2 = _mm256_loadu_ps(a.data() + i + 16);
-    __m256 vb2 = _mm256_loadu_ps(b.data() + i + 16);
-    __m256 va3 = _mm256_loadu_ps(a.data() + i + 24);
-    __m256 vb3 = _mm256_loadu_ps(b.data() + i + 24);
+    __m256 va0 = _mm256_loadu_ps(a + i);
+    __m256 vb0 = _mm256_loadu_ps(b + i);
+    __m256 va1 = _mm256_loadu_ps(a + i + 8);
+    __m256 vb1 = _mm256_loadu_ps(b + i + 8);
+    __m256 va2 = _mm256_loadu_ps(a + i + 16);
+    __m256 vb2 = _mm256_loadu_ps(b + i + 16);
+    __m256 va3 = _mm256_loadu_ps(a + i + 24);
+    __m256 vb3 = _mm256_loadu_ps(b + i + 24);
 
     sum_dot = _mm256_fmadd_ps(va0, vb0, sum_dot);
     sum_aa = _mm256_fmadd_ps(va0, va0, sum_aa);
@@ -93,8 +93,8 @@ float similarity_avx2(std::span<const float> a, std::span<const float> b) {
 
   // Remainder loop for 8s
   for (; i + 7 < n; i += 8) {
-    __m256 va = _mm256_loadu_ps(a.data() + i);
-    __m256 vb = _mm256_loadu_ps(b.data() + i);
+    __m256 va = _mm256_loadu_ps(a + i);
+    __m256 vb = _mm256_loadu_ps(b + i);
     sum_dot = _mm256_fmadd_ps(va, vb, sum_dot);
     sum_aa = _mm256_fmadd_ps(va, va, sum_aa);
     sum_bb = _mm256_fmadd_ps(vb, vb, sum_bb);
@@ -117,9 +117,8 @@ float similarity_avx2(std::span<const float> a, std::span<const float> b) {
 }
 
 // Aligned version delegates to unaligned (SIMDe handles alignment)
-float similarity_avx2_aligned(std::span<const float> a,
-                              std::span<const float> b) {
-  return similarity_avx2(a, b);
+float similarity_avx2_aligned(const float *a, const float *b, uint32_t dim) {
+  return similarity_avx2(a, b, dim);
 }
 
 // ----------------------------------------------------------------------------
@@ -135,17 +134,17 @@ static inline float hsum512_ps(__m512 v) {
   return hsum256_ps(sum);
 }
 
-float similarity_avx512(std::span<const float> a, std::span<const float> b) {
-  size_t n = a.size();
-  size_t i = 0;
+float similarity_avx512(const float *a, const float *b, uint32_t dim) {
+  uint32_t n = dim;
+  uint32_t i = 0;
 
   __m512 sum_dot = _mm512_setzero_ps();
   __m512 sum_aa = _mm512_setzero_ps();
   __m512 sum_bb = _mm512_setzero_ps();
 
   for (; i + 15 < n; i += 16) {
-    __m512 va = _mm512_loadu_ps(a.data() + i);
-    __m512 vb = _mm512_loadu_ps(b.data() + i);
+    __m512 va = _mm512_loadu_ps(a + i);
+    __m512 vb = _mm512_loadu_ps(b + i);
     sum_dot = _mm512_fmadd_ps(va, vb, sum_dot);
     sum_aa = _mm512_fmadd_ps(va, va, sum_aa);
     sum_bb = _mm512_fmadd_ps(vb, vb, sum_bb);
@@ -186,9 +185,9 @@ static inline float vhsumq_f32(float32x4_t v) {
   return vget_lane_f32(sum, 0);
 }
 
-float similarity_neon(std::span<const float> a, std::span<const float> b) {
-  size_t n = a.size();
-  size_t i = 0;
+float similarity_neon(const float *a, const float *b, uint32_t dim) {
+  uint32_t n = dim;
+  uint32_t i = 0;
 
   // 4 accumulators per quantity for 4x unrolling (16 floats/iter)
   float32x4_t sum_dot0 = vdupq_n_f32(0.0f);
@@ -206,8 +205,8 @@ float similarity_neon(std::span<const float> a, std::span<const float> b) {
   float32x4_t sum_bb2 = vdupq_n_f32(0.0f);
   float32x4_t sum_bb3 = vdupq_n_f32(0.0f);
 
-  const float *pa = a.data();
-  const float *pb = b.data();
+  const float *pa = a;
+  const float *pb = b;
 
   // 4x unrolled: 16 floats per iteration
   for (; i + 15 < n; i += 16) {
@@ -262,8 +261,8 @@ float similarity_neon(std::span<const float> a, std::span<const float> b) {
 
 #else
 // Stub for non-ARM builds — delegates to scalar
-float similarity_neon(std::span<const float> a, std::span<const float> b) {
-  return similarity_scalar(a, b);
+float similarity_neon(const float *a, const float *b, uint32_t dim) {
+  return similarity_scalar(a, b, dim);
 }
 #endif
 
@@ -290,11 +289,9 @@ SimilarityFn get_best_similarity_impl() {
 // ----------------------------------------------------------------------------
 // INT8 Scalar Baseline (portable — works on any platform)
 // ----------------------------------------------------------------------------
-int32_t dot_int8_scalar(std::span<const int8_t> a, std::span<const int8_t> b,
-                        uint32_t dim) {
+int32_t dot_int8_scalar(const int8_t *a, const int8_t *b, uint32_t dim) {
   int32_t acc = 0;
-  uint32_t n =
-      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+  uint32_t n = dim;
 
   // 4× manual unrolling for ILP
   uint32_t i = 0;
@@ -314,18 +311,16 @@ int32_t dot_int8_scalar(std::span<const int8_t> a, std::span<const int8_t> b,
 // INT8 NEON — uses vdotq_s32 (SDOT) on ARMv8.2+ (Apple M-series)
 // ----------------------------------------------------------------------------
 #if defined(__aarch64__) || defined(__ARM_NEON) || defined(_M_ARM64)
-int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
-                      uint32_t dim) {
-  uint32_t n =
-      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+int32_t dot_int8_neon(const int8_t *a, const int8_t *b, uint32_t dim) {
+  uint32_t n = dim;
   uint32_t i = 0;
 
   // SDOT accumulates 4 × (s8 * s8) → s32 per lane, 4 lanes = 16 elements
   int32x4_t acc0 = vdupq_n_s32(0);
   int32x4_t acc1 = vdupq_n_s32(0);
 
-  const int8_t *pa = a.data();
-  const int8_t *pb = b.data();
+  const int8_t *pa = a;
+  const int8_t *pb = b;
 
   // Process 32 elements per iteration (2× unroll of 16-element vdotq)
   for (; i + 31 < n; i += 32) {
@@ -357,8 +352,7 @@ int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
   return result;
 }
 #else
-int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
-                      uint32_t dim) {
+int32_t dot_int8_neon(const int8_t *a, const int8_t *b, uint32_t dim) {
   // Fallback to scalar on non-ARM platforms
   return dot_int8_scalar(a, b, dim);
 }
@@ -373,10 +367,8 @@ int32_t dot_int8_neon(std::span<const int8_t> a, std::span<const int8_t> b,
 //   2. Compute dot(a', b) via dpbusd
 //   3. Correct: dot(a, b) = dot(a', b) - 128 * sum(b)
 // ----------------------------------------------------------------------------
-int32_t dot_int8_avx512(std::span<const int8_t> a, std::span<const int8_t> b,
-                        uint32_t dim) {
-  uint32_t n =
-      std::min(dim, static_cast<uint32_t>(std::min(a.size(), b.size())));
+int32_t dot_int8_avx512(const int8_t *a, const int8_t *b, uint32_t dim) {
+  uint32_t n = dim;
   uint32_t i = 0;
 
   // Accumulators for dpbusd result and sum(b) correction
@@ -390,10 +382,8 @@ int32_t dot_int8_avx512(std::span<const int8_t> a, std::span<const int8_t> b,
 
   for (; i + 63 < n; i += 64) {
     // Load 64 × int8 from each vector
-    __m512i va =
-        _mm512_loadu_si512(reinterpret_cast<const __m512i *>(a.data() + i));
-    __m512i vb =
-        _mm512_loadu_si512(reinterpret_cast<const __m512i *>(b.data() + i));
+    __m512i va = _mm512_loadu_si512(reinterpret_cast<const __m512i *>(a + i));
+    __m512i vb = _mm512_loadu_si512(reinterpret_cast<const __m512i *>(b + i));
 
     // Step 1: Convert query to unsigned by XOR with 0x80 (equivalent to +128
     // for signed)

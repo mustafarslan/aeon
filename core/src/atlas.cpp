@@ -1,4 +1,5 @@
 #include "aeon/atlas.hpp"
+#include "aeon/avq.hpp"
 #include "aeon/hash.hpp"
 #include "aeon/math_kernel.hpp"
 #include <algorithm>
@@ -150,11 +151,15 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
               hit->centroid_preview[2]}}};
   }
 
-  // ── V4.1 Phase 3: Quantize query ONCE if atlas is INT8 ──
-  const bool is_int8 = (quantization_type_ == QUANT_INT8_SYMMETRIC);
+  // ── V4.1 Phase 3 / V4.2 Phase 1: Quantize query ONCE if atlas is INT8 ──
+  const bool is_int8 = (quantization_type_ == QUANT_INT8_SYMMETRIC ||
+                        quantization_type_ == QUANT_INT8_ANISOTROPIC);
   std::vector<int8_t> query_q;
   float query_scale = 0.0f;
-  static const auto int8_dot_fn = simd::get_best_int8_dot_impl();
+  static const auto int8_dot_fn =
+      simd::MetricDispatcher::resolve(simd::MetricType::InnerProduct,
+                                      simd::QuantType::INT8)
+          ->compute_i8;
 
   if (is_int8) {
     query_q.resize(dim_);
@@ -184,8 +189,7 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
     if (is_int8) {
       // INT8 path: dot product + dequantize
       const int8_t *root_q = node_centroid_int8(root);
-      int32_t raw_dot =
-          int8_dot_fn(query_q, std::span<const int8_t>(root_q, dim_), dim_);
+      int32_t raw_dot = int8_dot_fn(query_q.data(), root_q, dim_);
       root_score = quant::dequantize_dot_product(raw_dot, query_scale,
                                                  root->quant_scale);
     } else {
@@ -249,8 +253,7 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
           float score;
           if (is_int8) {
             const int8_t *child_q = node_centroid_int8(child);
-            int32_t raw_dot = int8_dot_fn(
-                query_q, std::span<const int8_t>(child_q, dim_), dim_);
+            int32_t raw_dot = int8_dot_fn(query_q.data(), child_q, dim_);
             // CRITICAL: dequantize BEFORE hub_penalty subtraction
             score = quant::dequantize_dot_product(raw_dot, query_scale,
                                                   child->quant_scale);
@@ -357,8 +360,7 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width) {
       float score;
       if (is_int8) {
         const int8_t *dq = node_centroid_int8(dnode);
-        int32_t raw_dot =
-            int8_dot_fn(query_q, std::span<const int8_t>(dq, dim_), dim_);
+        int32_t raw_dot = int8_dot_fn(query_q.data(), dq, dim_);
         score = quant::dequantize_dot_product(raw_dot, query_scale,
                                               dnode->quant_scale);
       } else {
@@ -459,12 +461,18 @@ uint64_t Atlas::insert_delta(std::span<const float> vector,
   std::memset(hdr->reserved, 0, sizeof(hdr->reserved));
 
   // Copy centroid — quantize if INT8
-  if (quantization_type_ == QUANT_INT8_SYMMETRIC) {
+  if (quantization_type_ == QUANT_INT8_SYMMETRIC ||
+      quantization_type_ == QUANT_INT8_ANISOTROPIC) {
     int8_t *centroid_q = node_centroid_int8(hdr);
     if (vector.size() == dim_) {
       float scale;
-      quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
-                                scale);
+      if (quantization_type_ == QUANT_INT8_ANISOTROPIC) {
+        quant::quantize_anisotropic(vector, std::span<int8_t>(centroid_q, dim_),
+                                    scale);
+      } else {
+        quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
+                                  scale);
+      }
       hdr->quant_scale = scale;
       hdr->quant_zero_point = 0.0f;
     } else {
@@ -586,11 +594,17 @@ uint64_t Atlas::insert(uint64_t parent_id, std::span<const float> vector,
                                 std::to_string(dim_));
   }
 
-  if (quantization_type_ == QUANT_INT8_SYMMETRIC) {
+  if (quantization_type_ == QUANT_INT8_SYMMETRIC ||
+      quantization_type_ == QUANT_INT8_ANISOTROPIC) {
     int8_t *centroid_q = node_centroid_int8(node);
     float scale;
-    quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
-                              scale);
+    if (quantization_type_ == QUANT_INT8_ANISOTROPIC) {
+      quant::quantize_anisotropic(vector, std::span<int8_t>(centroid_q, dim_),
+                                  scale);
+    } else {
+      quant::quantize_symmetric(vector, std::span<int8_t>(centroid_q, dim_),
+                                scale);
+    }
     node->quant_scale = scale;
     node->quant_zero_point = 0.0f;
   } else {
