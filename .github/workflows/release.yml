@@ -1,0 +1,152 @@
+name: Publish libaeon release assets
+
+# Frictionless-Aeon-distribution mechanism for harness-engine
+# (github.com/mustafarslan/harness-engine, cli/aeon_fetch.py). That module
+# resolves a prebuilt libaeon for the caller's platform from this repo's
+# GitHub Releases -- one asset per (os, arch), named exactly
+# libaeon-<os>-<arch>.<ext> to match cli/aeon_fetch.py::_platform_asset_name().
+# Do not rename these assets without updating that function to match.
+#
+# Reuses the same CMake presets as build_and_test.yml, but builds only the
+# aeon_shared target explicitly (not the full default set -- the release
+# artifact doesn't need aeon_tests/aeon_bench/aeon_py_core or their extra
+# deps), and only one Linux toolchain (gcc) since both gcc/clang legs in
+# build_and_test.yml produce the same x86_64 libaeon.so -- publishing both
+# would collide on the same asset name.
+
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  BUILD_TYPE: Release
+  AEON_CI_BUILD: "ON"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes \
+            --draft
+
+  build-and-upload:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            cc: gcc-14
+            cxx: g++-14
+            preset: ci-linux
+            install_deps: |
+              sudo apt-get update -qq
+              sudo apt-get install -y --no-install-recommends \
+                cmake ninja-build libopenblas-dev
+              git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
+            configure_extra: -DSIMDE_INCLUDE_DIR=/tmp/simde
+            built_library: build/ci-linux/libaeon.so
+            asset_name: libaeon-linux-x86_64.so
+
+          - os: macos-14
+            cc: clang
+            cxx: clang++
+            preset: ci-macos
+            install_deps: |
+              brew install cmake ninja simde
+            configure_extra: ""
+            built_library: build/ci-macos/libaeon.dylib
+            asset_name: libaeon-macos-arm64.dylib
+
+          - os: windows-latest
+            cc: cl
+            cxx: cl
+            preset: ci-windows
+            install_deps: |
+              choco install cmake ninja -y
+              vcpkg install openblas:x64-windows
+              git clone --depth 1 https://github.com/simd-everywhere/simde.git "$env:RUNNER_TEMP\simde"
+            configure_extra: ""
+            built_library: build/ci-windows/bin/aeon.dll
+            asset_name: libaeon-windows-x86_64.dll
+
+    name: "build ${{ matrix.asset_name }}"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Dependencies
+        shell: bash
+        run: ${{ matrix.install_deps }}
+        if: runner.os != 'Windows'
+
+      - name: Install Dependencies (Windows)
+        shell: pwsh
+        run: ${{ matrix.install_deps }}
+        if: runner.os == 'Windows'
+
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: cmake --preset ${{ matrix.preset }} ${{ matrix.configure_extra }}
+
+      - name: Configure (macOS)
+        if: runner.os == 'macOS'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $simdeDir = "$env:RUNNER_TEMP\simde"
+          $vcpkgToolchain = "$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
+          cmake --preset ${{ matrix.preset }} `
+            -DSIMDE_INCLUDE_DIR="$simdeDir" `
+            -DCMAKE_TOOLCHAIN_FILE="$vcpkgToolchain"
+
+      # Explicit target -- the release artifact is just the C-API shared
+      # library, not the full default build (tests/benchmarks/python bindings
+      # need extra deps this job doesn't install).
+      - name: Build aeon_shared
+        run: cmake --build --preset ${{ matrix.preset }} --target aeon_shared
+
+      - name: Upload release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "${{ matrix.built_library }}" "${{ matrix.asset_name }}"
+          gh release upload "${{ github.ref_name }}" "${{ matrix.asset_name }}" \
+            --repo "${{ github.repository }}" \
+            --clobber
+
+  publish-release:
+    needs: build-and-upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Undraft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --draft=false
