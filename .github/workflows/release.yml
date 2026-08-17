@@ -10,9 +10,22 @@ name: Publish libaeon release assets
 # Reuses the same CMake presets as build_and_test.yml, but builds only the
 # aeon_shared target explicitly (not the full default set -- the release
 # artifact doesn't need aeon_tests/aeon_bench/aeon_py_core or their extra
-# deps), and only one Linux toolchain (gcc) since both gcc/clang legs in
-# build_and_test.yml produce the same x86_64 libaeon.so -- publishing both
-# would collide on the same asset name.
+# deps).
+#
+# macOS (arm64) only for now -- v0.1.0's first real release run (2026-08-17)
+# found Linux and Windows both genuinely fail to compile aeon_shared, neither
+# related to this workflow:
+#   - Linux (GCC 14.2, Release + -O2 -flto): a libstdc++ <concepts> internal-
+#     ordering bug ("_S_noexcept used before its definition") triggered by
+#     atlas.cpp's std::span-based int8_dot_fn call.
+#   - Windows (MSVC): platform.hpp:53's reinterpret_cast<int-to-pointer> is
+#     rejected under MSVC's constexpr rules, and trace.cpp's compact() uses
+#     new_base/new_fd that are never declared on this platform -- looks like
+#     a POSIX-only (mmap-based) code path with no Windows branch implemented.
+# Both need real fixes in core/ itself, not a CI workaround -- re-add their
+# matrix legs (kept as a template below, commented out) once fixed upstream.
+# Until then, cli/aeon_fetch.py's own per-platform AeonFetchError (naming the
+# manual-build fallback) is the correct, honest behavior for those platforms.
 
 on:
   push:
@@ -45,19 +58,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-24.04
-            cc: gcc-14
-            cxx: g++-14
-            preset: ci-linux
-            install_deps: |
-              sudo apt-get update -qq
-              sudo apt-get install -y --no-install-recommends \
-                cmake ninja-build libopenblas-dev
-              git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
-            configure_extra: -DSIMDE_INCLUDE_DIR=/tmp/simde
-            built_library: build/ci-linux/libaeon.so
-            asset_name: libaeon-linux-x86_64.so
-
           - os: macos-14
             cc: clang
             cxx: clang++
@@ -65,20 +65,34 @@ jobs:
             install_deps: |
               brew install cmake ninja simde
             configure_extra: ""
-            built_library: build/ci-macos/libaeon.dylib
+            built_library: build/ci-macos/lib/libaeon.dylib
             asset_name: libaeon-macos-arm64.dylib
 
-          - os: windows-latest
-            cc: cl
-            cxx: cl
-            preset: ci-windows
-            install_deps: |
-              choco install cmake ninja -y
-              vcpkg install openblas:x64-windows
-              git clone --depth 1 https://github.com/simd-everywhere/simde.git "$env:RUNNER_TEMP\simde"
-            configure_extra: ""
-            built_library: build/ci-windows/bin/aeon.dll
-            asset_name: libaeon-windows-x86_64.dll
+          # -- Linux and Windows, disabled for now, see comment at the top of
+          # this file. Re-enable once core/ builds cleanly on both.
+          # - os: ubuntu-24.04
+          #   cc: gcc-14
+          #   cxx: g++-14
+          #   preset: ci-linux
+          #   install_deps: |
+          #     sudo apt-get update -qq
+          #     sudo apt-get install -y --no-install-recommends \
+          #       cmake ninja-build libopenblas-dev
+          #     git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
+          #   configure_extra: -DSIMDE_INCLUDE_DIR=/tmp/simde
+          #   built_library: build/ci-linux/lib/libaeon.so
+          #   asset_name: libaeon-linux-x86_64.so
+          # - os: windows-latest
+          #   cc: cl
+          #   cxx: cl
+          #   preset: ci-windows
+          #   install_deps: |
+          #     choco install cmake ninja -y
+          #     vcpkg install openblas:x64-windows
+          #     git clone --depth 1 https://github.com/simd-everywhere/simde.git "$env:RUNNER_TEMP\simde"
+          #   configure_extra: ""
+          #   built_library: build/ci-windows/bin/aeon.dll
+          #   asset_name: libaeon-windows-x86_64.dll
 
     name: "build ${{ matrix.asset_name }}"
     runs-on: ${{ matrix.os }}
