@@ -99,6 +99,20 @@ jobs:
         run: ${{ matrix.install_deps }}
         if: runner.os == 'Windows'
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # core/CMakeLists.txt's find_package(nanobind ...) runs unconditionally
+      # at configure time (it's not gated behind the aeon_shared target), so
+      # this is needed even though the release build only targets aeon_shared
+      # -- confirmed live, v0.1.0's first release run failed configure on
+      # every platform without it (CMake Error: Could not find a package
+      # configuration file provided by "nanobind").
+      - name: Install Python build dependencies
+        run: pip install nanobind numpy scikit-build-core
+
       - name: Configure (Linux)
         if: runner.os == 'Linux'
         env:
