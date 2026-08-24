@@ -4347,6 +4347,82 @@ just closed most of, not something chronological ordering alone would fix; and d
 retrieval-unit comparison again on 50 questions expecting to resolve which unit is "best" -- that
 question needs n=500, not n=50.
 
+**n=500 paired re-run. DONE (2026-08-24) -- pilot's baseline was the misleading number, not the
+treatment; a real, mixed effect confirmed at scale.** Ran the full LongMemEval-S dataset (all 500
+questions, no sampling) through both `full_session` single-shot and extract-then-compute v1, same
+seed, same model (`gemma4:31b-cloud`), same corrected retrieval pipeline (additive multi-session merge,
+`MAX_SESSIONS=10`, `num_ctx` auto-sizing, chronological sort). Both runs `n_errors=0`.
+(`full_session_n500_results.json`, `extract_then_compute_n500_results.json`)
+
+| type | n | single-shot | extract-then-compute | net flips (gained/lost) |
+|---|---|---|---|---|
+| abstention | 30 | 90.0% | 96.7% | +2/-0 |
+| knowledge-update | 72 | 87.5% | 88.9% | +7/-6 (wash) |
+| multi-session | 121 | 66.9% | **76.9%** | +19/-7 |
+| single-session-assistant | 56 | 98.2% | 96.4% | +0/-1 |
+| single-session-preference | 30 | 46.7% | 36.7% | +2/-5 |
+| single-session-user | 64 | 93.8% | 85.9% | +0/-5 |
+| temporal-reasoning | 127 | 52.8% | **66.1%** | +22/-5 |
+| **overall** | 500 | 73.4% | **78.0%** | -- |
+
+Computed from paired per-question flips (same 500 question IDs, same seed, both arms), not from
+comparing the two summary blocks in isolation -- this is what actually tells a real effect from noise,
+per the standing discipline.
+
+**First correction to the pilot's own read**: the n=50 pilot's misleading number was the *baseline*,
+not extract-then-compute. Pilot baseline showed multi-session at 45.5% and temporal-reasoning at
+46.2%; the true full-dataset baseline is 66.9% and 52.8%. Extract-then-compute's own numbers roughly
+replicated (72.7%->76.9%, 69.2%->66.1%). The technique's real lift is smaller than the pilot suggested
+(+9.9 and +13.4 points, not +27 and +23), but it is now decisively above noise: multi-session flips
+19 gained vs 7 lost on n=121, temporal-reasoning 22 vs 5 on n=127 -- both are one-directional wins, not
+a coin flip that happened to land favorably.
+
+**Knowledge-update: the pilot "regression" was a baseline-size artifact, not a technique effect.**
+At n=72 the two arms are a wash (+7/-6, net +1) -- statistically indistinguishable. This retires the
+open question from the earlier fix-and-revert cycle: extract-then-compute does not regress
+knowledge-update at scale; the n=8 pilot sample was just too small to read. Read the 2 questions wrong
+in BOTH arms (`07741c45`, `6a1eabeb`) directly: both are genuine recency-resolution failures --
+`07741c45`'s extraction correctly captured both the old fact ("under the bed") and the newer,
+superseding one ("shoe rack", later date), yet the compute step picked the older one anyway, in both
+prompting techniques. This confirms the underlying difficulty is real and technique-independent -- not
+something either prompt variant reliably solves -- which means a further prompt-level fix is the wrong
+shape of fix. The kernel already carries unused `supersedes_id`/`edge_type` fields on `TraceEvent`
+(`core/include/aeon/schema.hpp`) built for exactly this; recording supersession at write time and
+surfacing it through `session_expansion.py`'s `format_events` is the track worth proposing, sized to
+this now-confirmed ~1-in-9 knowledge-update miss rate, not a prompt-tuning track.
+
+**A real, previously-unseen regression, found only because n=500 gives single-session buckets enough
+size to read: single-session-user (net -5, one-directional, zero gains) and single-session-preference
+(net -3).** Read every one of the 5 single-session-user losses directly (`ec81a493`, `311778f1`,
+`c14c00dd`, `8a137a7f`, `b86304ba`): in all 5, the EXTRACT step correctly captured the exact fact
+needed, verbatim. The failure is entirely in COMPUTE: told to "use ONLY the facts above" and reason
+like it's solving an arithmetic/aggregation problem, it treats a simple, already-answered lookup as
+insufficient evidence and refuses ("the text states X but does not specify Y" / "Not mentioned") even
+when X *is* Y (e.g. extracted fact states a signed poster is "a limited edition of only 500 copies";
+question asks how many copies; compute answers "Not mentioned" instead of 500). Single-session-
+preference's 5 losses show the same mechanism applied to open-ended recommendation questions: extracted
+facts are complete and correct, but compute refuses to synthesize a recommendation from them
+("I don't have enough information to suggest a specific meal" over a list of extracted homegrown
+ingredients), where the single-shot prompt used the same facts to make the (judge-accepted)
+recommendation directly. **This is a real, general failure mode of the COMPUTE prompt, not noise**:
+the "use ONLY the facts above, determine the answer, show the calculation" framing biases the model
+toward literal/arithmetic answers and away from any direct-lookup or synthesis/recommendation answer,
+causing false abstention specifically on the question types that don't need the two-step split.
+Single-session-preference's 46.7% baseline itself is a separate, pre-existing weakness (not something
+extract-then-compute broke) and is its own future thread, not addressed here.
+
+**Net picture**: extract-then-compute is a confirmed, substantial win for multi-session and
+temporal-reasoning (its intended targets), a wash for knowledge-update, and a real, understood
+regression for single-session-user/preference (its unintended targets) -- +4.6 points overall
+(73.4%->78.0%), which is positive in aggregate but not a uniform improvement. A production system has
+no `question_type` label to route on, so the actual decision is a product trade, not a benchmark
+call: always-on extract-then-compute (net positive overall, doubles per-turn generation latency, costs
+single-session-user/preference accuracy) vs. a query classifier that routes only aggregation/temporal
+questions through the two-step path (avoids the collateral regression, adds a routing component and
+its own error mode) vs. leaving single-shot as the default until a classifier is built. This decision
+belongs to the user, not to further prompt tuning -- no new prompt variant has been attempted at n=500
+or any other n as part of this finding, per the standing no-more-tuning-at-small-n guardrail.
+
 ---
 
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
