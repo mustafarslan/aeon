@@ -23,6 +23,13 @@
  * Zero-allocation hot path:
  *   - query() uses stack-allocated arrays for top-K block selection
  *   - No heap allocation in the search path
+ *
+ * V4 STAGE 2 TASK 3: dim is now a runtime CONSTRUCTOR parameter, not the
+ * compile-time EMBEDDING_DIM constant. The original hardcoded-768 version
+ * had the exact same silent-no-op-for-non-768-Atlas bug guardrail #1.1
+ * found and fixed in SemanticCache/HierarchicalSLB (v4-plan.md Stage 0) --
+ * fixed here the same way: dynamic-size std::vector storage keyed by
+ * index*dim_ instead of a fixed std::array<float, EMBEDDING_DIM>.
  */
 
 #include "aeon/math_kernel.hpp"
@@ -30,6 +37,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <shared_mutex>
 #include <span>
 #include <vector>
 
@@ -53,12 +61,16 @@ inline constexpr size_t MAX_TOP_K_BLOCKS = 16;
  * When the block is sealed (full), the centroid is exact (mean of all vectors).
  */
 struct TraceBlock {
-  /// Contiguous embedding storage: [TRACE_BLOCK_SIZE * EMBEDDING_DIM]
-  /// Layout: embeddings[i * EMBEDDING_DIM .. (i+1) * EMBEDDING_DIM]
+  /// Dimensionality of every embedding in this block (fixed at construction,
+  /// matches the owning TraceBlockIndex's dim_).
+  uint32_t dim = 0;
+
+  /// Contiguous embedding storage: [TRACE_BLOCK_SIZE * dim]
+  /// Layout: embeddings[i * dim .. (i+1) * dim]
   std::vector<float> embeddings;
 
   /// Incrementally updated centroid (mean of all embeddings in this block)
-  std::array<float, EMBEDDING_DIM> centroid{};
+  std::vector<float> centroid;
 
   /// Number of embeddings currently in this block [0, TRACE_BLOCK_SIZE]
   size_t count = 0;
@@ -73,8 +85,9 @@ struct TraceBlock {
   /// Node IDs stored in this block (parallel array with embeddings)
   std::vector<uint64_t> node_ids;
 
-  TraceBlock() {
-    embeddings.resize(TRACE_BLOCK_SIZE * EMBEDDING_DIM, 0.0f);
+  explicit TraceBlock(uint32_t dimensionality) : dim(dimensionality) {
+    embeddings.resize(TRACE_BLOCK_SIZE * dim, 0.0f);
+    centroid.resize(dim, 0.0f);
     node_ids.resize(TRACE_BLOCK_SIZE, 0);
   }
 
@@ -86,8 +99,8 @@ struct TraceBlock {
       return true;
 
     // Copy embedding into contiguous storage
-    std::memcpy(&embeddings[count * EMBEDDING_DIM], embedding.data(),
-                EMBEDDING_DIM * sizeof(float));
+    std::memcpy(&embeddings[count * dim], embedding.data(),
+                dim * sizeof(float));
     node_ids[count] = node_id;
 
     // Update centroid incrementally: centroid = centroid*(n/(n+1)) +
@@ -97,7 +110,7 @@ struct TraceBlock {
     float scale_old = n * inv_n1;
 
     const float *emb = embedding.data();
-    for (size_t d = 0; d < EMBEDDING_DIM; ++d) {
+    for (uint32_t d = 0; d < dim; ++d) {
       centroid[d] = centroid[d] * scale_old + emb[d] * inv_n1;
     }
 
@@ -135,32 +148,49 @@ struct TraceSearchResult {
  *   Total: ~1.5ms (vs 20s for naive O(|V|))
  *
  * Thread safety: append() takes exclusive lock, query() takes shared lock.
+ *
+ * NOT persisted across process restarts -- this is an in-memory
+ * ACCELERATION structure only, rebuilt from durable TraceEvent embedding
+ * blobs (schema.hpp) on TraceManager startup. Every embedding it indexes
+ * is independently durable in the sidecar BlobArena regardless of this
+ * index's state.
  */
 class TraceBlockIndex {
 public:
-  TraceBlockIndex() = default;
+  explicit TraceBlockIndex(uint32_t dim) : dim_(dim) {}
+
+  /// Dimensionality this index was constructed for.
+  uint32_t dim() const noexcept { return dim_; }
 
   /**
    * @brief Append a trace embedding to the index.
    * O(1) amortized. Creates a new block when current one is sealed.
+   *
+   * Silently ignores a mismatched-size embedding (matches
+   * HierarchicalSLB's MismatchedSizeIsSafeNoOp precedent, v4-plan.md
+   * Stage 0) rather than corrupting fixed-stride block storage.
    */
   void append(uint64_t node_id, std::span<const float> embedding,
               double timestamp) {
+    if (embedding.size() != dim_)
+      return;
+
     std::unique_lock lock(mutex_);
 
     if (blocks_.empty() || blocks_.back().sealed) {
-      blocks_.emplace_back();
+      blocks_.emplace_back(dim_);
     }
 
     blocks_.back().append(node_id, embedding, timestamp);
 
     // Update centroid cache for fast Phase 1 scan
     size_t block_idx = blocks_.size() - 1;
-    if (block_idx >= centroid_cache_.size()) {
-      centroid_cache_.resize(block_idx + 1);
+    size_t needed = (block_idx + 1) * dim_;
+    if (needed > centroid_cache_.size()) {
+      centroid_cache_.resize(needed);
     }
-    std::memcpy(centroid_cache_[block_idx].data(),
-                blocks_.back().centroid.data(), EMBEDDING_DIM * sizeof(float));
+    std::memcpy(&centroid_cache_[block_idx * dim_],
+                blocks_.back().centroid.data(), dim_ * sizeof(float));
   }
 
   /**
@@ -169,16 +199,21 @@ public:
    * Phase 1: Scan block centroids → top-K blocks (stack-allocated)
    * Phase 2: Scan embeddings in selected blocks → final results
    *
-   * Zero heap allocation in hot path: uses std::array for top-K tracking.
+   * Zero heap allocation in the block-selection hot path: uses
+   * std::array for top-K tracking.
    *
-   * @param query Query embedding vector (D=768)
+   * @param query Query embedding vector (must match dim())
    * @param top_k Number of results to return
    * @param num_blocks_to_scan Number of blocks to scan in Phase 2 (default 8)
-   * @return Vector of TraceSearchResult sorted by similarity (descending)
+   * @return Vector of TraceSearchResult sorted by similarity (descending).
+   *         Empty if query.size() != dim().
    */
   std::vector<TraceSearchResult> query(std::span<const float> query,
                                        size_t top_k = 10,
                                        size_t num_blocks_to_scan = 8) const {
+    if (query.size() != dim_)
+      return {};
+
     std::shared_lock lock(mutex_);
 
     if (blocks_.empty())
@@ -205,8 +240,7 @@ public:
 
     for (size_t b = 0; b < num_blocks; ++b) {
       float sim = math::cosine_similarity(
-          query,
-          std::span<const float>(centroid_cache_[b].data(), EMBEDDING_DIM));
+          query, std::span<const float>(&centroid_cache_[b * dim_], dim_));
 
       if (top_count < num_blocks_to_scan) {
         // Fill phase: unconditionally add
@@ -251,8 +285,7 @@ public:
 
       for (size_t j = 0; j < block.count; ++j) {
         float sim = math::cosine_similarity(
-            query, std::span<const float>(&emb_data[j * EMBEDDING_DIM],
-                                          EMBEDDING_DIM));
+            query, std::span<const float>(&emb_data[j * dim_], dim_));
 
         results.push_back({block.node_ids[j], sim, top_blocks[i].index});
       }
@@ -295,12 +328,16 @@ public:
 private:
   mutable std::shared_mutex mutex_;
 
+  /// Dimensionality every embedding in this index must match.
+  uint32_t dim_;
+
   /// All blocks in chronological order (append-only)
   std::vector<TraceBlock> blocks_;
 
-  /// Flat cache of block centroids for Phase 1 scan
-  /// Layout: centroid_cache_[block_idx][dim]
-  std::vector<std::array<float, EMBEDDING_DIM>> centroid_cache_;
+  /// Flat cache of block centroids for Phase 1 scan.
+  /// Layout: centroid_cache_[block_idx * dim_ + d] (contiguous, not
+  /// std::array<float, EMBEDDING_DIM> -- see file doc comment).
+  std::vector<float> centroid_cache_;
 };
 
 } // namespace aeon

@@ -98,12 +98,34 @@ typedef struct {
   uint64_t atlas_id;     /**< Linked Atlas concept (0 = none) */
   uint64_t timestamp;    /**< Epoch microseconds */
   uint16_t role;         /**< 0=User, 1=System, 2=Concept, 3=Summary */
-  uint16_t flags;        /**< Tombstone/archive flags */
+  uint16_t flags;        /**< Tombstone/archive/superseded flags */
   char session_id[36];   /**< Multi-tenant session UUID */
   uint64_t blob_offset;  /**< Offset into sidecar blob file */
   uint32_t blob_size;    /**< Byte length of full text in blob */
   char text_preview[64]; /**< Null-terminated 63-char inline prefix */
-  uint8_t reserved[364]; /**< Padding to 512 bytes */
+  /* V4 Stage 1: version/supersession edge fields. Must mirror
+   * aeon::TraceEvent (schema.hpp) byte-for-byte -- see the static_asserts
+   * pinning these offsets there. */
+  uint8_t edge_type;             /**< EdgeType enum value */
+  uint8_t reason_code;           /**< ReasonCode enum value */
+  uint8_t _pad0[2];               /**< Explicit padding (8-align supersedes_id) */
+  uint64_t supersedes_id;         /**< TraceEvent id this event supersedes (0 = none) */
+  uint64_t evidence_blob_offset;  /**< Sidecar blob offset for evidence text */
+  uint32_t evidence_blob_size;    /**< Byte length of evidence blob (0 = none) */
+  /* V4 Stage 2 task 3: this event's embedding vector, if any (separate
+   * blob pair from both blob_offset/blob_size (event text) and
+   * evidence_blob_* -- see aeon::TraceEvent's doc comment in schema.hpp). */
+  uint8_t _pad1[4];               /**< Explicit padding (8-align embedding_blob_offset) */
+  uint64_t embedding_blob_offset; /**< Sidecar blob offset for the embedding (0 = none) */
+  uint32_t embedding_blob_size;   /**< Byte length of the embedding (0 = not embedded) */
+  /* V4 Stage 7 Track 2: caller-supplied event time, distinct from
+   * `timestamp` (always Aeon's own insertion wall-clock). 0 = unset --
+   * consumers ordering by "when this happened" should fall back to
+   * `timestamp` when this is 0. Must mirror aeon::TraceEvent (schema.hpp)
+   * byte-for-byte -- see the static_asserts pinning these offsets there. */
+  uint8_t _pad2[4];   /**< Explicit padding (8-align event_time) */
+  uint64_t event_time; /**< Caller-supplied event time (epoch microseconds; 0 = unset) */
+  uint8_t reserved[312]; /**< Padding to 512 bytes */
 } aeon_trace_event_t;
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -168,11 +190,24 @@ AEON_API aeon_error_t aeon_atlas_create(const char *path, uint32_t dim,
 
 /**
  * @brief Options for extended Atlas creation (V4.1).
+ *
+ * @note ABI: `reserved` exists so future fields (e.g. Stage 1/3's
+ * scope_id / version config, see v4-plan.md) can be added without an ABI
+ * break for callers who already pass a zero-initialized or field-by-field
+ * populated instance of this struct. Always zero-initialize (e.g.
+ * `= {0}` or `memset`) before setting individual fields, and treat
+ * `reserved` as reserved -- do not read or write it directly.
  */
 typedef struct {
   uint32_t dim;               /**< Embedding dim (0 = default 768) */
   uint32_t quantization_type; /**< 0=FP32, 1=INT8_SYMMETRIC */
   int enable_wal;             /**< 1=enable WAL (default), 0=disable */
+  /** Metadata field size in bytes (0 = default 256), new files only --
+   *  v4-plan.md Stage 4 task 6 Phase B. Carved from `reserved` below,
+   *  same discipline NodeHeader's reserved carving used in Stage 1. */
+  uint32_t metadata_size;
+  uint8_t reserved[28];       /**< Reserved for future options. Must be
+                                    zero. Do not use. */
 } aeon_atlas_options_t;
 
 /**
@@ -196,6 +231,20 @@ AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
  */
 AEON_API aeon_error_t aeon_atlas_get_dim(aeon_atlas_t *atlas,
                                          uint32_t *out_dim);
+
+/**
+ * @brief Returns the metadata field size (bytes) of an Atlas instance
+ * (v4-plan.md Stage 4 task 6 Phase B) -- callers writing an encoded
+ * payload into the metadata field need this to length-check before
+ * calling aeon_atlas_insert(), since insert() truncates rather than
+ * raising on overflow.
+ *
+ * @param[in]  atlas             Atlas handle.
+ * @param[out] out_metadata_size Receives the metadata field size in bytes.
+ * @return AEON_OK on success.
+ */
+AEON_API aeon_error_t aeon_atlas_get_metadata_size(aeon_atlas_t *atlas,
+                                                   uint32_t *out_metadata_size);
 
 /**
  * @brief Destroys an Atlas instance and releases all resources.
@@ -236,10 +285,19 @@ AEON_API aeon_error_t aeon_atlas_destroy(aeon_atlas_t *atlas);
  * @param[in]  session_id       Session UUID for L1 SLB routing.
  *                              NULL or "" routes to global L2 cache.
  */
+/**
+ * @param scope_mask  V4 Stage 2. ALL_SCOPES_VISIBLE (UINT64_MAX) = no
+ *                     filtering, matching pre-Stage-2 behavior. Any other
+ *                     value filters results to nodes where
+ *                     (node.scope_bitmap & scope_mask) != 0. See
+ *                     Atlas::navigate()'s doc comment (atlas.hpp) for the
+ *                     full filtering semantics.
+ */
 AEON_API aeon_error_t aeon_atlas_navigate(
     aeon_atlas_t *atlas, const float *query_vector, size_t query_dim,
     uint32_t beam_width, int apply_csls, const char *session_id,
-    aeon_result_node_t *results, size_t max_results, size_t *out_actual_count);
+    uint64_t scope_mask, aeon_result_node_t *results, size_t max_results,
+    size_t *out_actual_count);
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * MUTATION — Insert Node
@@ -297,9 +355,15 @@ AEON_API aeon_error_t aeon_atlas_tombstone_count(aeon_atlas_t *atlas,
 /**
  * @brief Retrieves direct children of a node.
  * Caller-allocated buffer contract (same as navigate).
+ * @param scope_mask  V4 Stage 2 task 2 -- see aeon_atlas_navigate()'s
+ *                     scope_mask doc comment; same semantics. This is the
+ *                     enforcement point for the Atlas->Trace->Atlas
+ *                     graph-expansion boundary (Atlas::get_children()'s
+ *                     doc comment in atlas.hpp has the full rationale).
  */
 AEON_API aeon_error_t aeon_atlas_get_children(aeon_atlas_t *atlas,
                                               uint64_t parent_id,
+                                              uint64_t scope_mask,
                                               aeon_result_node_t *results,
                                               size_t max_results,
                                               size_t *out_actual_count);
@@ -399,11 +463,76 @@ AEON_API aeon_error_t aeon_trace_destroy(aeon_trace_t *trace);
  * @param[out] out_id     Receives the new event's unique ID.
  * @return AEON_OK on success.
  */
+/**
+ * @param embedding_vector  V4 Stage 2 task 3. Optional embedding for this
+ *                           event -- NULL/embedding_dim==0 means "not
+ *                           embedded" (excluded from
+ *                           aeon_trace_semantic_search()). The FIRST
+ *                           non-empty embedding ever appended to a given
+ *                           trace file fixes its dimensionality; a later
+ *                           mismatched embedding_dim returns
+ *                           AEON_ERR_INVALID_ARG (mirrors
+ *                           TraceManager::append_event() throwing
+ *                           std::invalid_argument).
+ * @param embedding_dim      Length of embedding_vector, in floats.
+ */
 AEON_API aeon_error_t aeon_trace_append_event(aeon_trace_t *trace,
                                               const char *session_id,
                                               uint16_t role, const char *text,
                                               uint64_t atlas_id,
+                                              const float *embedding_vector,
+                                              size_t embedding_dim,
                                               uint64_t *out_id);
+
+/**
+ * @brief Append an episodic event with an explicit event time (V4 Stage 7
+ * Track 2). Same as aeon_trace_append_event(), plus one parameter -- kept
+ * as a separate `_ex()` function (matching aeon_atlas_create_ex()'s
+ * pattern) rather than changing aeon_trace_append_event()'s signature, so
+ * every existing caller across bindings/ (Node.js, C#, C++ header-only)
+ * keeps compiling unchanged.
+ *
+ * @param event_time  Caller-supplied event time (epoch microseconds),
+ *                     distinct from the event's `timestamp` (always
+ *                     Aeon's own insertion wall-clock, set internally
+ *                     regardless of this parameter). 0 = not supplied --
+ *                     consumers ordering by "when this happened" should
+ *                     fall back to `timestamp` when this is 0. Lets a
+ *                     caller backfilling historical content (a chat
+ *                     import, a game engine replaying past events) record
+ *                     when something actually happened, independent of
+ *                     when Aeon received it.
+ */
+AEON_API aeon_error_t aeon_trace_append_event_ex(
+    aeon_trace_t *trace, const char *session_id, uint16_t role,
+    const char *text, uint64_t atlas_id, const float *embedding_vector,
+    size_t embedding_dim, uint64_t event_time, uint64_t *out_id);
+
+/**
+ * @brief Semantic search over embedded trace events (V4 Stage 2 task 3).
+ *
+ * Two-phase O(|V|/1024 + K*1024) search via the in-process TraceBlockIndex
+ * -- only events appended with a non-empty embedding (see
+ * aeon_trace_append_event()) are indexed. Tombstoned/superseded events are
+ * excluded from results. Returns *out_count == 0 (not an error) if no
+ * embedding has ever been appended to this file, or if query_dim doesn't
+ * match the file's established embedding dimensionality
+ * (aeon_trace_embedding_dim()).
+ *
+ * Caller-allocated buffer contract (same as aeon_trace_get_history).
+ */
+AEON_API aeon_error_t aeon_trace_semantic_search(
+    aeon_trace_t *trace, const float *query_vector, size_t query_dim,
+    size_t top_k, aeon_trace_event_t *out_events, size_t max_events,
+    size_t *out_count);
+
+/**
+ * @brief Dimensionality of this trace file's indexed embeddings, or 0 if
+ * none have been appended yet (see aeon_trace_append_event()'s
+ * embedding_vector parameter).
+ */
+AEON_API aeon_error_t aeon_trace_embedding_dim(aeon_trace_t *trace,
+                                               uint32_t *out_dim);
 
 /**
  * @brief Retrieve session history (newest first).

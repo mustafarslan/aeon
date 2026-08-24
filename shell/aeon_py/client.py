@@ -31,6 +31,60 @@ RESULT_DTYPE = np.dtype([
     ('requires_cloud_fetch', '?'),  # bool (1 byte)
 ], align=True)
 
+# Mirrors aeon::ALL_SCOPES_VISIBLE (schema.hpp, V4 Stage 2): the sentinel
+# meaning "no scope filtering" -- the default for query()/get_children().
+ALL_SCOPES_VISIBLE = (1 << 64) - 1
+
+# V4 Stage 4: store-discrimination bit for node ids that cross a physical-
+# store boundary. Physical separation (v4-plan.md Stage 4 architectural
+# decision) means the shared tier is a SEPARATE Atlas file/instance from
+# any caller's private one -- node id 42 can exist in BOTH, and nothing in
+# a bare uint64 id says which. This ambiguity is invisible within a single
+# AeonClient's own methods (the caller always supplies the instance via
+# `self.atlas`/`client.atlas`), but becomes real the moment an id is
+# persisted somewhere that outlives the call that produced it -- concretely,
+# TraceEvent.atlas_id (context.py writes it, then warm_start()/server.py's
+# get_active_room() read it back later, needing to know which client to
+# route the follow-up call to) and any caller-facing merged private+shared
+# result set. This encoding is a PURE PYTHON-SHELL construct: the C++
+# Atlas/TraceManager layer never sees or interprets this bit -- it's opaque
+# uint64 data to them either way, exactly matching "the C++ core stays
+# enforcing-only" (v4-plan.md Stage 4 task 1).
+#
+# Bit 63 is already aeon::NODE_ID_DELTA_MASK (schema.hpp) -- distinguishing
+# a delta-arena node from a compacted mmap one, a real C++-level property
+# of the id itself, independent of and composable with this bit. Bit 62 is
+# free (a real Atlas will never have 2**62 nodes) and is claimed here.
+SHARED_STORE_BIT = 1 << 62
+
+# Mirrors aeon::NODE_ID_DELTA_MASK (schema.hpp) exactly. Shell-layer code
+# that needs to recognize a delta-arena id -- e.g. promotion.py checking
+# whether Atlas::insert() diverted to the delta buffer, where
+# set_node_scope()/set_node_governance_id() both reject the id outright --
+# should use this constant rather than a magic 1 << 63 literal.
+NODE_ID_DELTA_MASK = 1 << 63
+
+
+def encode_store_id(node_id: int, is_shared: bool) -> int:
+    """Tags a raw Atlas node id with which physical store it came from.
+    Private-store ids round-trip byte-identical to their raw form (the
+    common case, and the only case that existed before Stage 4's physical
+    separation) -- only shared-store ids get the high bit set."""
+    if node_id & SHARED_STORE_BIT:
+        raise ValueError(
+            f"node_id {node_id!r} already has the shared-store "
+            "discriminator bit (1<<62) set -- cannot double-encode; this "
+            "indicates a raw id was encoded twice, a real bug at the call "
+            "site, not a value to silently accept."
+        )
+    return (node_id | SHARED_STORE_BIT) if is_shared else node_id
+
+
+def decode_store_id(encoded_id: int) -> tuple[int, bool]:
+    """Reverses encode_store_id(). Returns (raw_node_id, is_shared)."""
+    is_shared = bool(encoded_id & SHARED_STORE_BIT)
+    return (encoded_id & ~SHARED_STORE_BIT, is_shared)
+
 
 class AeonClient:
     """
@@ -38,8 +92,9 @@ class AeonClient:
     Wraps the C++ core with lazy loading and type safety.
     """
 
-    def __init__(self, atlas_path: Path | str) -> None:
+    def __init__(self, atlas_path: Path | str, metadata_size: int = 0) -> None:
         self._path = Path(atlas_path)
+        self._metadata_size = metadata_size
         self._atlas: Optional[core.Atlas] = None
 
         # Verify schema immediately
@@ -62,15 +117,36 @@ class AeonClient:
     def atlas(self) -> core.Atlas:
         """Lazy initialization of the C++ Atlas."""
         if self._atlas is None:
-            self._atlas = core.Atlas(str(self._path))
+            self._atlas = core.Atlas(
+                str(self._path), metadata_size=self._metadata_size
+            )
         return self._atlas
 
-    def query(self, embedding: np.ndarray) -> np.ndarray:
+    def query(
+        self,
+        embedding: np.ndarray,
+        session_id: Optional[str] = None,
+        scope_mask: int = ALL_SCOPES_VISIBLE,
+    ) -> np.ndarray:
         """
         Navigate the Atlas using a query vector.
 
         Args:
             embedding: (768,) float32 numpy array
+            session_id: Caller's session/tenant identity, scoping the SLB
+                cache lookup to that session (v4-plan.md Stage 0). Pass the
+                authenticated user_id here for any multi-tenant caller --
+                omitting it uses Atlas's shared default session, which is
+                safe only for genuinely single-tenant use (a local script,
+                a single-user embedded deployment).
+            scope_mask: V4 Stage 2. ALL_SCOPES_VISIBLE (default) = no
+                filtering. Otherwise filters results to nodes where
+                (node.scope_bitmap & scope_mask) != 0. There is no real
+                scope-assignment authority yet (Stage 3/4's control
+                plane), so no caller has a meaningful non-default value to
+                pass today -- this is the plumbing point for once one
+                exists, matching how session_id was threaded ahead of
+                Stage 0's real auth.
 
         Returns:
             Structured numpy array with columns
@@ -83,7 +159,9 @@ class AeonClient:
                 raise ValueError("Embedding must be shape (768,) and float32")
 
         # Call C++ binding which returns nb::ndarray<uint8_t>
-        byte_view = self.atlas.navigate_raw(embedding)
+        byte_view = self.atlas.navigate_raw(
+            embedding, session_id=session_id, scope_mask=scope_mask
+        )
 
         # Cast to structured array
         result = byte_view.view(RESULT_DTYPE)
@@ -91,24 +169,43 @@ class AeonClient:
 
         return result
 
-    def get_children(self, node_id: int) -> np.ndarray:
+    def get_children(
+        self, node_id: int, scope_mask: int = ALL_SCOPES_VISIBLE
+    ) -> np.ndarray:
         """
         Returns child nodes (siblings of next step) for visualization.
 
         Args:
             node_id: uint64 ID of the parent node.
+            scope_mask: V4 Stage 2 task 2 -- see query()'s scope_mask doc
+                comment; same semantics. This is the enforcement point for
+                the Atlas->Trace->Atlas graph-expansion boundary: a caller
+                that reached node_id via a Trace event's atlas_id must not
+                enumerate children outside its own scope just because the
+                starting node was legitimately theirs.
 
         Returns:
             Structured numpy array of child nodes.
         """
         # Call C++ binding which returns nb::ndarray<uint8_t>
-        byte_view = self.atlas.get_children_raw(node_id)
+        byte_view = self.atlas.get_children_raw(node_id, scope_mask=scope_mask)
 
         # Cast to structured array
         result = byte_view.view(RESULT_DTYPE)
         result.flags.writeable = False  # Enforce read-only explicitly
 
         return result
+
+    def load_context(
+        self, node_ids: list[int], session_id: Optional[str] = None
+    ) -> None:
+        """
+        Pre-fill the SLB cache with the given node IDs for warm start,
+        scoped to session_id (e.g. an existing user's recently-relevant
+        concepts). See Atlas::load_context's doc comment (v4-plan.md
+        Stage 0).
+        """
+        self.atlas.load_context(node_ids, session_id=session_id)
 
     def warmup(self) -> None:
         """

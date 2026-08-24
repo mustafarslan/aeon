@@ -1,0 +1,846 @@
+{
+  "summary": {
+    "model": "gemma4:31b-cloud",
+    "seed": 42,
+    "mode": "oracle-context (no retrieval)",
+    "num_questions": 50,
+    "overall_accuracy": 0.8,
+    "per_question_type": {
+      "abstention": {
+        "n": 3,
+        "accuracy": 1.0
+      },
+      "knowledge-update": {
+        "n": 8,
+        "accuracy": 1.0
+      },
+      "multi-session": {
+        "n": 11,
+        "accuracy": 0.7272727272727273
+      },
+      "single-session-assistant": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "single-session-preference": {
+        "n": 3,
+        "accuracy": 0.6666666666666666
+      },
+      "single-session-user": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "temporal-reasoning": {
+        "n": 13,
+        "accuracy": 0.5384615384615384
+      }
+    },
+    "context_num_ctx": {
+      "min": 8192,
+      "mean": 10494.14,
+      "max": 25193
+    }
+  },
+  "results": [
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "Which book did I finish a week ago?",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "The provided text does not contain information about a book finished a week ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 9226,
+      "context_chars": 28294,
+      "timing_seconds": {
+        "generation": 9.54823779198341,
+        "judge": 11.448932125000283
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "question": "How many different museums or galleries did I visit in December?",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided memories do not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 11233,
+      "context_chars": 35290,
+      "timing_seconds": {
+        "generation": 9.76654695882462,
+        "judge": 11.40882454207167
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How long did I take to finish 'The Seven Husbands of Evelyn Hugo' and 'The Nightingale' combined?",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five and a half weeks combined to finish those books (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 11824,
+      "context_chars": 37325,
+      "timing_seconds": {
+        "generation": 11.15525241708383,
+        "judge": 24.755791542120278
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How much total money did I spend on attending workshops in the last four months?",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $720 on workshops ($200 for the writing workshop, $500 for the digital marketing workshop, and $20 for the mindfulness workshop).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 18393,
+      "context_chars": 60331,
+      "timing_seconds": {
+        "generation": 16.395097292028368,
+        "judge": 10.063645999878645
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "What was my previous frequent flyer status on United Airlines before I got the current status?",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8576,
+      "context_chars": 25958,
+      "timing_seconds": {
+        "generation": 10.425069999881089,
+        "judge": 11.66681162500754
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many music albums or EPs have I purchased or downloaded?",
+      "reference_answer": 3,
+      "hypothesis": "You have downloaded Billie Eilish's \"Happier Than Ever\" and purchased the EP \"Midnight Sky\" by The Whiskey Wanderers.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 12291,
+      "context_chars": 38994,
+      "timing_seconds": {
+        "generation": 12.187375624896958,
+        "judge": 11.539835707983002
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How many days had passed between the Sunday mass at St. Mary's Church and the Ash Wednesday service at the cathedral?",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 10767,
+      "context_chars": 33603,
+      "timing_seconds": {
+        "generation": 11.213641207898036,
+        "judge": 10.248757791006938
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "What did I buy for my sister's birthday gift?",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "A yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 5910,
+      "timing_seconds": {
+        "generation": 10.451911834068596,
+        "judge": 11.471314582973719
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "What speed is my new internet plan?",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 15397,
+      "timing_seconds": {
+        "generation": 10.236266375053674,
+        "judge": 12.30889741703868
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "What health issue did I initially think was just a cold?",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 15621,
+      "timing_seconds": {
+        "generation": 10.741999665973708,
+        "judge": 11.009305041981861
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "question": "How long have I been collecting vintage films?",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided snippets do not contain information about how long you have been collecting vintage films; they only mention you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 19579,
+      "timing_seconds": {
+        "generation": 9.070182916009799,
+        "judge": 11.118037458974868
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "I wanted to check back on our previous conversation about Netflix. I mentioned that I wanted to be able to access all seasons of old shows? Do you remember what show I used as an example, the one that only had the last season available?",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show used as an example was \"doc martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 5715,
+      "timing_seconds": {
+        "generation": 11.39326662500389,
+        "judge": 7.660152500029653
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "What day of the week do I take a cocktail-making class?",
+      "reference_answer": "Friday",
+      "hypothesis": "Fridays",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8248,
+      "context_chars": 24851,
+      "timing_seconds": {
+        "generation": 9.844404333969578,
+        "judge": 10.31344574992545
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many times did I ride rollercoasters across all the events I attended from July to October?",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters a total of 10 times:\n- Mako, Kraken, and Manta at SeaWorld San Diego in July (3)\n- Xcelerator at Knott's Berry Farm on October 8th (1)\n- Revenge of the Mummy three times at Universal Studios Hollywood on October 15th (3)\n- Space Mountain: Ghost Galaxy three times at Disneyland on September 24th (3)",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 15892,
+      "context_chars": 51564,
+      "timing_seconds": {
+        "generation": 8.605712083168328,
+        "judge": 9.311750625027344
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "In our previous chat, you suggested 'sexual compulsions' and a few other options for alternative terms for certain behaviors. Can you remind me what the other four options were?",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were sexual fixations, problematic sexual behaviors, sexual impulsivity, and compulsive sexuality.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 1289,
+      "timing_seconds": {
+        "generation": 10.071678791893646,
+        "judge": 9.655578208854422
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "Which streaming service did I start using most recently?",
+      "reference_answer": "Disney+",
+      "hypothesis": "You started using Disney+ most recently, as you mentioned having a free trial last month.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 12493,
+      "context_chars": 39708,
+      "timing_seconds": {
+        "generation": 10.254987458931282,
+        "judge": 8.813896292122081
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "question": "Can you suggest some useful accessories for my phone?",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on the provided memories, useful accessories for an iPhone 13 Pro include:\n\n*   **Screen Protectors**: Brands such as Zagg, TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.\n*   **Wallet Cases**: Brands such as Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, and Spigen.\n*   **Portable Power Banks**: Brands such as Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars (including wireless charging options).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 20132,
+      "timing_seconds": {
+        "generation": 9.787709790980443,
+        "judge": 11.15147070819512
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "I mentioned that I participated in an art-related event two weeks ago. Where was that event held at?",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the Museum of Modern Art (MoMA).",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 11867,
+      "context_chars": 37470,
+      "timing_seconds": {
+        "generation": 10.327634083107114,
+        "judge": 8.392487208126113
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many days did I spend on camping trips in the United States this year?",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips in the United States this year (a 5-day trip to Yellowstone National Park and a 3-day solo trip to Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 14448,
+      "context_chars": 46532,
+      "timing_seconds": {
+        "generation": 9.94763954100199,
+        "judge": 8.143560707801953
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How many days passed between the day I repotted the previous spider plant and the day I gave my neighbor, Mrs. Johnson, a few cuttings from my spider plant?",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9275,
+      "context_chars": 28342,
+      "timing_seconds": {
+        "generation": 9.50332804210484,
+        "judge": 8.978788375156
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How many trips have I taken my Canon EOS 80D camera on?",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D camera on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 10045,
+      "context_chars": 31140,
+      "timing_seconds": {
+        "generation": 11.099254457978532,
+        "judge": 8.192399166990072
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "question": "I've got some free time tonight, any documentary recommendations?",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interests, you could try:\n* **Nature:** Planet Earth, Blue Planet, March of the Penguins, Dynasties, or Chasing Coral.\n* **Adventure:** The Last Lions, The Cave, The River Runs Red, Expedition Unknown, or Running Wild with Bear Grylls.\n* **True Crime:** The Keepers, The Staircase, The Jinx, or Abducted in Plain Sight.\n* **Other:** The Inventor, Fyre, The Game Changers, The Family I Had, or The Imposter.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 18202,
+      "timing_seconds": {
+        "generation": 9.7168435419444,
+        "judge": 6.732262708013877
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How many days did it take me to finish 'The Nightingale' by Kristin Hannah?",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided text does not contain information on how many days it took to finish \"The Nightingale.\"",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 9238,
+      "context_chars": 28294,
+      "timing_seconds": {
+        "generation": 9.878217541845515,
+        "judge": 12.331045750062913
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many graduation ceremonies have I attended in the past three months?",
+      "reference_answer": 3,
+      "hypothesis": "You have attended three graduation ceremonies: your nephew Jack's eighth grade graduation, your little cousin Emma's preschool graduation, and your colleague Alex's leadership development program graduation.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 23292,
+      "context_chars": 77488,
+      "timing_seconds": {
+        "generation": 14.073327749967575,
+        "judge": 14.009926124941558
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How long have I been sticking to my daily tidying routine?",
+      "reference_answer": "4 weeks",
+      "hypothesis": "As of September 30, 2023, you have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9442,
+      "context_chars": 29026,
+      "timing_seconds": {
+        "generation": 13.86635912489146,
+        "judge": 8.44267704198137
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How long had I been taking guitar lessons when I bought the new guitar amp?",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking guitar lessons for six weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 9637,
+      "context_chars": 29692,
+      "timing_seconds": {
+        "generation": 8.361692582955584,
+        "judge": 8.242885250132531
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "For my daily commute, how much more expensive was the taxi ride compared to the train fare?",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $6 more than the daily train fare ($12 taxi - $6 train).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 22827,
+      "timing_seconds": {
+        "generation": 7.075024166842923,
+        "judge": 9.704050374915823
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many doctor's appointments did I go to in March?",
+      "reference_answer": 2,
+      "hypothesis": "You went to two doctor's appointments in March: one with Dr. Thompson on March 20th and one with Dr. Smith on March 3rd.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 15105,
+      "context_chars": 48851,
+      "timing_seconds": {
+        "generation": 10.25221141683869,
+        "judge": 7.241680584149435
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous chat and I was wondering, what was Andy wearing in the script you wrote for the comedy movie scene?",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "An untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 4957,
+      "timing_seconds": {
+        "generation": 8.0032387918327,
+        "judge": 8.450541750062257
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "Which event happened first, my cousin's wedding or Michael's engagement party?",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first (May 6, 2023), before your cousin's wedding (June 15, 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 10106,
+      "context_chars": 31329,
+      "timing_seconds": {
+        "generation": 8.437174750026315,
+        "judge": 7.969516874989495
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "question": "How many days did I spend in total traveling in Hawaii and in Seattle?",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The retrieved memories state that you spent 10 days in Hawaii, but they contain no information about a trip to Seattle.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8683,
+      "context_chars": 26359,
+      "timing_seconds": {
+        "generation": 7.436136208940297,
+        "judge": 9.018114583101124
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous conversation and I was wondering if you could remind me of the two companies you mentioned that prioritize employee safety and well-being like Triumvirate?",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 4756,
+      "timing_seconds": {
+        "generation": 10.427047917153686,
+        "judge": 7.249635583022609
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How many days passed between the day I attended the gardening workshop and the day I planted the tomato saplings?",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9536,
+      "context_chars": 29299,
+      "timing_seconds": {
+        "generation": 8.804858874995261,
+        "judge": 7.536074458155781
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "How long did I wait for the decision on my asylum application?",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 15267,
+      "timing_seconds": {
+        "generation": 10.231163708027452,
+        "judge": 10.67245770804584
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many days a week do I attend fitness classes?",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes four days a week (Tuesdays, Thursdays, Saturdays, and Wednesdays for yoga).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8463,
+      "context_chars": 25607,
+      "timing_seconds": {
+        "generation": 8.32979220803827,
+        "judge": 7.275995207950473
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How many stars do I need to reach the gold level on my Starbucks Rewards app?",
+      "reference_answer": 120,
+      "hypothesis": "Depending on the date of the conversation, you have stated you need either 125 stars (as of 2023/07/11) or 120 stars (as of 2023/07/30) to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 18733,
+      "timing_seconds": {
+        "generation": 8.500256333034486,
+        "judge": 12.243975708959624
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "What is the total amount I spent on the designer handbag and high-end skincare products?",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300 ($800 for the Coach handbag and $500 for high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 11118,
+      "context_chars": 34861,
+      "timing_seconds": {
+        "generation": 8.887836209032685,
+        "judge": 8.797305415850133
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "I'm planning to visit the Vatican again and I was wondering if you could remind me of the name of that famous deli near the Vatican that serves the best cured meats and cheeses?",
+      "reference_answer": "Roscioli",
+      "hypothesis": "The famous deli is Roscioli.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 5468,
+      "timing_seconds": {
+        "generation": 8.321325749857351,
+        "judge": 21.12420399999246
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How often do I play tennis with my friends at the local park previously? How often do I play now?",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you had weekly tennis sessions; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 22614,
+      "timing_seconds": {
+        "generation": 8.694084791932255,
+        "judge": 11.683499582810327
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "What did I do with Rachel on the Wednesday two months ago?",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "You started taking ukulele lessons with her.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9441,
+      "context_chars": 29024,
+      "timing_seconds": {
+        "generation": 6.769001833861694,
+        "judge": 7.120751790935174
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous conversation about making a classic French omelette, and I wanted to confirm - how many eggs did you say we need for the recipe?",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "2-3 eggs",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 4362,
+      "timing_seconds": {
+        "generation": 7.651953750057146,
+        "judge": 6.265370541950688
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "How many properties did I view before making an offer on the townhouse in the Brookside neighborhood?",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "You viewed 3 properties: a 1-bedroom condo on February 10th, a 2-bedroom condo on February 15th, and the 3-bedroom townhouse in Brookside on February 22nd.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 25193,
+      "context_chars": 84113,
+      "timing_seconds": {
+        "generation": 5.4583232088480145,
+        "judge": 4.339901333209127
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "I mentioned visiting a museum two months ago. Did I visit with a friend or not?",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "You visited the Natural History Museum with your dad.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 13610,
+      "context_chars": 43593,
+      "timing_seconds": {
+        "generation": 5.026027624960989,
+        "judge": 4.3825250410009176
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "What type of rice is my favorite?",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Your favorite is Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 13666,
+      "timing_seconds": {
+        "generation": 6.5763251250609756,
+        "judge": 4.837706250138581
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "question": "What is my preferred gin-to-vermouth ratio for a classic gin martini?",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio for a classic gin martini is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 8192,
+      "context_chars": 14385,
+      "timing_seconds": {
+        "generation": 6.122315709013492,
+        "judge": 8.067664457950741
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How many different species of birds have I seen in my local park?",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9423,
+      "context_chars": 28952,
+      "timing_seconds": {
+        "generation": 6.307933332864195,
+        "judge": 6.890088082989678
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "question": "I've been feeling a bit stuck with my paintings lately. Do you have any ideas on how I can find new inspiration?",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can seek inspiration from social media and art communities.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 8192,
+      "context_chars": 22427,
+      "timing_seconds": {
+        "generation": 6.5996025409549475,
+        "judge": 7.702117874985561
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "question": "How many days ago did I participate in the 5K charity run?",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain today's date, so it is impossible to determine how many days ago the run occurred.",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 8192,
+      "context_chars": 14198,
+      "timing_seconds": {
+        "generation": 6.53521570796147,
+        "judge": 7.332343958085403
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "question": "How much time do I dedicate to coding exercises each day?",
+      "reference_answer": "about two hours",
+      "hypothesis": "You currently dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "context_num_ctx": 9946,
+      "context_chars": 30791,
+      "timing_seconds": {
+        "generation": 7.3041927081067115,
+        "judge": 7.772033874876797
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "question": "What is the average GPA of my undergraduate and graduate studies?",
+      "reference_answer": "3.83",
+      "hypothesis": "The user's graduate GPA is 3.8 out of 4.0 (Master's from University of Illinois at Urbana-Champaign) and the undergraduate GPA is 3.86 out of 4.0 (University of Mumbai).",
+      "judge_raw": "no",
+      "correct": false,
+      "context_num_ctx": 14056,
+      "context_chars": 45169,
+      "timing_seconds": {
+        "generation": 9.201058541890234,
+        "judge": 7.765925290994346
+      }
+    }
+  ]
+}

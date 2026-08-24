@@ -23,6 +23,7 @@
 #include "aeon/blob_arena.hpp"
 #include "aeon/hash.hpp"
 #include "aeon/schema.hpp"
+#include "aeon/trace_block_index.hpp"
 #include <atomic>
 #include <cstring>
 #include <filesystem>
@@ -30,6 +31,7 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -79,10 +81,79 @@ public:
    * @param role        TraceRole (User=0, System=1, Concept=2, Summary=3)
    * @param text        Full text (unlimited length, stored in blob arena)
    * @param atlas_id    Linked Atlas concept node ID (0 if none)
+   * @param embedding   V4 Stage 2 task 3. Optional embedding vector for
+   *                     this event -- empty span (default) = not embedded,
+   *                     excluded from semantic_search(). Stored in the
+   *                     sidecar BlobArena (TraceEvent::embedding_blob_*)
+   *                     and fed into the in-memory TraceBlockIndex. The
+   *                     FIRST non-empty embedding ever appended to a given
+   *                     trace file fixes its dimensionality
+   *                     (TraceFileHeader::embedding_dim); every later
+   *                     embedding must match it or this throws
+   *                     std::invalid_argument (same contract as
+   *                     Atlas::insert()'s dim check).
+   * @param edge_type       V4 Stage 1/2 task 4. EdgeType enum value (see
+   *                         schema.hpp) -- 0/EdgeType::None (default) means
+   *                         this event carries no version/admission edge.
+   *                         First real caller: Stage 2 task 4's
+   *                         admission-time near-duplicate detection, which
+   *                         records a Refines edge instead of inserting a
+   *                         duplicate Atlas node.
+   * @param supersedes_id   Id this event's edge_type relates to (0 =
+   *                         none). In practice always an Atlas node id
+   *                         (store-encoded where store discrimination
+   *                         applies), not a TraceEvent::id -- see
+   *                         schema.hpp's TraceEvent doc comment (V4 STAGE
+   *                         4 note) for why. Deliberately not reused as
+   *                         prev_id either way -- that's the per-session
+   *                         chronological chain pointer, a separate
+   *                         concept.
+   * @param reason_code     ReasonCode enum value (see schema.hpp).
+   * @param event_time      V4 Stage 7 Track 2. Caller-supplied event time
+   *                         (epoch microseconds), distinct from
+   *                         `timestamp` (always Aeon's own insertion
+   *                         wall-clock, set internally regardless of this
+   *                         parameter). 0 (default) = not supplied --
+   *                         consumers ordering by "when this happened"
+   *                         should treat `event_time == 0` as "use
+   *                         `timestamp` instead," not as a real epoch
+   *                         value. Lets a caller backfilling historical
+   *                         content (a chat import, a game engine
+   *                         replaying past events) record when something
+   *                         actually happened, independent of when Aeon
+   *                         received it.
    * @return            The new event's unique ID
    */
   uint64_t append_event(const char *session_id, uint16_t role, const char *text,
-                        uint64_t atlas_id = 0);
+                        uint64_t atlas_id = 0,
+                        std::span<const float> embedding = {},
+                        uint8_t edge_type = 0, uint64_t supersedes_id = 0,
+                        uint8_t reason_code = 0, uint64_t event_time = 0);
+
+  /**
+   * @brief Semantic search over embedded trace events (V4 Stage 2 task 3).
+   *
+   * Two-phase O(|V|/1024 + K*1024) search via TraceBlockIndex -- only
+   * events appended with a non-empty `embedding` (see append_event()) are
+   * indexed; events without one are invisible to this method (not a zero
+   * vector, genuinely absent). Tombstoned/superseded events are excluded
+   * from the returned results (a plain post-filter is correct here, unlike
+   * Atlas::navigate()'s beam search -- this is a flat top-K scan over
+   * already-selected blocks, not a hierarchical descent where an early
+   * exclusion could prune away the correct branch).
+   *
+   * Returns an empty vector if no embedding has ever been appended to this
+   * file (embedding_dim() == 0) or if query.size() doesn't match it.
+   *
+   * @param query  Query embedding, must match embedding_dim()
+   * @param top_k  Maximum results to return
+   */
+  std::vector<TraceEvent> semantic_search(std::span<const float> query,
+                                          size_t top_k = 10) const;
+
+  /// Dimensionality of indexed embeddings, or 0 if none have been appended
+  /// to this file yet (see append_event()'s embedding parameter).
+  uint32_t embedding_dim() const noexcept { return embedding_dim_; }
 
   /**
    * @brief Retrieve session history by backward traversal of prev_id chain.
@@ -192,6 +263,20 @@ private:
   std::unordered_map<std::string, uint64_t> session_tails_;
 
   // -----------------------------------------------------------------------
+  // Semantic Trace Search (V4 Stage 2 task 3)
+  // -----------------------------------------------------------------------
+
+  /// Dim of indexed embeddings; 0 = none appended yet. Mirrors the durable
+  /// TraceFileHeader::embedding_dim once known (set on open from an
+  /// existing file's header, or on this file's first embedded append).
+  uint32_t embedding_dim_ = 0;
+
+  /// In-memory acceleration structure only -- NOT persisted; rebuilt from
+  /// durable embedding blobs on open (open_file()/rebuild_session_tails()'s
+  /// scan). Null until embedding_dim_ is known.
+  std::unique_ptr<TraceBlockIndex> block_index_;
+
+  // -----------------------------------------------------------------------
   // Concurrency
   // -----------------------------------------------------------------------
 
@@ -210,10 +295,6 @@ private:
   /// Resolve an event ID to a TraceEvent pointer (searches mmap then delta).
   const TraceEvent *resolve_event(uint64_t event_id) const;
 
-  /// Append a single event to the mmap file. Returns the event ID.
-  uint64_t append_mmap(const char *session_id, uint16_t role, const char *text,
-                       size_t text_len, uint64_t atlas_id, uint64_t prev_id);
-
   /// Open or create the trace mmap file.
   void open_file(const std::filesystem::path &path);
 
@@ -225,6 +306,11 @@ private:
 
   /// Rebuild session_tails_ by scanning all events (used after file open).
   void rebuild_session_tails();
+
+  /// Rebuild the (unpersisted) TraceBlockIndex from durable embedding
+  /// blobs (used after file open, once blob_arena_ is ready). No-op if
+  /// embedding_dim_ == 0 (no embedding ever appended to this file).
+  void rebuild_block_index();
 
   /// Get the current timestamp in epoch microseconds.
   static uint64_t now_micros();

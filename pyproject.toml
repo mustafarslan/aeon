@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core>=0.5", "nanobind>=2.0"]
+requires = ["scikit-build-core>=0.10", "nanobind>=2.0"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -13,18 +13,57 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26.0",
-    "networkx>=3.2",
     "psutil",
     "requests",
     "sentence-transformers>=2.2.0",
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
     "sse-starlette>=2.0.0",
+    "pyjwt>=2.8.0",
+    # v4-plan.md Stage 4 task 6 Phase B: crypto.py's per-subject-per-scope
+    # DEK wrapping/unwrapping (AES-256-GCM) -- a real, audited primitive,
+    # not hand-rolled.
+    "cryptography>=42.0.0",
+]
+
+[project.optional-dependencies]
+# `pip install -e .[test]` then `pytest tests/`. Not previously declared
+# anywhere (nor run in CI, see .github/workflows/build_and_test.yml) --
+# found while fixing this file's separate cmake.targets->build.targets
+# packaging bug (v4-plan.md Stage 4), which had silently made `pip install
+# -e .` fail entirely, so tests/ could not be run by anyone this whole
+# session regardless. anyio provides its own pytest plugin (the
+# @pytest.mark.anyio tests in tests/test_phase8.py) -- no separate
+# pytest-anyio package needed.
+test = [
+    "pytest>=8.0.0",
+    "anyio>=4.0.0",
+    "httpx>=0.27.0",
+]
+
+# V4 Stage 4 task 1 control plane: `pip install -e .[db]`. Separate from
+# `test` -- the core Atlas/Trace pytest suite (69+ tests) must keep
+# running with no Postgres/DB dependency installed at all, since Postgres
+# is optional infrastructure (governance_db is an optional promote_fragment
+# param, promotion.py) exactly like shared_atlas_client is. psycopg[binary]
+# rather than psycopg2 + a separate asyncpg: psycopg3 supports both sync
+# (the write path promote_fragment calls, ordering-sensitive, see
+# promotion.py) and async (the separate control-plane FastAPI app,
+# control_plane/app.py) from one driver, one dependency.
+db = [
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.1",
+    "alembic>=1.13",
+    # SQLAlchemy's async engine (control_plane/app.py) needs this
+    # regardless of driver -- it's how SQLAlchemy bridges its sync Core
+    # internals to asyncio, not psycopg-specific. Not pulled in
+    # transitively by psycopg[binary] or sqlalchemy itself.
+    "greenlet>=3.0",
 ]
 
 [tool.scikit-build]
 # The CMake target to install
-cmake.targets = ["aeon_py_core"]
+build.targets = ["aeon_py_core"]
 
 # Where to put the artifact in the wheel
 wheel.install-dir = "aeon_py"

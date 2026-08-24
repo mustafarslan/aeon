@@ -114,6 +114,14 @@ export class AeonDB {
      * @param beamWidth - Beam search width (default: 1 = greedy, max: 16).
      * @param applyCSLS - Apply CSLS hubness correction (default: false).
      * @param sessionId - Session UUID for L1 SLB routing (default: null = global L2).
+     * @param scopeMask - V4 Stage 2. Filters results to nodes where
+     *                    (node.scopeBitmap & scopeMask) !== 0n (default:
+     *                    undefined = ALL_SCOPES_VISIBLE, no filtering,
+     *                    matching pre-Stage-2 behavior). No real
+     *                    scope-assignment authority exists yet (Stage
+     *                    3/4's control plane), so no caller has a
+     *                    meaningful non-default value to pass today --
+     *                    this is the plumbing point for once one does.
      * @returns Array of { id: bigint, score: number } sorted by descending similarity.
      * @throws {RangeError} If query dimension doesn't match Atlas dimension.
      * @throws {Error}      If the C-API navigate call fails.
@@ -123,7 +131,8 @@ export class AeonDB {
         topK?: number,
         beamWidth?: number,
         applyCSLS?: boolean,
-        sessionId?: string
+        sessionId?: string,
+        scopeMask?: bigint
     ): NavigateResult[];
 
     /**

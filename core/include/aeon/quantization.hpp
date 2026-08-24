@@ -67,6 +67,26 @@ inline void quantize_symmetric(std::span<const float> input,
 }
 
 /**
+ * @brief Dequantize a full INT8 vector back to an FP32 approximation
+ * (V4 Stage 4 task 2: promotion needs a source node's full centroid, not
+ * just a dot-product score, to insert a de-identified copy into the
+ * shared store). The dot-product-only dequantize_dot_product() below
+ * predates this and remains what the navigate() hot path uses --
+ * this is the missing vector-level counterpart, same formula
+ * (v'[i] = q[i] * scale) applied elementwise instead of to one raw dot.
+ *
+ * @param input   Source INT8 vector (dim elements)
+ * @param scale   Scale stored in NodeHeader::quant_scale for this vector
+ * @param output  Destination FP32 vector (must be pre-allocated, dim elements)
+ */
+inline void dequantize_vector(std::span<const int8_t> input, float scale,
+                              std::span<float> output) noexcept {
+  for (size_t i = 0; i < input.size() && i < output.size(); ++i) {
+    output[i] = static_cast<float>(input[i]) * scale;
+  }
+}
+
+/**
  * @brief Dequantize a raw INT32 dot product back to FP32.
  *
  * Given: dot_int8(Q_quantized, D_quantized) = raw_dot (int32)

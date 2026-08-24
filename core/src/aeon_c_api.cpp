@@ -14,8 +14,10 @@
 
 #include "aeon/aeon_c_api.h"
 #include "aeon/atlas.hpp"
+#include "aeon/hash.hpp"
 #include "aeon/trace.hpp"
 
+#include <cstddef>
 #include <cstring>
 #include <exception>
 #include <filesystem>
@@ -41,6 +43,24 @@ static aeon::TraceManager *to_trace(aeon_trace_t *handle) {
 
 static const aeon::TraceManager *to_trace(const aeon_trace_t *handle) {
   return reinterpret_cast<const aeon::TraceManager *>(handle);
+}
+
+/// Atlas's session-aware SLB cache (aeon::HierarchicalSLB) is keyed by
+/// uint64_t; the C-API's session_id is a caller-supplied string (matching
+/// Trace's session_id[36] UUID convention). FNV-1a maps one to the other
+/// deterministically -- the same string always routes to the same shard.
+/// A null/empty session_id maps to the same "session 0" bucket Atlas's C++
+/// layer uses as its no-session default (see atlas.hpp navigate() doc).
+/// Note: this is a hash, not an injective mapping -- two distinct session
+/// strings can collide onto the same uint64_t, which would let one
+/// session's L1 cache occasionally surface another's cached result. This
+/// is the same class of risk any hash-sharded cache accepts; it is not
+/// the isolation guarantee Stage 3's real scope model will need to
+/// provide once genuinely untrusted tenants share an Atlas.
+static uint64_t session_id_to_u64(const char *session_id) {
+  if (!session_id || session_id[0] == '\0')
+    return 0;
+  return aeon::hash::fnv1a_64(session_id, std::strlen(session_id));
 }
 
 // ===========================================================================
@@ -84,6 +104,7 @@ AEON_API aeon_error_t aeon_atlas_create_ex(const char *path,
     cpp_opts.dim = opts->dim;
     cpp_opts.quantization_type = opts->quantization_type;
     cpp_opts.enable_wal = (opts->enable_wal != 0);
+    cpp_opts.metadata_size = opts->metadata_size;
 
     auto *atlas = new aeon::Atlas(std::filesystem::path(path), cpp_opts);
     *out_atlas = reinterpret_cast<aeon_atlas_t *>(atlas);
@@ -126,6 +147,19 @@ AEON_API aeon_error_t aeon_atlas_get_dim(aeon_atlas_t *atlas,
   }
 }
 
+AEON_API aeon_error_t aeon_atlas_get_metadata_size(aeon_atlas_t *atlas,
+                                                   uint32_t *out_metadata_size) {
+  if (!atlas || !out_metadata_size)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    *out_metadata_size = to_atlas(atlas)->metadata_size();
+    return AEON_OK;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
 // ===========================================================================
 // Query — Navigate
 // ===========================================================================
@@ -133,7 +167,8 @@ AEON_API aeon_error_t aeon_atlas_get_dim(aeon_atlas_t *atlas,
 AEON_API aeon_error_t aeon_atlas_navigate(
     aeon_atlas_t *atlas, const float *query_vector, size_t query_dim,
     uint32_t beam_width, int apply_csls, const char *session_id,
-    aeon_result_node_t *results, size_t max_results, size_t *out_actual_count) {
+    uint64_t scope_mask, aeon_result_node_t *results, size_t max_results,
+    size_t *out_actual_count) {
   if (!atlas || !query_vector || !results || !out_actual_count)
     return AEON_ERR_NULL_PTR;
 
@@ -144,11 +179,8 @@ AEON_API aeon_error_t aeon_atlas_navigate(
     auto *a = to_atlas(atlas);
     std::span<const float> query{query_vector, query_dim};
 
-    // TODO: Route through HierarchicalSLB L1 when session_id is provided.
-    // For now, session_id is accepted but SLB routing is pending integration.
-    (void)session_id;
-
-    auto path = a->navigate(query, beam_width, apply_csls != 0);
+    auto path = a->navigate(query, beam_width, apply_csls != 0,
+                            session_id_to_u64(session_id), scope_mask);
 
     size_t count = std::min(path.size(), max_results);
     for (size_t i = 0; i < count; ++i) {
@@ -188,11 +220,8 @@ AEON_API aeon_error_t aeon_atlas_insert(aeon_atlas_t *atlas, uint64_t parent_id,
     std::span<const float> vec{vector, vector_dim};
     std::string_view meta = metadata ? metadata : "";
 
-    uint64_t id = a->insert(parent_id, vec, meta);
-
-    // TODO: Insert into HierarchicalSLB L1 cache for session_id.
-    // For now, session_id is accepted but SLB routing is pending integration.
-    (void)session_id;
+    uint64_t id =
+        a->insert(parent_id, vec, meta, session_id_to_u64(session_id));
 
     *out_id = id;
     return AEON_OK;
@@ -215,12 +244,8 @@ AEON_API aeon_error_t aeon_atlas_drop_session(aeon_atlas_t *atlas,
     return AEON_ERR_NULL_PTR;
 
   try {
-    // TODO: Forward to Atlas's HierarchicalSLB::drop_session().
-    // This requires Atlas to expose its SLB reference. For now, this
-    // is a validated stub that will be wired once Atlas gains a
-    // public drop_session() forwarder.
-    (void)to_atlas(atlas);
-    return AEON_OK;
+    bool existed = to_atlas(atlas)->drop_session(session_id_to_u64(session_id));
+    return existed ? AEON_OK : AEON_ERR_NODE_NOT_FOUND;
   } catch (...) {
     return AEON_ERR_UNKNOWN;
   }
@@ -257,6 +282,7 @@ AEON_API aeon_error_t aeon_atlas_tombstone_count(aeon_atlas_t *atlas,
 
 AEON_API aeon_error_t aeon_atlas_get_children(aeon_atlas_t *atlas,
                                               uint64_t parent_id,
+                                              uint64_t scope_mask,
                                               aeon_result_node_t *results,
                                               size_t max_results,
                                               size_t *out_actual_count) {
@@ -265,7 +291,7 @@ AEON_API aeon_error_t aeon_atlas_get_children(aeon_atlas_t *atlas,
 
   try {
     auto *a = to_atlas(atlas);
-    auto children = a->get_children(parent_id);
+    auto children = a->get_children(parent_id, scope_mask);
 
     size_t count = std::min(children.size(), max_results);
     for (size_t i = 0; i < count; ++i) {
@@ -405,21 +431,87 @@ AEON_API aeon_error_t aeon_trace_destroy(aeon_trace_t *trace) {
   }
 }
 
-AEON_API aeon_error_t aeon_trace_append_event(aeon_trace_t *trace,
-                                              const char *session_id,
-                                              uint16_t role, const char *text,
-                                              uint64_t atlas_id,
-                                              uint64_t *out_id) {
+static aeon_error_t append_event_impl(aeon_trace_t *trace,
+                                      const char *session_id, uint16_t role,
+                                      const char *text, uint64_t atlas_id,
+                                      const float *embedding_vector,
+                                      size_t embedding_dim,
+                                      uint64_t event_time, uint64_t *out_id) {
   if (!trace || !out_id)
+    return AEON_ERR_NULL_PTR;
+  if (embedding_dim > 0 && !embedding_vector)
     return AEON_ERR_NULL_PTR;
 
   try {
-    uint64_t id =
-        to_trace(trace)->append_event(session_id, role, text, atlas_id);
+    std::span<const float> embedding =
+        (embedding_dim > 0) ? std::span<const float>(embedding_vector,
+                                                      embedding_dim)
+                             : std::span<const float>{};
+    uint64_t id = to_trace(trace)->append_event(
+        session_id, role, text, atlas_id, embedding,
+        /*edge_type=*/0, /*supersedes_id=*/0, /*reason_code=*/0, event_time);
     *out_id = id;
     return AEON_OK;
   } catch (const std::invalid_argument &) {
     return AEON_ERR_INVALID_ARG;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
+AEON_API aeon_error_t aeon_trace_append_event(aeon_trace_t *trace,
+                                              const char *session_id,
+                                              uint16_t role, const char *text,
+                                              uint64_t atlas_id,
+                                              const float *embedding_vector,
+                                              size_t embedding_dim,
+                                              uint64_t *out_id) {
+  return append_event_impl(trace, session_id, role, text, atlas_id,
+                           embedding_vector, embedding_dim, /*event_time=*/0,
+                           out_id);
+}
+
+AEON_API aeon_error_t aeon_trace_append_event_ex(
+    aeon_trace_t *trace, const char *session_id, uint16_t role,
+    const char *text, uint64_t atlas_id, const float *embedding_vector,
+    size_t embedding_dim, uint64_t event_time, uint64_t *out_id) {
+  return append_event_impl(trace, session_id, role, text, atlas_id,
+                           embedding_vector, embedding_dim, event_time,
+                           out_id);
+}
+
+AEON_API aeon_error_t aeon_trace_semantic_search(
+    aeon_trace_t *trace, const float *query_vector, size_t query_dim,
+    size_t top_k, aeon_trace_event_t *out_events, size_t max_events,
+    size_t *out_count) {
+  if (!trace || !query_vector || !out_events || !out_count)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    auto results = to_trace(trace)->semantic_search(
+        std::span<const float>(query_vector, query_dim), top_k);
+
+    size_t count = std::min(results.size(), max_events);
+    for (size_t i = 0; i < count; ++i) {
+      static_assert(sizeof(aeon_trace_event_t) == sizeof(aeon::TraceEvent),
+                    "FFI struct must match C++ struct size");
+      std::memcpy(&out_events[i], &results[i], sizeof(aeon_trace_event_t));
+    }
+    *out_count = count;
+    return AEON_OK;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
+AEON_API aeon_error_t aeon_trace_embedding_dim(aeon_trace_t *trace,
+                                               uint32_t *out_dim) {
+  if (!trace || !out_dim)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    *out_dim = to_trace(trace)->embedding_dim();
+    return AEON_OK;
   } catch (...) {
     return AEON_ERR_UNKNOWN;
   }
@@ -438,9 +530,23 @@ AEON_API aeon_error_t aeon_trace_get_history(aeon_trace_t *trace,
 
     size_t count = std::min(history.size(), max_events);
     for (size_t i = 0; i < count; ++i) {
-      // Flat memcpy — TraceEvent and aeon_trace_event_t have identical layout
+      // Flat memcpy — TraceEvent and aeon_trace_event_t have identical layout.
+      // Pin both size AND the V4 Stage 1 field offsets: a size-only check
+      // would miss a reordering that still happens to add up to 512 bytes.
       static_assert(sizeof(aeon_trace_event_t) == sizeof(aeon::TraceEvent),
                     "FFI struct must match C++ struct size");
+      static_assert(offsetof(aeon_trace_event_t, edge_type) ==
+                    offsetof(aeon::TraceEvent, edge_type));
+      static_assert(offsetof(aeon_trace_event_t, supersedes_id) ==
+                    offsetof(aeon::TraceEvent, supersedes_id));
+      static_assert(offsetof(aeon_trace_event_t, evidence_blob_offset) ==
+                    offsetof(aeon::TraceEvent, evidence_blob_offset));
+      static_assert(offsetof(aeon_trace_event_t, evidence_blob_size) ==
+                    offsetof(aeon::TraceEvent, evidence_blob_size));
+      static_assert(offsetof(aeon_trace_event_t, embedding_blob_offset) ==
+                    offsetof(aeon::TraceEvent, embedding_blob_offset));
+      static_assert(offsetof(aeon_trace_event_t, embedding_blob_size) ==
+                    offsetof(aeon::TraceEvent, embedding_blob_size));
       std::memcpy(&out_events[i], &history[i], sizeof(aeon_trace_event_t));
     }
     *out_count = count;

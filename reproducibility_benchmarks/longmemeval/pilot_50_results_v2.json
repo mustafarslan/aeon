@@ -1,0 +1,1179 @@
+{
+  "summary": {
+    "model": "qwen3.8:27b-mlx",
+    "top_k": 10,
+    "seed": 42,
+    "dataset_path": "/private/tmp/claude-501/-Volumes-AI-SSD-Projects-aeon/3ae98779-a31a-4698-97f5-d3e4b2ae3bf3/scratchpad/longmemeval/longmemeval_s_cleaned.json",
+    "encoder": "all-mpnet-base-v2",
+    "retrieval_only": false,
+    "num_questions": 50,
+    "overall_accuracy": 0.58,
+    "overall_gold_session_recall_at_k": 0.98,
+    "per_question_type": {
+      "abstention": {
+        "n": 3,
+        "accuracy": 1.0,
+        "gold_session_recall_at_k": 1.0
+      },
+      "knowledge-update": {
+        "n": 8,
+        "accuracy": 0.5,
+        "gold_session_recall_at_k": 1.0
+      },
+      "multi-session": {
+        "n": 11,
+        "accuracy": 0.09090909090909091,
+        "gold_session_recall_at_k": 1.0
+      },
+      "single-session-assistant": {
+        "n": 6,
+        "accuracy": 1.0,
+        "gold_session_recall_at_k": 1.0
+      },
+      "single-session-preference": {
+        "n": 3,
+        "accuracy": 0.6666666666666666,
+        "gold_session_recall_at_k": 1.0
+      },
+      "single-session-user": {
+        "n": 6,
+        "accuracy": 1.0,
+        "gold_session_recall_at_k": 1.0
+      },
+      "temporal-reasoning": {
+        "n": 13,
+        "accuracy": 0.5384615384615384,
+        "gold_session_recall_at_k": 0.9230769230769231
+      }
+    },
+    "latency_seconds": {
+      "ingest": {
+        "mean": 9.187679859995843,
+        "median": 9.672361375531182,
+        "p95": 12.70641916594468
+      },
+      "query_encode": {
+        "mean": 0.020688155754469334,
+        "median": 0.01821658352855593,
+        "p95": 0.03851533401757479
+      },
+      "search": {
+        "mean": 8.040321990847588e-05,
+        "median": 7.029157131910324e-05,
+        "p95": 0.0001411670818924904
+      },
+      "generation": {
+        "mean": 22.53747615418397,
+        "median": 20.9861363125965,
+        "p95": 45.510349250165746
+      },
+      "judge": {
+        "mean": 7.884431912461296,
+        "median": 5.933394562103786,
+        "p95": 21.666582208126783
+      }
+    }
+  },
+  "results": [
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "Which book did I finish a week ago?",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 487,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 5.10021729208529,
+        "query_encode": 0.01667516608722508,
+        "search": 8.283299393951893e-05,
+        "generation": 17.035025333985686,
+        "judge": 2.311909500043839
+      },
+      "hypothesis": "Based on the retrieved memories, the book you finished was **\"The Nightingale\" by Kristin Hannah**, which you completed on 2023/01/31.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "is_abstention": true,
+      "report_type": "abstention",
+      "question": "How many different museums or galleries did I visit in December?",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 479,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 4.861281959107146,
+        "query_encode": 0.017897791927680373,
+        "search": 7.966696284711361e-05,
+        "generation": 10.766504332888871,
+        "judge": 4.061923749977723
+      },
+      "hypothesis": "The retrieved memories don't contain any information about museum or gallery visits in December. The only visits mentioned are to the Natural History Museum (February 8) and The Art Cube (February 15), neither of which was in December. I can't answer this question based on the available information.",
+      "judge_raw": "Yes",
+      "correct": true
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How long did I take to finish 'The Seven Husbands of Evelyn Hugo' and 'The Nightingale' combined?",
+      "reference_answer": "5.5 weeks",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 492,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 5.333416416076943,
+        "query_encode": 0.017117999959737062,
+        "search": 6.679212674498558e-05,
+        "generation": 19.368089207913727,
+        "judge": 6.384939957875758
+      },
+      "hypothesis": "About 5.5 weeks combined \u2014 2.5 weeks for \"The Seven Husbands of Evelyn Hugo\" and 3 weeks for \"The Nightingale.\"",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How much total money did I spend on attending workshops in the last four months?",
+      "reference_answer": "$720",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 525,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 9.298722959123552,
+        "query_encode": 0.05390304094180465,
+        "search": 0.0001411670818924904,
+        "generation": 29.496258874889463,
+        "judge": 6.551422874908894
+      },
+      "hypothesis": "Based on the retrieved memories, I can only identify two workshop costs: **$20** (mindfulness workshop, December 12) and **$200** (two-day writing workshop in November), totaling **$220**. However, you mention attending five workshops in the last three months, and the costs for the digital marketing workshop (March 15\u201316), the entrepreneurship workshop, and potentially others aren't specified in the available snippets. So I can't confirm a complete total for the last four months.",
+      "judge_raw": "No",
+      "correct": false
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "What was my previous frequent flyer status on United Airlines before I got the current status?",
+      "reference_answer": "Premier Silver",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 531,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 10.045999791938812,
+        "query_encode": 0.03851533401757479,
+        "search": 7.962505333125591e-05,
+        "generation": 24.684191915905103,
+        "judge": 6.7792774580884725
+      },
+      "hypothesis": "Premier Silver (as of September 2022, before reaching Premier Gold in May 2023).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many music albums or EPs have I purchased or downloaded?",
+      "reference_answer": 3,
+      "num_haystack_sessions": 52,
+      "num_haystack_turns": 516,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.037898374954239,
+        "query_encode": 0.026343457866460085,
+        "search": 7.604085840284824e-05,
+        "generation": 22.27361375000328,
+        "judge": 7.949843749869615
+      },
+      "hypothesis": "The retrieved memories don't contain any information about how many music albums or EPs you have purchased or downloaded.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How many days had passed between the Sunday mass at St. Mary's Church and the Ash Wednesday service at the cathedral?",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "num_haystack_sessions": 47,
+      "num_haystack_turns": 480,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.666498958133161,
+        "query_encode": 0.03585858293808997,
+        "search": 9.391712956130505e-05,
+        "generation": 28.827918333932757,
+        "judge": 8.921214167028666
+      },
+      "hypothesis": "30 days (January 2nd to February 1st).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "What did I buy for my sister's birthday gift?",
+      "reference_answer": "a yellow dress",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 507,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 13.030665833037347,
+        "query_encode": 0.0210617498960346,
+        "search": 6.475020200014114e-05,
+        "generation": 15.512849790975451,
+        "judge": 42.03416704200208
+      },
+      "hypothesis": "A yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "What speed is my new internet plan?",
+      "reference_answer": "500 Mbps",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 466,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.764046291122213,
+        "query_encode": 0.030136708170175552,
+        "search": 9.491597302258015e-05,
+        "generation": 13.243655500002205,
+        "judge": 4.415031915996224
+      },
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "What health issue did I initially think was just a cold?",
+      "reference_answer": "bronchitis",
+      "num_haystack_sessions": 55,
+      "num_haystack_turns": 545,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 13.440322624985129,
+        "query_encode": 0.016370082972571254,
+        "search": 8.808402344584465e-05,
+        "generation": 24.323545082937926,
+        "judge": 5.377640666905791
+      },
+      "hypothesis": "Bronchitis.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "is_abstention": true,
+      "report_type": "abstention",
+      "question": "How long have I been collecting vintage films?",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 547,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.943894125055522,
+        "query_encode": 0.02090250002220273,
+        "search": 0.0002198750153183937,
+        "generation": 33.32280500000343,
+        "judge": 10.021196832880378
+      },
+      "hypothesis": "The retrieved memories don't contain any information about collecting vintage films. They mention collecting vintage cameras (for three months as of May 2023) and vinyl records, but not films.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "I wanted to check back on our previous conversation about Netflix. I mentioned that I wanted to be able to access all seasons of old shows? Do you remember what show I used as an example, the one that only had the last season available?",
+      "reference_answer": "Doc Martin",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 484,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.14122874988243,
+        "query_encode": 0.04538437491282821,
+        "search": 0.00021420791745185852,
+        "generation": 10.146946042077616,
+        "judge": 4.658497207798064
+      },
+      "hypothesis": "Doc Martin.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "What day of the week do I take a cocktail-making class?",
+      "reference_answer": "Friday",
+      "num_haystack_sessions": 51,
+      "num_haystack_turns": 521,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.996427790960297,
+        "query_encode": 0.030399959068745375,
+        "search": 7.829209789633751e-05,
+        "generation": 13.374100500019267,
+        "judge": 4.227054584072903
+      },
+      "hypothesis": "Friday",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many times did I ride rollercoasters across all the events I attended from July to October?",
+      "reference_answer": "10 times",
+      "num_haystack_sessions": 46,
+      "num_haystack_turns": 497,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.12561354204081,
+        "query_encode": 0.017290834104642272,
+        "search": 8.566584438085556e-05,
+        "generation": 68.4551010420546,
+        "judge": 12.44403350003995
+      },
+      "hypothesis": "Based on the retrieved memories, I can only partially answer this:\n\n- **Space Mountain: Ghost Galaxy** (Sept 24, Disneyland): **3 times**\n- **Revenge of the Mummy** (Oct 15, Universal Studios Hollywood): **3 times**\n- **SeaWorld San Diego**: **3 rollercoasters** in one night (date unspecified in the snippets)\n- **Xcelerator** (Oct 8, Knott's Berry Farm): mentioned as a favorite, but no ride count is given\n\nThere are no retrieved memories referencing any rollercoaster rides in **July**, and the exact number of Xcelerator rides isn't recorded. So a complete total for July\u2013October can't be determined from the available information. What's confirmed is at least **9 rollercoaster rides** (3 + 3 + 3), plus an unknown number on the Xcelerator.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "In our previous chat, you suggested 'sexual compulsions' and a few other options for alternative terms for certain behaviors. Can you remind me what the other four options were?",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 493,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.386557541787624,
+        "query_encode": 0.029904874972999096,
+        "search": 6.645801477134228e-05,
+        "generation": 14.55321591696702,
+        "judge": 10.348509999923408
+      },
+      "hypothesis": "Sexual fixations, problematic sexual behaviors, sexual impulsivity, and compulsive sexuality.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "Which streaming service did I start using most recently?",
+      "reference_answer": "Disney+",
+      "num_haystack_sessions": 45,
+      "num_haystack_turns": 458,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.738473625155166,
+        "query_encode": 0.023275749990716577,
+        "search": 6.88750296831131e-05,
+        "generation": 26.666154750157148,
+        "judge": 7.346216999925673
+      },
+      "hypothesis": "Disney+ (a free trial started \"last month,\" around April 2023).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "report_type": "single-session-preference",
+      "question": "Can you suggest some useful accessories for my phone?",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "num_haystack_sessions": 52,
+      "num_haystack_turns": 524,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.308807207969949,
+        "query_encode": 0.011642749886959791,
+        "search": 7.904111407697201e-05,
+        "generation": 45.510349250165746,
+        "judge": 21.666582208126783
+      },
+      "hypothesis": "Based on previous conversations, useful accessories for your iPhone 13 Pro include a **wallet case** (brands like Nomad, Bellroy, Incipio, Mophie, Spigen, or UAG) and a **portable power bank** (brands like Anker, Mophie, Jackery, EcoFlow, or Aukey). You already have a power bank that works well for you, so a wallet case with RFID-blocking and card slots would be a great addition.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "I mentioned that I participated in an art-related event two weeks ago. Where was that event held at?",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "num_haystack_sessions": 51,
+      "num_haystack_turns": 497,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": false,
+      "timing_seconds": {
+        "ingest": 11.691595542011783,
+        "query_encode": 0.027852458180859685,
+        "search": 8.429097943007946e-05,
+        "generation": 30.123825249960646,
+        "judge": 8.252488875063136
+      },
+      "hypothesis": "The City Art Museum (where the \"Impressionist Masterpieces\" exhibition was held).",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many days did I spend on camping trips in the United States this year?",
+      "reference_answer": "8 days.",
+      "num_haystack_sessions": 52,
+      "num_haystack_turns": 516,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.947146750055254,
+        "query_encode": 0.03141966578550637,
+        "search": 0.0001357498113065958,
+        "generation": 26.851729082874954,
+        "judge": 9.80534570896998
+      },
+      "hypothesis": "Based on the retrieved memories, you mentioned a **5-day camping trip to Yellowstone National Park**. That's the only camping trip referenced in the available snippets, so I can confirm 5 days, but I don't have enough information to determine whether you had additional camping trips in the U.S. this year.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How many days passed between the day I repotted the previous spider plant and the day I gave my neighbor, Mrs. Johnson, a few cuttings from my spider plant?",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "num_haystack_sessions": 47,
+      "num_haystack_turns": 480,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.073466083034873,
+        "query_encode": 0.014455332886427641,
+        "search": 8.033285848796368e-05,
+        "generation": 21.424939792137593,
+        "judge": 6.6918172081932425
+      },
+      "hypothesis": "14 days (March 4 to March 18, 2023).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How many trips have I taken my Canon EOS 80D camera on?",
+      "reference_answer": "five",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 498,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.795045708073303,
+        "query_encode": 0.020516958087682724,
+        "search": 7.02079851180315e-05,
+        "generation": 13.186820624861866,
+        "judge": 5.6989232080522925
+      },
+      "hypothesis": "Three trips \u2014 to Yellowstone, Yosemite, and the Grand Canyon.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "report_type": "single-session-preference",
+      "question": "I've got some free time tonight, any documentary recommendations?",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 502,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.56862641707994,
+        "query_encode": 0.01714791706763208,
+        "search": 7.308297790586948e-05,
+        "generation": 29.313908291980624,
+        "judge": 25.57893345784396
+      },
+      "hypothesis": "Based on your past interests, you enjoyed \"Our Planet,\" \"Free Solo,\" and \"Tiger King,\" and showed particular interest in nature/wildlife docs \u2014 try **Dynasties**, **Chasing Coral**, **Planet Earth**, or **Blue Planet** (all on Netflix). For variety, **The Keepers**, **Fyre**, and **The Jinx** were also recommended to you previously.",
+      "judge_raw": "Yes",
+      "correct": true
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How many days did it take me to finish 'The Nightingale' by Kristin Hannah?",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "num_haystack_sessions": 43,
+      "num_haystack_turns": 485,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.234114333055913,
+        "query_encode": 0.02888799994252622,
+        "search": 7.787509821355343e-05,
+        "generation": 27.482813749928027,
+        "judge": 10.680107166059315
+      },
+      "hypothesis": "It took 21 days \u2014 you started it on January 10, 2023, and finished it on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many graduation ceremonies have I attended in the past three months?",
+      "reference_answer": 3,
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 510,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.70641916594468,
+        "query_encode": 0.01931787491776049,
+        "search": 7.037515752017498e-05,
+        "generation": 23.32148512499407,
+        "judge": 8.519288749899715
+      },
+      "hypothesis": "I don't have enough information to answer this. None of the retrieved memories mention you attending any graduation ceremonies.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How long have I been sticking to my daily tidying routine?",
+      "reference_answer": "4 weeks",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 506,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.389795833965763,
+        "query_encode": 0.02780033298768103,
+        "search": 8.879206143319607e-05,
+        "generation": 49.723914791829884,
+        "judge": 10.679353957995772
+      },
+      "hypothesis": "Based on the most recent memory (2023/09/30), you mentioned you've been sticking to your daily tidying routine for **4 weeks**. (An earlier memory from 2023/06/11 noted 3 weeks.)",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How long had I been taking guitar lessons when I bought the new guitar amp?",
+      "reference_answer": "Four weeks",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 494,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 12.552597041008994,
+        "query_encode": 0.02863562502898276,
+        "search": 6.562494672834873e-05,
+        "generation": 28.900587958982214,
+        "judge": 9.95761620788835
+      },
+      "hypothesis": "The retrieved memories don't contain information about how long you had been taking guitar lessons before buying the new amp. They mention the amp purchase (two weeks before May 25, 2023) and a blues guitar workshop, but no specific timeline for your guitar lessons.",
+      "judge_raw": "No",
+      "correct": false
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "For my daily commute, how much more expensive was the taxi ride compared to the train fare?",
+      "reference_answer": "$6",
+      "num_haystack_sessions": 42,
+      "num_haystack_turns": 462,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.608987875049934,
+        "query_encode": 0.03273570793680847,
+        "search": 7.904088124632835e-05,
+        "generation": 26.549556124955416,
+        "judge": 7.600763292051852
+      },
+      "hypothesis": "The taxi ride was **$6 more** than the train fare ($12 vs. $6).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many doctor's appointments did I go to in March?",
+      "reference_answer": 2,
+      "num_haystack_sessions": 47,
+      "num_haystack_turns": 486,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.230166207998991,
+        "query_encode": 0.0277107919100672,
+        "search": 6.691599264740944e-05,
+        "generation": 43.19851733301766,
+        "judge": 7.1760215000249445
+      },
+      "hypothesis": "Based on the retrieved memories, I can't determine an exact number of doctor's appointments you went to in March. The snippets reference several doctors (Dr. Smith, Dr. Johnson, Dr. Thompson, Dr. Patel) and mention a physical therapy start date of March 25th after Dr. Thompson cleared you, but they don't provide a complete count or specific dates for all March appointments. The EMG with Dr. Johnson is scheduled for April 1st, so that falls outside March.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous chat and I was wondering, what was Andy wearing in the script you wrote for the comedy movie scene?",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "num_haystack_sessions": 43,
+      "num_haystack_turns": 477,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 11.291849333094433,
+        "query_encode": 0.020138832973316312,
+        "search": 7.224990986287594e-05,
+        "generation": 26.4207777089905,
+        "judge": 4.438023041933775
+      },
+      "hypothesis": "According to the character description provided, Andy wears \"an untidy, stained white shirt.\" The script itself doesn't explicitly mention his clothing, but that's the detail given for his appearance.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "Which event happened first, my cousin's wedding or Michael's engagement party?",
+      "reference_answer": "Michael's engagement party",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 486,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.456812874879688,
+        "query_encode": 0.012594165978953242,
+        "search": 6.362493149936199e-05,
+        "generation": 15.470486209029332,
+        "judge": 4.407981250202283
+      },
+      "hypothesis": "Michael's engagement party happened first (May 6, 2023), followed by your cousin's wedding (June 15, 2023).",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "is_abstention": true,
+      "report_type": "abstention",
+      "question": "How many days did I spend in total traveling in Hawaii and in Seattle?",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "num_haystack_sessions": 47,
+      "num_haystack_turns": 544,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.957007416989654,
+        "query_encode": 0.011678333161398768,
+        "search": 7.829209789633751e-05,
+        "generation": 18.092553042108193,
+        "judge": 10.354464249918237
+      },
+      "hypothesis": "The retrieved memories mention a family trip to Hawaii but don't specify how many days were spent there, and there is no mention of Seattle at all. I don't have enough information to answer this question.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous conversation and I was wondering if you could remind me of the two companies you mentioned that prioritize employee safety and well-being like Triumvirate?",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 529,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.965285625075921,
+        "query_encode": 0.016005999874323606,
+        "search": 6.466591730713844e-05,
+        "generation": 9.46353575005196,
+        "judge": 3.467195708071813
+      },
+      "hypothesis": "Patagonia (outdoor clothing and gear company) and Southwest Airlines (which calls its employees \"Warriors\").",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How many days passed between the day I attended the gardening workshop and the day I planted the tomato saplings?",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "num_haystack_sessions": 48,
+      "num_haystack_turns": 479,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.174977416871116,
+        "query_encode": 0.012578208930790424,
+        "search": 6.066681817173958e-05,
+        "generation": 15.974514832952991,
+        "judge": 6.167865916155279
+      },
+      "hypothesis": "The retrieved memories don't mention a gardening workshop, so I can't determine the number of days between that event and planting the tomato saplings. The only gardening-related date found is 2023/04/21, when the tomato saplings were planted, but no workshop date is recorded.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "How long did I wait for the decision on my asylum application?",
+      "reference_answer": "over a year",
+      "num_haystack_sessions": 51,
+      "num_haystack_turns": 514,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.718067625071853,
+        "query_encode": 0.011967958183959126,
+        "search": 6.108288653194904e-05,
+        "generation": 12.903053333982825,
+        "judge": 2.2665862501598895
+      },
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many days a week do I attend fitness classes?",
+      "reference_answer": "4 days.",
+      "num_haystack_sessions": 53,
+      "num_haystack_turns": 560,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.890746499877423,
+        "query_encode": 0.019840040942654014,
+        "search": 7.68748577684164e-05,
+        "generation": 13.96373474993743,
+        "judge": 3.7519952920265496
+      },
+      "hypothesis": "Three days a week \u2014 Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How many stars do I need to reach the gold level on my Starbucks Rewards app?",
+      "reference_answer": 120,
+      "num_haystack_sessions": 45,
+      "num_haystack_turns": 489,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.344620375195518,
+        "query_encode": 0.01227933308109641,
+        "search": 6.954208947718143e-05,
+        "generation": 23.80421566707082,
+        "judge": 17.379173499997705
+      },
+      "hypothesis": "Based on your own corrections in the memories, you've stated conflicting numbers: **125 stars** (on 2023/07/11) and later **120 stars** (on 2023/07/30). The most recent figure you gave is **120 stars**, but you previously corrected it to **125 stars**. The retrieved snippets don't resolve which one you ultimately consider correct.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "What is the total amount I spent on the designer handbag and high-end skincare products?",
+      "reference_answer": "$1,300",
+      "num_haystack_sessions": 50,
+      "num_haystack_turns": 508,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.469013292109594,
+        "query_encode": 0.011986542027443647,
+        "search": 6.366614252328873e-05,
+        "generation": 21.964673874899745,
+        "judge": 3.884279000107199
+      },
+      "hypothesis": "The retrieved memories indicate you spent **$500** on high-end skincare products (during the Nordstrom anniversary sale), but no specific purchase price for your Coach handbag is mentioned. Without the handbag's cost, I can't give a total.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "I'm planning to visit the Vatican again and I was wondering if you could remind me of the name of that famous deli near the Vatican that serves the best cured meats and cheeses?",
+      "reference_answer": "Roscioli",
+      "num_haystack_sessions": 45,
+      "num_haystack_turns": 484,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.406776166986674,
+        "query_encode": 0.018535375129431486,
+        "search": 5.6833960115909576e-05,
+        "generation": 7.122441333020106,
+        "judge": 1.9650222919881344
+      },
+      "hypothesis": "Roscioli",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How often do I play tennis with my friends at the local park previously? How often do I play now?",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "num_haystack_sessions": 41,
+      "num_haystack_turns": 424,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 5.747299083974212,
+        "query_encode": 0.011295124888420105,
+        "search": 5.816691555082798e-05,
+        "generation": 16.069056999869645,
+        "judge": 3.8752102497965097
+      },
+      "hypothesis": "The retrieved memories don't contain enough information to answer this. They mention a planned tennis session with friends at the local park on a specific Sunday (March 2023) and a later interest in getting a tennis bag for the park (July 2023), but no regular frequency (past or present) for playing tennis with friends is stated.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "What did I do with Rachel on the Wednesday two months ago?",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "num_haystack_sessions": 43,
+      "num_haystack_turns": 455,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 5.9434488750994205,
+        "query_encode": 0.012914665974676609,
+        "search": 6.86252024024725e-05,
+        "generation": 14.4007084579207,
+        "judge": 3.7277426251675934
+      },
+      "hypothesis": "I don't have enough information to answer this. The retrieved memories only mention Rachel in the context of guitar lessons (2023/02/01), but there's no record of a specific activity done with Rachel on a Wednesday two months prior.",
+      "judge_raw": "No",
+      "correct": false
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "is_abstention": false,
+      "report_type": "single-session-assistant",
+      "question": "I was going through our previous conversation about making a classic French omelette, and I wanted to confirm - how many eggs did you say we need for the recipe?",
+      "reference_answer": "2-3 eggs",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 483,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.377633042167872,
+        "query_encode": 0.019071249989792705,
+        "search": 6.737513467669487e-05,
+        "generation": 12.592298333067447,
+        "judge": 3.083358041010797
+      },
+      "hypothesis": "2\u20133 eggs.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "How many properties did I view before making an offer on the townhouse in the Brookside neighborhood?",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 497,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.695495457854122,
+        "query_encode": 0.012977834092453122,
+        "search": 6.616604514420033e-05,
+        "generation": 20.236882833065465,
+        "judge": 4.975987375015393
+      },
+      "hypothesis": "The retrieved memories don't specify how many properties you viewed before making an offer on the Brookside townhouse. They only mention that you saw the 3-bedroom townhouse itself on February 22nd (and a separate 1-bedroom condo downtown on February 10th, which was a different property search). There's no record of other viewings prior to the offer.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "I mentioned visiting a museum two months ago. Did I visit with a friend or not?",
+      "reference_answer": "No, you did not visit with a friend.",
+      "num_haystack_sessions": 47,
+      "num_haystack_turns": 486,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.5009294578339905,
+        "query_encode": 0.020046290941536427,
+        "search": 6.191595457494259e-05,
+        "generation": 18.953041000058874,
+        "judge": 3.180956041906029
+      },
+      "hypothesis": "Yes, you visited the Science Museum with a friend \u2014 a chemistry professor \u2014 on a behind-the-scenes tour (mentioned around October 22, 2022).",
+      "judge_raw": "No",
+      "correct": false
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "What type of rice is my favorite?",
+      "reference_answer": "Japanese short-grain rice",
+      "num_haystack_sessions": 51,
+      "num_haystack_turns": 541,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.724536207970232,
+        "query_encode": 0.011041291989386082,
+        "search": 6.283307448029518e-05,
+        "generation": 23.212574874982238,
+        "judge": 1.967361208051443
+      },
+      "hypothesis": "Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "is_abstention": false,
+      "report_type": "single-session-user",
+      "question": "What is my preferred gin-to-vermouth ratio for a classic gin martini?",
+      "reference_answer": "3:1",
+      "num_haystack_sessions": 53,
+      "num_haystack_turns": 534,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.758034125203267,
+        "query_encode": 0.010785708902403712,
+        "search": 6.849993951618671e-05,
+        "generation": 16.922295124968514,
+        "judge": 3.736809292109683
+      },
+      "hypothesis": "3:1 ratio (with a dash of citrus bitters)",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How many different species of birds have I seen in my local park?",
+      "reference_answer": "32",
+      "num_haystack_sessions": 44,
+      "num_haystack_turns": 484,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.2330770418047905,
+        "query_encode": 0.012724500149488449,
+        "search": 6.162491627037525e-05,
+        "generation": 16.518304749857634,
+        "judge": 2.2971079170238227
+      },
+      "hypothesis": "27 different species.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "is_abstention": false,
+      "report_type": "single-session-preference",
+      "question": "I've been feeling a bit stuck with my paintings lately. Do you have any ideas on how I can find new inspiration?",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "num_haystack_sessions": 45,
+      "num_haystack_turns": 471,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.125073041999713,
+        "query_encode": 0.01232862495817244,
+        "search": 7.754098623991013e-05,
+        "generation": 20.547332833055407,
+        "judge": 20.38125520804897
+      },
+      "hypothesis": "Based on the memories, you've already been drawing inspiration from social media (like flower paintings on Instagram) and started a 30-day painting challenge. The previous advice suggested continuing to seek inspiration from art communities and engaging with content that excites you. Beyond that, the snippets don't offer specific new sources of inspiration for your paintings.",
+      "judge_raw": "No",
+      "correct": false
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "is_abstention": false,
+      "report_type": "temporal-reasoning",
+      "question": "How many days ago did I participate in the 5K charity run?",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "num_haystack_sessions": 42,
+      "num_haystack_turns": 457,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.158966875169426,
+        "query_encode": 0.011653916910290718,
+        "search": 6.174994632601738e-05,
+        "generation": 24.065927082905546,
+        "judge": 5.407216124935076
+      },
+      "hypothesis": "Based on the retrieved memories, you participated in the 5K charity run on **March 19, 2023** (you noted \"I did a 5K charity run today\" in a message dated that day). However, I don't have enough information to calculate how many days ago that was, since I don't know today's date.",
+      "judge_raw": "no",
+      "correct": false
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "is_abstention": false,
+      "report_type": "knowledge-update",
+      "question": "How much time do I dedicate to coding exercises each day?",
+      "reference_answer": "about two hours",
+      "num_haystack_sessions": 53,
+      "num_haystack_turns": 493,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.176239416003227,
+        "query_encode": 0.011339250020682812,
+        "search": 6.612506695091724e-05,
+        "generation": 22.620585875120014,
+        "judge": 2.6873840840999037
+      },
+      "hypothesis": "About two hours each day.",
+      "judge_raw": "yes",
+      "correct": true
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "is_abstention": false,
+      "report_type": "multi-session",
+      "question": "What is the average GPA of my undergraduate and graduate studies?",
+      "reference_answer": "3.83",
+      "num_haystack_sessions": 45,
+      "num_haystack_turns": 468,
+      "num_retrieved": 10,
+      "gold_session_hit_at_k": true,
+      "timing_seconds": {
+        "ingest": 6.2500697078648955,
+        "query_encode": 0.011462916154414415,
+        "search": 5.9542013332247734e-05,
+        "generation": 17.916390291880816,
+        "judge": 4.678499207831919
+      },
+      "hypothesis": "I don't have enough information to answer this. The retrieved memories mention a graduate GPA of 3.8 (Master's in Data Science from UIUC), but no undergraduate GPA from the University of Mumbai is recorded, so the average cannot be calculated.",
+      "judge_raw": "no",
+      "correct": false
+    }
+  ]
+}

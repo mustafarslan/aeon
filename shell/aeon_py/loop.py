@@ -17,105 +17,124 @@ class CognitiveLoop:
         self.prompt_engine = PromptEngine()
         self._encoder = None # Lazy load
 
+    # 'all-mpnet-base-v2' is a native 768-dim model, matching Atlas's
+    # EMBEDDING_DIM_DEFAULT (schema.hpp) exactly -- no padding/projection
+    # needed. The previous 'all-MiniLM-L6-v2' (384-dim) required zero-padding
+    # to fit Atlas's schema, which produces a real embedding, then discards
+    # half its information content by construction; this was flagged as an
+    # unresolved bug in this method's own comments rather than fixed.
+    _ENCODER_MODEL_NAME = "all-mpnet-base-v2"
+
     def _get_encoder(self):
         """Lazy load SentenceTransformer to optimize startup time."""
         if self._encoder is None:
             try:
                 from sentence_transformers import SentenceTransformer
-                # Use a small, efficient model suitable for CPU/local use
-                self._encoder = SentenceTransformer('all-MiniLM-L6-v2')
+                self._encoder = SentenceTransformer(self._ENCODER_MODEL_NAME)
             except ImportError:
-                warnings.warn("sentence-transformers not installed. Using random fallback.")
+                warnings.warn(
+                    "sentence-transformers not installed -- semantic memory "
+                    "is NON-FUNCTIONAL: falling back to hash-seeded random "
+                    "vectors with no semantic meaning. Install with "
+                    "`pip install sentence-transformers` (already a "
+                    "declared dependency in pyproject.toml) before relying "
+                    "on Atlas retrieval quality."
+                )
                 self._encoder = "MOCK"
             except Exception as e:
-                 warnings.warn(f"Failed to load sentence-transformers: {e}. Using random fallback.")
-                 self._encoder = "MOCK"
+                warnings.warn(
+                    f"Failed to load sentence-transformers model "
+                    f"'{self._ENCODER_MODEL_NAME}': {e}. Semantic memory is "
+                    f"NON-FUNCTIONAL: falling back to hash-seeded random "
+                    f"vectors with no semantic meaning."
+                )
+                self._encoder = "MOCK"
         return self._encoder
 
     def _vectorize(self, text: str) -> np.ndarray:
         """
-        Embeds text into a 768-dimensional vector.
+        Embeds text into a 768-dimensional vector via
+        sentence-transformers/all-mpnet-base-v2 (native 768-dim, matching
+        Atlas's EMBEDDING_DIM_DEFAULT -- no padding/projection needed).
         """
         encoder = self._get_encoder()
-        
+
         if encoder == "MOCK":
-             # Fallback: Deterministic random-ish vector based on hash for stability
-            np.random.seed(hash(text) % 2**32) 
+            # Fallback: deterministic random-ish vector based on hash, for
+            # dev environments without the real dependency installed.
+            # Retrieval over these vectors is NOT semantically meaningful --
+            # see _get_encoder()'s warning.
+            np.random.seed(hash(text) % 2**32)
             return np.random.rand(768).astype(np.float32)
-            
-        # Real embedding
-        # ensure output is numpy array
+
         vec = encoder.encode(text)
-        
-        # Check dimensionality - all-MiniLM-L6-v2 produces 384 dim!
-        # Atlas expects 768 dim.
-        # We need to pad or project. Mismatch is CRITICAL.
-        # FIX: Provide a model that is 768 dim or pad.
-        # 'all-mpnet-base-v2' is 768 dim.
-        # 'all-MiniLM-L6-v2' is 384.
-        
-        if vec.shape[0] == 384:
-            # Simple padding for now if we stick to the small model
-            # Or better: switch to 'all-mpnet-base-v2' which is standard 768.
-            # But let's check what the user asked previously? 
-            # User specified: "random vector for now, or use sentence-transformers".
-            # The codebase Phase 4 implies 768 dim.
-            # Let's try to load a 768 model if possible.
-            # 'paraphrase-mpnet-base-v2' or 'all-mpnet-base-v2'
-            pass
-            
-        # Re-check model: 'all-mpnet-base-v2' is the best general purpose 768 model.
-        # But if we must use small one, we pad.
-        # Let's enforce 768.
-        if vec.shape[0] != 768:
-            # If we loaded MiniLM (384), we pad with zeros to match Atlas schema
-            padded = np.zeros(768, dtype=np.float32)
-            padded[:vec.shape[0]] = vec
-            return padded
-            
+        assert vec.shape[0] == 768, (
+            f"Encoder '{self._ENCODER_MODEL_NAME}' produced a "
+            f"{vec.shape[0]}-dim vector, expected 768 -- this indicates the "
+            f"model itself changed dimensionality, not a normal runtime "
+            f"condition to silently work around."
+        )
         return vec.astype(np.float32)
 
-    def chat(self, user_input: str) -> Generator[str, None, None]:
+    def chat(self, user_input: str, session_id: str = None) -> Generator[str, None, None]:
         """
         Process a full conversation turn.
-        
+
         1. Vectorize Input
         2. Update Memory (Atlas + Trace)
         3. Build Prompt from Context
         4. Generate Response (Stream)
         5. Close Loop (Record Response)
+
+        Args:
+            user_input: The user's message text.
+            session_id: Caller's authenticated identity (the verified
+                user_id from server.py), scoping the Atlas SLB cache lookup
+                to this session (v4-plan.md Stage 0).
         """
-        
+
         # 1. Vectorize
         vec = self._vectorize(user_input)
-        
+
         # 2. Update Memory & Retrieve Knowledge
         # context_manager.process_turn writes to Trace and searches Atlas
-        knowledge_results = self.ctx.process_turn(user_input, vec)
+        knowledge_results = self.ctx.process_turn(user_input, vec, session_id=session_id)
         
         # 3. Gather Context State for Prompt
-        # Get recent history from Trace
-        # We need direct access to trace graph to get list.
-        # TraceGraph doesn't have a 'get_recent_history' method returning list of dicts yet?
-        # Let's check trace.py
-        # trace.py defines 'TraceGraph'. It has 'graph' (nx.DiGraph).
-        # We need to implement retrieval logic. 
-        # Since 'trace.py' doesn't have a helper, we implement simple walking here.
-        # Or better: We utilize the graph traversal.
-        
-        # Pull last 5 nodes following the cursor backwards?
-        # For simplicity in this iteration, we iterate nodes in insertion order 
-        # (which relies on Python dict order preservation in nx graph since 3.7+).
+        # Get recent history from the shared Trace, scoped to this session.
+        # get_history() returns newest-first; PromptEngine expects
+        # chronological (oldest-first, with the just-recorded current user
+        # turn as the LAST item) -- see PromptEngine._format_history.
+        _ROLE_TO_TYPE = {0: "UserNode", 1: "SystemNode"}  # exclude concept/summary
         history_nodes = []
         try:
-             # Get User/System nodes only (exclude Concepts which don't have timestamps)
-             relevant_nodes = [
-                 d for n, d in self.ctx.trace.graph.nodes(data=True) 
-                 if d.get('type') in ('UserNode', 'SystemNode')
-             ]
-             all_nodes = sorted(relevant_nodes, key=lambda x: x['timestamp'])
-             history_nodes = all_nodes[-6:] # Last 6 items
-        except Exception:
+            sid = session_id or "default"
+            # Bug found and fixed while building Stage 7 (v4-plan.md): each
+            # process_turn() call above appends up to 5 Trace events per
+            # turn (1 user + up to 3 Atlas-concept + 1 ingestion-concept),
+            # of which only the single "user" event passes this filter --
+            # add_response() below adds one more "system" event per turn
+            # that does. So a full turn contributes up to 6 raw events but
+            # only 2 that pass. The previous `limit=12` therefore could
+            # only ever see ~2 turns' worth of raw events -- capping
+            # `history_nodes` at ~4 passing entries, never the 6 the
+            # `[-6:]` slice below intends (3 turns), and shrinking further
+            # if a future turn adds more per-turn bookkeeping events.
+            # Silently starves the prompt of conversational history as a
+            # session grows. Fixed by requesting generously more raw
+            # events than the worst-case per-turn filter ratio requires --
+            # a single get_history() call is a cheap prev_id-chain walk
+            # (O(limit), not O(session length)), so this costs no extra
+            # round trip and stays well within Aeon's latency budget.
+            raw_history = self.ctx.trace.get_history(sid, limit=48)
+            for ev in reversed(raw_history):  # oldest first
+                node_type = _ROLE_TO_TYPE.get(ev.get("role"))
+                if node_type is None:
+                    continue
+                history_nodes.append({"type": node_type, "text": ev.get("text", "")})
+            history_nodes = history_nodes[-6:]  # Last 6 items
+        except Exception as e:
+            warnings.warn(f"Failed to fetch trace history: {e}")
             history_nodes = []
             
         active_room = {"metadata": "General Context"} # Atlas metadata not fully implemented in mock
@@ -149,4 +168,4 @@ class CognitiveLoop:
             yield token
             
         # 6. Record Response (Close Loop)
-        self.ctx.add_response(full_response)
+        self.ctx.add_response(full_response, session_id=session_id)

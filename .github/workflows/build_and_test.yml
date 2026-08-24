@@ -134,3 +134,157 @@ jobs:
             build/ci-*/Testing/
             build/ci-*/bin/
           retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Python shell tests (v4-plan.md Stage 4 prerequisite fix).
+  #
+  # Previously nothing in CI built or ran `shell/aeon_py` at all -- not even
+  # a bare import. `pip install -e .` was separately broken for months
+  # (pyproject.toml's cmake.targets key, deprecated by scikit-build-core
+  # >=0.10) so `pytest tests/` (the root-level integration suite exercising
+  # aeon_py.*) could not be run by anyone regardless, and several tests had
+  # silently drifted from the shell layer's real API. One platform is
+  # enough here: the C++ extension itself is already proven across the full
+  # OS matrix above, and this job's job is the Python-layer logic sitting
+  # on top of it.
+  # ────────────────────────────────────────────────────────────────────────
+  python-shell-tests:
+    name: "Python shell tests"
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      # v4-plan.md Stage 4 task 1 control plane: real Postgres, matching
+      # the `postgres` service below -- not a SQLite shim, which would
+      # exercise a different SQL dialect than production and mask
+      # dialect-specific migration/query bugs. AEON_REQUIRE_DB_TESTS=1
+      # turns tests/test_control_plane.py's local "skip if no DB" fallback
+      # into a hard collection failure here, so a misconfigured CI run
+      # (e.g. this env block accidentally dropped) fails loudly instead of
+      # silently skipping every control-plane test -- a green CI that
+      # skipped its DB tests would be worse than a red one.
+      AEON_CONTROL_PLANE_DATABASE_URL: "postgresql+psycopg://aeon:aeon@localhost:5432/aeon_control_plane"
+      AEON_REQUIRE_DB_TESTS: "1"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: aeon
+          POSTGRES_PASSWORD: aeon
+          POSTGRES_DB: aeon_control_plane
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U aeon"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build libopenblas-dev
+          git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install aeon_py (editable, with test + db extras)
+        env:
+          CMAKE_ARGS: -DSIMDE_INCLUDE_DIR=/tmp/simde -DAEON_CI_BUILD=ON
+        run: pip install -e ".[test,db]"
+
+      - name: Run control-plane migrations
+        run: alembic upgrade head
+
+      - name: Run pytest
+        run: pytest tests/ -v
+
+  # ────────────────────────────────────────────────────────────────────────
+  # Latency-regression gate (v4-plan.md guardrail #0).
+  #
+  # Builds merge-base and HEAD on the SAME runner and compares a curated
+  # benchmark subset between them (relative delta, not an absolute
+  # threshold against reproducibility_benchmarks/master_metrics.txt --
+  # comparing hosted runners against numbers recorded on dedicated hardware
+  # at microsecond/nanosecond scale flakes and gets disabled). Runs on a
+  # single Linux runner rather than the full OS matrix to keep added CI
+  # time bounded; the full cross-platform matrix above already proves
+  # correctness on every platform, this job only guards against algorithmic
+  # regressions on the hot path.
+  # ────────────────────────────────────────────────────────────────────────
+  perf-gate:
+    name: "Latency regression gate"
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request'
+    env:
+      CC: gcc-14
+      CXX: g++-14
+    steps:
+      - name: Checkout (full history for merge-base)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            cmake ninja-build libopenblas-dev
+          git clone --depth 1 https://github.com/simd-everywhere/simde.git /tmp/simde
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Determine merge-base
+        id: merge-base
+        run: echo "sha=$(git merge-base origin/${{ github.base_ref }} HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Curated benchmark subset only (see scripts/ci_perf_gate.py) --
+      # deliberately skips the Python extension, full test suite, and the
+      # remaining benchmark binaries to keep this job fast.
+      - name: Build baseline (merge-base)
+        run: |
+          git worktree add /tmp/aeon-baseline ${{ steps.merge-base.outputs.sha }}
+          cmake -S /tmp/aeon-baseline -B build/ci-baseline --preset ci-linux \
+            -DSIMDE_INCLUDE_DIR=/tmp/simde
+          cmake --build build/ci-baseline \
+            --target bench_kernel_throughput bench_wal_overhead \
+                     bench_quantization_efficiency bench_beam_search \
+                     bench_ebr_contention
+
+      - name: Build head (HEAD)
+        run: |
+          cmake --preset ci-linux -DSIMDE_INCLUDE_DIR=/tmp/simde
+          cmake --build build/ci-linux \
+            --target bench_kernel_throughput bench_wal_overhead \
+                     bench_quantization_efficiency bench_beam_search \
+                     bench_ebr_contention
+
+      - name: Run latency-regression gate
+        run: |
+          python3 scripts/ci_perf_gate.py \
+            --baseline-dir build/ci-baseline \
+            --head-dir build/ci-linux \
+            --tolerance 0.25
+
+      - name: Upload perf gate results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-gate-results
+          path: |
+            build/ci-baseline/*.result.json
+            build/ci-linux/*.result.json
+          retention-days: 14

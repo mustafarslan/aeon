@@ -1,0 +1,4995 @@
+{
+  "model": "gemma4:31b-cloud",
+  "seed": 42,
+  "num_questions": 50,
+  "arms_run": [
+    "full_session",
+    "window_3",
+    "window_5",
+    "window_10",
+    "summary"
+  ],
+  "decision_rule_band_points": 10.0,
+  "max_sessions": 10,
+  "base_top_k": 30,
+  "baseline_path": "reproducibility_benchmarks/longmemeval/topk_sweep_30_temp0_gemma.json",
+  "baseline_deltas": [
+    "Arm 'full_session': 72.0% overall, 4.0 points above the top_k=30 baseline (68.0%).",
+    "Arm 'full_session', type 'multi-session': 45.5% vs baseline 36.4% (9.1 points above).",
+    "Arm 'full_session', type 'temporal-reasoning': 46.2% vs baseline 38.5% (7.7 points above).",
+    "Arm 'window_3', type 'multi-session': 45.5% vs baseline 36.4% (9.1 points above).",
+    "Arm 'window_5': 72.0% overall, 4.0 points above the top_k=30 baseline (68.0%).",
+    "Arm 'window_5', type 'multi-session': 45.5% vs baseline 36.4% (9.1 points above).",
+    "Arm 'window_5', type 'temporal-reasoning': 46.2% vs baseline 38.5% (7.7 points above).",
+    "Arm 'window_10', type 'temporal-reasoning': 46.2% vs baseline 38.5% (7.7 points above).",
+    "Arm 'summary', type 'temporal-reasoning': 46.2% vs baseline 38.5% (7.7 points above)."
+  ],
+  "arm_summaries": {
+    "full_session": {
+      "arm": "full_session",
+      "n": 50,
+      "n_errors": 0,
+      "accuracy": 0.72,
+      "mean_retrieved_chars": 97283.5,
+      "context_num_ctx": {
+        "min": 12664,
+        "mean": 28951.92,
+        "max": 40855
+      },
+      "per_question_type": {
+        "abstention": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "knowledge-update": {
+          "n": 8,
+          "accuracy": 1.0
+        },
+        "multi-session": {
+          "n": 11,
+          "accuracy": 0.45454545454545453
+        },
+        "single-session-assistant": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "single-session-preference": {
+          "n": 3,
+          "accuracy": 0.6666666666666666
+        },
+        "single-session-user": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "temporal-reasoning": {
+          "n": 13,
+          "accuracy": 0.46153846153846156
+        }
+      }
+    },
+    "window_3": {
+      "arm": "window_3",
+      "n": 50,
+      "n_errors": 0,
+      "accuracy": 0.7,
+      "mean_retrieved_chars": 58944.66,
+      "context_num_ctx": {
+        "min": 9185,
+        "mean": 17997.96,
+        "max": 23601
+      },
+      "per_question_type": {
+        "abstention": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "knowledge-update": {
+          "n": 8,
+          "accuracy": 1.0
+        },
+        "multi-session": {
+          "n": 11,
+          "accuracy": 0.45454545454545453
+        },
+        "single-session-assistant": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "single-session-preference": {
+          "n": 3,
+          "accuracy": 0.6666666666666666
+        },
+        "single-session-user": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "temporal-reasoning": {
+          "n": 13,
+          "accuracy": 0.38461538461538464
+        }
+      }
+    },
+    "window_5": {
+      "arm": "window_5",
+      "n": 50,
+      "n_errors": 0,
+      "accuracy": 0.72,
+      "mean_retrieved_chars": 74328.18,
+      "context_num_ctx": {
+        "min": 10322,
+        "mean": 22393.26,
+        "max": 32005
+      },
+      "per_question_type": {
+        "abstention": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "knowledge-update": {
+          "n": 8,
+          "accuracy": 1.0
+        },
+        "multi-session": {
+          "n": 11,
+          "accuracy": 0.45454545454545453
+        },
+        "single-session-assistant": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "single-session-preference": {
+          "n": 3,
+          "accuracy": 0.6666666666666666
+        },
+        "single-session-user": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "temporal-reasoning": {
+          "n": 13,
+          "accuracy": 0.46153846153846156
+        }
+      }
+    },
+    "window_10": {
+      "arm": "window_10",
+      "n": 50,
+      "n_errors": 0,
+      "accuracy": 0.7,
+      "mean_retrieved_chars": 94680.62,
+      "context_num_ctx": {
+        "min": 12664,
+        "mean": 28208.24,
+        "max": 39334
+      },
+      "per_question_type": {
+        "abstention": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "knowledge-update": {
+          "n": 8,
+          "accuracy": 1.0
+        },
+        "multi-session": {
+          "n": 11,
+          "accuracy": 0.36363636363636365
+        },
+        "single-session-assistant": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "single-session-preference": {
+          "n": 3,
+          "accuracy": 0.6666666666666666
+        },
+        "single-session-user": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "temporal-reasoning": {
+          "n": 13,
+          "accuracy": 0.46153846153846156
+        }
+      }
+    },
+    "summary": {
+      "arm": "summary",
+      "n": 50,
+      "n_errors": 0,
+      "accuracy": 0.7,
+      "mean_retrieved_chars": 43280.9,
+      "context_num_ctx": {
+        "min": 9011,
+        "mean": 13522.6,
+        "max": 18115
+      },
+      "per_question_type": {
+        "abstention": {
+          "n": 3,
+          "accuracy": 1.0
+        },
+        "knowledge-update": {
+          "n": 8,
+          "accuracy": 1.0
+        },
+        "multi-session": {
+          "n": 11,
+          "accuracy": 0.36363636363636365
+        },
+        "single-session-assistant": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "single-session-preference": {
+          "n": 3,
+          "accuracy": 0.6666666666666666
+        },
+        "single-session-user": {
+          "n": 6,
+          "accuracy": 1.0
+        },
+        "temporal-reasoning": {
+          "n": 13,
+          "accuracy": 0.46153846153846156
+        }
+      }
+    }
+  },
+  "decision": {
+    "winner": "summary",
+    "reason": "'summary' reached 70.0% (ceiling 72.0%, band floor 62.0%) at 43281 mean retrieved chars -- cheapest arm clearing the band."
+  },
+  "results": [
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished \"The Nightingale\" by Kristin Hannah on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102202,
+      "context_num_ctx": 30343,
+      "timing_seconds": {
+        "ingest": 5.124777499819174,
+        "context_build": 0.01779537508264184,
+        "generation": 15.349636333063245,
+        "judge": 13.684049250092357
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "full_session",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided snippets do not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 71839,
+      "context_num_ctx": 21676,
+      "timing_seconds": {
+        "ingest": 4.624991209013388,
+        "context_build": 0.017053042072802782,
+        "generation": 16.415962167084217,
+        "judge": 14.020853915950283
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five weeks in total (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 48598,
+      "context_num_ctx": 15045,
+      "timing_seconds": {
+        "ingest": 4.924955958034843,
+        "context_build": 0.016626083059236407,
+        "generation": 17.158457041950896,
+        "judge": 12.881162042031065
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $720 ($200 for the writing workshop, $500 for the digital marketing workshop, and $20 for the mindfulness workshop).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 110433,
+      "context_num_ctx": 32707,
+      "timing_seconds": {
+        "ingest": 5.011773374862969,
+        "context_build": 0.016686749877408147,
+        "generation": 12.654496541945264,
+        "judge": 10.86964683397673
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 103124,
+      "context_num_ctx": 30623,
+      "timing_seconds": {
+        "ingest": 4.962737125111744,
+        "context_build": 0.016832666005939245,
+        "generation": 7.572175916982815,
+        "judge": 8.773267667042091
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": 3,
+      "hypothesis": "You have purchased or downloaded 2: Billie Eilish's \"Happier Than Ever\" and The Whiskey Wanderers' \"Midnight Sky\".",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 81430,
+      "context_num_ctx": 24415,
+      "timing_seconds": {
+        "ingest": 5.1337145830038935,
+        "context_build": 0.011561040999367833,
+        "generation": 13.676092499867082,
+        "judge": 10.424321457976475
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 103016,
+      "context_num_ctx": 30599,
+      "timing_seconds": {
+        "ingest": 4.597944207955152,
+        "context_build": 0.01758804195560515,
+        "generation": 12.14344629086554,
+        "judge": 9.62379145808518
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "You bought her a yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 101777,
+      "context_num_ctx": 30224,
+      "timing_seconds": {
+        "ingest": 5.055218124995008,
+        "context_build": 0.011852167081087828,
+        "generation": 10.260848458856344,
+        "judge": 11.556683459086344
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 132802,
+      "context_num_ctx": 39086,
+      "timing_seconds": {
+        "ingest": 4.565790124936029,
+        "context_build": 0.01643320801667869,
+        "generation": 8.564289708156139,
+        "judge": 6.795150541001931
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 106428,
+      "context_num_ctx": 31556,
+      "timing_seconds": {
+        "ingest": 5.374890999868512,
+        "context_build": 0.011333415983244777,
+        "generation": 10.901970834005624,
+        "judge": 9.771247207885608
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "arm": "full_session",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided text does not contain information about how long you have been collecting vintage films; it only mentions that you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 89600,
+      "context_num_ctx": 26745,
+      "timing_seconds": {
+        "ingest": 4.9399112921673805,
+        "context_build": 0.011483500013127923,
+        "generation": 11.182795041007921,
+        "judge": 14.07633391697891
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show you used as an example was \"doc martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 95258,
+      "context_num_ctx": 28416,
+      "timing_seconds": {
+        "ingest": 4.751598250120878,
+        "context_build": 0.015294417040422559,
+        "generation": 11.193493250058964,
+        "judge": 9.56672520795837
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "Friday",
+      "hypothesis": "Friday",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 77835,
+      "context_num_ctx": 23387,
+      "timing_seconds": {
+        "ingest": 4.996452999999747,
+        "context_build": 0.015128083061426878,
+        "generation": 9.779959041858092,
+        "judge": 8.68189466604963
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters a total of 7 times: 3 times on Revenge of the Mummy (October 15th), 3 times on Space Mountain: Ghost Galaxy (September 24th), and 1 time on Xcelerator (October 8th). (Note: You also mentioned riding Mako, Kraken, and Manta in July, but did not specify how many times).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 86082,
+      "context_num_ctx": 25754,
+      "timing_seconds": {
+        "ingest": 4.793370416155085,
+        "context_build": 0.017904625041410327,
+        "generation": 12.388308708090335,
+        "judge": 11.877160541946068
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were:\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 112690,
+      "context_num_ctx": 33380,
+      "timing_seconds": {
+        "ingest": 4.898524166084826,
+        "context_build": 0.01472479198127985,
+        "generation": 15.168165291193873,
+        "judge": 15.83818629081361
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "Disney+",
+      "hypothesis": "Apple TV+",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 126032,
+      "context_num_ctx": 37157,
+      "timing_seconds": {
+        "ingest": 4.5551192502025515,
+        "context_build": 0.0179087920114398,
+        "generation": 11.137712749885395,
+        "judge": 9.712371124885976
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "full_session",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on the retrieved memories, useful accessories for your iPhone 13 Pro include:\n\n*   **Portable Power Banks**: Recommended brands include Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars.\n*   **Phone Wallet Cases**: Recommended brands include Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, and Spigen.\n*   **Screen Protectors**: Recommended brands include Zagg, TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 110878,
+      "context_num_ctx": 32827,
+      "timing_seconds": {
+        "ingest": 5.0213420409709215,
+        "context_build": 0.010540041839703918,
+        "generation": 10.654011791106313,
+        "judge": 7.742446999996901
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the City Art Museum.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 102595,
+      "context_num_ctx": 30474,
+      "timing_seconds": {
+        "ingest": 4.8091013331431895,
+        "context_build": 0.015824625035747886,
+        "generation": 8.760890540899709,
+        "judge": 7.581617707852274
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips in the United States (a 5-day trip to Yellowstone and a 3-day trip to Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 67045,
+      "context_num_ctx": 20309,
+      "timing_seconds": {
+        "ingest": 4.999759667087346,
+        "context_build": 0.0114591249730438,
+        "generation": 6.584829458035529,
+        "judge": 11.050240624928847
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 111000,
+      "context_num_ctx": 32891,
+      "timing_seconds": {
+        "ingest": 4.767594707896933,
+        "context_build": 0.010434375144541264,
+        "generation": 11.655531500000507,
+        "judge": 7.664628291968256
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D camera on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 101586,
+      "context_num_ctx": 30173,
+      "timing_seconds": {
+        "ingest": 4.748529332922772,
+        "context_build": 0.017783208983018994,
+        "generation": 10.885956000071019,
+        "judge": 11.247376166982576
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "full_session",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interests, you might enjoy:\n\n*   **Nature and Wildlife:** *Planet Earth*, *Blue Planet*, *March of the Penguins*, *Dynasties*, or *Chasing Coral*.\n*   **Adventure and Exploration:** *The Last Lions*, *The Cave*, *The River Runs Red*, *Expedition Unknown*, or *Running Wild with Bear Grylls*.\n*   **True Crime and Mystery:** *Tiger King: Murder, Mayhem and Madness*, *The Keepers*, *The Staircase*, *The Jinx: The Life and Deaths of Robert Durst*, or *Abducted in Plain Sight*.\n*   **Other:** *The Inventor: Out for Blood in Silicon Valley*, *Fyre: The Greatest Party That Never Happened*, *The Game Changers*, *The Family I Had*, or *The Imposter*.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 112318,
+      "context_num_ctx": 33242,
+      "timing_seconds": {
+        "ingest": 4.781500166049227,
+        "context_build": 0.015944124897941947,
+        "generation": 10.688626040937379,
+        "judge": 11.840641582850367
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 21 days (from January 10 to January 31).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 77048,
+      "context_num_ctx": 23167,
+      "timing_seconds": {
+        "ingest": 4.637932625133544,
+        "context_build": 0.01033249986357987,
+        "generation": 11.934712041867897,
+        "judge": 8.523201124975458
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": 3,
+      "hypothesis": "You have attended one graduation ceremony (your best friend Rachel's master's degree graduation) in the past few weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 127486,
+      "context_num_ctx": 37577,
+      "timing_seconds": {
+        "ingest": 4.961050166981295,
+        "context_build": 0.010377750033512712,
+        "generation": 11.256858624983579,
+        "judge": 8.442634332925081
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 84605,
+      "context_num_ctx": 25322,
+      "timing_seconds": {
+        "ingest": 4.929886041907594,
+        "context_build": 0.010396332945674658,
+        "generation": 10.589678624877706,
+        "judge": 8.865156040992588
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking guitar lessons for six weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 123909,
+      "context_num_ctx": 36556,
+      "timing_seconds": {
+        "ingest": 4.928375500021502,
+        "context_build": 0.011397416004911065,
+        "generation": 11.74154149997048,
+        "judge": 10.796447749948129
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, which is $6 more than the daily train fare of $6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 53161,
+      "context_num_ctx": 16347,
+      "timing_seconds": {
+        "ingest": 4.640445749973878,
+        "context_build": 0.012869250029325485,
+        "generation": 16.910954958060756,
+        "judge": 7.710133916931227
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": 2,
+      "hypothesis": "You went to one appointment in March, seeing your primary care physician, Dr. Smith, on March 3rd.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 101054,
+      "context_num_ctx": 30020,
+      "timing_seconds": {
+        "ingest": 4.617880875011906,
+        "context_build": 0.011681957868859172,
+        "generation": 10.868748500011861,
+        "judge": 9.684982417151332
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 72367,
+      "context_num_ctx": 21846,
+      "timing_seconds": {
+        "ingest": 4.616346583003178,
+        "context_build": 0.01670058397576213,
+        "generation": 8.475100790848956,
+        "judge": 6.183293333044276
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 116177,
+      "context_num_ctx": 34348,
+      "timing_seconds": {
+        "ingest": 4.754120375029743,
+        "context_build": 0.011420040857046843,
+        "generation": 7.812426291173324,
+        "judge": 7.1534294579178095
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "full_session",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The provided snippets do not contain information regarding the number of days spent in Seattle or the total duration of the trip to Hawaii.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 111084,
+      "context_num_ctx": 32891,
+      "timing_seconds": {
+        "ingest": 5.050967625109479,
+        "context_build": 0.010829292004927993,
+        "generation": 8.51184512511827,
+        "judge": 6.724256207933649
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 111274,
+      "context_num_ctx": 32979,
+      "timing_seconds": {
+        "ingest": 5.170575042022392,
+        "context_build": 0.01461916696280241,
+        "generation": 7.617179166991264,
+        "judge": 8.108818165957928
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 101892,
+      "context_num_ctx": 30277,
+      "timing_seconds": {
+        "ingest": 4.595821833005175,
+        "context_build": 0.010964041110128164,
+        "generation": 7.884983500000089,
+        "judge": 9.347449166001752
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 109016,
+      "context_num_ctx": 32297,
+      "timing_seconds": {
+        "ingest": 5.015817333012819,
+        "context_build": 0.011018082965165377,
+        "generation": 14.376859458861873,
+        "judge": 6.779164666077122
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes 3 days a week (Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 86626,
+      "context_num_ctx": 25897,
+      "timing_seconds": {
+        "ingest": 5.156764375045896,
+        "context_build": 0.01936445781029761,
+        "generation": 8.016593792010099,
+        "judge": 7.129966499982402
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": 120,
+      "hypothesis": "You need 120 stars to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 40283,
+      "context_num_ctx": 12664,
+      "timing_seconds": {
+        "ingest": 4.668375625042245,
+        "context_build": 0.011001083068549633,
+        "generation": 6.330757957883179,
+        "judge": 5.788536665961146
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300 ($800 for the Coach handbag and $500 for the high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102373,
+      "context_num_ctx": 30407,
+      "timing_seconds": {
+        "ingest": 4.807817624881864,
+        "context_build": 0.011456166859716177,
+        "generation": 7.539919666014612,
+        "judge": 7.949772167019546
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "Roscioli",
+      "hypothesis": "Roscioli",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 62767,
+      "context_num_ctx": 19116,
+      "timing_seconds": {
+        "ingest": 4.749920790782198,
+        "context_build": 0.019255958031862974,
+        "generation": 8.082357250154018,
+        "judge": 6.9498784160241485
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played weekly; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 138934,
+      "context_num_ctx": 40855,
+      "timing_seconds": {
+        "ingest": 4.225593040930107,
+        "context_build": 0.01113012502901256,
+        "generation": 10.603903291048482,
+        "judge": 10.463144584093243
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "The provided memory snippets do not contain information about what the user did with Rachel on a Wednesday two months ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 96905,
+      "context_num_ctx": 28836,
+      "timing_seconds": {
+        "ingest": 4.3435278329998255,
+        "context_build": 0.01096541597507894,
+        "generation": 11.165176582988352,
+        "judge": 7.507588458014652
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "full_session",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "The recipe for a classic French omelette calls for 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 78048,
+      "context_num_ctx": 23478,
+      "timing_seconds": {
+        "ingest": 4.742751500103623,
+        "context_build": 0.01656012493185699,
+        "generation": 9.514988915994763,
+        "judge": 10.961066249990836
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "The provided text does not contain information on how many properties were viewed before the offer on the Brookside townhouse.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 95561,
+      "context_num_ctx": 28464,
+      "timing_seconds": {
+        "ingest": 4.949092791881412,
+        "context_build": 0.011082333978265524,
+        "generation": 9.331667584134266,
+        "judge": 8.327896000118926
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Yes, you visited the Science Museum with a friend who is a chemistry professor.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 128902,
+      "context_num_ctx": 37984,
+      "timing_seconds": {
+        "ingest": 4.775157458847389,
+        "context_build": 0.02430158294737339,
+        "generation": 12.008537207962945,
+        "judge": 12.123921958031133
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Your favorite is Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 106548,
+      "context_num_ctx": 31584,
+      "timing_seconds": {
+        "ingest": 5.149965042015538,
+        "context_build": 0.01181762502528727,
+        "generation": 10.046167250024155,
+        "judge": 7.410650416044518
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "full_session",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio for a classic martini is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 131896,
+      "context_num_ctx": 38837,
+      "timing_seconds": {
+        "ingest": 5.123230667086318,
+        "context_build": 0.01107875001616776,
+        "generation": 12.310501707950607,
+        "judge": 9.517618249868974
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45039,
+      "context_num_ctx": 14019,
+      "timing_seconds": {
+        "ingest": 4.621370167005807,
+        "context_build": 0.011957834009081125,
+        "generation": 9.899900333955884,
+        "judge": 7.7564547918736935
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "full_session",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can find inspiration from social media, art communities, or other sources, and engage with content that excites you.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 98068,
+      "context_num_ctx": 29184,
+      "timing_seconds": {
+        "ingest": 4.631594542181119,
+        "context_build": 0.01170991687104106,
+        "generation": 11.064362250035629,
+        "judge": 7.294623125111684
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "full_session",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain the current date, so it is impossible to determine how many days ago the 5K charity run occurred.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 94791,
+      "context_num_ctx": 28232,
+      "timing_seconds": {
+        "ingest": 4.555876125115901,
+        "context_build": 0.011883625062182546,
+        "generation": 7.808641083072871,
+        "judge": 7.375030499882996
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "full_session",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 99669,
+      "context_num_ctx": 29625,
+      "timing_seconds": {
+        "ingest": 4.711795500013977,
+        "context_build": 0.011320292018353939,
+        "generation": 9.908494791947305,
+        "judge": 6.3769745419267565
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "full_session",
+      "reference_answer": "3.83",
+      "hypothesis": "The average GPA is 3.83 (3.8 for graduate studies and 3.86 for undergraduate studies).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 114124,
+      "context_num_ctx": 33758,
+      "timing_seconds": {
+        "ingest": 4.504518833011389,
+        "context_build": 0.012616374995559454,
+        "generation": 6.492376083042473,
+        "judge": 8.990846625063568
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished \"The Nightingale\" by Kristin Hannah on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 51086,
+      "context_num_ctx": 15738,
+      "timing_seconds": {
+        "ingest": 4.819191416958347,
+        "context_build": 0.011661124881356955,
+        "generation": 6.702336291084066,
+        "judge": 7.561061291955411
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_3",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided snippets do not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 47625,
+      "context_num_ctx": 14758,
+      "timing_seconds": {
+        "ingest": 4.523716208990663,
+        "context_build": 0.012178832897916436,
+        "generation": 10.513468499993905,
+        "judge": 10.59251704113558
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five weeks in total (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 29401,
+      "context_num_ctx": 9560,
+      "timing_seconds": {
+        "ingest": 4.803242374910042,
+        "context_build": 0.012232958804816008,
+        "generation": 7.938184041995555,
+        "judge": 8.39961149985902
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $720 ($500 for the digital marketing workshop, $200 for the writing workshop, and $20 for the mindfulness workshop).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 60970,
+      "context_num_ctx": 18575,
+      "timing_seconds": {
+        "ingest": 4.8786002499982715,
+        "context_build": 0.012142791179940104,
+        "generation": 7.838950042147189,
+        "judge": 10.015078041004017
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 53131,
+      "context_num_ctx": 16339,
+      "timing_seconds": {
+        "ingest": 4.834069000091404,
+        "context_build": 0.012021458940580487,
+        "generation": 11.381107541033998,
+        "judge": 8.668956875102594
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": 3,
+      "hypothesis": "You have purchased or downloaded 2: Billie Eilish's \"Happier Than Ever\" (downloaded on Spotify) and The Whiskey Wanderers' EP \"Midnight Sky\" (purchased at a festival).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 55334,
+      "context_num_ctx": 16959,
+      "timing_seconds": {
+        "ingest": 4.987682250095531,
+        "context_build": 0.012030333979055285,
+        "generation": 8.845347249880433,
+        "judge": 9.039204291068017
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64038,
+      "context_num_ctx": 19462,
+      "timing_seconds": {
+        "ingest": 4.482638041954488,
+        "context_build": 0.011838082922622561,
+        "generation": 10.736941874958575,
+        "judge": 9.29464720794931
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "You bought her a yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 56163,
+      "context_num_ctx": 17192,
+      "timing_seconds": {
+        "ingest": 4.902434208896011,
+        "context_build": 0.011800375068560243,
+        "generation": 10.169020791072398,
+        "judge": 11.167748208157718
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "Your new internet plan is 500 Mbps.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 75159,
+      "context_num_ctx": 22616,
+      "timing_seconds": {
+        "ingest": 4.474659999832511,
+        "context_build": 0.011393415974453092,
+        "generation": 6.246370458044112,
+        "judge": 9.456807250156999
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 69172,
+      "context_num_ctx": 20912,
+      "timing_seconds": {
+        "ingest": 5.181893874891102,
+        "context_build": 0.011283291969448328,
+        "generation": 9.687565749976784,
+        "judge": 6.626602291828021
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "arm": "window_3",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided text does not contain information about how long you have been collecting vintage films; it only mentions that you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64735,
+      "context_num_ctx": 19641,
+      "timing_seconds": {
+        "ingest": 4.7912638750858605,
+        "context_build": 0.012065749848261476,
+        "generation": 8.784222916932777,
+        "judge": 8.675462000072002
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show you used as an example was \"doc martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 50946,
+      "context_num_ctx": 15756,
+      "timing_seconds": {
+        "ingest": 4.599571916973218,
+        "context_build": 0.009993582963943481,
+        "generation": 9.660002584103495,
+        "judge": 10.39521237486042
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "Friday",
+      "hypothesis": "Friday",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 50155,
+      "context_num_ctx": 15478,
+      "timing_seconds": {
+        "ingest": 4.912667999975383,
+        "context_build": 0.010607416974380612,
+        "generation": 8.665808833902702,
+        "judge": 10.467395624844357
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters a total of 9 times: 3 times on Revenge of the Mummy (October 15th), 3 times on Space Mountain: Ghost Galaxy (September 24th), 3 times at SeaWorld San Diego (July), and 1 time on Xcelerator (October 8th). Wait, the SeaWorld rides were Mako, Kraken, and Manta, which equals 3. Total: 3 + 3 + 3 + 1 = 10.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 55926,
+      "context_num_ctx": 17138,
+      "timing_seconds": {
+        "ingest": 4.718288209056482,
+        "context_build": 0.011482874862849712,
+        "generation": 8.69103275006637,
+        "judge": 8.202859167009592
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were:\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 69863,
+      "context_num_ctx": 21144,
+      "timing_seconds": {
+        "ingest": 4.812104334123433,
+        "context_build": 0.010495458031073213,
+        "generation": 8.958049040986225,
+        "judge": 15.125982291996479
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "Disney+",
+      "hypothesis": "Apple TV+",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 64176,
+      "context_num_ctx": 19484,
+      "timing_seconds": {
+        "ingest": 4.484638332854956,
+        "context_build": 0.011028040898963809,
+        "generation": 11.842781166778877,
+        "judge": 8.831505041802302
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_3",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on the retrieved memories, useful accessories for your iPhone 13 Pro include:\n\n*   **Portable Power Banks**: Recommended brands include Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars.\n*   **Wallet Cases**: Recommended brands include Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, Spigen, and OtterBox.\n*   **Screen Protectors**: Recommended brands include Zagg, TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 66260,
+      "context_num_ctx": 20079,
+      "timing_seconds": {
+        "ingest": 4.885007250122726,
+        "context_build": 0.009963084012269974,
+        "generation": 11.759327624924481,
+        "judge": 8.251787083921954
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the City Art Museum.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 67081,
+      "context_num_ctx": 20327,
+      "timing_seconds": {
+        "ingest": 4.662150083109736,
+        "context_build": 0.012780542019754648,
+        "generation": 8.784798958105966,
+        "judge": 9.167142124846578
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips (5 days in Yellowstone and 3 days in Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 50184,
+      "context_num_ctx": 15492,
+      "timing_seconds": {
+        "ingest": 4.881423333892599,
+        "context_build": 0.011579582933336496,
+        "generation": 9.095122833969072,
+        "judge": 7.3118963341694325
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 51713,
+      "context_num_ctx": 15952,
+      "timing_seconds": {
+        "ingest": 4.703758791089058,
+        "context_build": 0.010424084030091763,
+        "generation": 8.033318041823804,
+        "judge": 9.942984083900228
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 55087,
+      "context_num_ctx": 16887,
+      "timing_seconds": {
+        "ingest": 4.653901499928907,
+        "context_build": 0.012316833017393947,
+        "generation": 7.338671708013862,
+        "judge": 7.71345229097642
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_3",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interests, you might enjoy:\n\n*   **Nature and Wildlife:** *Planet Earth*, *Blue Planet*, *March of the Penguins*, *Dynasties*, or *Chasing Coral*.\n*   **Adventure and Exploration:** *The Last Lions*, *The Cave*, *The River Runs Red*, *Expedition Unknown*, or *Running Wild with Bear Grylls*.\n*   **True Crime and Mystery:** *Tiger King: Murder, Mayhem and Madness*, *The Keepers*, *The Staircase*, *The Jinx: The Life and Deaths of Robert Durst*, or *Abducted in Plain Sight*.\n*   **Other:** *The Inventor: Out for Blood in Silicon Valley*, *Fyre: The Greatest Party That Never Happened*, *The Game Changers*, *The Family I Had*, or *The Imposter*.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 60875,
+      "context_num_ctx": 18544,
+      "timing_seconds": {
+        "ingest": 4.675948749994859,
+        "context_build": 0.01099724997766316,
+        "generation": 10.809410499874502,
+        "judge": 9.04538270784542
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 21 days (started on 2023/01/10 and finished on 2023/01/31).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 53400,
+      "context_num_ctx": 16411,
+      "timing_seconds": {
+        "ingest": 4.537435041973367,
+        "context_build": 0.011447540950030088,
+        "generation": 8.875952125061303,
+        "judge": 11.781851042062044
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": 3,
+      "hypothesis": "You have attended one graduation ceremony (your best friend Rachel's master's degree graduation) in the past few weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 69578,
+      "context_num_ctx": 21032,
+      "timing_seconds": {
+        "ingest": 4.858772709034383,
+        "context_build": 0.011013999814167619,
+        "generation": 10.38394624995999,
+        "judge": 11.329425290925428
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 56395,
+      "context_num_ctx": 17262,
+      "timing_seconds": {
+        "ingest": 4.785311916843057,
+        "context_build": 0.01103441696614027,
+        "generation": 10.750594333047047,
+        "judge": 9.961337500018999
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "Four weeks",
+      "hypothesis": "The provided text does not state how long the user had been taking guitar lessons before buying the new amp.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 77744,
+      "context_num_ctx": 23366,
+      "timing_seconds": {
+        "ingest": 4.800485125044361,
+        "context_build": 0.012088125105947256,
+        "generation": 9.803574540885165,
+        "judge": 7.760912999976426
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, which is $6 more than the daily train fare of $6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 44214,
+      "context_num_ctx": 13791,
+      "timing_seconds": {
+        "ingest": 4.594087457982823,
+        "context_build": 0.012355082901194692,
+        "generation": 10.393769041867927,
+        "judge": 10.350988500053063
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": 2,
+      "hypothesis": "The provided text does not contain information about how many doctor's appointments were attended in March, only mentions of scheduled or planned appointments.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 55047,
+      "context_num_ctx": 16875,
+      "timing_seconds": {
+        "ingest": 4.524476957973093,
+        "context_build": 0.012033750070258975,
+        "generation": 10.4180662909057,
+        "judge": 9.87348704203032
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45071,
+      "context_num_ctx": 14047,
+      "timing_seconds": {
+        "ingest": 4.51883679209277,
+        "context_build": 0.011471499921754003,
+        "generation": 9.872632832964882,
+        "judge": 7.366588624892756
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 68141,
+      "context_num_ctx": 20623,
+      "timing_seconds": {
+        "ingest": 4.680321166990325,
+        "context_build": 0.011852875119075179,
+        "generation": 12.111639708047733,
+        "judge": 6.733965541003272
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_3",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The provided snippets do not contain information regarding the total number of days spent in Hawaii or Seattle.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64977,
+      "context_num_ctx": 19717,
+      "timing_seconds": {
+        "ingest": 4.909437959082425,
+        "context_build": 0.010859707836061716,
+        "generation": 8.826083374908194,
+        "judge": 8.62543333391659
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 58941,
+      "context_num_ctx": 18026,
+      "timing_seconds": {
+        "ingest": 5.096541084116325,
+        "context_build": 0.011257542064413428,
+        "generation": 11.256726291961968,
+        "judge": 8.047281709033996
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain information about a gardening workshop.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 56224,
+      "context_num_ctx": 17229,
+      "timing_seconds": {
+        "ingest": 4.49256774992682,
+        "context_build": 0.011104624951258302,
+        "generation": 12.976764083141461,
+        "judge": 9.840134917059913
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 66266,
+      "context_num_ctx": 20083,
+      "timing_seconds": {
+        "ingest": 4.9087816250976175,
+        "context_build": 0.01087683322839439,
+        "generation": 10.297572209034115,
+        "judge": 9.663899125065655
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes 3 days a week (Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 45084,
+      "context_num_ctx": 14027,
+      "timing_seconds": {
+        "ingest": 5.012409707996994,
+        "context_build": 0.011167583055794239,
+        "generation": 8.106182832969353,
+        "judge": 8.368977958103642
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": 120,
+      "hypothesis": "You need 120 stars to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 28107,
+      "context_num_ctx": 9185,
+      "timing_seconds": {
+        "ingest": 4.621532249962911,
+        "context_build": 0.011270458111539483,
+        "generation": 8.677819082979113,
+        "judge": 7.514506333041936
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300 ($800 for the Coach handbag and $500 for the high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 67816,
+      "context_num_ctx": 20533,
+      "timing_seconds": {
+        "ingest": 4.70239816699177,
+        "context_build": 0.012106542009860277,
+        "generation": 10.898877582978457,
+        "judge": 7.801530333003029
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "Roscioli",
+      "hypothesis": "The famous deli near the Vatican is Roscioli.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 46802,
+      "context_num_ctx": 14555,
+      "timing_seconds": {
+        "ingest": 4.632516707992181,
+        "context_build": 0.010568958008661866,
+        "generation": 6.675872249994427,
+        "judge": 7.528164125047624
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played weekly; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 78543,
+      "context_num_ctx": 23601,
+      "timing_seconds": {
+        "ingest": 4.1824731670785695,
+        "context_build": 0.011165916919708252,
+        "generation": 7.451038542203605,
+        "judge": 7.608624000102282
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "The provided snippets do not contain information about what the user did with Rachel on a Wednesday two months ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 57581,
+      "context_num_ctx": 17601,
+      "timing_seconds": {
+        "ingest": 4.294884042115882,
+        "context_build": 0.01109920791350305,
+        "generation": 7.256221332820132,
+        "judge": 7.476251499960199
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_3",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "The recipe for a classic French omelette calls for 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 49176,
+      "context_num_ctx": 15229,
+      "timing_seconds": {
+        "ingest": 4.625773167004809,
+        "context_build": 0.010315874824300408,
+        "generation": 8.745625624898821,
+        "judge": 9.263067041989416
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "Based on the provided memories, you viewed 3 properties: a 1-bedroom condo on February 10th, a 2-bedroom condo on February 15th, and the 3-bedroom townhouse in Brookside on February 22nd.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 69129,
+      "context_num_ctx": 20912,
+      "timing_seconds": {
+        "ingest": 4.879903207998723,
+        "context_build": 0.011542583117261529,
+        "generation": 9.145846042083576,
+        "judge": 9.983761291950941
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Yes, you visited the Science Museum with a friend who is a chemistry professor.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 70079,
+      "context_num_ctx": 21177,
+      "timing_seconds": {
+        "ingest": 4.692824624944478,
+        "context_build": 0.01184541592374444,
+        "generation": 10.466772333020344,
+        "judge": 8.741244292119518
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 67109,
+      "context_num_ctx": 20316,
+      "timing_seconds": {
+        "ingest": 4.923986291047186,
+        "context_build": 0.01071812491863966,
+        "generation": 10.773375584045425,
+        "judge": 11.657055832911283
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_3",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 75222,
+      "context_num_ctx": 22644,
+      "timing_seconds": {
+        "ingest": 4.967636542161927,
+        "context_build": 0.009900167118757963,
+        "generation": 9.408412958029658,
+        "judge": 10.142719165887684
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 38537,
+      "context_num_ctx": 12161,
+      "timing_seconds": {
+        "ingest": 4.540232916828245,
+        "context_build": 0.011552500072866678,
+        "generation": 7.757899499963969,
+        "judge": 5.898277583066374
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_3",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can find inspiration from social media, art communities, or other sources by engaging with content that excites you.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 67939,
+      "context_num_ctx": 20575,
+      "timing_seconds": {
+        "ingest": 4.549245083937421,
+        "context_build": 0.011207666015252471,
+        "generation": 8.389107916969806,
+        "judge": 6.3413962500635535
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_3",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain the current date, so it is impossible to determine how many days ago the 5K charity run occurred.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 61767,
+      "context_num_ctx": 18797,
+      "timing_seconds": {
+        "ingest": 4.4808067919220775,
+        "context_build": 0.012439666781574488,
+        "generation": 7.024628333048895,
+        "judge": 6.355686959112063
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_3",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 66339,
+      "context_num_ctx": 20103,
+      "timing_seconds": {
+        "ingest": 4.529875000007451,
+        "context_build": 0.011461332906037569,
+        "generation": 6.600455082952976,
+        "judge": 7.424339083954692
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_3",
+      "reference_answer": "3.83",
+      "hypothesis": "The provided snippets only mention a graduate GPA of 3.8; there is no mention of an undergraduate GPA.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 72925,
+      "context_num_ctx": 21987,
+      "timing_seconds": {
+        "ingest": 4.480888125021011,
+        "context_build": 0.013863250147551298,
+        "generation": 8.793579541845247,
+        "judge": 6.688545083859935
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished \"The Nightingale\" by Kristin Hannah on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64170,
+      "context_num_ctx": 19477,
+      "timing_seconds": {
+        "ingest": 4.803463000105694,
+        "context_build": 0.011268750065937638,
+        "generation": 8.096694875042886,
+        "judge": 6.24430579203181
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_5",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided snippets do not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 57683,
+      "context_num_ctx": 17631,
+      "timing_seconds": {
+        "ingest": 4.516468167072162,
+        "context_build": 0.011127792065963149,
+        "generation": 9.785784333012998,
+        "judge": 8.924698665970936
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five weeks in total (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 39612,
+      "context_num_ctx": 12478,
+      "timing_seconds": {
+        "ingest": 4.775211417116225,
+        "context_build": 0.01131183304823935,
+        "generation": 8.523106124950573,
+        "judge": 13.733941750135273
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $720 ($500 for the digital marketing workshop, $200 for the writing workshop, and $20 for the mindfulness workshop).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 82594,
+      "context_num_ctx": 24753,
+      "timing_seconds": {
+        "ingest": 4.88971879100427,
+        "context_build": 0.0121307079680264,
+        "generation": 12.726352541008964,
+        "judge": 11.673683708999306
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64920,
+      "context_num_ctx": 19708,
+      "timing_seconds": {
+        "ingest": 4.825616708025336,
+        "context_build": 0.011993416817858815,
+        "generation": 10.278100874973461,
+        "judge": 8.531412957934663
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": 3,
+      "hypothesis": "You have purchased or downloaded 2: Billie Eilish's \"Happier Than Ever\" and The Whiskey Wanderers' \"Midnight Sky\".",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 65018,
+      "context_num_ctx": 19726,
+      "timing_seconds": {
+        "ingest": 4.971175957936794,
+        "context_build": 0.011438791872933507,
+        "generation": 11.83687224984169,
+        "judge": 10.978120459010825
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 83497,
+      "context_num_ctx": 25022,
+      "timing_seconds": {
+        "ingest": 4.489788082893938,
+        "context_build": 0.011218042112886906,
+        "generation": 9.941446666838601,
+        "judge": 9.899382875068113
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "You bought her a yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 70922,
+      "context_num_ctx": 21409,
+      "timing_seconds": {
+        "ingest": 4.890506332973018,
+        "context_build": 0.010950625175610185,
+        "generation": 9.726421333150938,
+        "judge": 10.955093666911125
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 108019,
+      "context_num_ctx": 32005,
+      "timing_seconds": {
+        "ingest": 4.4961397079750896,
+        "context_build": 0.011461500078439713,
+        "generation": 10.309911624994129,
+        "judge": 10.545709416968748
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 84951,
+      "context_num_ctx": 25420,
+      "timing_seconds": {
+        "ingest": 5.181058874819428,
+        "context_build": 0.012025250121951103,
+        "generation": 13.423594124848023,
+        "judge": 11.320330834016204
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "arm": "window_5",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided text does not contain information about how long you have been collecting vintage films; it only mentions that you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 75622,
+      "context_num_ctx": 22752,
+      "timing_seconds": {
+        "ingest": 4.791358000133187,
+        "context_build": 0.01106299995444715,
+        "generation": 9.115309834014624,
+        "judge": 9.662123540882021
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show you used as an example was \"doc martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 70051,
+      "context_num_ctx": 21214,
+      "timing_seconds": {
+        "ingest": 4.609110416145995,
+        "context_build": 0.009334792150184512,
+        "generation": 12.139441499952227,
+        "judge": 9.355668416945264
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "Friday",
+      "hypothesis": "Friday",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 64875,
+      "context_num_ctx": 19684,
+      "timing_seconds": {
+        "ingest": 4.902516250032932,
+        "context_build": 0.010101292049512267,
+        "generation": 16.633297708118334,
+        "judge": 10.927888832986355
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters a total of 9 times: 3 at SeaWorld San Diego in July, 1 at Knott's Berry Farm on October 8th, 3 at Universal Studios Hollywood on October 15th, and 2 at Disneyland on September 24th. (Wait, the memory says you rode Space Mountain: Ghost Galaxy three times on September 24th, making the total 10).\n\nCorrected total: 10 times.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 67248,
+      "context_num_ctx": 20373,
+      "timing_seconds": {
+        "ingest": 4.720412458060309,
+        "context_build": 0.011945124948397279,
+        "generation": 8.578530790982768,
+        "judge": 7.164106708019972
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were:\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 84818,
+      "context_num_ctx": 25417,
+      "timing_seconds": {
+        "ingest": 4.81092495797202,
+        "context_build": 0.010436124866828322,
+        "generation": 8.579186750110239,
+        "judge": 7.164044667035341
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "Disney+",
+      "hypothesis": "Apple TV+",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 84146,
+      "context_num_ctx": 25190,
+      "timing_seconds": {
+        "ingest": 4.5017674579285085,
+        "context_build": 0.011295040836557746,
+        "generation": 11.856035416014493,
+        "judge": 9.888907083077356
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_5",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on the retrieved memories, useful accessories for your iPhone 13 Pro include:\n\n*   **Portable Power Banks**: Recommended brands include Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars.\n*   **Phone Wallet Cases**: Recommended brands include Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, Spigen, and OtterBox.\n*   **Screen Protectors**: Recommended brands include Zagg, TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 79777,
+      "context_num_ctx": 23941,
+      "timing_seconds": {
+        "ingest": 4.879567625001073,
+        "context_build": 0.009994375053793192,
+        "generation": 11.588955166982487,
+        "judge": 9.603708582930267
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the City Art Museum.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 84434,
+      "context_num_ctx": 25285,
+      "timing_seconds": {
+        "ingest": 4.6903509590774775,
+        "context_build": 0.01390812499448657,
+        "generation": 9.495541916927323,
+        "judge": 7.676262374967337
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips in the United States (a 5-day trip to Yellowstone and a 3-day trip to Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 56359,
+      "context_num_ctx": 17256,
+      "timing_seconds": {
+        "ingest": 4.898885499918833,
+        "context_build": 0.01199212484061718,
+        "generation": 9.889966167043895,
+        "judge": 11.402919499902055
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 71741,
+      "context_num_ctx": 21674,
+      "timing_seconds": {
+        "ingest": 4.717236916068941,
+        "context_build": 0.010475791990756989,
+        "generation": 9.787824749946594,
+        "judge": 10.388649667147547
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 71316,
+      "context_num_ctx": 21524,
+      "timing_seconds": {
+        "ingest": 4.700262457830831,
+        "context_build": 0.011832250049337745,
+        "generation": 16.595488332910463,
+        "judge": 9.315125541994348
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_5",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interests, you might enjoy:\n\n*   **Nature and Wildlife:** *Planet Earth*, *Blue Planet*, *March of the Penguins*, *Dynasties*, or *Chasing Coral*.\n*   **Adventure and Exploration:** *The Last Lions*, *The Cave*, *The River Runs Red*, *Expedition Unknown*, or *Running Wild with Bear Grylls*.\n*   **True Crime and Mystery:** *The Keepers*, *The Staircase*, *The Jinx: The Life and Deaths of Robert Durst*, or *Abducted in Plain Sight*.\n*   **Other:** *The Inventor: Out for Blood in Silicon Valley*, *Fyre*, *The Game Changers*, or *The Family I Had*.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 78101,
+      "context_num_ctx": 23465,
+      "timing_seconds": {
+        "ingest": 4.697882500011474,
+        "context_build": 0.01173312496393919,
+        "generation": 9.136231584008783,
+        "judge": 8.633325833128765
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 21 days (from January 10 to January 31).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 58559,
+      "context_num_ctx": 17885,
+      "timing_seconds": {
+        "ingest": 4.571974166901782,
+        "context_build": 0.011144249932840466,
+        "generation": 10.346511415904388,
+        "judge": 8.776638500159606
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": 3,
+      "hypothesis": "You have attended one graduation ceremony (your best friend Rachel's master's degree graduation) in the past few weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 92698,
+      "context_num_ctx": 27638,
+      "timing_seconds": {
+        "ingest": 4.8846764580812305,
+        "context_build": 0.010567332850769162,
+        "generation": 10.750145833939314,
+        "judge": 10.040602083085105
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 62179,
+      "context_num_ctx": 18914,
+      "timing_seconds": {
+        "ingest": 4.8297440418973565,
+        "context_build": 0.011135707842186093,
+        "generation": 9.23869758285582,
+        "judge": 9.641781041864306
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "Four weeks",
+      "hypothesis": "The provided text does not contain information on how long the user had been taking guitar lessons before buying the new amp.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 104123,
+      "context_num_ctx": 30903,
+      "timing_seconds": {
+        "ingest": 4.867409707978368,
+        "context_build": 0.014275874942541122,
+        "generation": 7.8593835001811385,
+        "judge": 5.6026580419857055
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, which is $6 more than the daily train fare of $6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 47295,
+      "context_num_ctx": 14671,
+      "timing_seconds": {
+        "ingest": 4.606429375009611,
+        "context_build": 0.013230040902271867,
+        "generation": 5.771747916005552,
+        "judge": 5.111589083913714
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": 2,
+      "hypothesis": "The provided text does not contain information about how many doctor's appointments the user attended in March.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 78671,
+      "context_num_ctx": 23625,
+      "timing_seconds": {
+        "ingest": 4.544403166975826,
+        "context_build": 0.011953999986872077,
+        "generation": 8.445299291983247,
+        "judge": 7.90869399998337
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 57947,
+      "context_num_ctx": 17726,
+      "timing_seconds": {
+        "ingest": 4.535771667025983,
+        "context_build": 0.011277457932010293,
+        "generation": 7.787845541955903,
+        "judge": 7.356116542126983
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 87767,
+      "context_num_ctx": 26231,
+      "timing_seconds": {
+        "ingest": 4.688711458118632,
+        "context_build": 0.011988250073045492,
+        "generation": 9.06414124998264,
+        "judge": 9.044136916985735
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_5",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The provided snippets do not contain information regarding the number of days spent in Seattle or the total duration of the trip to Hawaii.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 83815,
+      "context_num_ctx": 25099,
+      "timing_seconds": {
+        "ingest": 4.946626333985478,
+        "context_build": 0.010772750014439225,
+        "generation": 9.266341709066182,
+        "judge": 9.257916208123788
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 74817,
+      "context_num_ctx": 22562,
+      "timing_seconds": {
+        "ingest": 5.119082207791507,
+        "context_build": 0.010768583044409752,
+        "generation": 8.519029458984733,
+        "judge": 7.9860847080126405
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 76811,
+      "context_num_ctx": 23111,
+      "timing_seconds": {
+        "ingest": 4.497515582945198,
+        "context_build": 0.011360709089785814,
+        "generation": 10.151572207920253,
+        "judge": 7.915963874896988
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 88638,
+      "context_num_ctx": 26475,
+      "timing_seconds": {
+        "ingest": 4.89449479081668,
+        "context_build": 0.012154417112469673,
+        "generation": 9.958636916941032,
+        "judge": 8.683429708937183
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes three days a week: Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 58824,
+      "context_num_ctx": 17953,
+      "timing_seconds": {
+        "ingest": 5.0183266249950975,
+        "context_build": 0.011689167004078627,
+        "generation": 7.416171916993335,
+        "judge": 6.407122666016221
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": 120,
+      "hypothesis": "You need 120 stars to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 32088,
+      "context_num_ctx": 10322,
+      "timing_seconds": {
+        "ingest": 4.634231040952727,
+        "context_build": 0.011797749903053045,
+        "generation": 6.763246749993414,
+        "judge": 5.2566296248696744
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300 ($800 for the Coach handbag and $500 for the high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 81086,
+      "context_num_ctx": 24325,
+      "timing_seconds": {
+        "ingest": 4.722183125093579,
+        "context_build": 0.011489999946206808,
+        "generation": 8.02372912503779,
+        "judge": 5.8529042499139905
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "Roscioli",
+      "hypothesis": "The famous deli near the Vatican is Roscioli.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 52243,
+      "context_num_ctx": 16109,
+      "timing_seconds": {
+        "ingest": 4.634681166848168,
+        "context_build": 0.010297791101038456,
+        "generation": 7.088394291000441,
+        "judge": 4.887465707957745
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played weekly; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 100670,
+      "context_num_ctx": 29923,
+      "timing_seconds": {
+        "ingest": 4.191642750054598,
+        "context_build": 0.011374416993930936,
+        "generation": 6.815136666875333,
+        "judge": 6.270391957834363
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "The provided memory snippets do not contain information about what the user did with Rachel on a Wednesday two months ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 78059,
+      "context_num_ctx": 23451,
+      "timing_seconds": {
+        "ingest": 4.289885416859761,
+        "context_build": 0.012299583991989493,
+        "generation": 10.178089749999344,
+        "judge": 5.778515958925709
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_5",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "The recipe for a classic French omelette calls for 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 61553,
+      "context_num_ctx": 18765,
+      "timing_seconds": {
+        "ingest": 4.634377541951835,
+        "context_build": 0.009287499822676182,
+        "generation": 7.851452166913077,
+        "judge": 10.18699000007473
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "Based on the provided memories, you viewed a 1-bedroom condo on February 10th and a 3-bedroom bungalow in the Oakwood neighborhood on January 22nd before making an offer on the Brookside townhouse.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 77792,
+      "context_num_ctx": 23387,
+      "timing_seconds": {
+        "ingest": 4.888734790962189,
+        "context_build": 0.012010750127956271,
+        "generation": 9.945996041875333,
+        "judge": 6.843508542049676
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Yes, you visited the Science Museum with a friend who is a chemistry professor.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 90150,
+      "context_num_ctx": 26912,
+      "timing_seconds": {
+        "ingest": 4.718644042033702,
+        "context_build": 0.011395665816962719,
+        "generation": 8.588454749900848,
+        "judge": 8.774573541944847
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Your favorite is Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 87597,
+      "context_num_ctx": 26169,
+      "timing_seconds": {
+        "ingest": 4.943959624972194,
+        "context_build": 0.011390624800696969,
+        "generation": 10.05364887509495,
+        "judge": 9.089955791132525
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_5",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio for a classic martini is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 99267,
+      "context_num_ctx": 29514,
+      "timing_seconds": {
+        "ingest": 4.966091041918844,
+        "context_build": 0.010496500181034207,
+        "generation": 10.64326920802705,
+        "judge": 8.023859292035922
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 44719,
+      "context_num_ctx": 13928,
+      "timing_seconds": {
+        "ingest": 4.5177936248946935,
+        "context_build": 0.011691707884892821,
+        "generation": 6.707581707974896,
+        "judge": 9.398055916884914
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_5",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can find inspiration from social media, art communities, or other sources, and engage with content that excites you.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 84243,
+      "context_num_ctx": 25234,
+      "timing_seconds": {
+        "ingest": 4.573459958191961,
+        "context_build": 0.010918624931946397,
+        "generation": 15.577496833866462,
+        "judge": 9.358136292081326
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_5",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "Based on the provided memories, you did a 5K charity run on 2023/03/19. Since the current date is not provided in the snippets, I cannot calculate how many days ago that was.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 74354,
+      "context_num_ctx": 22393,
+      "timing_seconds": {
+        "ingest": 4.503618458053097,
+        "context_build": 0.014514833921566606,
+        "generation": 7.077013874892145,
+        "judge": 6.845013499958441
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_5",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 77970,
+      "context_num_ctx": 23426,
+      "timing_seconds": {
+        "ingest": 4.535335791064426,
+        "context_build": 0.011597999837249517,
+        "generation": 6.64899804093875,
+        "judge": 7.902664416935295
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_5",
+      "reference_answer": "3.83",
+      "hypothesis": "The provided snippets mention a graduate GPA of 3.8 from the University of Illinois at Urbana-Champaign, but they do not provide a GPA for undergraduate studies.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 92600,
+      "context_num_ctx": 27608,
+      "timing_seconds": {
+        "ingest": 4.391837541013956,
+        "context_build": 0.012841041898354888,
+        "generation": 5.187995959073305,
+        "judge": 4.282383624929935
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished \"The Nightingale\" by Kristin Hannah on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 97587,
+      "context_num_ctx": 29024,
+      "timing_seconds": {
+        "ingest": 4.852347458014265,
+        "context_build": 0.013354707974940538,
+        "generation": 5.604192875092849,
+        "judge": 3.7755027092061937
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_10",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided snippets do not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 71839,
+      "context_num_ctx": 21676,
+      "timing_seconds": {
+        "ingest": 4.576774999964982,
+        "context_build": 0.01410454185679555,
+        "generation": 5.376459707971662,
+        "judge": 4.25221116701141
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five weeks in total (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 48598,
+      "context_num_ctx": 15045,
+      "timing_seconds": {
+        "ingest": 4.78277949988842,
+        "context_build": 0.01166687486693263,
+        "generation": 3.8817018328700215,
+        "judge": 2.864049291005358
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $720 ($200 for the writing workshop, $500 for the digital marketing workshop, and $20 for the mindfulness workshop).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 110171,
+      "context_num_ctx": 32633,
+      "timing_seconds": {
+        "ingest": 4.970061583910137,
+        "context_build": 0.012472708942368627,
+        "generation": 5.368067957926542,
+        "judge": 4.872857167152688
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 96164,
+      "context_num_ctx": 28635,
+      "timing_seconds": {
+        "ingest": 4.901538917096332,
+        "context_build": 0.012258041882887483,
+        "generation": 7.983950417023152,
+        "judge": 5.575026874896139
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": 3,
+      "hypothesis": "You have purchased or downloaded 2: Billie Eilish's \"Happier Than Ever\" and The Whiskey Wanderers' \"Midnight Sky\".",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 81430,
+      "context_num_ctx": 24415,
+      "timing_seconds": {
+        "ingest": 4.996895333053544,
+        "context_build": 0.011527083115652204,
+        "generation": 5.901154666906223,
+        "judge": 5.699826291995123
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 101680,
+      "context_num_ctx": 30217,
+      "timing_seconds": {
+        "ingest": 4.490817499812692,
+        "context_build": 0.011135875014588237,
+        "generation": 7.756164291175082,
+        "judge": 5.593688957858831
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "You bought her a yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 96102,
+      "context_num_ctx": 28603,
+      "timing_seconds": {
+        "ingest": 4.917559790890664,
+        "context_build": 0.011404916876927018,
+        "generation": 6.923174250172451,
+        "judge": 5.553830499993637
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 132516,
+      "context_num_ctx": 39004,
+      "timing_seconds": {
+        "ingest": 4.508383292006329,
+        "context_build": 0.011247166898101568,
+        "generation": 8.911394791910425,
+        "judge": 7.70585991605185
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102464,
+      "context_num_ctx": 30424,
+      "timing_seconds": {
+        "ingest": 5.201803417177871,
+        "context_build": 0.0114441670011729,
+        "generation": 8.009147209115326,
+        "judge": 6.731657708063722
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "arm": "window_10",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided text does not contain information about how long you have been collecting vintage films; it only mentions that you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 85999,
+      "context_num_ctx": 25717,
+      "timing_seconds": {
+        "ingest": 4.824334915960208,
+        "context_build": 0.01104337489232421,
+        "generation": 6.521453624824062,
+        "judge": 7.0382082501892
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show you used as an example was \"doc martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 92390,
+      "context_num_ctx": 27597,
+      "timing_seconds": {
+        "ingest": 4.618691333103925,
+        "context_build": 0.010009124875068665,
+        "generation": 7.894495791988447,
+        "judge": 6.1962781669572
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "Friday",
+      "hypothesis": "Friday",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 77835,
+      "context_num_ctx": 23387,
+      "timing_seconds": {
+        "ingest": 4.937832042109221,
+        "context_build": 0.013471541926264763,
+        "generation": 6.909488499863073,
+        "judge": 4.801604958018288
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters a total of 7 times: 3 at SeaWorld San Diego in July, 1 at Knott's Berry Farm on October 8th, and 3 at Universal Studios Hollywood on October 15th.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 85660,
+      "context_num_ctx": 25634,
+      "timing_seconds": {
+        "ingest": 4.740966500015929,
+        "context_build": 0.010656582890078425,
+        "generation": 7.584438750054687,
+        "judge": 7.20233662519604
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were:\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 111488,
+      "context_num_ctx": 33037,
+      "timing_seconds": {
+        "ingest": 4.81602920894511,
+        "context_build": 0.010522042168304324,
+        "generation": 8.42501866677776,
+        "judge": 5.463157333200797
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "Disney+",
+      "hypothesis": "Apple TV+",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 117260,
+      "context_num_ctx": 34651,
+      "timing_seconds": {
+        "ingest": 4.479406833881512,
+        "context_build": 0.011295332806184888,
+        "generation": 6.968553000129759,
+        "judge": 4.980669416952878
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_10",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on the retrieved memories, useful accessories for your iPhone 13 Pro include:\n\n*   **Portable Power Banks**: Recommended brands include Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars.\n*   **Phone Wallet Cases**: Recommended brands include Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, Spigen, and OtterBox.\n*   **Screen Protectors**: Recommended brands include Zagg, TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 109784,
+      "context_num_ctx": 32514,
+      "timing_seconds": {
+        "ingest": 4.861614000052214,
+        "context_build": 0.010621249908581376,
+        "generation": 6.791682709008455,
+        "judge": 4.5432327499147505
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the City Art Museum.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 102595,
+      "context_num_ctx": 30474,
+      "timing_seconds": {
+        "ingest": 4.664773707976565,
+        "context_build": 0.011433874955400825,
+        "generation": 6.4074970001820475,
+        "judge": 3.782749874982983
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips in the United States (a 5-day trip to Yellowstone and a 3-day trip to Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 66120,
+      "context_num_ctx": 20045,
+      "timing_seconds": {
+        "ingest": 4.890366290928796,
+        "context_build": 0.011634125141426921,
+        "generation": 5.814014917006716,
+        "judge": 4.559949834132567
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 101565,
+      "context_num_ctx": 30195,
+      "timing_seconds": {
+        "ingest": 4.700796874938533,
+        "context_build": 0.011415000073611736,
+        "generation": 5.720138625008985,
+        "judge": 6.237044667126611
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 96850,
+      "context_num_ctx": 28819,
+      "timing_seconds": {
+        "ingest": 4.650178833166137,
+        "context_build": 0.012282249983400106,
+        "generation": 9.485390749992803,
+        "judge": 7.633161167148501
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_10",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interests, you might enjoy:\n\n*   **Nature and Wildlife:** *Planet Earth*, *Blue Planet*, *March of the Penguins*, *Dynasties*, or *Chasing Coral*.\n*   **Adventure and Exploration:** *The Last Lions*, *The Cave*, *The River Runs Red*, *Expedition Unknown*, or *Running Wild with Bear Grylls*.\n*   **True Crime and Mystery:** *Tiger King: Murder, Mayhem and Madness*, *The Keepers*, *The Staircase*, *The Jinx: The Life and Deaths of Robert Durst*, or *Abducted in Plain Sight*.\n*   **Other:** *The Inventor: Out for Blood in Silicon Valley*, *Fyre: The Greatest Party That Never Happened*, *The Game Changers*, *The Family I Had*, or *The Imposter*.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 107269,
+      "context_num_ctx": 31799,
+      "timing_seconds": {
+        "ingest": 4.663154583191499,
+        "context_build": 0.010793957859277725,
+        "generation": 7.261944332858548,
+        "judge": 6.172442292096093
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 21 days (from January 10 to January 31).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 72165,
+      "context_num_ctx": 21772,
+      "timing_seconds": {
+        "ingest": 4.534875083016232,
+        "context_build": 0.01145733310841024,
+        "generation": 5.372921333881095,
+        "judge": 5.80792604200542
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": 3,
+      "hypothesis": "You have attended one graduation ceremony (your best friend Rachel's master's degree graduation) in the past few weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 122352,
+      "context_num_ctx": 36111,
+      "timing_seconds": {
+        "ingest": 4.849676750134677,
+        "context_build": 0.01105837500654161,
+        "generation": 7.484922084026039,
+        "judge": 4.96615504194051
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 77212,
+      "context_num_ctx": 23209,
+      "timing_seconds": {
+        "ingest": 4.787091917125508,
+        "context_build": 0.011787540977820754,
+        "generation": 7.455309709068388,
+        "judge": 6.8423177499789745
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking guitar lessons with Alex for six weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 123909,
+      "context_num_ctx": 36556,
+      "timing_seconds": {
+        "ingest": 4.792268416844308,
+        "context_build": 0.011643999954685569,
+        "generation": 7.3590714579913765,
+        "judge": 6.112441250123084
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, which is $6 more than the daily train fare of $6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 53161,
+      "context_num_ctx": 16347,
+      "timing_seconds": {
+        "ingest": 4.555129708023742,
+        "context_build": 0.011938000097870827,
+        "generation": 5.784511540783569,
+        "judge": 6.011126749916002
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": 2,
+      "hypothesis": "You went to one appointment in March, seeing your primary care physician, Dr. Smith, on March 3rd.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 101054,
+      "context_num_ctx": 30020,
+      "timing_seconds": {
+        "ingest": 4.521281041903421,
+        "context_build": 0.01185091701336205,
+        "generation": 6.123562125023454,
+        "judge": 5.499029583064839
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 68547,
+      "context_num_ctx": 20755,
+      "timing_seconds": {
+        "ingest": 4.526520458050072,
+        "context_build": 0.011043292004615068,
+        "generation": 7.385119416983798,
+        "judge": 6.331111167091876
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 115131,
+      "context_num_ctx": 34049,
+      "timing_seconds": {
+        "ingest": 4.660496582975611,
+        "context_build": 0.011781458975747228,
+        "generation": 8.625190041959286,
+        "judge": 6.489423125050962
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "window_10",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The provided snippets mention a 10-day trip to Hawaii, but they do not contain any information regarding a trip to Seattle.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 107482,
+      "context_num_ctx": 31861,
+      "timing_seconds": {
+        "ingest": 4.915325500071049,
+        "context_build": 0.011721333023160696,
+        "generation": 7.299671708839014,
+        "judge": 5.622101707849652
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102653,
+      "context_num_ctx": 30515,
+      "timing_seconds": {
+        "ingest": 5.096654625143856,
+        "context_build": 0.010175790870562196,
+        "generation": 9.991402250016108,
+        "judge": 7.42013774998486
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 96186,
+      "context_num_ctx": 28646,
+      "timing_seconds": {
+        "ingest": 4.489157916046679,
+        "context_build": 0.01108816685155034,
+        "generation": 7.521258790977299,
+        "judge": 8.035516625037417
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 106018,
+      "context_num_ctx": 31441,
+      "timing_seconds": {
+        "ingest": 4.909574292134494,
+        "context_build": 0.011042041005566716,
+        "generation": 9.312332417117432,
+        "judge": 6.568738374859095
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes 3 days a week (Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 82410,
+      "context_num_ctx": 24692,
+      "timing_seconds": {
+        "ingest": 5.0093553750775754,
+        "context_build": 0.012151417089626193,
+        "generation": 7.084459000034258,
+        "judge": 5.644765750039369
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": 120,
+      "hypothesis": "You need 120 stars to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 40283,
+      "context_num_ctx": 12664,
+      "timing_seconds": {
+        "ingest": 4.618065666873008,
+        "context_build": 0.011519249994307756,
+        "generation": 7.318376417038962,
+        "judge": 6.574987374944612
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300 ($800 for the Coach handbag and $500 for the high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102373,
+      "context_num_ctx": 30407,
+      "timing_seconds": {
+        "ingest": 4.706879417179152,
+        "context_build": 0.011891874950379133,
+        "generation": 7.183453291887417,
+        "judge": 5.129878832958639
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "Roscioli",
+      "hypothesis": "Roscioli",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 62767,
+      "context_num_ctx": 19116,
+      "timing_seconds": {
+        "ingest": 4.635842625051737,
+        "context_build": 0.01064700004644692,
+        "generation": 6.884523542132229,
+        "judge": 4.687974208034575
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played weekly; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 133610,
+      "context_num_ctx": 39334,
+      "timing_seconds": {
+        "ingest": 4.18507858295925,
+        "context_build": 0.011939125135540962,
+        "generation": 6.57634637481533,
+        "judge": 7.474925833987072
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "The provided memory snippets do not contain information about what the user did with Rachel on a Wednesday two months ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 96905,
+      "context_num_ctx": 28836,
+      "timing_seconds": {
+        "ingest": 4.292525416938588,
+        "context_build": 0.012489082990214229,
+        "generation": 8.797082791104913,
+        "judge": 6.814554458949715
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "window_10",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "The recipe for a classic French omelette calls for 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 76815,
+      "context_num_ctx": 23125,
+      "timing_seconds": {
+        "ingest": 4.618130667135119,
+        "context_build": 0.010069790994748473,
+        "generation": 5.0115117088425905,
+        "judge": 5.965594749897718
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "Based on the provided memories, you viewed a 1-bedroom condo on February 10th and a 2-bedroom condo on February 15th before making an offer on the Brookside townhouse on February 25th. Therefore, you viewed 2 properties.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 93705,
+      "context_num_ctx": 27934,
+      "timing_seconds": {
+        "ingest": 4.869850250193849,
+        "context_build": 0.012334916973486543,
+        "generation": 7.440897125052288,
+        "judge": 8.803040458122268
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Yes, you visited the Science Museum with a friend who is a chemistry professor.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 125425,
+      "context_num_ctx": 36991,
+      "timing_seconds": {
+        "ingest": 4.698847040999681,
+        "context_build": 0.011846875073388219,
+        "generation": 7.998520000139251,
+        "judge": 5.561434416798875
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Your favorite is Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 102001,
+      "context_num_ctx": 30285,
+      "timing_seconds": {
+        "ingest": 4.925093708094209,
+        "context_build": 0.011591958114877343,
+        "generation": 5.910988999996334,
+        "judge": 8.491641042055562
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "window_10",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio for a classic martini is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 128418,
+      "context_num_ctx": 37843,
+      "timing_seconds": {
+        "ingest": 4.960708708036691,
+        "context_build": 0.01051929104141891,
+        "generation": 6.7776153748854995,
+        "judge": 8.21417187503539
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45039,
+      "context_num_ctx": 14019,
+      "timing_seconds": {
+        "ingest": 4.54059054213576,
+        "context_build": 0.011560624931007624,
+        "generation": 5.847695207921788,
+        "judge": 3.8856108330655843
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "window_10",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can find inspiration from social media, art communities, or other sources, and engage with content that excites you.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 96460,
+      "context_num_ctx": 28724,
+      "timing_seconds": {
+        "ingest": 4.554196624783799,
+        "context_build": 0.010886125033721328,
+        "generation": 5.5233458750881255,
+        "judge": 4.819726959103718
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "window_10",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain the current date, so it is impossible to determine how many days ago the 5K charity run occurred.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 94791,
+      "context_num_ctx": 28232,
+      "timing_seconds": {
+        "ingest": 4.4825809160247445,
+        "context_build": 0.012435916112735868,
+        "generation": 5.29039758304134,
+        "judge": 3.7142507089301944
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "window_10",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 99669,
+      "context_num_ctx": 29625,
+      "timing_seconds": {
+        "ingest": 4.543839208083227,
+        "context_build": 0.0118652090895921,
+        "generation": 4.943425041856244,
+        "judge": 5.876613250002265
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "window_10",
+      "reference_answer": "3.83",
+      "hypothesis": "The user's graduate GPA was 3.8, and their undergraduate GPA was 3.86.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 114124,
+      "context_num_ctx": 33758,
+      "timing_seconds": {
+        "ingest": 4.376956416992471,
+        "context_build": 0.011649334104731679,
+        "generation": 5.960070041939616,
+        "judge": 5.7001835408154875
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished \"The Nightingale\" by Kristin Hannah on January 31, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 52621,
+      "context_num_ctx": 16177,
+      "timing_seconds": {
+        "ingest": 4.827553708804771,
+        "context_build": 69.86555425007828,
+        "generation": 6.199688916094601,
+        "judge": 5.725558750098571
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "summary",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided text does not contain information about any museums or galleries visited in December.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 36564,
+      "context_num_ctx": 11597,
+      "timing_seconds": {
+        "ingest": 4.498264499939978,
+        "context_build": 48.96580662508495,
+        "generation": 7.361769542098045,
+        "judge": 11.513886542059481
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "It took you five weeks in total (two and a half weeks for \"The Seven Husbands of Evelyn Hugo\" and three weeks for \"The Nightingale\").",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 35262,
+      "context_num_ctx": 11235,
+      "timing_seconds": {
+        "ingest": 4.722634667064995,
+        "context_build": 44.54583037504926,
+        "generation": 10.465513000031933,
+        "judge": 9.967305333120748
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "$720",
+      "hypothesis": "You spent a total of $220 ($200 for the writing workshop and $20 for the mindfulness workshop).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 45808,
+      "context_num_ctx": 14243,
+      "timing_seconds": {
+        "ingest": 4.8683279999531806,
+        "context_build": 108.58902854193002,
+        "generation": 8.980282666161656,
+        "judge": 13.579549292102456
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous status was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 41105,
+      "context_num_ctx": 12903,
+      "timing_seconds": {
+        "ingest": 4.8405600839760154,
+        "context_build": 119.7239402080886,
+        "generation": 8.983606124995276,
+        "judge": 8.380735708167776
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": 3,
+      "hypothesis": "You have purchased or downloaded two: Billie Eilish's \"Happier Than Ever\" (downloaded on Spotify) and The Whiskey Wanderers' EP \"Midnight Sky\" (purchased at a festival).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 41470,
+      "context_num_ctx": 12998,
+      "timing_seconds": {
+        "ingest": 4.9873248329386115,
+        "context_build": 88.9304408330936,
+        "generation": 8.084592583123595,
+        "judge": 10.047663999954239
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "30 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 34802,
+      "context_num_ctx": 11109,
+      "timing_seconds": {
+        "ingest": 4.487753209192306,
+        "context_build": 103.80534770805389,
+        "generation": 8.037358209025115,
+        "judge": 8.098043750040233
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "You bought her a yellow dress and a matching pair of earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 44355,
+      "context_num_ctx": 13818,
+      "timing_seconds": {
+        "ingest": 4.8991564582102,
+        "context_build": 98.78960770904087,
+        "generation": 8.275629708077759,
+        "judge": 8.764964625006542
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "Your new internet plan is 500 Mbps.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 44686,
+      "context_num_ctx": 13910,
+      "timing_seconds": {
+        "ingest": 4.474039416993037,
+        "context_build": 100.81028295913711,
+        "generation": 7.6340142919216305,
+        "judge": 5.906048540957272
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought a bad case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 49929,
+      "context_num_ctx": 15414,
+      "timing_seconds": {
+        "ingest": 5.185085457982495,
+        "context_build": 75.58931154198945,
+        "generation": 6.304838167037815,
+        "judge": 6.029022958129644
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "arm": "summary",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided text does not contain information about how long you have been collecting vintage films; it only mentions you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 44004,
+      "context_num_ctx": 13718,
+      "timing_seconds": {
+        "ingest": 4.803500582929701,
+        "context_build": 53.5403802911751,
+        "generation": 6.411550125107169,
+        "judge": 4.264983334112912
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "The show you used as an example was \"Doc Martin.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 36159,
+      "context_num_ctx": 11531,
+      "timing_seconds": {
+        "ingest": 4.6019093750510365,
+        "context_build": 56.65398474992253,
+        "generation": 4.367356667062268,
+        "judge": 5.295563041931018
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "Friday",
+      "hypothesis": "You have mentioned taking a cocktail-making class on both Thursday and Friday.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 31070,
+      "context_num_ctx": 10025,
+      "timing_seconds": {
+        "ingest": 4.903766791103408,
+        "context_build": 50.59319904097356,
+        "generation": 4.066639291821048,
+        "judge": 3.3060969579964876
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "10 times",
+      "hypothesis": "You rode rollercoasters 9 times: 3 at SeaWorld San Diego in July (Mako, Kraken, Manta), 1 at Knott's Berry Farm on October 8th (Xcelerator), 3 at Universal Studios Hollywood on October 15th (Revenge of the Mummy), and 3 at Disneyland on September 24th (Space Mountain: Ghost Galaxy).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 44875,
+      "context_num_ctx": 13981,
+      "timing_seconds": {
+        "ingest": 4.820636291988194,
+        "context_build": 58.64542566705495,
+        "generation": 5.875123250065371,
+        "judge": 5.8646092501003295
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were:\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 38684,
+      "context_num_ctx": 12235,
+      "timing_seconds": {
+        "ingest": 4.823455374920741,
+        "context_build": 92.60383695899509,
+        "generation": 5.974370707990602,
+        "judge": 5.880413957871497
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "Disney+",
+      "hypothesis": "Apple TV+ (used for a few months as of May 26, 2023).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 46286,
+      "context_num_ctx": 14373,
+      "timing_seconds": {
+        "ingest": 4.707399250008166,
+        "context_build": 72.2715733749792,
+        "generation": 4.672451791819185,
+        "judge": 4.329917374998331
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "summary",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "For your iPhone 13 Pro, recommended accessories include:\n\n*   **Screen Protectors**: Zagg (InvisibleShield), TechArmor, Spigen, BodyGuardz, Belkin, Anker, OtterBox, Mophie, UAG, and Skinomi.\n*   **Wallet Cases**: Nomad, Fossil, Bellroy, Incipio, Speck, Case-Mate, Tech21, UAG, Mophie, Spigen, and OtterBox.\n*   **Portable Power Banks**: Anker, Mophie, Jackery, EcoFlow, Aukey, Romoss, Xiaomi, EC Technology, RavPower, and Auromars.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 59387,
+      "context_num_ctx": 18115,
+      "timing_seconds": {
+        "ingest": 4.977832540869713,
+        "context_build": 77.19574345904402,
+        "generation": 6.297564750071615,
+        "judge": 4.437979874899611
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The event was held at the Museum of Modern Art (MoMA).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 40170,
+      "context_num_ctx": 12638,
+      "timing_seconds": {
+        "ingest": 4.689868584042415,
+        "context_build": 73.31758391694166,
+        "generation": 7.389739250065759,
+        "judge": 6.395067833131179
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "8 days.",
+      "hypothesis": "You spent 8 days on camping trips (a 5-day trip to Yellowstone and a 3-day trip to Big Sur).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45634,
+      "context_num_ctx": 14192,
+      "timing_seconds": {
+        "ingest": 4.91180495894514,
+        "context_build": 45.182341957930475,
+        "generation": 5.091186749981716,
+        "judge": 5.799220917047933
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days passed (from March 4 to March 18).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 33851,
+      "context_num_ctx": 10849,
+      "timing_seconds": {
+        "ingest": 4.721628624945879,
+        "context_build": 96.00888841599226,
+        "generation": 6.756881250068545,
+        "judge": 5.516629958059639
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D on five trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 33891,
+      "context_num_ctx": 10831,
+      "timing_seconds": {
+        "ingest": 4.757733250036836,
+        "context_build": 63.52029191702604,
+        "generation": 6.414523083949462,
+        "judge": 7.470196292037144
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "summary",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Depending on your interest, you might enjoy:\n- **Nature/Wildlife:** \"Planet Earth\", \"Blue Planet\", \"March of the Penguins\", \"Dynasties\", or \"Chasing Coral\".\n- **Adventure/Exploration:** \"The Last Lions\", \"The Cave\", \"The River Runs Red\", \"Expedition Unknown\", or \"Running Wild with Bear Grylls\".\n- **True Crime/Mystery:** \"Tiger King: Murder, Mayhem and Madness\", \"The Keepers\", \"The Staircase\", \"The Jinx\", or \"Abducted in Plain Sight\".\n- **Other:** \"The Inventor\", \"Fyre\", \"The Game Changers\", \"The Family I Had\", or \"The Imposter\".",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 51741,
+      "context_num_ctx": 15934,
+      "timing_seconds": {
+        "ingest": 4.712149665923789,
+        "context_build": 78.24939174996689,
+        "generation": 5.528961540898308,
+        "judge": 4.665811166167259
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 21 days (from January 10 to January 31, 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 43534,
+      "context_num_ctx": 13592,
+      "timing_seconds": {
+        "ingest": 4.571444582892582,
+        "context_build": 50.51024454087019,
+        "generation": 4.724228749983013,
+        "judge": 3.3494632500223815
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": 3,
+      "hypothesis": "You have attended one graduation ceremony (your best friend Rachel's master's degree graduation) in the past few weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 47360,
+      "context_num_ctx": 14684,
+      "timing_seconds": {
+        "ingest": 5.009732458973303,
+        "context_build": 65.34230087511241,
+        "generation": 5.614717208081856,
+        "judge": 4.135285125114024
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "4 weeks",
+      "hypothesis": "As of September 30, 2023, you have been sticking to your daily tidying routine for 4 weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 49704,
+      "context_num_ctx": 15350,
+      "timing_seconds": {
+        "ingest": 4.827821041923016,
+        "context_build": 44.3927394580096,
+        "generation": 14.071825334103778,
+        "judge": 5.063853916944936
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking guitar lessons for six weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 44171,
+      "context_num_ctx": 13774,
+      "timing_seconds": {
+        "ingest": 4.812053167028353,
+        "context_build": 57.96909112506546,
+        "generation": 4.382719417102635,
+        "judge": 3.6366901660803705
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, which is $6 more than the daily train fare of $6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 40270,
+      "context_num_ctx": 12664,
+      "timing_seconds": {
+        "ingest": 4.586586000164971,
+        "context_build": 25.04018187499605,
+        "generation": 3.279936125036329,
+        "judge": 5.374726416077465
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": 2,
+      "hypothesis": "The provided text does not state how many appointments you attended in March, only that you had one with your primary care physician on March 3rd.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 34949,
+      "context_num_ctx": 11133,
+      "timing_seconds": {
+        "ingest": 4.560219541890547,
+        "context_build": 59.58492408297025,
+        "generation": 3.0723832088988274,
+        "judge": 2.896420583128929
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 37703,
+      "context_num_ctx": 11942,
+      "timing_seconds": {
+        "ingest": 4.568047292064875,
+        "context_build": 51.12219616607763,
+        "generation": 4.360734208021313,
+        "judge": 3.7278119169641286
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 50132,
+      "context_num_ctx": 15478,
+      "timing_seconds": {
+        "ingest": 4.743586084106937,
+        "context_build": 71.80925720790401,
+        "generation": 5.248087000101805,
+        "judge": 5.181958332890645
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "arm": "summary",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The retrieved memories state you spent 10 days in Hawaii, but there is no mention of a trip to Seattle.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 46545,
+      "context_num_ctx": 14451,
+      "timing_seconds": {
+        "ingest": 4.928870209027082,
+        "context_build": 79.20927566615865,
+        "generation": 5.74951700004749,
+        "judge": 5.038115333998576
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 37794,
+      "context_num_ctx": 11984,
+      "timing_seconds": {
+        "ingest": 5.104397166054696,
+        "context_build": 95.90383387496695,
+        "generation": 6.967089457903057,
+        "judge": 6.159080332843587
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days (April 15 to April 21).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 36459,
+      "context_num_ctx": 11581,
+      "timing_seconds": {
+        "ingest": 4.573228334076703,
+        "context_build": 84.77136845793575,
+        "generation": 6.237983291968703,
+        "judge": 4.541262249927968
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "over a year",
+      "hypothesis": "Over a year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45364,
+      "context_num_ctx": 14111,
+      "timing_seconds": {
+        "ingest": 4.959822166943923,
+        "context_build": 79.6973132500425,
+        "generation": 3.9286932919640094,
+        "judge": 2.8684265830088407
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes three days a week: Zumba on Tuesdays and Thursdays, and weightlifting on Saturdays.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 46481,
+      "context_num_ctx": 14427,
+      "timing_seconds": {
+        "ingest": 5.022155584068969,
+        "context_build": 52.27267445786856,
+        "generation": 9.010329665848985,
+        "judge": 4.659898082958534
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": 120,
+      "hypothesis": "You have mentioned needing 125 stars (on 2023/07/11) and 120 stars (on 2023/07/30) to reach the gold level.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 27498,
+      "context_num_ctx": 9011,
+      "timing_seconds": {
+        "ingest": 4.648592249955982,
+        "context_build": 26.752408917061985,
+        "generation": 7.451245124917477,
+        "judge": 5.138604250038043
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "$1,300",
+      "hypothesis": "You spent a total of $1,300 ($800 on the Coach handbag and $500 on high-end skincare products).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 55728,
+      "context_num_ctx": 17080,
+      "timing_seconds": {
+        "ingest": 4.7319295417983085,
+        "context_build": 66.94022474996746,
+        "generation": 4.801336750155315,
+        "judge": 5.080063333036378
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "Roscioli",
+      "hypothesis": "The famous deli near the Vatican is Roscioli.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 38639,
+      "context_num_ctx": 12223,
+      "timing_seconds": {
+        "ingest": 4.6476404999848455,
+        "context_build": 50.907279334031045,
+        "generation": 3.8447130830027163,
+        "judge": 3.305774583015591
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played weekly; now, you play every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 45069,
+      "context_num_ctx": 14037,
+      "timing_seconds": {
+        "ingest": 4.182670790934935,
+        "context_build": 86.799353166949,
+        "generation": 6.863970583071932,
+        "judge": 7.26738891704008
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "The provided memories do not contain information about what you did with Rachel on a Wednesday two months ago.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 33656,
+      "context_num_ctx": 10765,
+      "timing_seconds": {
+        "ingest": 4.30499970796518,
+        "context_build": 97.6893182080239,
+        "generation": 5.657654625130817,
+        "judge": 5.883650208823383
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "arm": "summary",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "The recipe for a classic French omelette requires 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 39588,
+      "context_num_ctx": 12489,
+      "timing_seconds": {
+        "ingest": 4.665110792033374,
+        "context_build": 59.785479333018884,
+        "generation": 5.028169207973406,
+        "judge": 4.867185499984771
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "You viewed three properties: a 1-bedroom condo on February 10th, a 2-bedroom condo on February 15th, and a property in Cedar Creek on February 1st.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 52795,
+      "context_num_ctx": 16245,
+      "timing_seconds": {
+        "ingest": 4.88987599988468,
+        "context_build": 57.46706291590817,
+        "generation": 6.090035874862224,
+        "judge": 3.830854541854933
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Yes, you visited the Science Museum with a friend who is a chemistry professor.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 49663,
+      "context_num_ctx": 15344,
+      "timing_seconds": {
+        "ingest": 4.722892874851823,
+        "context_build": 75.57252691616304,
+        "generation": 2.795006375061348,
+        "judge": 3.058560124831274
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 49813,
+      "context_num_ctx": 15374,
+      "timing_seconds": {
+        "ingest": 4.966090834001079,
+        "context_build": 106.0971420831047,
+        "generation": 8.831876958021894,
+        "judge": 6.898070874856785
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "arm": "summary",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 40087,
+      "context_num_ctx": 12605,
+      "timing_seconds": {
+        "ingest": 5.001071084057912,
+        "context_build": 121.23906487505883,
+        "generation": 7.404519749805331,
+        "judge": 7.438313249964267
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 42773,
+      "context_num_ctx": 13372,
+      "timing_seconds": {
+        "ingest": 4.545232250122353,
+        "context_build": 29.125512750120834,
+        "generation": 10.275587999960408,
+        "judge": 8.559735291870311
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "arm": "summary",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "You can find inspiration from social media, art communities, or other sources, and engage with content that excites you.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 48916,
+      "context_num_ctx": 15140,
+      "timing_seconds": {
+        "ingest": 4.55233404180035,
+        "context_build": 61.81296612485312,
+        "generation": 7.2078389171510935,
+        "judge": 27.999134707963094
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "arm": "summary",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The provided snippets do not contain today's date, so it is impossible to determine how many days ago the 5K charity run occurred.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "retrieved_chars": 48090,
+      "context_num_ctx": 14889,
+      "timing_seconds": {
+        "ingest": 4.498058667173609,
+        "context_build": 45.034441584022716,
+        "generation": 6.212525916984305,
+        "judge": 5.008356167003512
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "arm": "summary",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate about two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 55534,
+      "context_num_ctx": 17015,
+      "timing_seconds": {
+        "ingest": 4.5266856658272445,
+        "context_build": 87.82405754202046,
+        "generation": 8.910148333990946,
+        "judge": 9.042105041909963
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "arm": "summary",
+      "reference_answer": "3.83",
+      "hypothesis": "The average GPA is 3.83 (3.86 for undergraduate and 3.8 for graduate studies).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "retrieved_chars": 43376,
+      "context_num_ctx": 13544,
+      "timing_seconds": {
+        "ingest": 4.365347999846563,
+        "context_build": 124.36733125010505,
+        "generation": 8.575257624965161,
+        "judge": 11.62315412494354
+      }
+    }
+  ]
+}

@@ -49,6 +49,36 @@ std::vector<float> generate_cold_query(size_t dim, int seed) {
   return v;
 }
 
+// Generate a query that matches an EXISTING node well (similarity > 0.65,
+// the fixture's cold_miss_threshold) WITHOUT being a bit-for-bit exact
+// copy -- guardrail #0 (v4-plan.md): an exact-duplicate query guarantees
+// cosine==1.0 against a stored centroid, which the SLB cache treats as a
+// hit on every call after the first, collapsing "warm query" benchmarks
+// into "SLB cache hit" benchmarks that no longer test what they claim to
+// (found auditing for this exact self-hit-artifact class, Stage 2 task
+// 5 -- the same pattern guardrail #0 already excludes
+// BM_AtlasTraversal_Only for). Perturbing an existing node's vector keeps
+// it a realistic "matches well" query while avoiding the guaranteed
+// cache-hit degenerate case.
+std::vector<float> generate_warm_query(size_t dim, int node_seed,
+                                       int noise_seed) {
+  auto v = generate_vector(dim, node_seed);
+  std::mt19937 rng(noise_seed);
+  // Empirically calibrated (not guessed): for these 768-dim uniform(-1,1)
+  // vectors, N(0, 0.5) additive noise lands cosine similarity around
+  // ~0.77 -- comfortably inside the fixture's intended "matches well"
+  // band (> cold_miss_threshold=0.65) while staying safely BELOW
+  // SLB_HIT_THRESHOLD (0.85, schema.hpp), so this genuinely exercises a
+  // real navigate() call every time rather than degenerating into an SLB
+  // cache hit after the first iteration. A small uniform(-0.05, 0.05)
+  // perturbation (tried first) was NOT enough -- it still landed at
+  // ~0.997 similarity, well above the cache-hit threshold.
+  std::normal_distribution<float> noise(0.0f, 0.5f);
+  for (auto &f : v)
+    f += noise(rng);
+  return v;
+}
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -101,8 +131,9 @@ public:
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(TieredAtlasFixture,
                    BM_TieredAtlas_WarmQuery)(benchmark::State &state) {
-  // Use a query generated from the same seed space as inserted nodes
-  auto query = generate_vector(DIM, 42);
+  // Perturbed near-neighbor of node #42, NOT an exact copy -- see
+  // generate_warm_query()'s doc comment (guardrail #0 self-hit fix).
+  auto query = generate_warm_query(DIM, 42, /*noise_seed=*/1042);
 
   for (auto _ : state) {
     auto result = tiered->navigate_tiered(query);
@@ -151,7 +182,12 @@ BENCHMARK_REGISTER_F(TieredAtlasFixture, BM_TieredAtlas_ColdMiss)
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(TieredAtlasFixture,
                    BM_RawNavigate_Baseline)(benchmark::State &state) {
-  auto query = generate_vector(DIM, 42);
+  // SAME query as BM_TieredAtlas_WarmQuery (identical node_seed/noise_seed)
+  // -- this benchmark exists specifically to be directly comparable to
+  // it, so both must see the identical query, not just "similarly warm"
+  // ones. See generate_warm_query()'s doc comment for why this isn't an
+  // exact node copy (guardrail #0 self-hit fix).
+  auto query = generate_warm_query(DIM, 42, /*noise_seed=*/1042);
 
   for (auto _ : state) {
     auto result = atlas->navigate(query);

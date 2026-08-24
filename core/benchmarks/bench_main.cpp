@@ -31,6 +31,31 @@ void flush_cache() {
   benchmark::DoNotOptimize(dummy.data());
 }
 
+// WarmSearch/ColdSearch previously reused one static `query` across every
+// measured iteration -- the self-hit-artifact class audited across this
+// benchmark suite (Stage 2 task 5, v4-plan.md): navigate()'s SLB cache
+// stores an entry after the FIRST call, so every later bit-for-bit-
+// identical query (cosine==1.0 against its own cached entry) hits that
+// cache instead of performing a real traversal. This is especially
+// misleading for ColdSearch, whose entire point is to flush CPU caches
+// (flush_cache()) and measure a genuine cold traversal -- an unflushable
+// SLB hit from the second iteration onward silently defeats that
+// methodology regardless of CPU cache state. (ConversationalDrift, just
+// below, deliberately reuses near-duplicate queries to measure cache-HIT
+// speed by its own design/comment -- that one is correct as-is.)
+constexpr size_t QUERY_POOL_SIZE = 4096;
+constexpr int QUERY_SEED_BASE = 5'000'000;
+
+std::vector<std::vector<float>> generate_query_pool(size_t dim, size_t count,
+                                                     int seed_base) {
+  std::vector<std::vector<float>> pool;
+  pool.reserve(count);
+  for (size_t i = 0; i < count; ++i) {
+    pool.push_back(generate_vector(dim, seed_base + static_cast<int>(i)));
+  }
+  return pool;
+}
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -58,7 +83,7 @@ class AtlasFixture : public benchmark::Fixture {
 public:
   std::unique_ptr<aeon::Atlas> atlas;
   std::string db_path = "bench_atlas.bin";
-  std::vector<float> query;
+  std::vector<std::vector<float>> query_pool;
 
   void SetUp([[maybe_unused]] const benchmark::State &state) override {
     // Create a temporary Atlas file
@@ -77,7 +102,7 @@ public:
       atlas->insert(0, vec, "bench_node");
     }
 
-    query = generate_vector(DIM, 99999);
+    query_pool = generate_query_pool(DIM, QUERY_POOL_SIZE, QUERY_SEED_BASE);
   }
 
   void TearDown([[maybe_unused]] const benchmark::State &state) override {
@@ -86,25 +111,45 @@ public:
   }
 };
 
-BENCHMARK_F(AtlasFixture, WarmSearch)(benchmark::State &state) {
-  std::span<const float> q{query};
+// BENCHMARK_DEFINE_F/BENCHMARK_REGISTER_F (not the BENCHMARK_F shorthand)
+// -- needed so ->Iterations(QUERY_POOL_SIZE) below can actually be chained
+// on; BENCHMARK_F's registration happens inside the macro itself and
+// can't be chained.
+BENCHMARK_DEFINE_F(AtlasFixture, WarmSearch)(benchmark::State &state) {
+  size_t idx = 0;
   for (auto _ : state) {
-    auto results = atlas->navigate(q);
+    auto results = atlas->navigate(std::span<const float>{query_pool[idx % QUERY_POOL_SIZE]});
     benchmark::DoNotOptimize(results);
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
 }
+BENCHMARK_REGISTER_F(AtlasFixture, WarmSearch)->Iterations(QUERY_POOL_SIZE);
 
-BENCHMARK_F(AtlasFixture, ColdSearch)(benchmark::State &state) {
-  std::span<const float> q{query};
+BENCHMARK_DEFINE_F(AtlasFixture, ColdSearch)(benchmark::State &state) {
+  size_t idx = 0;
   for (auto _ : state) {
     state.PauseTiming();
     flush_cache();
     state.ResumeTiming();
 
-    auto results = atlas->navigate(q);
+    auto results = atlas->navigate(std::span<const float>{query_pool[idx % QUERY_POOL_SIZE]});
     benchmark::DoNotOptimize(results);
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
 }
+BENCHMARK_REGISTER_F(AtlasFixture, ColdSearch)->Iterations(QUERY_POOL_SIZE);
 
 BENCHMARK_F(AtlasFixture, ConversationalDrift)(benchmark::State &state) {
   // Generate 10 related queries (simulating conversation about a topic)

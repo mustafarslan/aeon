@@ -188,6 +188,7 @@ Benchmarks run on Apple M4 Max (16 cores, active cooling). Full report: [`reprod
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, WAL protocol, Blob Arena, INT8 architecture decisions |
 | [INTERNALS.md](INTERNALS.md) | Data structures, on-disk formats, SIMD kernels, WAL record layout |
 | [CODE_WALKTHROUGH.md](CODE_WALKTHROUGH.md) | API walkthrough, insert/navigate lifecycles, integration examples |
+| [COMPLIANCE.md](COMPLIANCE.md) | Adopter-facing guide to the shared tier: promotion, crypto-erase guarantees and limits, admin console access control, self-hosting checklist |
 
 ---
 

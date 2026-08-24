@@ -29,12 +29,12 @@
         {
             "name": "release",
             "displayName": "Release (production)",
-            "description": "Full production optimization with LTO and fast-math",
+            "description": "Portable production optimization with LTO and fast-math. Uses the same architecture baseline as the CI presets (x86-64-v3 / Apple M1) rather than -march=native, so the resulting binary is safe to distribute to a host other than the one it was built on -- -march=native binaries can SIGILL on a different CPU (e.g. AVX-512-tuned code run on a host without AVX-512, or an M4-tuned binary run on M1). For a machine-specific build tuned to exactly the host you're building AND deploying on, use the 'dev' preset instead.",
             "inherits": "default",
             "generator": "Ninja",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "AEON_CI_BUILD": "OFF",
+                "AEON_CI_BUILD": "ON",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
             }
         },

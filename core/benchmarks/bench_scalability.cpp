@@ -40,6 +40,38 @@ std::vector<float> generate_vector(size_t dim, int seed) {
   return v;
 }
 
+// A single static `query` reused across every measured iteration is the
+// same self-hit-artifact class found and fixed in bench_tiered_atlas.cpp
+// (Stage 2 task 5, v4-plan.md): navigate()'s SLB cache stores an entry
+// after the FIRST call, and every subsequent bit-for-bit-identical query
+// (cosine==1.0 against its own cached entry) hits that cache instead of
+// performing a real traversal -- collapsing "Atlas navigate() at various
+// scales" into "one real traversal + N-1 O(1) cache hits" for whichever N
+// Google Benchmark picks, which is exactly what this benchmark exists to
+// disprove is happening. Fix: cycle through a large pool of distinct query
+// vectors (seeded well above any insertion seed, 0..target_n-1 for
+// target_n up to 1,000,000) so no query ever repeats within a realistic
+// run -- forcing every measured call to be a genuine cold traversal.
+// Explicit ->Iterations(QUERY_POOL_SIZE) below (rather than Google
+// Benchmark's default auto-scaling-to-min_time) guarantees this pool is
+// never exhausted: navigate() is fast enough (single-digit-µs to low-ms
+// depending on N) that auto-scaling ran well past an 8192-sized pool
+// within a fraction of a second even at the smallest (10K-node) scale --
+// confirmed empirically via the SkipWithError guard below firing at every
+// tested Arg() before this cap was added.
+constexpr size_t QUERY_POOL_SIZE = 4096;
+constexpr int QUERY_SEED_BASE = 5'000'000;
+
+std::vector<std::vector<float>> generate_query_pool(size_t dim, size_t count,
+                                                     int seed_base) {
+  std::vector<std::vector<float>> pool;
+  pool.reserve(count);
+  for (size_t i = 0; i < count; ++i) {
+    pool.push_back(generate_vector(dim, seed_base + static_cast<int>(i)));
+  }
+  return pool;
+}
+
 // -------------------------------------------------------------------------
 // Build a balanced 64-ary Atlas tree using BFS level-order insertion.
 //
@@ -128,7 +160,7 @@ class ScalabilityFixture : public benchmark::Fixture {
 public:
   std::unique_ptr<aeon::Atlas> atlas;
   std::string atlas_path;
-  std::vector<float> query;
+  std::vector<std::vector<float>> query_pool;
 
   void SetUp(benchmark::State &state) {
     const size_t N = static_cast<size_t>(state.range(0));
@@ -141,7 +173,10 @@ public:
     // Build balanced 64-ary tree using BFS insertion
     build_balanced_atlas(*atlas, N);
 
-    query = generate_vector(DIM, 99999);
+    // See generate_query_pool()'s doc comment (guardrail #0 self-hit fix):
+    // a distinct query per iteration, never repeating, so navigate()'s SLB
+    // cache can't collapse this into a warm-cache-only measurement.
+    query_pool = generate_query_pool(DIM, QUERY_POOL_SIZE, QUERY_SEED_BASE);
   }
 
   void TearDown(benchmark::State &) {
@@ -155,9 +190,17 @@ public:
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(ScalabilityFixture,
                    BM_AtlasTraversal)(benchmark::State &state) {
+  size_t idx = 0;
   for (auto _ : state) {
-    auto result = atlas->navigate(query);
+    auto result = atlas->navigate(query_pool[idx % QUERY_POOL_SIZE]);
     benchmark::DoNotOptimize(result);
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
   state.SetItemsProcessed(state.iterations());
 }
@@ -165,6 +208,7 @@ BENCHMARK_REGISTER_F(ScalabilityFixture, BM_AtlasTraversal)
     ->Arg(10'000)
     ->Arg(100'000)
     ->Arg(1'000'000)
-    ->Unit(benchmark::kMicrosecond);
+    ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE);
 
 BENCHMARK_MAIN();

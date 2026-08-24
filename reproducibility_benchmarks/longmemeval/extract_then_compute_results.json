@@ -1,0 +1,1194 @@
+{
+  "model": "gemma4:31b-cloud",
+  "seed": 42,
+  "num_questions": 50,
+  "base_top_k": 30,
+  "max_sessions": 10,
+  "summary": {
+    "n": 50,
+    "n_errors": 0,
+    "accuracy": 0.82,
+    "per_question_type": {
+      "abstention": {
+        "n": 3,
+        "accuracy": 1.0
+      },
+      "knowledge-update": {
+        "n": 8,
+        "accuracy": 0.875
+      },
+      "multi-session": {
+        "n": 11,
+        "accuracy": 0.7272727272727273
+      },
+      "single-session-assistant": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "single-session-preference": {
+        "n": 3,
+        "accuracy": 0.6666666666666666
+      },
+      "single-session-user": {
+        "n": 6,
+        "accuracy": 1.0
+      },
+      "temporal-reasoning": {
+        "n": 13,
+        "accuracy": 0.6923076923076923
+      }
+    }
+  },
+  "results": [
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "extracted_facts": "- [2023/01/31 (Tue) 15:00] user: I just finished a historical fiction novel, \"The Nightingale\" by Kristin Hannah, today.\n- [2023/01/31 (Tue) 02:37] user: I just finished a historical fiction novel, \"The Nightingale\" by Kristin Hannah, today.\n- [2023/01/10 (Tue) 12:59] user: I just started \"The Nightingale\" by Kristin Hannah today.\n- [2023/01/10 (Tue) 12:59] user: I've actually already read \"The Poppy War\".\n- [2023/01/10 (Tue) 12:59] user: I've already read \"The Song of Achilles\" and \"The Poppy War\".\n- [2023/01/13 (Fri) 05:54] user: I've already listened to \"The 7 Habits of Highly Effective People\" and \"Sapiens: A Brief History of Humankind\".\n- [2023/01/18 (Wed) 02:29] user: I'm actually in the mood for something more light-hearted after the intense finale of \"The Handmaid's Tale\".\n- [2023/01/18 (Wed) 02:29] user: I just finished a few series and need something new to binge-watch.\n- [2023/01/18 (Wed) 02:29] user: I'm still reeling from the third season of \"Stranger Things\" - I finished it in just three days during my summer break!",
+      "hypothesis": "The provided snippets do not contain a current date to determine what was finished a week ago.\n\nAnswer: I don't have enough information to answer.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 102202,
+      "context_num_ctx": {
+        "extract": 30467,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.113985458156094,
+        "context_build": 0.019918042002245784,
+        "extract": 11.092471041949466,
+        "compute": 6.788303708890453,
+        "judge": 6.2236755839549005
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "extracted_facts": "No relevant facts are present.",
+      "hypothesis": "The provided snippets contain no information about museum or gallery visits in December.\n\nAnswer: I don't know.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 71839,
+      "context_num_ctx": {
+        "extract": 21800,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.6163424998521805,
+        "context_build": 0.01869658287614584,
+        "extract": 7.504694541916251,
+        "compute": 6.2845381249208,
+        "judge": 7.2710198340937495
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "5.5 weeks",
+      "extracted_facts": "- [2023/05/24 (Wed) 08:41]: The user finished \"The Seven Husbands of Evelyn Hugo\" in two and a half weeks.\n- [2023/05/24 (Wed) 11:25]: The user finished \"The Nightingale\" in about three weeks.",
+      "hypothesis": "2.5 weeks + 3 weeks = 5.5 weeks\n\nAnswer: 5.5 weeks",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 48598,
+      "context_num_ctx": {
+        "extract": 15169,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.857644667150453,
+        "context_build": 0.01726204203441739,
+        "extract": 7.900723125087097,
+        "compute": 7.344762624939904,
+        "judge": 5.598240333143622
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$720",
+      "extracted_facts": "- [2023/02/26 (Sun) 11:52] user attended a half-day mindfulness workshop on December 12 and paid $20.\n- [2023/02/26 (Sun) 11:52] user attended a one-day photography workshop on February 22 which was a free event.\n- [2023/02/26 (Sun) 13:21] user attended a two-day writing workshop in November at a literary festival and paid $200.\n- [2023/02/26 (Sun) 13:37] user attended a digital marketing workshop at the city convention center on March 15-16 and paid $500.\n- [2023/02/26 (Sun) 11:52] user attended a three-day entrepreneurship workshop at a coworking space downtown in January. (Price not mentioned).",
+      "hypothesis": "The provided snippets do not specify the current date, so it is impossible to determine which workshops occurred in the \"last four months.\"\n\nAnswer: Not enough information",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 110433,
+      "context_num_ctx": {
+        "extract": 32831,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.044074249919504,
+        "context_build": 0.017658957978710532,
+        "extract": 12.493410000111908,
+        "compute": 7.586344875162467,
+        "judge": 5.729007000103593
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Premier Silver",
+      "extracted_facts": "- [2022/09/16 (Fri) 17:22] The user reached 20,000 miles and earned Premier Silver status.\n- [2023/05/30 (Tue) 08:58] The user reached Premier Gold status.",
+      "hypothesis": "The user was Premier Silver before reaching Premier Gold.\n\nAnswer: Premier Silver",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 103124,
+      "context_num_ctx": {
+        "extract": 30747,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.097109916852787,
+        "context_build": 0.019939917139708996,
+        "extract": 10.33884095796384,
+        "compute": 6.673047082964331,
+        "judge": 11.225289541995153
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "extracted_facts": "- [2023/05/20 (Sat) 12:42] user: downloaded Billie Eilish's \"Happier Than Ever\" album on Spotify.\n- [2023/05/20 (Sat) 12:42] user: bought \"The Whiskey Wanderers\" EP \"Midnight Sky\" at the festival merchandise booth.\n- [2023/05/26 (Fri) 23:25] user: got a Tame Impala vinyl signed after the show at the Red Rocks Amphitheatre in Colorado.\n- [2023/05/26 (Fri) 23:25] user: bought \"The Whiskey Wanderers\" EP \"Midnight Sky\" at the festival merchandise booth.\n- [2023/05/29 (Mon) 18:21] user: bought \"The Whiskey Wanderers\" EP 'Midnight Sky' at the festival merchandise booth.",
+      "hypothesis": "- Billie Eilish's \"Happier Than Ever\" (downloaded)\n- \"The Whiskey Wanderers\" EP \"Midnight Sky\" (bought)\n- Tame Impala vinyl (signed/obtained)\n\nCalculation: 1 + 1 + 1 = 3\n\nAnswer: 3",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 81430,
+      "context_num_ctx": {
+        "extract": 24539,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.163418250158429,
+        "context_build": 0.015588624868541956,
+        "extract": 7.633690875023603,
+        "compute": 4.556811499875039,
+        "judge": 5.971336333081126
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [user] [2023/02/20 (Mon) 16:20] user: I recently attended the Sunday mass at St. Mary's Church on January 2nd.\n- [user] [2023/02/20 (Mon) 04:43] user: I just came from the Ash Wednesday service at the cathedral on February 1st.",
+      "hypothesis": "January 2nd to February 1st: 29 days (31 - 2 = 29)\n\nAnswer: 30 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 103016,
+      "context_num_ctx": {
+        "extract": 30723,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.593751291045919,
+        "context_build": 0.018214707961305976,
+        "extract": 13.670111917192116,
+        "compute": 9.18176483316347,
+        "judge": 7.030990500003099
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a yellow dress",
+      "extracted_facts": "- [2023/05/24 (Wed) 04:49] The user bought a yellow dress for their sister's birthday.\n- [2023/05/24 (Wed) 04:49] The user bought a pair of earrings to match the yellow dress for their sister's birthday.",
+      "hypothesis": "A yellow dress and a pair of earrings.\n\nAnswer: A yellow dress and a pair of earrings",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 101777,
+      "context_num_ctx": {
+        "extract": 30348,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.007323874859139,
+        "context_build": 0.011325834086164832,
+        "extract": 12.882130957907066,
+        "compute": 8.207603083923459,
+        "judge": 6.593626624904573
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "500 Mbps",
+      "extracted_facts": "- [2023/05/24 (Wed) 03:21] user: I upgraded to 500 Mbps about three weeks ago.",
+      "hypothesis": "The user upgraded to 500 Mbps.\n\nAnswer: 500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 132802,
+      "context_num_ctx": {
+        "extract": 39209,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.596570041961968,
+        "context_build": 0.01831562491133809,
+        "extract": 9.754354208009318,
+        "compute": 7.7199065000750124,
+        "judge": 7.5622926249634475
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "bronchitis",
+      "extracted_facts": "- [2023/05/30 (Tue) 00:08] user: I actually recently had a bad case of bronchitis that I initially thought was just a cold, but it turned out to be a lot more serious.",
+      "hypothesis": "A bad case of bronchitis.\n\nAnswer: Bronchitis",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 106428,
+      "context_num_ctx": {
+        "extract": 31680,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.503054875181988,
+        "context_build": 0.012717209057882428,
+        "extract": 10.670073041925207,
+        "compute": 8.62694291700609,
+        "judge": 9.587573334109038
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "extracted_facts": "No relevant facts are present.",
+      "hypothesis": "The provided snippets do not contain information regarding how long you have been collecting vintage films.\n\nAnswer: I don't know.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 89600,
+      "context_num_ctx": {
+        "extract": 26869,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 10.088853333843872,
+        "context_build": 0.03250462515279651,
+        "extract": 14.577872291905805,
+        "compute": 11.380188666982576,
+        "judge": 8.906778417062014
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Doc Martin",
+      "extracted_facts": "- [2023/05/26 (Fri) 18:07] The user mentioned that Netflix takes down shows and they want access to all seasons for old shows.\n- [2023/05/26 (Fri) 18:07] The user used the show \"doc martin\" as an example of a show where only the last season is currently available.",
+      "hypothesis": "The user used \"doc martin\" as an example.\n\nAnswer: doc martin",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 95258,
+      "context_num_ctx": {
+        "extract": 28540,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.9965689580421895,
+        "context_build": 0.016006582882255316,
+        "extract": 8.151509542018175,
+        "compute": 8.246622874867171,
+        "judge": 6.502873165998608
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Friday",
+      "extracted_facts": "- [2023/06/16 (Fri) 13:26] user: I have a cocktail-making class on Thursday.\n- [2023/06/30 (Fri) 22:49] user: I have a cocktail-making class on Fridays.\n- [2023/06/30 (Fri) 22:49] user: I have a cocktail-making class on Friday.",
+      "hypothesis": "The user mentioned Thursday (2023/06/16) and Friday (2023/06/30).\n\nAnswer: Thursday and Friday",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 77835,
+      "context_num_ctx": {
+        "extract": 23510,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.293089166050777,
+        "context_build": 0.01806929102167487,
+        "extract": 5.993924665963277,
+        "compute": 6.610498833935708,
+        "judge": 6.302148999879137
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "10 times",
+      "extracted_facts": "- [2023/11/04 (Sat) 03:27] user rode the Revenge of the Mummy rollercoaster three times in a row at Universal Studios Hollywood on October 15th.\n- [2023/11/04 (Sat) 11:35] user rode the Xcelerator rollercoaster at Knott's Berry Farm on October 8th.\n- [2023/11/04 (Sat) 18:12] user rode Space Mountain: Ghost Galaxy three times at Disneyland on September 24th.\n- [2023/11/04 (Sat) 21:15] user rode the Mako, Kraken, and Manta rollercoasters all in one night at SeaWorld San Diego in July.",
+      "hypothesis": "Calculation: 3 (Revenge of the Mummy) + 1 (Xcelerator) + 3 (Space Mountain) + 3 (Mako, Kraken, Manta) = 10\n\nAnswer: 10",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 86082,
+      "context_num_ctx": {
+        "extract": 25878,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.976174667011946,
+        "context_build": 0.01822899980470538,
+        "extract": 11.86710370797664,
+        "compute": 12.235937791876495,
+        "judge": 11.073974791914225
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "extracted_facts": "- [2023/05/27 (Sat) 11:16] The assistant suggested \"sexual fixations\" as an alternative term.\n- [2023/05/27 (Sat) 11:16] The assistant suggested \"problematic sexual behaviors\" as an alternative term.\n- [2023/05/27 (Sat) 11:16] The assistant suggested \"sexual impulsivity\" as an alternative term.\n- [2023/05/27 (Sat) 11:16] The assistant suggested \"compulsive sexuality\" as an alternative term.",
+      "hypothesis": "The provided snippets list four alternative terms: \"sexual fixations\", \"problematic sexual behaviors\", \"sexual impulsivity\", and \"compulsive sexuality\".\n\nAnswer: sexual fixations, problematic sexual behaviors, sexual impulsivity, and compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 112690,
+      "context_num_ctx": {
+        "extract": 33504,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.5649520410224795,
+        "context_build": 0.015547458082437515,
+        "extract": 11.597834625048563,
+        "compute": 8.207225541817024,
+        "judge": 9.760594750056043
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Disney+",
+      "extracted_facts": "- [user] [2023/05/26 (Fri) 01:08] user started a free trial of Disney+ last month.\n- [user] [2023/05/26 (Fri) 08:25] user has been using Netflix, Hulu, and Amazon Prime for the past 6 months.\n- [user] [2023/05/26 (Fri) 23:40] user has been using Apple TV+ for a few months.",
+      "hypothesis": "Disney+ (started last month), whereas others were started 6 months ago or a few months ago.\n\nAnswer: Disney+",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 126032,
+      "context_num_ctx": {
+        "extract": 37281,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.565597540931776,
+        "context_build": 0.018067916855216026,
+        "extract": 12.176363207865506,
+        "compute": 10.754325333982706,
+        "judge": 8.137227250030264
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "extracted_facts": "- The user has an iPhone 13 Pro [2023/05/27 (Sat) 13:52].\n- The user is looking for a phone wallet case [2023/05/27 (Sat) 13:52].\n- The user is looking for a new screen protector to replace a cracked one on their iPhone 13 Pro [2023/05/27 (Sat) 13:52].\n- The user is interested in wireless charging power banks [2023/05/27 (Sat) 13:52].\n- The user already has a portable power bank from Best Buy [2023/05/27 (Sat) 13:52].",
+      "hypothesis": "Based on the provided facts, you are looking for a phone wallet case, a new screen protector, and are interested in wireless charging power banks.\n\nAnswer: A phone wallet case, a screen protector, and a wireless charging power bank.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 110878,
+      "context_num_ctx": {
+        "extract": 32951,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.013966707978398,
+        "context_build": 0.01006975001655519,
+        "extract": 9.357643584022298,
+        "compute": 8.369097290793434,
+        "judge": 9.830337333027273
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "extracted_facts": "- [user] [2023/01/14 (Sat) 19:01] user: I remember attending the \"Impressionist Masterpieces\" exhibition at the City Art Museum on a Saturday, which was a week before I participated in the guided tour of the Natural History Museum's newest exhibit, \"Dinosaurs of the Ancient World\".\n- [user] [2023/01/08 (Sun) 17:59] user: I'm curious about Frida Kahlo's works, which I learned about during my MoMA tour.\n- [user] [2023/01/08 (Sun) 17:59] user: I just got back from a guided tour at the Museum of Modern Art focused on 20th-century modern art movements.\n- [user] [2023/01/15 (Sun) 13:43] user: I attended the \"Ancient Civilizations\" exhibit at the Metropolitan Museum of Art today.",
+      "hypothesis": "The current date is 2023/01/15. Two weeks ago was 2023/01/01. None of the provided snippets mention an event on or around that date.\n\nAnswer: Not mentioned in the provided snippets.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 102595,
+      "context_num_ctx": {
+        "extract": 30597,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.857930375030264,
+        "context_build": 0.015437750145792961,
+        "extract": 14.709587916964665,
+        "compute": 13.380757875042036,
+        "judge": 8.712632125010714
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "8 days.",
+      "extracted_facts": "- [user] [2023/04/29 (Sat) 10:31] user: I've been loving the scenic drives and hikes in Utah lately - we had a 7-day family road trip there in February. We did a lot of driving and hiking, but not camping for this time.\n- [user] [2023/04/29 (Sat) 15:49] user: I just got back from an amazing 5-day camping trip to Yellowstone National Park last month.\n- [user] [2023/04/29 (Sat) 20:02] user: I just got back from a 3-day solo camping trip to Big Sur in early April.",
+      "hypothesis": "5 days (Yellowstone) + 3 days (Big Sur) = 8 days\n\nAnswer: 8 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 67045,
+      "context_num_ctx": {
+        "extract": 20433,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.974185666069388,
+        "context_build": 0.011416916968300939,
+        "extract": 11.95264529203996,
+        "compute": 9.263650625012815,
+        "judge": 7.882099207956344
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [2023/03/04 (Sat) 12:05] user: I repot the previous spider plant today.\n- [2023/03/18 (Sat) 08:49] user: I gave my neighbor, Mrs. Johnson, a few cuttings from my spider plant today.",
+      "hypothesis": "March 18 - March 4 = 14 days\n\nAnswer: 14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 111000,
+      "context_num_ctx": {
+        "extract": 33015,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.813066832954064,
+        "context_build": 0.010569416917860508,
+        "extract": 9.172274040989578,
+        "compute": 7.456565999891609,
+        "judge": 6.2453048748429865
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "extracted_facts": "- [2023/03/16 (Thu) 19:05] The user has taken their camera on three trips to Yellowstone, Yosemite, and the Grand Canyon.\n- [2023/05/30 (Tue) 00:43] The user stated they have had their Canon EOS 80D with them on five trips now.",
+      "hypothesis": "The user stated they have had their Canon EOS 80D with them on five trips.\n\nAnswer: 5",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 101586,
+      "context_num_ctx": {
+        "extract": 30296,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.716127957915887,
+        "context_build": 0.01755995792336762,
+        "extract": 7.8395717919338495,
+        "compute": 5.797244166955352,
+        "judge": 5.2069637081585824
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "extracted_facts": "- [system] [2023/05/28 (Sun) 13:25] assistant recommended nature and wildlife documentaries: \"Planet Earth\" (Netflix), \"Blue Planet\" (Netflix), \"March of the Penguins\" (Netflix), \"Dynasties\" (Netflix), and \"Chasing Coral\" (Netflix).\n- [system] [2023/05/28 (Sun) 13:25] assistant recommended adventure and exploration documentaries: \"The Last Lions\" (Netflix), \"The Cave\" (Netflix), \"The River Runs Red\" (Amazon Prime), \"Expedition Unknown\" (Discovery+), and \"Running Wild with Bear Grylls\" (Netflix).\n- [system] [2023/05/28 (Sun) 13:25] assistant recommended true crime and mystery documentaries: \"Tiger King: Murder, Mayhem and Madness\" (Netflix), \"The Keepers\" (Netflix), \"The Staircase\" (Netflix), \"The Jinx: The Life and Deaths of Robert Durst\" (HBO Max), and \"Abducted in Plain Sight\" (Netflix).\n- [system] [2023/05/28 (Sun) 13:25] assistant recommended other documentaries: \"The Inventor: Out for Blood in Silicon Valley\" (HBO Max), \"Fyre: The Greatest Party That Never Happened\" (Netflix), \"The Game Changers\" (Netflix), \"The Family I Had\" (Netflix), and \"The Imposter\" (Amazon Prime).",
+      "hypothesis": "Recommendations include:\n- Nature/Wildlife: \"Planet Earth\", \"Blue Planet\", \"March of the Penguins\", \"Dynasties\", \"Chasing Coral\" (all Netflix).\n- Adventure/Exploration: \"The Last Lions\", \"The Cave\", \"Running Wild with Bear Grylls\" (Netflix), \"The River Runs Red\" (Amazon Prime), \"Expedition Unknown\" (Discovery+).\n- True Crime/Mystery: \"Tiger King: Murder, Mayhem and Madness\", \"The Keepers\", \"The Staircase\", \"Abducted in Plain Sight\" (all Netflix), \"The Jinx: The Life and Deaths of Robert Durst\" (HBO Max).\n- Other: \"Fyre: The Greatest Party That Never Happened\", \"The Game Changers\", \"The Family I Had\" (all Netflix), \"The Inventor: Out for Blood in Silicon Valley\" (HBO Max), \"The Imposter\" (Amazon Prime).\n\nAnswer: \"Planet Earth\", \"Blue Planet\", \"March of the Penguins\", \"Dynasties\", \"Chasing Coral\", \"The Last Lions\", \"The Cave\", \"The River Runs Red\", \"Expedition Unknown\", \"Running Wild with Bear Grylls\", \"Tiger King: Murder, Mayhem and Madness\", \"The Keepers\", \"The Staircase\", \"The Jinx: The Life and Deaths of Robert Durst\", \"Abducted in Plain Sight\", \"The Inventor: Out for Blood in Silicon Valley\", \"Fyre: The Greatest Party That Never Happened\", \"The Game Changers\", \"The Family I Had\", and \"The Imposter\".",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 112318,
+      "context_num_ctx": {
+        "extract": 33365,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.845206792000681,
+        "context_build": 0.018191708950325847,
+        "extract": 12.966590041993186,
+        "compute": 10.130610459018499,
+        "judge": 10.713228499982506
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [2023/01/10 (Tue) 10:34] user: I just started \"The Nightingale\" by Kristin Hannah today.\n- [2023/01/31 (Tue) 23:59] user: I just finished a historical fiction novel, \"The Nightingale\" by Kristin Hannah, today.",
+      "hypothesis": "January 31 - January 10 = 21 days.\n\nAnswer: 21 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 77048,
+      "context_num_ctx": {
+        "extract": 23291,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.752481209114194,
+        "context_build": 0.013549000024795532,
+        "extract": 10.223351791966707,
+        "compute": 8.887725749984384,
+        "judge": 7.743639250053093
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "extracted_facts": "- [2023/07/21 (Fri) 06:56] user mentioned feeling guilty about missing their nephew Jack's eighth grade graduation ceremony last month.\n- [2023/07/21 (Fri) 14:52] user mentioned attending their best friend Rachel's master's degree graduation ceremony a couple of weeks ago.",
+      "hypothesis": "The user missed Jack's ceremony and attended Rachel's ceremony (1).\n\nAnswer: 1",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 127486,
+      "context_num_ctx": {
+        "extract": 37701,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.9647286250256,
+        "context_build": 0.012346416944637895,
+        "extract": 10.094773249933496,
+        "compute": 8.253815457923338,
+        "judge": 8.587746166158468
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "4 weeks",
+      "extracted_facts": "- [2023/06/11 (Sun) 22:24] The user has been doing their daily tidying routine for 3 weeks.\n- [2023/09/30 (Sat) 17:52] The user has been sticking to their daily tidying routine for 4 weeks.",
+      "hypothesis": "The most recent record is from 2023/09/30.\n\nAnswer: 4 weeks",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 84605,
+      "context_num_ctx": {
+        "extract": 25445,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.035169875016436,
+        "context_build": 0.014978332910686731,
+        "extract": 8.70965545787476,
+        "compute": 7.277135916985571,
+        "judge": 5.204582958016545
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Four weeks",
+      "extracted_facts": "- [2023/05/25 (Thu) 03:25] The user has been taking weekly guitar lessons with a new instructor, Alex, for six weeks.\n- [2023/05/25 (Thu) 03:25] The user has been practicing for at least 30 minutes every day since starting lessons with Alex.\n- [2023/05/25 (Thu) 03:25] The user bought a new guitar amp two weeks ago.\n- [2023/05/25 (Thu) 18:54] The user invested in a new amp two weeks ago.",
+      "hypothesis": "The user had been taking lessons for six weeks and bought the amp two weeks ago (6 - 2 = 4).\n\nAnswer: 4 weeks",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 123909,
+      "context_num_ctx": {
+        "extract": 36680,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.9614279579836875,
+        "context_build": 0.012199000222608447,
+        "extract": 134.90882824989967,
+        "compute": 6.408226707950234,
+        "judge": 5.565634875092655
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$6",
+      "extracted_facts": "- [2023/05/25 (Thu) 18:12] The taxi ride cost $12.\n- [2023/05/28 (Sun) 15:00] The daily train fare is $6.",
+      "hypothesis": "$12 - $6 = $6\n\nAnswer: $6",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 53161,
+      "context_num_ctx": {
+        "extract": 16471,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.611328416038305,
+        "context_build": 0.01445366581901908,
+        "extract": 7.640939832897857,
+        "compute": 10.207887125201523,
+        "judge": 7.092937792185694
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "extracted_facts": "- [user] [2023/03/27 (Mon) 00:55] user: I recently had a follow-up appointment with my orthopedic surgeon, Dr. Thompson, on March 20th.\n- [user] [2023/03/27 (Mon) 20:56] user: I finally went to see my primary care physician, Dr. Smith, on March 3rd.",
+      "hypothesis": "1 (Dr. Smith, March 3rd) + 1 (Dr. Thompson, March 20th) = 2\n\nAnswer: 2",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 101054,
+      "context_num_ctx": {
+        "extract": 30143,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.612492749933153,
+        "context_build": 0.011750834062695503,
+        "extract": 8.218825958902016,
+        "compute": 6.754099916899577,
+        "judge": 6.525378041900694
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "extracted_facts": "- [2023/05/20 (Sat) 10:04] Andy wears an untidy, stained white shirt.\n- [2023/05/20 (Sat) 10:04] Andy, a man in his 40s with a loud, deep voice and poor personal hygiene, is standing in front of the department's whiteboard. He wears an untidy, stained white shirt.",
+      "hypothesis": "Andy wears an untidy, stained white shirt.\n\nAnswer: An untidy, stained white shirt",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 72367,
+      "context_num_ctx": {
+        "extract": 21970,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.572162666125223,
+        "context_build": 0.02075020782649517,
+        "extract": 10.245319166919217,
+        "compute": 6.691501582972705,
+        "judge": 6.887769666966051
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Michael's engagement party",
+      "extracted_facts": "- [2023/05/06 (Sat) 03:02] user: I just came back from Michael's engagement party at a trendy rooftop bar today.\n- [2023/06/15 (Thu) 03:20] user: I just walked down the aisle as a bridesmaid at my cousin's wedding today.",
+      "hypothesis": "Michael's engagement party (2023/05/06) occurred before the cousin's wedding (2023/06/15).\n\nAnswer: Michael's engagement party",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 116177,
+      "context_num_ctx": {
+        "extract": 34472,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.762893375009298,
+        "context_build": 0.013387124985456467,
+        "extract": 6.752086290856823,
+        "compute": 5.86937683285214,
+        "judge": 7.1169767919927835
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "extracted_facts": "- [user] [2023/05/23 (Tue) 00:21] user: I just got back from an amazing island-hopping trip to Hawaii with my family.\n- [user] [2023/05/23 (Tue) 00:21] user: With my family, we had to plan everything out for the 10-day so far in advance.",
+      "hypothesis": "The provided text mentions a 10-day trip to Hawaii but contains no information about a trip to Seattle.\n\nAnswer: Not enough information",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 111084,
+      "context_num_ctx": {
+        "extract": 33014,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.037862833123654,
+        "context_build": 0.015134582994505763,
+        "extract": 8.072455208050087,
+        "compute": 13.359745665919036,
+        "judge": 6.956943833036348
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "extracted_facts": "- [2023/05/26 (Fri) 07:42] The assistant mentioned Patagonia as a company that prioritizes the well-being of its employees, offering flexible work arrangements, generous maternity and paternity leave, and investments in employee education and wellness.\n- [2023/05/26 (Fri) 07:42] The assistant mentioned Southwest Airlines as a company that puts a strong emphasis on its employees (\"Warriors\"), offering top-of-the-line training, generous benefits packages, and a positive work environment.",
+      "hypothesis": "The provided snippets mention Patagonia and Southwest Airlines as companies that prioritize employee well-being and a positive work environment, but they do not mention Triumvirate.\n\nAnswer: Patagonia and Southwest Airlines",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 111274,
+      "context_num_ctx": {
+        "extract": 33102,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.136140750022605,
+        "context_build": 0.016162416897714138,
+        "extract": 10.060145958093926,
+        "compute": 9.81639708392322,
+        "judge": 7.738555292133242
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [user] [2023/04/15 (Sat) 17:41] user: I attended a gardening workshop in my neighborhood today.\n- [user] [2023/04/21 (Fri) 11:01] user: I just planted 12 new tomato saplings today.",
+      "hypothesis": "April 21 - April 15 = 6 days\n\nAnswer: 6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 101892,
+      "context_num_ctx": {
+        "extract": 30400,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.566471166908741,
+        "context_build": 0.012635374907404184,
+        "extract": 7.47579141613096,
+        "compute": 6.954008542001247,
+        "judge": 5.072473624954
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "over a year",
+      "extracted_facts": "- [user] [2023/05/28 (Sun) 18:12] user: Over a year of uncertainty was really tough [referring to the wait for the asylum application to get approved].",
+      "hypothesis": "Over a year.\n\nAnswer: Over a year",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 109016,
+      "context_num_ctx": {
+        "extract": 32421,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.063235915964469,
+        "context_build": 0.01183995814062655,
+        "extract": 7.993925709044561,
+        "compute": 5.528979792026803,
+        "judge": 4.335554291959852
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "4 days.",
+      "extracted_facts": "- [2023/05/26 (Fri) 03:42] The user started a yoga class on Wednesdays.\n- [2023/05/27 (Sat) 06:52] The user attends Zumba classes on Tuesdays and Thursdays at 6:30 pm.\n- [2023/05/27 (Sat) 06:52] The user attends a weightlifting class on Saturdays at 10 am.",
+      "hypothesis": "Yoga (Wed), Zumba (Tue, Thu), Weightlifting (Sat): 1 + 2 + 1 = 4 days.\n\nAnswer: 4",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 86626,
+      "context_num_ctx": {
+        "extract": 26020,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.216455833055079,
+        "context_build": 0.022111833095550537,
+        "extract": 6.583538040984422,
+        "compute": 6.488969957921654,
+        "judge": 5.667515249922872
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": 120,
+      "extracted_facts": "- [2023/07/11 (Tue) 00:07] assistant stated you need 400 stars within a 12-month period to reach Gold level.\n- [2023/07/11 (Tue) 00:07] user corrected that they actually need 125 stars to reach Gold level, not 400.\n- [2023/07/11 (Tue) 00:07] assistant acknowledged the correction and stated you need 125 stars within a 12-month period to reach Gold level.\n- [2023/07/11 (Tue) 00:07] assistant stated you need 300 stars within a 12-month period to become a Gold member.\n- [2023/07/30 (Sun) 02:08] assistant stated you need a total of 300 stars within a 12-month period to reach Gold level.\n- [2023/07/30 (Sun) 02:08] user stated they need 120 stars to reach the gold level, not 300.\n- [2023/07/30 (Sun) 02:08] assistant apologized and stated that reaching Gold level requires 120 stars.",
+      "hypothesis": "The provided memories contain conflicting information (400, 125, 300, and 120 stars), with the most recent correction stating 120 stars.\n\nAnswer: 120 stars",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 40283,
+      "context_num_ctx": {
+        "extract": 12787,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.70996837480925,
+        "context_build": 0.014508459018543363,
+        "extract": 8.48255958314985,
+        "compute": 4.075548500055447,
+        "judge": 5.337133792228997
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$1,300",
+      "extracted_facts": "- [system] [2023/05/23 (Tue) 21:13] user: I recently treated myself to a Coach handbag, which costed $800.\n- [system] [2023/05/28 (Sun) 02:12] user: I've recently invested $500 in some high-end products during the Nordstrom anniversary sale.",
+      "hypothesis": "$800 (Coach handbag) + $500 (high-end products) = $1,300\n\nAnswer: $1,300",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 102373,
+      "context_num_ctx": {
+        "extract": 30531,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.861750875134021,
+        "context_build": 0.012686541071161628,
+        "extract": 5.894286541966721,
+        "compute": 5.807207749923691,
+        "judge": 4.445642791921273
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Roscioli",
+      "extracted_facts": "- [system] [2023/05/26 (Fri) 15:26] Roscioli is a famous deli near the Vatican that serves the best cured meats, cheeses, and traditional Roman cuisine.",
+      "hypothesis": "The famous deli near the Vatican that serves the best cured meats and cheeses is Roscioli.\n\nAnswer: Roscioli",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 62767,
+      "context_num_ctx": {
+        "extract": 19240,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.7736602909862995,
+        "context_build": 0.019276208942756057,
+        "extract": 5.751680542016402,
+        "compute": 6.0841620420105755,
+        "judge": 5.120065290946513
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "extracted_facts": "- [2023/03/11 (Sat) 18:01] user: planning to play tennis with my friends this Sunday at the local park.\n- [2023/03/11 (Sat) 18:01] user: saw some people playing tennis [at the local park last Sunday] - reminds me of my own weekly tennis sessions with friends.\n- [2023/07/30 (Sun) 04:03] user: planning to play tennis with my friends at the local park this Sunday, like we do every other week.",
+      "hypothesis": "Previously: weekly (per 2023/03/11 entry).\nNow: every other week (per 2023/07/30 entry).\n\nAnswer: Previously weekly, now every other week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 138934,
+      "context_num_ctx": {
+        "extract": 40979,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.27301845792681,
+        "context_build": 0.011929208878427744,
+        "extract": 7.668707750039175,
+        "compute": 7.841067667119205,
+        "judge": 14.733742041978985
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "extracted_facts": "- [2023/02/01 (Wed) 14:38] user: I just started taking ukulele lessons with my friend Rachel today.\n- [2023/02/01 (Wed) 14:38] user: Rachel's been giving me some exercises to practice [for fingerpicking].",
+      "hypothesis": "Calculation: February 1, 2023 (Wednesday) is two months before April 1, 2023.\n\nAnswer: Started taking ukulele lessons.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 96905,
+      "context_num_ctx": {
+        "extract": 28960,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.40438187494874,
+        "context_build": 0.012076082872226834,
+        "extract": 8.649240124970675,
+        "compute": 9.972097750054672,
+        "judge": 10.03860391699709
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "2-3 eggs",
+      "extracted_facts": "- [2023/05/21 (Sun) 01:17] The ingredients for a classic French omelette include 2-3 eggs.\n- [2023/05/22 (Mon) 08:11] The ingredients for an outstanding 3 egg omelette include 3 large eggs.",
+      "hypothesis": "The ingredients for a classic French omelette include 2-3 eggs.\n\nAnswer: 2-3 eggs",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 78048,
+      "context_num_ctx": {
+        "extract": 23601,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.7775182500481606,
+        "context_build": 0.019426999846473336,
+        "extract": 11.745743707986549,
+        "compute": 9.353653625119478,
+        "judge": 8.000599667197093
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "extracted_facts": "- [2023/03/08 (Wed) 12:09] user fell in love with a 2-bedroom condo on February 15th, but the offer was rejected on the 17th.\n- [2023/03/08 (Wed) 13:14] user saw a property in Cedar Creek on February 1st that was out of their budget.\n- [2023/03/08 (Wed) 16:03] user viewed a 1-bedroom condo on February 10th, but highway noise was a deal-breaker.\n- [2023/03/08 (Wed) 19:51] user saw a 3-bedroom bungalow in the Oakwood neighborhood on January 22nd.\n- [2023/03/08 (Wed) 09:32] user saw a 3-bedroom townhouse in the Brookside neighborhood on February 22nd and put in an offer on February 25th.",
+      "hypothesis": "Properties viewed before February 25th:\n1. Oakwood bungalow (Jan 22)\n2. Cedar Creek property (Feb 1)\n3. 1-bedroom condo (Feb 10)\n4. 2-bedroom condo (Feb 15)\n5. Brookside townhouse (Feb 22)\n\nCalculation: 5 properties\n\nAnswer: 5",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 95561,
+      "context_num_ctx": {
+        "extract": 28588,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.9346645418554544,
+        "context_build": 0.01653420808725059,
+        "extract": 18.108051833929494,
+        "compute": 14.22233224986121,
+        "judge": 9.089706915896386
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "No, you did not visit with a friend.",
+      "extracted_facts": "- [2022/10/22 (Sat) 23:02] user: mentioned a recent visit to the Science Museum and a behind-the-scenes tour taken with a friend who's a chemistry professor.\n- [2022/10/22 (Sat) 23:02] user: mentioned a behind-the-scenes tour of the Science Museum with a friend who's a chemistry professor, exploring rare minerals and participating in a hands-on experiment.\n- [2022/12/16 (Fri) 13:06] user: mentioned being at a private viewing of a contemporary art exhibit at the city gallery last Thursday evening.\n- [2022/12/16 (Fri) 13:06] user: mentioned attending the \"Art in Bloom\" exhibition at the local art museum about three weeks ago.\n- [2022/12/16 (Fri) 13:06] user: mentioned attending a lecture on Impressionism at the university's art museum.\n- [2023/01/11 (Wed) 06:16] user: mentioned learning about Petra in a lecture at the History Museum this month.\n- [2023/02/18 (Sat) 00:56] user: mentioned attending a guided tour at the Natural History Museum yesterday with their dad.",
+      "hypothesis": "Current date is 2023/02/18. Two months ago was December 2022. In December 2022, the user mentioned a private viewing at the city gallery, the \"Art in Bloom\" exhibition, and a lecture on Impressionism, but did not mention a companion for any of these.\n\nAnswer: Not mentioned",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 128902,
+      "context_num_ctx": {
+        "extract": 38108,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.86728158313781,
+        "context_build": 0.023933042073622346,
+        "extract": 11.39805862493813,
+        "compute": 9.819537665927783,
+        "judge": 13.257929707877338
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Japanese short-grain rice",
+      "extracted_facts": "- [2023/05/27 (Sat) 00:47] user: I was thinking of making some Japanese-style dishes with my favorite Japanese short-grain rice.",
+      "hypothesis": "Japanese short-grain rice\n\nAnswer: Japanese short-grain rice",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 106548,
+      "context_num_ctx": {
+        "extract": 31708,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.081084334058687,
+        "context_build": 0.012307625031098723,
+        "extract": 10.889761041849852,
+        "compute": 8.261205082992092,
+        "judge": 9.84880479099229
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "3:1",
+      "extracted_facts": "- [2023/05/22 (Mon) 03:39] The user settled on a 3:1 gin-to-vermouth ratio for their classic martini recipe.",
+      "hypothesis": "The user settled on a 3:1 gin-to-vermouth ratio.\n\nAnswer: 3:1",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 131896,
+      "context_num_ctx": {
+        "extract": 38960,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.156253875000402,
+        "context_build": 0.011063124984502792,
+        "extract": 12.288345000008121,
+        "compute": 10.417860166868195,
+        "judge": 10.600406875135377
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "32",
+      "extracted_facts": "- [2023/05/24 (Wed) 01:31] user: I've managed to spot 27 different species so far in my local park.\n- [2023/05/29 (Mon) 17:18] user: I just saw a Northern Flicker in my local park last weekend, which brings my total species count to 32.",
+      "hypothesis": "The user's total species count was updated from 27 to 32.\n\nAnswer: 32",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 45039,
+      "context_num_ctx": {
+        "extract": 14143,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.608586624963209,
+        "context_build": 0.01179716712795198,
+        "extract": 8.792885875096545,
+        "compute": 9.931848250096664,
+        "judge": 8.386118333088234
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "extracted_facts": "- The user has been getting inspiration from social media [2023/05/23 (Tue) 15:09].\n- The user has been looking at a lot of flower paintings on Instagram [2023/05/23 (Tue) 15:09].\n- The user recently started a 30-day painting challenge [2023/05/23 (Tue) 15:09].\n- The assistant suggested seeking inspiration from social media, art communities, or other sources [2023/05/23 (Tue) 15:09].\n- The assistant suggested surrounding oneself with inspirational elements in a studio space, such as hanging art pieces, prints, or quotes [2023/05/23 (Tue) 15:09].",
+      "hypothesis": "You can seek inspiration from social media, art communities, or other sources, and surround yourself with inspirational elements in a studio space, such as hanging art pieces, prints, or quotes.\n\nAnswer: Seek inspiration from social media, art communities, or other sources, and surround yourself with inspirational elements in a studio space (e.g., hanging art pieces, prints, or quotes).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 98068,
+      "context_num_ctx": {
+        "extract": 29307,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.651608082931489,
+        "context_build": 0.011772458907216787,
+        "extract": 9.295276707969606,
+        "compute": 7.551019000122324,
+        "judge": 6.329365750076249
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [user] [2023/03/19 (Sun) 12:13] user: I just got back into running and did a 5K charity run today, finishing in 27 minutes and 12 seconds...",
+      "hypothesis": "The provided text does not include today's date to calculate the difference from 2023/03/19.\n\nAnswer: Not enough information",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 94791,
+      "context_num_ctx": {
+        "extract": 28356,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.582182082813233,
+        "context_build": 0.011874082963913679,
+        "extract": 7.859948792029172,
+        "compute": 6.088579791830853,
+        "judge": 6.294207916827872
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "about two hours",
+      "extracted_facts": "- [2023/05/20 (Sat) 09:04] user: I've been dedicating about an hour each day to coding exercises.\n- [2023/05/29 (Mon) 01:53] user: I've been dedicating about two hours each day to coding exercises.",
+      "hypothesis": "As of 2023/05/29, the user dedicates about two hours each day.\n\nAnswer: about two hours each day",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 99669,
+      "context_num_ctx": {
+        "extract": 29749,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.7135292501188815,
+        "context_build": 0.011466374853625894,
+        "extract": 7.846983500057831,
+        "compute": 6.9492013331037015,
+        "judge": 6.221706749871373
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3.83",
+      "extracted_facts": "- [2023/05/24 (Wed) 10:17] The user completed a Master's degree in Data Science from the University of Illinois at Urbana-Champaign with a GPA of 3.8.\n- [2023/05/30 (Tue) 04:37] The user graduated with a First-Class distinction in Computer Science from the University of Mumbai with an overall percentage of 83%, equivalent to a GPA of 3.86 out of 4.0.",
+      "hypothesis": "(3.8 + 3.86) / 2 = 3.83\n\nAnswer: 3.83",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 114124,
+      "context_num_ctx": {
+        "extract": 33881,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.550495041068643,
+        "context_build": 0.013784582959488034,
+        "extract": 14.512512041954324,
+        "compute": 8.414644333068281,
+        "judge": 7.409876125166193
+      }
+    }
+  ]
+}

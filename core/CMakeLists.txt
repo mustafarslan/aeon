@@ -167,13 +167,24 @@ if(NOT MSVC)
     target_compile_options(aeon_shared PRIVATE -O2 -flto)
 endif()
 
-# Install rules for SDK distribution
-install(TARGETS aeon_shared
-    LIBRARY DESTINATION lib      # .so / .dylib
-    ARCHIVE DESTINATION lib      # .lib (Windows import library)
-    RUNTIME DESTINATION bin      # .dll (Windows)
-)
-install(FILES include/aeon/aeon_c_api.h DESTINATION include/aeon)
+# Install rules for SDK distribution. Guarded on NOT SKBUILD: scikit-build-core
+# (pip install -e .) only ever builds the targets listed in pyproject.toml's
+# [tool.scikit-build] build.targets (aeon_py_core alone) -- aeon_shared is
+# defined in the CMake graph either way but never actually compiled during a
+# Python wheel build, so an unconditional install(TARGETS aeon_shared ...)
+# here fails hard ("file INSTALL cannot find ... libaeon.dylib") on every
+# `pip install -e .`. SKBUILD is the CMake cache variable scikit-build-core
+# sets (to "2") when it invokes CMake; unset for a normal native/CI build,
+# where aeon_shared IS built (default `cmake --build` target list) and this
+# SDK-distribution install step is exactly what's wanted.
+if(NOT SKBUILD)
+    install(TARGETS aeon_shared
+        LIBRARY DESTINATION lib      # .so / .dylib
+        ARCHIVE DESTINATION lib      # .lib (Windows import library)
+        RUNTIME DESTINATION bin      # .dll (Windows)
+    )
+    install(FILES include/aeon/aeon_c_api.h DESTINATION include/aeon)
+endif()
 
 # --- Testing ---
 if(BUILD_TESTING)
@@ -193,12 +204,16 @@ if(BUILD_TESTING)
         tests/test_main.cpp
         tests/test_math.cpp
         tests/test_storage.cpp
+        tests/test_schema.cpp
         tests/test_atlas.cpp
         tests/test_epoch.cpp
         tests/test_concurrency.cpp
         tests/test_wal.cpp
         tests/test_blob_arena.cpp
         tests/test_quantization.cpp
+        tests/test_hierarchical_slb.cpp
+        tests/test_scope_recall.cpp
+        tests/test_trace_semantic_search.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 

@@ -39,6 +39,31 @@ std::vector<float> generate_vector(size_t dim, int seed) {
   return v;
 }
 
+// A single static `query` reused across every measured BM_Navigate
+// iteration is the self-hit-artifact class found across several
+// benchmarks in this audit (Stage 2 task 5, v4-plan.md): navigate()'s SLB
+// cache stores an entry after the FIRST call, and every subsequent
+// bit-for-bit-identical query (cosine==1.0 against its own cached entry)
+// hits that cache instead of performing a real traversal. This benchmark
+// is in the curated per-PR CI perf gate (guardrail #0), so a corrupted
+// number here silently defeats the whole point of the gate. Fix: cycle
+// through a pool of distinct queries, sized to exceed the iteration count
+// an explicit ->Iterations() cap enforces (see BM_Navigate registration
+// below) -- matching the fix already applied to bench_scalability.cpp's
+// BM_AtlasTraversal, which hit the identical bug.
+constexpr size_t QUERY_POOL_SIZE = 4096;
+constexpr int QUERY_SEED_BASE = 5'000'000;
+
+std::vector<std::vector<float>> generate_query_pool(size_t dim, size_t count,
+                                                     int seed_base) {
+  std::vector<std::vector<float>> pool;
+  pool.reserve(count);
+  for (size_t i = 0; i < count; ++i) {
+    pool.push_back(generate_vector(dim, seed_base + static_cast<int>(i)));
+  }
+  return pool;
+}
+
 // ── Build a balanced 64-ary Atlas tree via BFS level-order insertion ──
 void build_balanced_atlas(aeon::Atlas &atlas, size_t target_n) {
   auto root_vec = generate_vector(DIM, 0);
@@ -66,7 +91,7 @@ class QuantizationFixture : public benchmark::Fixture {
 public:
   std::unique_ptr<aeon::Atlas> atlas;
   std::string atlas_path;
-  std::vector<float> query;
+  std::vector<std::vector<float>> query_pool;
   uint32_t quant_type = aeon::QUANT_FP32;
 
   void SetUp(benchmark::State &state) override {
@@ -90,7 +115,7 @@ public:
     atlas = std::make_unique<aeon::Atlas>(atlas_path, opts);
     build_balanced_atlas(*atlas, N);
 
-    query = generate_vector(DIM, 99999);
+    query_pool = generate_query_pool(DIM, QUERY_POOL_SIZE, QUERY_SEED_BASE);
 
     // Report file size as a custom counter
     auto file_size = std::filesystem::file_size(atlas_path);
@@ -110,11 +135,17 @@ public:
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(QuantizationFixture, BM_Navigate)
 (benchmark::State &state) {
-  std::span<const float> q{query};
-
+  size_t idx = 0;
   for (auto _ : state) {
-    auto results = atlas->navigate(q);
+    auto results = atlas->navigate(std::span<const float>{query_pool[idx % QUERY_POOL_SIZE]});
     benchmark::DoNotOptimize(results);
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
   state.SetItemsProcessed(state.iterations());
 }
@@ -125,6 +156,7 @@ BENCHMARK_REGISTER_F(QuantizationFixture, BM_Navigate)
     ->Args({10'000, aeon::QUANT_FP32})
     ->Args({100'000, aeon::QUANT_FP32})
     ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE)
     ->Repetitions(5)
     ->ReportAggregatesOnly(true);
 
@@ -133,6 +165,7 @@ BENCHMARK_REGISTER_F(QuantizationFixture, BM_Navigate)
     ->Args({10'000, aeon::QUANT_INT8_SYMMETRIC})
     ->Args({100'000, aeon::QUANT_INT8_SYMMETRIC})
     ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE)
     ->Repetitions(5)
     ->ReportAggregatesOnly(true);
 

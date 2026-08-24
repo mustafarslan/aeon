@@ -36,7 +36,7 @@
 
 #include "aeon/epoch.hpp"       // CACHE_LINE_SIZE
 #include "aeon/math_kernel.hpp" // cosine_similarity
-#include "aeon/schema.hpp"      // EMBEDDING_DIM
+#include "aeon/schema.hpp"      // EMBEDDING_DIM_DEFAULT
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -61,16 +61,30 @@ inline constexpr size_t SESSION_CACHE_SIZE = 64;
 // SessionRingBuffer — Per-session L1 cache (ring buffer of recent results)
 // ---------------------------------------------------------------------------
 
-/// An entry in the session-local ring buffer.
+/// Metadata for an entry in the session-local ring buffer. Centroid data
+/// lives separately in SessionRingBuffer::centroid_storage_ (see below) --
+/// this struct is deliberately small and cache-line-aligned so the
+/// liveness/LRU scan touches minimal memory before falling through to the
+/// (much larger, dim-sized) centroid comparison.
 struct alignas(CACHE_LINE_SIZE) SessionCacheEntry {
   uint64_t node_id{0};
-  float centroid[EMBEDDING_DIM]{};
   uint64_t last_accessed_tick{0}; ///< 0 = empty/invalid
 };
 
 /**
  * @brief Per-session ring buffer holding the last SESSION_CACHE_SIZE
  *        results for conversational continuity within a single tenant.
+ *
+ * Dimension is a runtime construction parameter, not the compile-time
+ * EMBEDDING_DIM constant: Aeon supports per-Atlas dynamic dimensionality
+ * (384/768/1536/...), so a hardcoded 768-float centroid array here would
+ * silently corrupt or silently no-op for any non-768-dim Atlas (this was
+ * exactly the bug found in v4-plan.md guardrail #1.1). All SESSION_CACHE_SIZE
+ * centroids for this session live in ONE contiguous heap allocation
+ * (centroid_storage_, sized SESSION_CACHE_SIZE * dim), preserving the
+ * single-block locality the previous inline-array design had -- this is
+ * NOT per-entry std::vector<float> (which would mean 64 separate heap
+ * allocations per session and defeat the linear-scan prefetcher).
  *
  * Thread safety: NOT internally synchronized. Protection is provided by
  * the shard-level shared_mutex + shared_ptr ref counting. The SIMD scan
@@ -86,7 +100,11 @@ public:
     std::array<float, 3> centroid_preview;
   };
 
-  SessionRingBuffer() = default;
+  explicit SessionRingBuffer(uint32_t dim)
+      : dim_(dim), centroid_storage_(SESSION_CACHE_SIZE * dim, 0.0f) {}
+
+  /// Embedding dimension this buffer was constructed for.
+  uint32_t dim() const { return dim_; }
 
   /**
    * @brief SIMD-accelerated brute-force scan of the ring buffer.
@@ -94,13 +112,13 @@ public:
    * Called OUTSIDE the shard lock on a locally-held shared_ptr.
    * No internal synchronization needed — the caller owns a refcount.
    *
-   * @param query 768-dim query vector
+   * @param query dim_-length query vector (dim_ set at construction)
    * @param threshold Minimum similarity for a hit (default 0.85)
    * @return std::optional<Hit> Best match above threshold, or nullopt
    */
   std::optional<Hit> find_nearest(std::span<const float> query,
                                   float threshold = 0.85f) const {
-    if (query.size() != EMBEDDING_DIM)
+    if (query.size() != dim_)
       return std::nullopt;
 
     float best_score = -2.0f;
@@ -108,17 +126,19 @@ public:
     const float *best_centroid = nullptr;
     bool found = false;
 
-    for (const auto &entry : entries_) {
+    for (size_t i = 0; i < entries_.size(); ++i) {
+      const auto &entry = entries_[i];
       if (entry.last_accessed_tick == 0)
         continue;
 
+      const float *centroid = &centroid_storage_[i * dim_];
       float score = math::cosine_similarity(
-          query, std::span<const float>(entry.centroid, EMBEDDING_DIM));
+          query, std::span<const float>(centroid, dim_));
 
       if (score > best_score) {
         best_score = score;
         best_id = entry.node_id;
-        best_centroid = entry.centroid;
+        best_centroid = centroid;
         found = true;
       }
     }
@@ -138,33 +158,33 @@ public:
    * Called under shard exclusive lock (only one writer per shard at a time).
    */
   void insert(uint64_t node_id, std::span<const float> centroid) {
-    if (centroid.size() != EMBEDDING_DIM)
+    if (centroid.size() != dim_)
       return;
 
     // 1. Check if node_id already exists (update in-place)
-    for (auto &entry : entries_) {
-      if (entry.last_accessed_tick > 0 && entry.node_id == node_id) {
-        write_entry(entry, node_id, centroid);
+    for (size_t i = 0; i < entries_.size(); ++i) {
+      if (entries_[i].last_accessed_tick > 0 && entries_[i].node_id == node_id) {
+        write_entry(i, node_id, centroid);
         return;
       }
     }
 
     // 2. Find an empty slot
-    for (auto &entry : entries_) {
-      if (entry.last_accessed_tick == 0) {
-        write_entry(entry, node_id, centroid);
+    for (size_t i = 0; i < entries_.size(); ++i) {
+      if (entries_[i].last_accessed_tick == 0) {
+        write_entry(i, node_id, centroid);
         return;
       }
     }
 
     // 3. Evict LRU (smallest tick)
-    auto *lru = &entries_[0];
-    for (auto &entry : entries_) {
-      if (entry.last_accessed_tick < lru->last_accessed_tick) {
-        lru = &entry;
+    size_t lru = 0;
+    for (size_t i = 0; i < entries_.size(); ++i) {
+      if (entries_[i].last_accessed_tick < entries_[lru].last_accessed_tick) {
+        lru = i;
       }
     }
-    write_entry(*lru, node_id, centroid);
+    write_entry(lru, node_id, centroid);
   }
 
   /// Return approximate fill level for diagnostics.
@@ -178,15 +198,18 @@ public:
   }
 
 private:
-  void write_entry(SessionCacheEntry &entry, uint64_t id,
-                   std::span<const float> vec) {
-    entry.node_id = id;
-    std::copy(vec.begin(), vec.end(), std::begin(entry.centroid));
-    entry.last_accessed_tick =
+  void write_entry(size_t index, uint64_t id, std::span<const float> vec) {
+    entries_[index].node_id = id;
+    std::copy(vec.begin(), vec.end(), centroid_storage_.begin() + static_cast<ptrdiff_t>(index * dim_));
+    entries_[index].last_accessed_tick =
         tick_counter_.fetch_add(1, std::memory_order_relaxed) + 1;
   }
 
+  uint32_t dim_;
   std::array<SessionCacheEntry, SESSION_CACHE_SIZE> entries_{};
+  /// Contiguous storage for all SESSION_CACHE_SIZE centroids, dim_ floats
+  /// each: entry i's centroid is centroid_storage_[i*dim_ .. i*dim_+dim_).
+  std::vector<float> centroid_storage_;
   std::atomic<uint64_t> tick_counter_{0};
 };
 
@@ -238,7 +261,33 @@ public:
   /// Result type (same as SessionRingBuffer::Hit for API consistency).
   using SLBHit = SessionRingBuffer::Hit;
 
-  HierarchicalSLB() = default;
+  /// @param dim Embedding dimension this cache instance serves. Must match
+  ///            the owning Atlas's AtlasHeader::dim -- fixed for the
+  ///            instance's lifetime (one HierarchicalSLB per Atlas).
+  ///            Defaults to EMBEDDING_DIM_DEFAULT (768) for callers that
+  ///            don't yet pass an explicit dim (e.g. existing Python
+  ///            bindings) -- see v4-plan.md guardrail #1.1.
+  /// @param enable_cross_session_l2  Whether an L1 miss may fall through to
+  ///            the L2 global cache, which is NOT session-scoped: a hit
+  ///            there can return a node inserted by a *different* session.
+  ///            This is a legitimate cold-start optimization for
+  ///            same-trust-domain callers (e.g. game-engine NPCs sharing
+  ///            common world knowledge) but a cross-tenant data leak for
+  ///            untrusted multi-tenant callers (e.g. human users behind a
+  ///            server). Defaults to true (the class's original documented
+  ///            behavior); Atlas explicitly passes false until Stage 3's
+  ///            scoped shared tier gives L2 entries a real scope predicate
+  ///            (v4-plan.md Stage 0 / guardrail context).
+  explicit HierarchicalSLB(uint32_t dim = EMBEDDING_DIM_DEFAULT,
+                           bool enable_cross_session_l2 = true)
+      : dim_(dim), enable_cross_session_l2_(enable_cross_session_l2),
+        global_centroid_storage_(GLOBAL_CACHE_SIZE * dim, 0.0f) {}
+
+  /// Embedding dimension this cache was constructed for.
+  uint32_t dim() const { return dim_; }
+
+  /// Whether L1 misses may fall through to the (unscoped) L2 global cache.
+  bool cross_session_l2_enabled() const { return enable_cross_session_l2_; }
 
   // Non-copyable (contains mutexes)
   HierarchicalSLB(const HierarchicalSLB &) = delete;
@@ -263,7 +312,7 @@ public:
   std::optional<SLBHit> find_nearest(uint64_t session_id,
                                      std::span<const float> query,
                                      float threshold = 0.85f) {
-    if (query.size() != EMBEDDING_DIM)
+    if (query.size() != dim_)
       return std::nullopt;
 
     // --- L1: Session-local ring buffer ---
@@ -288,7 +337,11 @@ public:
     }
 
     // --- L2: Global cache (cold start / cross-session fallback) ---
-    {
+    // Skipped entirely when cross-session sharing is disabled -- see the
+    // constructor doc comment. global_cache_ has no per-entry scope
+    // predicate, so a hit here can only be trusted when every session
+    // sharing this instance is in the same trust domain.
+    if (enable_cross_session_l2_) {
       std::shared_lock lock(global_cache_mutex_);
       auto hit = scan_global_cache(query, threshold);
       if (hit)
@@ -310,7 +363,7 @@ public:
    */
   void insert(uint64_t session_id, uint64_t node_id,
               std::span<const float> centroid) {
-    if (centroid.size() != EMBEDDING_DIM)
+    if (centroid.size() != dim_)
       return;
 
     // --- L1: Session cache ---
@@ -321,7 +374,7 @@ public:
       auto it = shard.sessions.find(session_id);
       if (it == shard.sessions.end()) {
         // Create new session
-        auto buf = std::make_shared<SessionRingBuffer>();
+        auto buf = std::make_shared<SessionRingBuffer>(dim_);
         buf->insert(node_id, centroid);
         shard.sessions.emplace(session_id, std::move(buf));
         shard.access_order[session_id] = ++shard.lru_tick;
@@ -336,8 +389,10 @@ public:
       }
     }
 
-    // --- L2: Global cache ---
-    {
+    // --- L2: Global cache --- (skipped when cross-session sharing is
+    // disabled -- no point paying the write/lock cost for a cache that
+    // find_nearest() will never read from)
+    if (enable_cross_session_l2_) {
       std::unique_lock lock(global_cache_mutex_);
       insert_global_cache(node_id, centroid);
     }
@@ -431,9 +486,11 @@ private:
 
   static constexpr size_t GLOBAL_CACHE_SIZE = 256;
 
+  /// Metadata only -- centroid data lives in global_centroid_storage_ (see
+  /// SessionCacheEntry's comment above for why: dim_ is a runtime value,
+  /// not the compile-time EMBEDDING_DIM constant).
   struct alignas(CACHE_LINE_SIZE) GlobalCacheEntry {
     uint64_t node_id{0};
-    float centroid[EMBEDDING_DIM]{};
     uint64_t tick{0};
   };
 
@@ -444,17 +501,19 @@ private:
     const float *best_centroid = nullptr;
     bool found = false;
 
-    for (const auto &entry : global_cache_) {
+    for (size_t i = 0; i < global_cache_.size(); ++i) {
+      const auto &entry = global_cache_[i];
       if (entry.tick == 0)
         continue;
 
+      const float *centroid = &global_centroid_storage_[i * dim_];
       float score = math::cosine_similarity(
-          query, std::span<const float>(entry.centroid, EMBEDDING_DIM));
+          query, std::span<const float>(centroid, dim_));
 
       if (score > best_score) {
         best_score = score;
         best_id = entry.node_id;
-        best_centroid = entry.centroid;
+        best_centroid = centroid;
         found = true;
       }
     }
@@ -468,45 +527,58 @@ private:
   }
 
   void insert_global_cache(uint64_t node_id, std::span<const float> centroid) {
+    auto write_slot = [&](size_t i) {
+      global_cache_[i].node_id = node_id;
+      std::copy(centroid.begin(), centroid.end(),
+                global_centroid_storage_.begin() +
+                    static_cast<ptrdiff_t>(i * dim_));
+      global_cache_[i].tick =
+          global_tick_.fetch_add(1, std::memory_order_relaxed) + 1;
+    };
+
     // Check if already present
-    for (auto &entry : global_cache_) {
-      if (entry.tick > 0 && entry.node_id == node_id) {
-        std::copy(centroid.begin(), centroid.end(), std::begin(entry.centroid));
-        entry.tick = global_tick_.fetch_add(1, std::memory_order_relaxed) + 1;
+    for (size_t i = 0; i < global_cache_.size(); ++i) {
+      if (global_cache_[i].tick > 0 && global_cache_[i].node_id == node_id) {
+        write_slot(i);
         return;
       }
     }
 
     // Find empty slot
-    for (auto &entry : global_cache_) {
-      if (entry.tick == 0) {
-        entry.node_id = node_id;
-        std::copy(centroid.begin(), centroid.end(), std::begin(entry.centroid));
-        entry.tick = global_tick_.fetch_add(1, std::memory_order_relaxed) + 1;
+    for (size_t i = 0; i < global_cache_.size(); ++i) {
+      if (global_cache_[i].tick == 0) {
+        write_slot(i);
         return;
       }
     }
 
     // Evict LRU
-    auto *lru = &global_cache_[0];
-    for (auto &entry : global_cache_) {
-      if (entry.tick < lru->tick)
-        lru = &entry;
+    size_t lru = 0;
+    for (size_t i = 0; i < global_cache_.size(); ++i) {
+      if (global_cache_[i].tick < global_cache_[lru].tick)
+        lru = i;
     }
-    lru->node_id = node_id;
-    std::copy(centroid.begin(), centroid.end(), std::begin(lru->centroid));
-    lru->tick = global_tick_.fetch_add(1, std::memory_order_relaxed) + 1;
+    write_slot(lru);
   }
 
   // -----------------------------------------------------------------------
   // Data members
   // -----------------------------------------------------------------------
 
+  /// Embedding dimension, fixed for this instance's lifetime.
+  uint32_t dim_;
+
+  /// Whether find_nearest()/insert() touch the (unscoped) L2 global cache.
+  bool enable_cross_session_l2_;
+
   /// 64 lock-striped session shards (each cache-line padded).
   std::array<SessionShard, NUM_SHARDS> shards_;
 
-  /// L2 global cache entries.
+  /// L2 global cache entry metadata (node_id/tick only).
   std::array<GlobalCacheEntry, GLOBAL_CACHE_SIZE> global_cache_{};
+  /// Contiguous storage for all GLOBAL_CACHE_SIZE centroids, dim_ floats
+  /// each -- same single-block-locality rationale as SessionRingBuffer.
+  std::vector<float> global_centroid_storage_;
   std::atomic<uint64_t> global_tick_{0};
   mutable std::shared_mutex global_cache_mutex_;
 };

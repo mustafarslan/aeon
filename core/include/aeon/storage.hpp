@@ -174,6 +174,26 @@ public:
   /// Set the EpochManager for deferred reclamation in grow().
   void set_epoch_manager(aeon::EpochManager *mgr) { epoch_mgr_ = mgr; }
 
+  /**
+   * @brief Explicitly flush dirty mmap pages to disk (MAP_SHARED writes are
+   * already visible to any other process re-mapping this file, and survive
+   * a crash of THIS process -- the OS page cache outlives it. This closes
+   * the narrower remaining gap: an OS crash / power loss before the
+   * kernel's own writeback timer flushes those dirty pages on its own).
+   *
+   * Not called on every insert -- that would serialize the hot path on
+   * synchronous disk I/O. Callers who need a durability checkpoint (e.g.
+   * before a controlled shutdown) should call this explicitly; compaction
+   * calls it automatically before deleting the old generation file (see
+   * Atlas::compact_mmap()).
+   */
+  void sync() {
+    auto *d = data_.load(std::memory_order_acquire);
+    if (d) {
+      platform::mem_sync(d, size_);
+    }
+  }
+
   void close() {
     if (epoch_mgr_) {
       epoch_mgr_->drain_readers();

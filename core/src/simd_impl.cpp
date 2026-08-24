@@ -268,7 +268,16 @@ float similarity_neon(std::span<const float> a, std::span<const float> b) {
 #endif
 
 // ----------------------------------------------------------------------------
-// Runtime Dispatch
+// Compile-Time Architecture Dispatch
+//
+// NOTE: despite the function name, this is NOT runtime CPUID-based dispatch
+// -- the #if below is resolved once at compile time by the target
+// architecture, and the x86 branch's actual instruction content (real
+// AVX-512 vs. SIMDe-emulated-via-AVX2) is determined by the translation
+// unit's -march flag, not by probing the host CPU at load/call time. See
+// math_kernel.hpp's dot_product() doc comment and v4-plan.md guardrail
+// #1.2 for why true runtime dispatch is deferred rather than implemented
+// speculatively here.
 // ----------------------------------------------------------------------------
 SimilarityFn get_best_similarity_impl() {
 #if defined(__aarch64__) || defined(__ARM_NEON) || defined(_M_ARM64)
@@ -277,8 +286,10 @@ SimilarityFn get_best_similarity_impl() {
   // due to eliminated instruction mapping overhead.
   return similarity_neon;
 #else
-  // On x86, use SIMDe-translated AVX-512 (best vectorization width).
-  // SIMDe handles compile-time instruction translation transparently.
+  // On x86, use SIMDe-translated AVX-512 (best vectorization width this
+  // binary was compiled for). Whether this actually executes real AVX-512
+  // instructions or SIMDe's software-emulated fallback depends entirely on
+  // the build's -march flag (see CMakePresets.json's `release` preset).
   return similarity_avx512;
 #endif
 }
@@ -458,7 +469,8 @@ int32_t dot_int8_avx512(std::span<const int8_t> a, std::span<const int8_t> b,
 }
 
 // ----------------------------------------------------------------------------
-// INT8 Runtime Dispatch
+// INT8 Compile-Time Architecture Dispatch (see get_best_similarity_impl()
+// above -- same caveat: NOT runtime CPUID-based).
 // ----------------------------------------------------------------------------
 Int8DotFn get_best_int8_dot_impl() {
 #if defined(__aarch64__) || defined(__ARM_NEON) || defined(_M_ARM64)

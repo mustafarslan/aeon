@@ -370,13 +370,26 @@ private:
       session_id = session_str.c_str();
     }
 
+    // V4 Stage 2: optional scope_mask (BigInt, e.g. 0x1n), matching the
+    // parent_id/atlas_id BigInt convention elsewhere in this file.
+    // Defaults to ALL_SCOPES_VISIBLE (UINT64_MAX) -- no filtering,
+    // unchanged pre-Stage-2 behavior. No real scope-assignment authority
+    // exists yet (Stage 3/4's control plane), so this is the plumbing
+    // point for once one does, not something a caller has a real value
+    // for today.
+    uint64_t scope_mask = ~static_cast<uint64_t>(0);
+    if (info.Length() > 5 && info[5].IsBigInt()) {
+      bool lossless;
+      scope_mask = info[5].As<Napi::BigInt>().Uint64Value(&lossless);
+    }
+
     // ── Stack-allocated result buffer (ZERO heap allocation) ─────────────
     aeon_result_node_t results[AEON_TOP_K_LIMIT];
     size_t actual_count = 0;
 
     AEON_CHECK(env,
                aeon_atlas_navigate(atlas_, query_data, query_dim, beam_width,
-                                   apply_csls, session_id, results,
+                                   apply_csls, session_id, scope_mask, results,
                                    static_cast<size_t>(top_k), &actual_count),
                "atlas_navigate");
 

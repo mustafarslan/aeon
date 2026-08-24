@@ -34,6 +34,32 @@ std::vector<float> generate_vector(size_t dim, int seed) {
   return v;
 }
 
+// BM_SLB_CacheMiss_WarmAtlas and BM_AtlasTraversal_Only previously reused
+// one static `query` across every measured iteration -- the self-hit-
+// artifact class audited across this benchmark suite (Stage 2 task 5,
+// v4-plan.md), and in fact the ORIGINAL instance guardrail #0 named
+// (BM_AtlasTraversal_Only, 0.078us) and excluded from the CI perf gate
+// rather than fixed. It directly contradicts its own doc comment ("Pure
+// Atlas navigate, no SLB overhead") -- atlas->navigate() has its OWN
+// internal SLB cache (separate from this fixture's standalone `slb`
+// member), which caches the first call's result and serves every later
+// bit-for-bit-identical query from cache. Fix: cycle through a pool of
+// distinct queries, capped via ->Iterations() so it's never exhausted --
+// matching the fix already applied to bench_scalability.cpp,
+// bench_quantization_efficiency.cpp, and bench_main.cpp for the same bug.
+constexpr size_t QUERY_POOL_SIZE = 4096;
+constexpr int QUERY_SEED_BASE = 5'000'000;
+
+std::vector<std::vector<float>> generate_query_pool(size_t dim, size_t count,
+                                                     int seed_base) {
+  std::vector<std::vector<float>> pool;
+  pool.reserve(count);
+  for (size_t i = 0; i < count; ++i) {
+    pool.push_back(generate_vector(dim, seed_base + static_cast<int>(i)));
+  }
+  return pool;
+}
+
 // Normalize a vector to unit length
 void normalize(std::vector<float> &v) {
   float norm = 0.0f;
@@ -115,6 +141,7 @@ public:
   std::unique_ptr<aeon::Atlas> atlas;
   std::string atlas_path;
   aeon::SemanticCache slb;
+  std::vector<std::vector<float>> query_pool;
 
   void SetUp(const benchmark::State &) override {
     atlas_path = "/tmp/aeon_bench_atlas_slb.bin";
@@ -133,6 +160,8 @@ public:
       auto vec = generate_vector(DIM, 3000 + i);
       slb.insert(static_cast<uint64_t>(i), vec);
     }
+
+    query_pool = generate_query_pool(DIM, QUERY_POOL_SIZE, QUERY_SEED_BASE);
   }
 
   void TearDown(const benchmark::State &) override {
@@ -147,20 +176,28 @@ public:
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(AtlasFixture,
                    BM_SLB_CacheMiss_WarmAtlas)(benchmark::State &state) {
-  auto query = generate_vector(DIM, 9999);
-
+  size_t idx = 0;
   for (auto _ : state) {
+    const auto &query = query_pool[idx % QUERY_POOL_SIZE];
     // SLB miss → fallback to Atlas
     auto slb_result = slb.find_nearest(query, SLB_THRESHOLD);
     if (!slb_result.has_value()) {
       auto atlas_result = atlas->navigate(query);
       benchmark::DoNotOptimize(atlas_result);
     }
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
   state.SetItemsProcessed(state.iterations());
 }
 BENCHMARK_REGISTER_F(AtlasFixture, BM_SLB_CacheMiss_WarmAtlas)
-    ->Unit(benchmark::kMicrosecond);
+    ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE);
 
 // ---------------------------------------------------------------------------
 // BM_AtlasTraversal_Only — Pure Atlas navigate (no SLB overhead)
@@ -168,15 +205,22 @@ BENCHMARK_REGISTER_F(AtlasFixture, BM_SLB_CacheMiss_WarmAtlas)
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(AtlasFixture,
                    BM_AtlasTraversal_Only)(benchmark::State &state) {
-  auto query = generate_vector(DIM, 9999);
-
+  size_t idx = 0;
   for (auto _ : state) {
-    auto result = atlas->navigate(query);
+    auto result = atlas->navigate(query_pool[idx % QUERY_POOL_SIZE]);
     benchmark::DoNotOptimize(result);
+    ++idx;
+  }
+  if (idx > QUERY_POOL_SIZE) {
+    state.SkipWithError(
+        "query pool exhausted (iterations > QUERY_POOL_SIZE) -- "
+        "results may include self-hit-artifact cache hits on repeated "
+        "queries; increase QUERY_POOL_SIZE");
   }
   state.SetItemsProcessed(state.iterations());
 }
 BENCHMARK_REGISTER_F(AtlasFixture, BM_AtlasTraversal_Only)
-    ->Unit(benchmark::kMicrosecond);
+    ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE);
 
 BENCHMARK_MAIN();

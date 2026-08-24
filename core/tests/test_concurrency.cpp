@@ -1,5 +1,6 @@
 #include "aeon/atlas.hpp"
 #include "aeon/epoch.hpp"
+#include "aeon/slb.hpp"
 #include "aeon/storage.hpp"
 #include <filesystem>
 #include <gtest/gtest.h>

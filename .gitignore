@@ -60,3 +60,9 @@ results/*.raw
 # --- Node.js ---
 node_modules/
 *.node
+
+# --- Stray test artifacts (AtlasTest previously wrote these into the repo
+# root when ctest was invoked from there; now uses a temp directory, see
+# core/tests/test_atlas.cpp, but ignore the pattern defensively) ---
+test_atlas.aeon
+test_atlas.aeon.wal

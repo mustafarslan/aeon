@@ -1,0 +1,65 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 25716.86it/s]
+[1/50] 2ebe6c92 (temporal-reasoning) session_hit=True answer_in_context=True
+[2/50] 80ec1f4f_abs (multi-session) session_hit=True answer_in_context=False
+[3/50] b9cfe692 (temporal-reasoning) session_hit=True answer_in_context=False
+[4/50] gpt4_731e37d7 (multi-session) session_hit=True answer_in_context=False
+[5/50] 50635ada (knowledge-update) session_hit=True answer_in_context=True
+[6/50] bf659f65 (multi-session) session_hit=True answer_in_context=True
+[7/50] 08f4fc43 (temporal-reasoning) session_hit=True answer_in_context=False
+[8/50] 66f24dbb (single-session-user) session_hit=True answer_in_context=True
+[9/50] ad7109d1 (single-session-user) session_hit=True answer_in_context=True
+[10/50] 36580ce8 (single-session-user) session_hit=True answer_in_context=True
+[11/50] 15745da0_abs (single-session-user) session_hit=True answer_in_context=False
+[12/50] f523d9fe (single-session-assistant) session_hit=True answer_in_context=True
+[13/50] ce6d2d27 (knowledge-update) session_hit=True answer_in_context=True
+[14/50] gpt4_e05b82a6 (multi-session) session_hit=True answer_in_context=False
+[15/50] ceb54acb (single-session-assistant) session_hit=True answer_in_context=False
+[16/50] gpt4_2f56ae70 (temporal-reasoning) session_hit=True answer_in_context=True
+[17/50] 07b6f563 (single-session-preference) session_hit=True answer_in_context=None
+[18/50] gpt4_59149c78 (temporal-reasoning) session_hit=True answer_in_context=True
+[19/50] b5ef892d (multi-session) session_hit=True answer_in_context=False
+[20/50] gpt4_8e165409 (temporal-reasoning) session_hit=True answer_in_context=False
+[21/50] 26bdc477 (knowledge-update) session_hit=True answer_in_context=True
+[22/50] b0479f84 (single-session-preference) session_hit=True answer_in_context=None
+[23/50] 2ebe6c90 (temporal-reasoning) session_hit=True answer_in_context=False
+[24/50] 81507db6 (multi-session) session_hit=True answer_in_context=True
+[25/50] 7a87bd0c (knowledge-update) session_hit=True answer_in_context=True
+[26/50] b29f3365 (temporal-reasoning) session_hit=True answer_in_context=False
+[27/50] cc06de0d (multi-session) session_hit=True answer_in_context=True
+[28/50] 00ca467f (multi-session) session_hit=True answer_in_context=True
+[29/50] 4388e9dd (single-session-assistant) session_hit=True answer_in_context=False
+[30/50] gpt4_4929293a (temporal-reasoning) session_hit=True answer_in_context=True
+[31/50] edced276_abs (multi-session) session_hit=True answer_in_context=False
+[32/50] a40e080f (single-session-assistant) session_hit=True answer_in_context=False
+[33/50] gpt4_1e4a8aeb (temporal-reasoning) session_hit=True answer_in_context=False
+[34/50] 001be529 (single-session-user) session_hit=True answer_in_context=True
+[35/50] a08a253f (multi-session) session_hit=True answer_in_context=False
+[36/50] 0f05491a (knowledge-update) session_hit=True answer_in_context=True
+[37/50] f0e564bc (multi-session) session_hit=True answer_in_context=False
+[38/50] 8464fc84 (single-session-assistant) session_hit=True answer_in_context=True
+[39/50] f685340e (knowledge-update) session_hit=True answer_in_context=False
+[40/50] 4dfccbf8 (temporal-reasoning) session_hit=True answer_in_context=False
+[41/50] e8a79c70 (single-session-assistant) session_hit=True answer_in_context=True
+[42/50] gpt4_7fce9456 (multi-session) session_hit=True answer_in_context=False
+[43/50] 0bc8ad93 (temporal-reasoning) session_hit=True answer_in_context=False
+[44/50] 60d45044 (single-session-user) session_hit=True answer_in_context=True
+[45/50] a06e4cfe (single-session-user) session_hit=True answer_in_context=True
+[46/50] affe2881 (knowledge-update) session_hit=True answer_in_context=True
+[47/50] 6b7dfb22 (single-session-preference) session_hit=True answer_in_context=None
+[48/50] gpt4_b0863698 (temporal-reasoning) session_hit=True answer_in_context=False
+[49/50] cc5ded98 (knowledge-update) session_hit=True answer_in_context=True
+[50/50] 8cf4d046 (multi-session) session_hit=True answer_in_context=False
+
+=== Answer-in-context diagnostic ===
+Applicable questions: 47/50
+Session-level recall@50 (applicable subset): 100.0%
+Answer-in-context rate (applicable subset):            51.1%
+
+By type:
+  knowledge-update             n=8   session_hit=100.0%  answer_in_context= 87.5%
+  multi-session                n=13  session_hit=100.0%  answer_in_context= 30.8%
+  single-session-assistant     n=6   session_hit=100.0%  answer_in_context= 50.0%
+  single-session-user          n=7   session_hit=100.0%  answer_in_context= 85.7%
+  temporal-reasoning           n=13  session_hit=100.0%  answer_in_context= 30.8%
+
+Wrote reproducibility_benchmarks/longmemeval/answer_in_context.json

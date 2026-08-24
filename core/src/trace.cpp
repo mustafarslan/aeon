@@ -55,9 +55,18 @@ TraceManager::TraceManager(std::filesystem::path path)
   open_file(trace_path_);
 
   // ── V4.1: Open sidecar blob arena ──
-  auto blob_path = trace_path_.parent_path() /
-                   ("trace_blobs_gen" + std::to_string(generation_) + ".bin");
+  // V4 Stage 2 task 3 fix: STABLE name derived from trace_path_ (same
+  // ".suffix" convention as wal_path_ below), not generation-suffixed.
+  // See compact()'s doc comment for why a generation-suffixed name here
+  // was a severe latent bug (any restart after a compaction couldn't
+  // find its data).
+  auto blob_path = trace_path_;
+  blob_path += ".blobs";
   blob_arena_ = std::make_unique<BlobArena>(blob_path);
+
+  // ── V4 Stage 2 task 3: rebuild the (unpersisted) semantic block index
+  // from durable embedding blobs, now that blob_arena_ is open ──
+  rebuild_block_index();
 
   // ── V4.1 WAL: crash recovery ──
   wal_path_ = trace_path_;
@@ -166,10 +175,14 @@ void TraceManager::open_file(const std::filesystem::path &path) {
 
     mmap_event_count_ = static_cast<size_t>(hdr->event_count);
     next_event_id_ = hdr->next_event_id;
+    embedding_dim_ = hdr->embedding_dim;
 
     // Rebuild session tails from on-disk events
     rebuild_session_tails();
   }
+  // rebuild_block_index() needs blob_arena_, which the constructor opens
+  // AFTER open_file() returns -- called from the constructor body instead
+  // of here. See TraceManager::TraceManager().
 }
 
 void TraceManager::grow_mmap(size_t additional_events) {
@@ -304,12 +317,136 @@ void TraceManager::rebuild_session_tails() {
   }
 }
 
+void TraceManager::rebuild_block_index() {
+  if (embedding_dim_ == 0)
+    return; // no embedding has ever been appended to this file
+
+  block_index_ = std::make_unique<TraceBlockIndex>(embedding_dim_);
+  if (!blob_arena_)
+    return;
+
+  // Mmap events only -- a KNOWN LIMITATION, not a silent gap: a delta
+  // event embedded before a crash and recovered via replay_wal() is not
+  // covered here (replay_wal() runs after this, and reconstructs into
+  // delta_bytes_, not the mmap region this scans). During NORMAL
+  // operation (not crash recovery), append_event() indexes both mmap and
+  // delta writes as they happen, so this gap is narrow: crash-recovered
+  // delta embeddings only, until the next compaction promotes them to
+  // mmap and a subsequent restart's rebuild picks them up.
+  for (size_t i = 0; i < mmap_event_count_; ++i) {
+    const TraceEvent *ev = mmap_event_at(i);
+    if (!ev)
+      continue;
+    if (ev->flags & (TRACE_FLAG_TOMBSTONE | TRACE_FLAG_SUPERSEDED))
+      continue;
+    if (ev->embedding_blob_size == 0)
+      continue;
+
+    auto view = blob_arena_->read(ev->embedding_blob_offset,
+                                  ev->embedding_blob_size);
+    if (view.size() != static_cast<size_t>(embedding_dim_) * sizeof(float))
+      continue; // corrupt/mismatched blob -- skip defensively, don't crash startup
+
+    const float *emb = reinterpret_cast<const float *>(view.data());
+    block_index_->append(ev->id, std::span<const float>(emb, embedding_dim_),
+                         static_cast<double>(ev->timestamp));
+  }
+}
+
 // ===========================================================================
 // Append Event
 // ===========================================================================
 
+namespace {
+
+// Returns the largest prefix length <= `len` bytes of `data` that does not
+// split a multi-byte UTF-8 sequence.
+//
+// Bug found and fixed via v4-plan.md Stage 7: `TraceEvent::text_preview`'s
+// inline truncation previously used a raw `std::strncpy` to the first 63
+// bytes, with no regard for UTF-8 character boundaries. Any stored text
+// containing a multi-byte character (curly quotes, accented Latin, CJK,
+// emoji -- i.e. most real-world non-ASCII text) whose 63-byte boundary
+// happened to land mid-character left a truncated, invalid UTF-8 sequence
+// in the preview buffer. `bindings.cpp`'s `get_history()`/`semantic_search()`
+// unconditionally convert `text_preview` to a Python string
+// (`nb::str(ev.text_preview)`) for every returned event, regardless of
+// whether the caller even uses the preview field (the full text, read
+// separately from the blob arena, was always correct) -- nanobind's strict
+// UTF-8 decode throws `str_from_cstr(): conversion error!` on the corrupted
+// bytes, crashing the entire call. This is a standing correctness bug for
+// any real deployment ingesting ordinary human text, not specific to any
+// one benchmark.
+size_t safe_utf8_truncate_length(const char *data, size_t len) {
+  if (len == 0)
+    return 0;
+
+  // Walk back over UTF-8 continuation bytes (10xxxxxx) to find the lead
+  // byte of the last (possibly incomplete) sequence -- at most 3 bytes
+  // back, since the longest UTF-8 sequence is 4 bytes (1 lead + 3
+  // continuation).
+  size_t lead_pos = len;
+  size_t back = 0;
+  while (lead_pos > 0 && back < 3 &&
+         (static_cast<unsigned char>(data[lead_pos - 1]) & 0xC0) == 0x80) {
+    --lead_pos;
+    ++back;
+  }
+  if (lead_pos == 0)
+    return 0; // Defensive: no valid lead byte found within range.
+
+  unsigned char lead = static_cast<unsigned char>(data[lead_pos - 1]);
+  size_t seq_len;
+  if ((lead & 0x80) == 0x00)
+    seq_len = 1; // ASCII
+  else if ((lead & 0xE0) == 0xC0)
+    seq_len = 2; // 110xxxxx
+  else if ((lead & 0xF0) == 0xE0)
+    seq_len = 3; // 1110xxxx
+  else if ((lead & 0xF8) == 0xF0)
+    seq_len = 4; // 11110xxx
+  else
+    return lead_pos - 1; // Invalid lead byte -- drop it defensively too.
+
+  size_t seq_start = lead_pos - 1;
+  if (seq_start + seq_len <= len)
+    return len; // The last sequence fits entirely within `len` -- no cut needed.
+  return seq_start; // Doesn't fit -- drop the whole incomplete sequence.
+}
+
+} // namespace
+
 uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
-                                    const char *text, uint64_t atlas_id) {
+                                    const char *text, uint64_t atlas_id,
+                                    std::span<const float> embedding,
+                                    uint8_t edge_type, uint64_t supersedes_id,
+                                    uint8_t reason_code, uint64_t event_time) {
+  // ── Step 0: Establish/validate embedding dimensionality (brief lock) ──
+  // V4 Stage 2 task 3. Must happen BEFORE Step 2's WAL write below -- a
+  // dim-mismatch throw after the WAL record is written would leave a
+  // phantom WAL entry with no corresponding committed event (replayed on
+  // next restart as a ghost event the caller never intended). Kept as its
+  // own narrow critical section rather than holding rw_mutex_ for this
+  // whole function, preserving Step 1's "expensive work outside any lock"
+  // design intent (matching Atlas::insert_delta()) for everything else.
+  if (!embedding.empty()) {
+    std::unique_lock dim_lock(rw_mutex_);
+    if (embedding_dim_ == 0) {
+      embedding_dim_ = static_cast<uint32_t>(embedding.size());
+      block_index_ = std::make_unique<TraceBlockIndex>(embedding_dim_);
+      if (mapped_base_) {
+        reinterpret_cast<TraceFileHeader *>(mapped_base_)->embedding_dim =
+            embedding_dim_;
+      }
+    } else if (embedding.size() != embedding_dim_) {
+      throw std::invalid_argument(
+          "TraceManager::append_event: embedding dim mismatch (this file's "
+          "embedding_dim is " +
+          std::to_string(embedding_dim_) + ", got " +
+          std::to_string(embedding.size()) + ")");
+    }
+  }
+
   // ── Step 1: Serialize data & write blob (NO LOCK) ──
   // Build the TraceEvent payload outside of any lock.
   TraceEvent ev{};
@@ -319,6 +456,10 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
   ev.atlas_id = atlas_id;
   ev.role = role;
   ev.flags = 0;
+  ev.edge_type = edge_type;
+  ev.supersedes_id = supersedes_id;
+  ev.reason_code = reason_code;
+  ev.event_time = event_time;
 
   if (session_id) {
     std::strncpy(ev.session_id, session_id, sizeof(ev.session_id) - 1);
@@ -333,9 +474,26 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
       ev.blob_offset = ref.offset;
       ev.blob_size = ref.size;
     }
-    // Inline preview: first 63 chars + null terminator
-    std::strncpy(ev.text_preview, text, sizeof(ev.text_preview) - 1);
-    ev.text_preview[sizeof(ev.text_preview) - 1] = '\0';
+    // Inline preview: first up to 63 bytes, snapped back to a UTF-8
+    // character boundary rather than a raw byte count (see
+    // safe_utf8_truncate_length's doc comment for the crash this fixes).
+    size_t preview_cap = sizeof(ev.text_preview) - 1;
+    size_t copy_len = std::min(text_len, preview_cap);
+    copy_len = safe_utf8_truncate_length(text, copy_len);
+    std::memcpy(ev.text_preview, text, copy_len);
+    ev.text_preview[copy_len] = '\0';
+  }
+
+  // V4 Stage 2 task 3: write the embedding to the sidecar blob arena (a
+  // THIRD independent blob, separate from text and Stage 1's evidence --
+  // see TraceEvent's doc comment in schema.hpp). Dim already validated
+  // in Step 0 above.
+  if (!embedding.empty() && blob_arena_) {
+    BlobRef ref = blob_arena_->append(
+        reinterpret_cast<const char *>(embedding.data()),
+        embedding.size() * sizeof(float));
+    ev.embedding_blob_offset = ref.offset;
+    ev.embedding_blob_size = ref.size;
   }
 
   // Compute FNV-1a checksum of the full TraceEvent
@@ -407,53 +565,17 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
     event_id = ev.id;
   }
 
+  // V4 Stage 2 task 3: index the embedding (if any) under the SAME id
+  // just assigned, regardless of whether it landed in mmap or delta --
+  // TraceBlockIndex doesn't care where the event physically lives.
+  if (!embedding.empty() && block_index_) {
+    block_index_->append(event_id, embedding,
+                         static_cast<double>(ev.timestamp));
+  }
+
   // Update session tail
   session_tails_[sid] = event_id;
   return event_id;
-}
-
-uint64_t TraceManager::append_mmap(const char *session_id, uint16_t role,
-                                   const char *text, size_t text_len,
-                                   uint64_t atlas_id, uint64_t prev_id) {
-  // Ensure we have space
-  grow_mmap(1);
-
-  auto *ev =
-      reinterpret_cast<TraceEvent *>(mapped_base_ + sizeof(TraceFileHeader) +
-                                     mmap_event_count_ * sizeof(TraceEvent));
-  std::memset(ev, 0, sizeof(TraceEvent));
-
-  ev->id = next_event_id_++;
-  ev->prev_id = prev_id;
-  ev->atlas_id = atlas_id;
-  ev->timestamp = now_micros();
-  ev->role = role;
-  ev->flags = 0;
-
-  if (session_id) {
-    std::strncpy(ev->session_id, session_id, sizeof(ev->session_id) - 1);
-    ev->session_id[sizeof(ev->session_id) - 1] = '\0';
-  }
-
-  // V4.1: Write full text to blob arena, keep 63-char preview inline
-  if (text && text_len > 0) {
-    if (blob_arena_) {
-      BlobRef ref = blob_arena_->append(text, text_len);
-      ev->blob_offset = ref.offset;
-      ev->blob_size = ref.size;
-    }
-    std::strncpy(ev->text_preview, text, sizeof(ev->text_preview) - 1);
-    ev->text_preview[sizeof(ev->text_preview) - 1] = '\0';
-  }
-
-  ++mmap_event_count_;
-
-  // Update file header
-  auto *hdr = reinterpret_cast<TraceFileHeader *>(mapped_base_);
-  hdr->event_count = mmap_event_count_;
-  hdr->next_event_id = next_event_id_;
-
-  return ev->id;
 }
 
 // ===========================================================================
@@ -491,10 +613,64 @@ std::vector<TraceEvent> TraceManager::get_history(const char *session_id,
 }
 
 // ===========================================================================
+// Semantic Trace Search (V4 Stage 2 task 3)
+// ===========================================================================
+
+std::vector<TraceEvent>
+TraceManager::semantic_search(std::span<const float> query,
+                              size_t top_k) const {
+  std::shared_lock lock(rw_mutex_);
+
+  if (!block_index_ || query.size() != embedding_dim_)
+    return {};
+
+  // Over-fetch: TraceBlockIndex has no notion of tombstoned/superseded
+  // events (it only knows ids), so some of its top_k may need to be
+  // filtered out below -- ask for a bit more than requested to absorb
+  // that without an extra round trip in the common case.
+  auto raw = block_index_->query(query, top_k + top_k / 2 + 4);
+
+  std::vector<TraceEvent> result;
+  result.reserve(std::min(raw.size(), top_k));
+  for (const auto &r : raw) {
+    if (result.size() >= top_k)
+      break;
+    const TraceEvent *ev = resolve_event(r.node_id);
+    if (!ev)
+      continue; // compacted away since indexing; stale block-index entry
+    if (ev->flags & (TRACE_FLAG_TOMBSTONE | TRACE_FLAG_SUPERSEDED))
+      continue;
+    result.push_back(*ev);
+  }
+  return result;
+}
+
+// ===========================================================================
 // Shadow Compaction
 // ===========================================================================
 
 void TraceManager::compact() {
+  // V4 Stage 2 task 3 fix: a SEVERE pre-existing bug, found while testing
+  // semantic search across a restart. compact() used to build the new
+  // generation at a PERMANENTLY generation-suffixed name (trace_gen1.bin,
+  // trace_gen2.bin, ...) and delete the file at trace_path_ -- but
+  // trace_path_/generation_ are only tracked in-memory, reset to
+  // (trace_path_, 0) on every fresh TraceManager construction. Any
+  // restart using the caller's originally-configured path (the normal
+  // case -- see dependencies.py's AEON_TRACE_PATH) would find that path
+  // GONE (deleted by the prior compaction) and silently create a new,
+  // EMPTY file: total, silent data loss on the very first restart after
+  // the very first compaction. Atlas::compact_mmap() had the identical
+  // bug (v4-plan.md Stage 2), fixed the same way.
+  //
+  // Fix: build the new generation at a TEMPORARY path, durably flush it,
+  // then ATOMICALLY RENAME it onto the STABLE, caller-facing trace_path_
+  // (POSIX rename() only rewrites the directory entry -- it doesn't
+  // invalidate this process's still-open old_fd/old_base, which keep
+  // referencing the old, now-unlinked inode until Step 4 closes them).
+  // trace_path_ itself never changes again after construction; only
+  // generation_ (purely an internal temp-filename disambiguator now)
+  // still increments.
   if (!mapped_base_ || fd_ < 0)
     return;
 
@@ -515,9 +691,10 @@ void TraceManager::compact() {
   // Step 2: Background Copy — merge live events to new gen file
   // -----------------------------------------------------------------------
   uint64_t new_gen = generation_ + 1;
-  std::filesystem::path new_path =
-      trace_path_.parent_path() /
-      ("trace_gen" + std::to_string(new_gen) + ".bin");
+  // TEMPORARY construction path -- renamed onto trace_path_ (the stable,
+  // caller-facing name) once fully populated and durable, below.
+  std::filesystem::path new_path = trace_path_;
+  new_path += (".compacting" + std::to_string(new_gen));
 
   // Count live events
   size_t live_count = 0;
@@ -572,9 +749,40 @@ void TraceManager::compact() {
   new_hdr->version = 2; // V4.1: Blob arena format
 
   // ── V4.1: Create new-generation blob arena for GC ──
-  auto new_blob_path = new_path.parent_path() /
-                       ("trace_blobs_gen" + std::to_string(new_gen) + ".bin");
+  // TEMPORARY construction path -- renamed onto the STABLE blob path
+  // (trace_path_ + ".blobs", see the constructor) alongside the main
+  // file's rename, below.
+  std::filesystem::path stable_blob_path = trace_path_;
+  stable_blob_path += ".blobs";
+  std::filesystem::path new_blob_path = stable_blob_path;
+  new_blob_path += (".compacting" + std::to_string(new_gen));
   auto new_blob_arena = std::make_unique<BlobArena>(new_blob_path);
+
+  // GC every (offset,size) blob pair a TraceEvent carries: text,
+  // evidence (Stage 1), embedding (Stage 2 task 3). Without this, a
+  // surviving event's blob-referencing fields would keep pointing at the
+  // OLD generation's blob file, which gets deleted at the end of this
+  // function -- a dangling reference the first time anything actually
+  // populated evidence_blob_* or embedding_blob_* (evidence has had no
+  // live writer yet, so this was a dormant gap until embeddings, wired in
+  // by this same task, made it live).
+  auto gc_blob_pair = [&](uint64_t old_offset, uint32_t old_size,
+                          uint64_t &new_offset, uint32_t &new_size) {
+    if (old_size == 0 || !blob_arena_) {
+      new_offset = 0;
+      new_size = 0;
+      return;
+    }
+    auto old_data = blob_arena_->read(old_offset, old_size);
+    if (old_data.empty()) {
+      new_offset = 0;
+      new_size = 0;
+      return;
+    }
+    BlobRef ref = new_blob_arena->append(old_data.data(), old_data.size());
+    new_offset = ref.offset;
+    new_size = ref.size;
+  };
 
   // Copy live mmap events — re-pointing blob offsets to new blob file
   size_t write_idx = 0;
@@ -587,16 +795,12 @@ void TraceManager::compact() {
         new_base + sizeof(TraceFileHeader) + write_idx * sizeof(TraceEvent));
     std::memcpy(dst, ev, sizeof(TraceEvent));
 
-    // GC: copy live blob data to new blob file, update offset
-    if (ev->blob_size > 0 && blob_arena_) {
-      auto old_text = blob_arena_->read(ev->blob_offset, ev->blob_size);
-      if (!old_text.empty()) {
-        BlobRef new_ref =
-            new_blob_arena->append(old_text.data(), old_text.size());
-        dst->blob_offset = new_ref.offset;
-        dst->blob_size = new_ref.size;
-      }
-    }
+    gc_blob_pair(ev->blob_offset, ev->blob_size, dst->blob_offset,
+                dst->blob_size);
+    gc_blob_pair(ev->evidence_blob_offset, ev->evidence_blob_size,
+                dst->evidence_blob_offset, dst->evidence_blob_size);
+    gc_blob_pair(ev->embedding_blob_offset, ev->embedding_blob_size,
+                dst->embedding_blob_offset, dst->embedding_blob_size);
     ++write_idx;
   }
 
@@ -611,27 +815,62 @@ void TraceManager::compact() {
         new_base + sizeof(TraceFileHeader) + write_idx * sizeof(TraceEvent));
     std::memcpy(dst, ev, sizeof(TraceEvent));
 
-    // GC: copy live blob data to new blob file, update offset
-    if (ev->blob_size > 0 && blob_arena_) {
-      auto old_text = blob_arena_->read(ev->blob_offset, ev->blob_size);
-      if (!old_text.empty()) {
-        BlobRef new_ref =
-            new_blob_arena->append(old_text.data(), old_text.size());
-        dst->blob_offset = new_ref.offset;
-        dst->blob_size = new_ref.size;
-      }
-    }
+    gc_blob_pair(ev->blob_offset, ev->blob_size, dst->blob_offset,
+                dst->blob_size);
+    gc_blob_pair(ev->evidence_blob_offset, ev->evidence_blob_size,
+                dst->evidence_blob_offset, dst->evidence_blob_size);
+    gc_blob_pair(ev->embedding_blob_offset, ev->embedding_blob_size,
+                dst->embedding_blob_offset, dst->embedding_blob_size);
     ++write_idx;
   }
 
   new_hdr->event_count = write_idx;
   new_hdr->next_event_id = next_event_id_;
+  new_hdr->embedding_dim = embedding_dim_;
 
   // -----------------------------------------------------------------------
-  // Step 3: µs Freeze — swap file pointers
+  // Step 2b: Durably flush, then ATOMICALLY install the new generation at
+  // the stable, caller-facing path (see this function's opening comment).
+  // Must happen BEFORE the old file/blob's name is touched: an atomic
+  // rename requires the new content to already be complete and durable,
+  // or a crash between "rename" and "flush" could leave the stable path
+  // pointing at incompletely-written data.
   // -----------------------------------------------------------------------
-  std::filesystem::path old_path = trace_path_;
-  std::filesystem::path old_blob_path;
+#ifndef _WIN32
+  ::msync(new_base, alloc_size, MS_SYNC);
+#endif
+
+  {
+    std::error_code ec;
+    std::filesystem::rename(new_path, trace_path_, ec);
+    if (ec) {
+      ::munmap(new_base, alloc_size);
+      ::close(new_fd);
+      compact_in_progress_.store(false, std::memory_order_release);
+      throw std::runtime_error("compact: failed to install new generation "
+                               "at stable path: " +
+                               ec.message());
+    }
+    std::filesystem::rename(new_blob_path, stable_blob_path, ec);
+    if (ec) {
+      // Main file already renamed (now durable and self-consistent) --
+      // the blob rename failing here is a real problem for any NEW
+      // blob-referencing field written after this point, but not a
+      // reason to unwind the already-successful main-file rename half.
+      // Surface it; the caller can retry compaction.
+      ::munmap(new_base, alloc_size);
+      ::close(new_fd);
+      compact_in_progress_.store(false, std::memory_order_release);
+      throw std::runtime_error("compact: failed to install new blob "
+                               "generation at stable path: " +
+                               ec.message());
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Step 3: µs Freeze — swap in-process pointers to the (already renamed)
+  // new generation
+  // -----------------------------------------------------------------------
   uint8_t *old_base = nullptr;
   size_t old_size = 0;
   int old_fd = -1;
@@ -642,9 +881,9 @@ void TraceManager::compact() {
     old_size = mapped_size_;
     old_fd = fd_;
 
-    // Swap blob arena — close old, install new
+    // Swap blob arena — close old (now-unlinked inode, still valid via
+    // its own open fd until closed), install new
     if (blob_arena_) {
-      old_blob_path = blob_arena_->path();
       blob_arena_->close();
     }
     blob_arena_ = std::move(new_blob_arena);
@@ -653,7 +892,9 @@ void TraceManager::compact() {
     mapped_size_ = alloc_size;
     fd_ = new_fd;
     mmap_event_count_ = write_idx;
-    trace_path_ = new_path;
+    // trace_path_ deliberately NOT reassigned -- it already names the
+    // new content, having been the rename() target above. generation_
+    // still advances (an internal temp-filename disambiguator only now).
     generation_ = new_gen;
 
     // Clear frozen buffer
@@ -678,7 +919,9 @@ void TraceManager::compact() {
   compact_in_progress_.store(false, std::memory_order_release);
 
   // -----------------------------------------------------------------------
-  // Step 4: Background Cleanup — safe to close + delete old file
+  // Step 4: Background Cleanup — close the old (already-unlinked-by-
+  // rename) file/blob handles. Nothing left to explicitly remove by path
+  // -- the renames in Step 2b already atomically replaced them.
   // -----------------------------------------------------------------------
 #ifndef _WIN32
   if (old_base)
@@ -686,15 +929,6 @@ void TraceManager::compact() {
   if (old_fd >= 0)
     ::close(old_fd);
 #endif
-
-  std::error_code ec;
-  std::filesystem::remove(old_path, ec);
-  // Ignore removal errors — old file may have already been cleaned up
-
-  // ── V4.1: Delete old blob file ──
-  if (!old_blob_path.empty()) {
-    std::filesystem::remove(old_blob_path, ec);
-  }
 
   // ── V4.1: Truncate WAL — all delta data is now in the compacted file ──
   truncate_wal();
@@ -791,50 +1025,64 @@ void TraceManager::replay_wal() {
   if (!in.is_open())
     return;
 
+  uint64_t bytes_consumed = 0;
+
   while (in.good() && !in.eof()) {
     // Read WAL record header
     WalRecordHeader wal_hdr{};
     in.read(reinterpret_cast<char *>(&wal_hdr), sizeof(WalRecordHeader));
     if (in.gcount() != sizeof(WalRecordHeader))
       break; // Truncated header
+    bytes_consumed += sizeof(WalRecordHeader);
 
-    // Validate record type
-    if (wal_hdr.record_type != WAL_RECORD_TRACE)
-      break;
-
-    // Validate payload size
-    if (wal_hdr.payload_size != sizeof(TraceEvent))
-      break;
+    // Bound payload_size against bytes remaining in the file BEFORE
+    // trusting it for anything — see Atlas::replay_wal() for the same
+    // fix and rationale.
+    uint64_t remaining = static_cast<uint64_t>(file_size) - bytes_consumed;
+    if (wal_hdr.payload_size > remaining)
+      break; // Declared payload exceeds file — truncated tail, stop replay
 
     // Read payload
-    TraceEvent ev{};
-    in.read(reinterpret_cast<char *>(&ev), sizeof(TraceEvent));
-    if (static_cast<uint32_t>(in.gcount()) != sizeof(TraceEvent))
-      break;
+    std::vector<uint8_t> payload(wal_hdr.payload_size);
+    in.read(reinterpret_cast<char *>(payload.data()),
+            static_cast<std::streamsize>(wal_hdr.payload_size));
+    if (static_cast<uint32_t>(in.gcount()) != wal_hdr.payload_size)
+      break; // Truncated payload — stop replay
+    bytes_consumed += wal_hdr.payload_size;
 
     // Verify checksum
-    uint64_t computed = hash::fnv1a_64(&ev, sizeof(TraceEvent));
+    uint64_t computed = hash::fnv1a_64(payload.data(), wal_hdr.payload_size);
     if (computed != wal_hdr.checksum)
       break;
 
-    // ── Record is valid: reconstruct delta buffer ──
-    // Re-chain: look up current session tail to set prev_id
-    std::string sid(ev.session_id,
-                    std::min(std::strlen(ev.session_id), size_t{35}));
-    auto it = session_tails_.find(sid);
-    uint64_t prev_id = (it != session_tails_.end()) ? it->second : 0;
+    // Dispatch on record_type. An unrecognized type, or a recognized type
+    // with an unexpected payload_size, is skipped rather than fatal — see
+    // Atlas::replay_wal() for the same forward-compat rationale.
+    if (wal_hdr.record_type == WAL_RECORD_TRACE &&
+        wal_hdr.payload_size == sizeof(TraceEvent)) {
+      TraceEvent ev{};
+      std::memcpy(&ev, payload.data(), sizeof(TraceEvent));
 
-    // Assign sequential event ID and re-chain prev_id
-    ev.id = next_event_id_++;
-    ev.prev_id = prev_id;
+      // ── Record is valid: reconstruct delta buffer ──
+      // Re-chain: look up current session tail to set prev_id
+      std::string sid(ev.session_id,
+                      std::min(std::strlen(ev.session_id), size_t{35}));
+      auto it = session_tails_.find(sid);
+      uint64_t prev_id = (it != session_tails_.end()) ? it->second : 0;
 
-    // Append to delta buffer
-    size_t old_size = delta_bytes_.size();
-    delta_bytes_.resize(old_size + sizeof(TraceEvent));
-    std::memcpy(delta_bytes_.data() + old_size, &ev, sizeof(TraceEvent));
+      // Assign sequential event ID and re-chain prev_id
+      ev.id = next_event_id_++;
+      ev.prev_id = prev_id;
 
-    // Update session tail for this event
-    session_tails_[sid] = ev.id;
+      // Append to delta buffer
+      size_t old_size = delta_bytes_.size();
+      delta_bytes_.resize(old_size + sizeof(TraceEvent));
+      std::memcpy(delta_bytes_.data() + old_size, &ev, sizeof(TraceEvent));
+
+      // Update session tail for this event
+      session_tails_[sid] = ev.id;
+    }
+    // else: skip (payload already fully consumed above), continue replay.
   }
 }
 

@@ -122,6 +122,61 @@ TEST_F(BlobArenaTest, TraceInlinePreview) {
 }
 
 // ===========================================================================
+// Test 3b: Inline preview truncation never splits a multi-byte UTF-8
+// sequence (regression test, v4-plan.md Stage 7 -- see trace.cpp's
+// safe_utf8_truncate_length for the crash this fixes: a raw byte-count
+// truncation left a dangling partial UTF-8 sequence in text_preview,
+// which crashed nanobind's strict UTF-8 decode on every Python-side read,
+// for ANY stored text containing a multi-byte character near byte 63 --
+// curly quotes, accented Latin, CJK, emoji, i.e. most real-world text).
+// ===========================================================================
+
+TEST_F(BlobArenaTest, TraceInlinePreviewNeverSplitsUtf8Sequence) {
+  aeon::TraceManager trace(trace_path_);
+
+  // 61 ASCII bytes (indices 0-60), then a 3-byte UTF-8 curly quote
+  // (U+2019 = 0xE2 0x80 0x99) at indices 61-63, then more ASCII. The
+  // preview's 63-byte cap (indices 0-62) captures only the first two
+  // bytes of that 3-byte sequence -- exactly the split this test exists
+  // to catch.
+  std::string text(61, 'A');
+  text += "\xE2\x80\x99"; // U+2019 RIGHT SINGLE QUOTATION MARK
+  text += std::string(20, 'B');
+
+  uint64_t id = trace.append_event("sess_utf8", 0, text.c_str(), 0);
+  auto history = trace.get_history("sess_utf8", 10);
+  ASSERT_EQ(history.size(), 1u);
+
+  // The preview must be valid, complete UTF-8 -- i.e. it must not end with
+  // a lead or continuation byte belonging to a sequence that got cut off.
+  // A minimal well-formedness check sufficient for this test: the last
+  // byte must not be a lead byte expecting more bytes than remain, and
+  // the preview must not end mid-sequence (no dangling continuation byte
+  // whose lead byte was dropped).
+  std::string preview(history[0].text_preview);
+  ASSERT_FALSE(preview.empty());
+  unsigned char last = static_cast<unsigned char>(preview.back());
+  // Last byte must be ASCII (0xxxxxxx) or a valid sequence-final
+  // continuation byte whose lead byte is also present earlier in the
+  // string -- for this specific input, the only correct outcomes are
+  // "the full 61 A's with the split sequence dropped entirely" (last
+  // byte is 'A', ASCII) or, if some future change widens the cap, the
+  // complete 3-byte sequence's own last byte (0x99) -- either way, the
+  // preview must never end on 0xE2 (the lead byte alone) or 0x80 (the
+  // first continuation byte alone), which is what the pre-fix bug
+  // produced.
+  EXPECT_NE(last, 0xE2);
+  EXPECT_TRUE(last != 0x80 || preview.size() < 62);
+
+  // The full text (from the blob arena, not the preview) must be
+  // completely untouched by any of this.
+  std::string full = trace.get_event_text(history[0].blob_offset, history[0].blob_size);
+  EXPECT_EQ(full, text);
+
+  (void)id;
+}
+
+// ===========================================================================
 // Test 4: Full text fetch via get_event_text
 // ===========================================================================
 
