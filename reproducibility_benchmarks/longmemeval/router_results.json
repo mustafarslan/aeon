@@ -1,0 +1,36 @@
+{
+  "always_single_shot_accuracy": 0.734,
+  "always_etc_accuracy": 0.78,
+  "type_based_oracle_ceiling": {
+    "accuracy": 0.794,
+    "per_type": {
+      "knowledge-update": 0.8717948717948718,
+      "multi-session": 0.7819548872180451,
+      "single-session-assistant": 0.9821428571428571,
+      "single-session-preference": 0.4666666666666667,
+      "single-session-user": 0.9428571428571428,
+      "temporal-reasoning": 0.6766917293233082
+    }
+  },
+  "classifier_cv_result": {
+    "folds": 5,
+    "n": 500,
+    "routed_accuracy": 0.776,
+    "per_type_routed_accuracy": {
+      "knowledge-update": 0.8974358974358975,
+      "multi-session": 0.7518796992481203,
+      "single-session-assistant": 0.9821428571428571,
+      "single-session-preference": 0.4666666666666667,
+      "single-session-user": 0.9,
+      "temporal-reasoning": 0.6466165413533834
+    },
+    "per_type_misroute_rate": {
+      "knowledge-update": 0.28205128205128205,
+      "multi-session": 0.16541353383458646,
+      "single-session-assistant": 0.0,
+      "single-session-preference": 0.0,
+      "single-session-user": 0.3,
+      "temporal-reasoning": 0.09022556390977443
+    }
+  }
+}

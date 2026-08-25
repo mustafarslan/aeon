@@ -4423,7 +4423,77 @@ its own error mode) vs. leaving single-shot as the default until a classifier is
 belongs to the user, not to further prompt tuning -- no new prompt variant has been attempted at n=500
 or any other n as part of this finding, per the standing no-more-tuning-at-small-n guardrail.
 
----
+**Router experiment. DONE (2026-08-25) -- offline, zero LLM calls, honest result: the classifier ties
+always-on ETC on accuracy, and only partially fixes the regression it was meant to avoid.** User picked
+"build a query classifier to route" over always-on/do-nothing. Built
+`scripts/longmemeval/router_experiment.py`: since both arms' per-question correctness for all 500
+questions is already on disk, routed accuracy for ANY routing function is just a lookup -- this entire
+evaluation cost zero new LLM calls, only one local (non-LLM) mpnet embedding pass over the 500 question
+texts.
+
+*Step 1 -- type-based oracle ceiling* (route {multi-session, temporal-reasoning} to ETC, everything
+else -- including knowledge-update, an accuracy wash -- to single-shot, using the TRUE type label):
+**79.4%**. This is the ceiling for ANY classifier working from question text alone, before any real
+model was built: only +1.4pp (7 questions) above always-on ETC's 78.0%. Routing was never going to be
+a large accuracy play; this number, computed first, set that expectation honestly before judging the
+real classifier.
+
+*Step 2 -- real classifier*: logistic regression over the question's mpnet embedding (the SAME
+embedding the real pipeline already computes once per query for retrieval, so this costs zero marginal
+inference calls), trained to predict the binary {ETC, single-shot} route implied by the type-based
+rule. Scored via stratified 5-fold CV, routed accuracy computed ONLY from out-of-fold predictions (an
+in-sample number would repeat the exact overfitting mistake the knowledge-update prompt-tuning revert
+already flagged this stage).
+
+| | accuracy | vs. always-on ETC |
+|---|---|---|
+| always single-shot | 73.4% | -4.6pp |
+| **routed (real classifier, out-of-fold)** | **77.6%** | **-0.4pp (a wash, ~2 questions)** |
+| always extract-then-compute | 78.0% | -- |
+| type-based oracle ceiling (upper bound) | 79.4% | +1.4pp |
+
+The classifier routes 55% of questions to ETC (232 true positives + 43 false positives of 500),
+confusion `TP=232 FN=34 FP=43 TN=191`. **The 77.6%-vs-78.0% result is not the classifier failing --
+it's confirmation the oracle ceiling already said accuracy was never the case for routing.** The actual
+value of routing is two other things, and both are partial, not clean:
+
+1. **Latency**: ~45% of queries skip the second (compute) LLM call entirely.
+2. **Regression mitigation, partial not full**: single-session-user lands at 90.0% routed accuracy
+   (between single-shot's 93.8% and always-ETC's 85.9%) -- roughly half the known regression
+   recovered, not eliminated, because 30% of single-session-user questions still get misrouted to ETC.
+   Single-session-assistant and single-session-preference, by contrast, misroute at 0% -- the
+   classifier separates those cleanly.
+
+**Why single-session-user misroutes at 30% while -assistant/-preference misroute at 0%, worth stating
+plainly so a future reader doesn't re-attempt "just train a better classifier":** the embedding is
+separating question STYLE, not routing NEED. Single-session-user questions ("how many hours did I
+spend...", "how much did I pay for...") are lexically similar to the aggregation-style multi-
+session/temporal-reasoning questions ETC was built for, even though they don't need the two-step split
+(the fact is already a direct, single-session answer). This is a phrasing-similarity confound, not a
+data or training deficiency -- a bigger model or more folds is unlikely to move it much, since the
+signal that would distinguish them (whether the answer requires combining multiple facts) isn't
+strongly present in the question's surface embedding alone.
+
+Also worth flagging precisely rather than letting it read as a routing win: knowledge-update's routed
+accuracy (89.7%) sits above BOTH arms individually (87.5%/88.9%). This is a mixing artifact of a 28%
+misroute rate on a type where the two arms are a wash, not a real benefit of routing -- don't cite it
+as one.
+
+**Caveat that stays a caveat**: a classifier trained on LongMemEval's own formulaic question phrasing
+will likely score well on LongMemEval's own held-out folds. That is not evidence it generalizes to less
+formulaic production queries. Kept the model deliberately simple (embedding + logistic regression, no
+feature engineering, no hyperparameter search) for exactly this reason -- and per the standing
+guardrail, no threshold/hyperparameter search was run against these same 500 questions, since a missed
+ETC route and a wrong ETC route each cost roughly 8% of their bucket, making the expected gain from
+tuning small and the overfit risk the same one already dodged twice this stage.
+
+**Re-presented to the user rather than proceeding to wiring**: the "build a classifier" pick predated
+this data, and the decision surfaced by it is materially different from what was asked for --
+routed accuracy ties always-on, so the real choice is now (a) wire the router anyway for the latency
+win and partial regression relief, at the cost of one more component with its own failure mode; (b)
+skip the router, wire always-on ETC instead -- simpler, statistically the same accuracy, full 2x
+latency and full single-session-user regression; (c) hold, keep single-shot the default, park both
+until there's a reason to revisit. Not decided in this pass.
 
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
