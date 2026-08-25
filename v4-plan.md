@@ -4659,8 +4659,9 @@ i.e. **extraction is nondeterministic on ~38% of questions at `temperature=0.0`*
 is a cloud-batched model; temp 0 is not determinism). 4/50 is a wide CI (~2-19%), so call it "roughly
 8%, preliminary" -- but even at that estimate, ~40 of 500 questions flip run-to-run, giving a net-delta
 standard deviation of ~sqrt(40) ~= **6 questions (~1.2 points) at n=500**. Consequences, stated
-plainly: v3's headline "regressions" (knowledge-update -4, temporal-reasoning -3) are **inside the
-noise band**, as is knowledge-update's +1, single-session-assistant's -1, and abstention's +2. v3's
+plainly: v3's headline "regressions" (knowledge-update -4, temporal-reasoning -3) are **not
+distinguishable from noise at any defensible bar** (knowledge-update's -4 on n=72 is ~1.7 sigma --
+suggestive at best, nowhere near a revert-grade signal), as is knowledge-update's +1, single-session-assistant's -1, and abstention's +2. v3's
 "exact 390/390 tie" hides **32 changed questions** (16 gained, 16 lost) -- almost exactly the ~40
 expected from noise alone. The v2 revert, decided on +1/-1/-1 deltas at n=50, was decided on noise.
 **No acceptance bar written in this stage had a noise model; that is the methodological defect behind
@@ -4698,16 +4699,34 @@ consecutive fix attempts (v2, v3, the system-prompt probe) is 8.2% of the error 
 multi-session + preference are 81.8% and, until this inventory, **no case in either of the two largest
 buckets had ever been read at the case level** in this stage. Reading 10 of them (5 temporal, 5
 multi-session, all from the 74-question hard core that is wrong under every arm) shows the dominant
-mode is neither retrieval nor compute reasoning but **incomplete fact recall on aggregation**:
+mode is neither compute reasoning nor a single locus but **incomplete fact recall on aggregation**:
 `8e91e7d9` (gold: 4 siblings) extracted only *"user: I have a brother"* -> answered 1; `1a8a66a6`
 (gold: 2 subscriptions) extracted one -> answered 1; `81507db6` (gold: 3 ceremonies) extracted two ->
-answered 1; `gpt4_ab202e7f` (gold: 5 kitchen items) extracted four -> answered 4. Cross-checked against
+answered 1; `gpt4_ab202e7f` (gold: 5 kitchen items) extracted four -> answered 4.
+
+**Locus split, settled by a zero-LLM-call discriminating check** (`scripts/longmemeval/aggregation_locus_check.py`):
+rebuild the exact assembled context each arm saw (verified byte-identical to the recorded
+`context_chars` for all 5 questions) and grep it for the gold mentions extraction failed to surface.
+This was necessary because "extraction dropped it" was, until run, an output-side inference -- the
+facts were missing from extraction's *output*, but nobody had checked extraction's *input*. Result:
+**the bucket splits both ways, and the earlier single-locus reading was wrong.**
+
+| question | gold mention in the assembled context? | locus |
+|---|---|---|
+| `8e91e7d9` (4 siblings) | **absent** -- "sister"/"siblings"/"brothers" appear nowhere in 68,460 chars | **retrieval miss** |
+| `ba358f49` (user's age) | **absent** -- no age/birth statement anywhere in 136,331 chars | **retrieval miss** |
+| `1a8a66a6` (2 subscriptions) | **present** -- "book subscription box" is in context, unextracted | **extraction loss** |
+| `gpt4_ab202e7f` (5 kitchen items) | **all five present**, incl. the dropped "donated my old coffee maker" | **extraction loss** |
+| `81507db6` (3 ceremonies) | "graduation" x5 present; extraction surfaced 2 | **extraction loss** |
+
+So ~2 of 5 are genuine Aeon-side recall failures (the mention never reached the model) and ~3 of 5 are
+EXTRACT dropping facts that were demonstrably in front of it. This is consistent with, and refines,
 the existing session-recall diagnostic (96% all-golds-in-top-k30 at `max_sessions=10`, 98.2% mean gold
-fraction): of the 6 hard-core questions with recall data, **5 had all gold sessions retrieved** and
-still failed -- retrieval delivered, and the loss is downstream. The single exception, `81507db6`, is
-the highest-gold-count question of the six (5 gold sessions, only 60% retrieved) -- which is where
-`top_k=30`/`max_sessions=10` truncation would be expected to bite. **The EXTRACT prompt has never been
-modified in this stage** -- v2, v3, and the probe all changed COMPUTE or the system prompt.
+fraction): recall is high *on average* but degrades exactly on the high-gold-count aggregation
+questions this bucket is made of (`81507db6`: 5 gold sessions, only 60% retrieved). **The EXTRACT
+prompt has never been modified in this stage** -- v2, v3, and the probe all changed COMPUTE or the
+system prompt -- but "never tried" is a reason to *test* EXTRACT, not evidence that EXTRACT is the
+fix; two of the five cases cannot be fixed there at all.
 
 **Correcting an over-claim before it propagates:** the oracle comparison (80.0% gold-context vs ETC's
 82% on the same 50) does *not* establish "we are at the model's capability ceiling." That is n=50
@@ -4726,9 +4745,9 @@ run, no matter how long it takes.
 | bucket | errors | what's broken | mechanism status | candidate fix | expected gain | trade-off | detectable at n=500? |
 |---|---|---|---|---|---|---|---|
 | temporal-reasoning, missing "now" | 21+ of 43 | `question_date` never passed to any prompt; model invents or refuses | **verified** (grep: 0 code refs; 21 outputs name it) | pass `question_date` into EXTRACT + COMPUTE + baseline | ~15-21 questions (3-4 pts) | none -- bug fix; but **invalidates every prior temporal number**, so baseline must be re-run too | **yes**, ~3x noise |
-| multi-session aggregation | ~19 of 28 | extraction returns a subset of the N mentions an aggregation needs; compute faithfully sums the subset | **verified** on 4 read cases + recall data (5/6 golds fully retrieved) | EXTRACT-side fix (never yet attempted): enumerate-all-instances / count-oriented extraction | unsized -- needs a small probe first | more extraction tokens; risk of over-extraction hurting precision-sensitive types | borderline alone; pair with the date fix |
-| high-gold-count retrieval truncation | ~1-5 | `top_k=30`/`max_sessions=10` truncates questions needing many sessions (`81507db6`: 5 golds, 60% retrieved) | **verified** on 1 case | adaptive `max_sessions` by gold-count proxy | small, few questions | latency, context size | **no** -- below noise |
-| single-session-preference | 19 | 11 unfixed by any arm; pre-existing baseline weakness (14/30), not caused by ETC | **not diagnosed** -- never read at case level | unknown; diagnose first | unknown | -- | n/a until diagnosed |
+| multi-session aggregation -- **extraction loss** | ~3 of 5 read | the gold mention IS in the assembled context and EXTRACT drops it; compute then faithfully sums the subset | **verified by direct grep of the rebuilt context** (see split below) | EXTRACT-side fix (never yet attempted in this stage): enumerate-all-instances / count-oriented extraction | unsized -- needs a probe first | more extraction tokens; over-extraction may hurt precision-sensitive types | borderline alone; pair with the date fix |
+| multi-session aggregation -- **retrieval miss** | ~2 of 5 read | the gold mention is **absent from the assembled context entirely** -- `top_k=30`/`max_sessions=10` never surfaced it | **verified by direct grep** (`8e91e7d9`, `ba358f49`) | raise/adapt `top_k`+`max_sessions` for aggregation-shaped queries; Aeon-side recall work | unsized | latency, context size, num_ctx pressure | borderline alone |
+| single-session-preference | 19 | 11 unfixed by any arm; pre-existing baseline weakness (14/30), not caused by ETC | **partly diagnosed** -- the 5 ETC-regressed cases were read (modes ii/iii above); the **14 wrong-in-both-arms have never been read** | unknown; read the 14 first | unknown | -- | n/a until diagnosed |
 | single-session-user regression | 9 | modes (i)/(ii)/(iii) above -- pragmatic-license gap, verified | **verified** (probe + per-case grep) | hybrid raw-session input, single-session-gated | **<= 9 questions (1.8 pts)** | 2x latency; new component | **NO -- at/below the ~1.2-pt noise floor.** A full n=500 likely cannot distinguish this fix from noise |
 | knowledge-update supersession | 8 | 2 hard-core; rest inside noise | inferred, not verified | kernel supersession track (parked) | ~2-6 | kernel work | no, alone |
 

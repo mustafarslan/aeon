@@ -57,7 +57,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from judge_prompts import get_anscheck_prompt  # noqa: E402
 from run_benchmark import (  # noqa: E402
     SYSTEM_PROMPT, _generate_with_retry, _get_encoder, _ingest_haystack,
-    _stratified_sample,
+    _stratified_sample, format_question_with_date,
 )
 
 import numpy as np  # noqa: E402
@@ -72,7 +72,7 @@ EXTRACT_PROMPT_TEMPLATE = (
     "You are extracting facts relevant to a question from retrieved memories. "
     "Do NOT answer the question yet.\n\n"
     "Retrieved memories:\n{context}\n\n"
-    "Question: {question}\n\n"
+    "{question_block}\n\n"
     "List every fact from the retrieved memories that is relevant to "
     "answering this question, one per line. Include each fact's date or "
     "session context if the memories state one. Be exhaustive -- include a "
@@ -84,7 +84,7 @@ EXTRACT_PROMPT_TEMPLATE = (
 COMPUTE_PROMPT_TEMPLATE = (
     "You previously extracted these facts from retrieved memories:\n"
     "{extracted_facts}\n\n"
-    "Question: {question}\n\n"
+    "{question_block}\n\n"
     "Using ONLY the facts above, determine the answer. If the question "
     "requires combining multiple facts (a sum, a count, a date difference), "
     "show the calculation briefly. Give your final answer on its own line, "
@@ -168,7 +168,9 @@ def _run_one(question: dict, encoder, llm: OllamaProvider, tmp_dir: Path) -> dic
 
     # Step 1: extract
     t0 = time.perf_counter()
-    extract_prompt = EXTRACT_PROMPT_TEMPLATE.format(context=context_block, question=question["question"])
+    extract_prompt = EXTRACT_PROMPT_TEMPLATE.format(
+        context=context_block, question_block=format_question_with_date(question),
+    )
     extracted_facts = _generate_with_retry(llm, extract_prompt, system_prompt=SYSTEM_PROMPT, temperature=0.0)
     extract_seconds = time.perf_counter() - t0
     extract_num_ctx = llm.last_num_ctx
@@ -182,7 +184,8 @@ def _run_one(question: dict, encoder, llm: OllamaProvider, tmp_dir: Path) -> dic
     if not is_error_extract:
         t0 = time.perf_counter()
         compute_prompt = COMPUTE_PROMPT_TEMPLATE.format(
-            extracted_facts=extracted_facts, question=question["question"],
+            extracted_facts=extracted_facts,
+            question_block=format_question_with_date(question),
         )
         response = _generate_with_retry(llm, compute_prompt, system_prompt=SYSTEM_PROMPT, temperature=0.0)
         compute_seconds = time.perf_counter() - t0

@@ -71,7 +71,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from judge_prompts import get_anscheck_prompt  # noqa: E402
 from run_benchmark import (  # noqa: E402
     SYSTEM_PROMPT, _generate_with_retry, _get_encoder, _ingest_haystack,
-    _stratified_sample,
+    _stratified_sample, format_question_with_date,
 )
 
 import numpy as np  # noqa: E402
@@ -141,7 +141,10 @@ def _run_one(question: dict, arm: str, encoder, llm: OllamaProvider, tmp_dir: Pa
     context_block = _build_context(arm, trace, q_vec, llm)
     context_seconds = time.perf_counter() - t0
 
-    user_prompt = f"Retrieved memories:\n{context_block}\n\nQuestion: {question['question']}\n\nAnswer:"
+    user_prompt = (
+        f"Retrieved memories:\n{context_block}\n\n"
+        f"{format_question_with_date(question)}\n\nAnswer:"
+    )
 
     t0 = time.perf_counter()
     response = _generate_with_retry(llm, user_prompt, system_prompt=SYSTEM_PROMPT, temperature=0.0)

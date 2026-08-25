@@ -115,6 +115,50 @@ _MAX_RATE_LIMIT_RETRIES = 6
 _RATE_LIMIT_BACKOFF_SECONDS = 15
 
 
+def format_question_with_date(question: dict) -> str:
+    """Renders the question with LongMemEval's `question_date` as an explicit
+    reference "now".
+
+    BUG FIX (2026-08-25, v4-plan.md failure inventory): `question_date` ships
+    on all 500 questions in the dataset and was referenced in ZERO lines of
+    code -- it was never passed to any prompt, in any arm. Relative-time
+    questions ("What did I buy 10 days ago?", "How many weeks ago did I start
+    using Ibotta?") are therefore unanswerable by construction: the model has
+    no "now" to subtract from. This is visible verbatim in the stored n=500
+    outputs -- `gpt4_e072b769` answered "The provided text does not contain the
+    current date, so the number of weeks cannot be calculated", and
+    `gpt4_59149c78` HALLUCINATED "The current date is 2023/01/15" and reasoned
+    from the invented date. 21 questions (all temporal-reasoning, all wrong, 17
+    of them in the 74-question wrong-under-every-arm hard core) explicitly
+    complain about or invent a current date -- 49% of all temporal-reasoning
+    errors and 19% of every error in the run, and a strict lower bound, since a
+    question that just answers "I don't know" without naming the date isn't
+    counted by that scan.
+
+    Consequence for existing numbers: every temporal-reasoning result recorded
+    before this fix (single-shot baseline, extract-then-compute v1 and v3, and
+    the +17-question ETC "win" on that type) compares two configurations that
+    were both broken the same way. Those numbers are not wrong about which arm
+    scored higher, but they cannot be read as measuring temporal-reasoning
+    capability, and any post-fix number is not comparable to them -- the
+    baseline has to be re-run alongside whatever else changes.
+
+    Kept as a single shared helper (rather than inlined per arm) so all three
+    prompt-building call sites -- this file's single-shot arm,
+    `expansion_unit_experiment.py`'s full_session arm, and
+    `extract_then_compute_experiment.py`'s EXTRACT and COMPUTE steps -- stay in
+    sync; a fix applied to only some arms would silently confound the next
+    comparison between them.
+    """
+    date = question.get("question_date")
+    if not date:
+        return f"Question: {question['question']}"
+    return (
+        f"Today's date is {date}.\n"
+        f"Question: {question['question']}"
+    )
+
+
 def _generate_with_retry(
     llm: OllamaProvider, prompt: str, system_prompt: str = "",
     temperature: float | None = None, retries: int = 3,
@@ -311,7 +355,10 @@ def _run_one_question(
 
     if not retrieval_only:
         context_block = "\n".join(f"- {ev['text']}" for ev in retrieved) or "(nothing retrieved)"
-        user_prompt = f"Retrieved memories:\n{context_block}\n\nQuestion: {question['question']}\n\nAnswer:"
+        user_prompt = (
+            f"Retrieved memories:\n{context_block}\n\n"
+            f"{format_question_with_date(question)}\n\nAnswer:"
+        )
 
         t0 = time.perf_counter()
         response = _generate_with_retry(llm, user_prompt, system_prompt=SYSTEM_PROMPT, temperature=temperature)
