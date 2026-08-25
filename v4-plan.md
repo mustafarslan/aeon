@@ -4711,22 +4711,39 @@ This was necessary because "extraction dropped it" was, until run, an output-sid
 facts were missing from extraction's *output*, but nobody had checked extraction's *input*. Result:
 **the bucket splits both ways, and the earlier single-locus reading was wrong.**
 
-| question | gold mention in the assembled context? | locus |
-|---|---|---|
-| `8e91e7d9` (4 siblings) | **absent** -- "sister"/"siblings"/"brothers" appear nowhere in 68,460 chars | **retrieval miss** |
-| `ba358f49` (user's age) | **absent** -- no age/birth statement anywhere in 136,331 chars | **retrieval miss** |
-| `1a8a66a6` (2 subscriptions) | **present** -- "book subscription box" is in context, unextracted | **extraction loss** |
-| `gpt4_ab202e7f` (5 kitchen items) | **all five present**, incl. the dropped "donated my old coffee maker" | **extraction loss** |
-| `81507db6` (3 ceremonies) | "graduation" x5 present; extraction surfaced 2 | **extraction loss** |
+**METHOD CORRECTION (2026-08-25) -- the first version of this split was wrong, and wrong in a
+systematic direction.** `aggregation_locus_check.py` grepped the rebuilt context for a **keyword**
+("subscri", "graduation", "coffee maker") and called a hit "the fact was retrieved, so extraction
+dropped it." That conflates *the topic word appearing somewhere in 120k chars* with *the
+answer-bearing turn being retrieved* -- and on aggregation questions the topic word necessarily
+repeats across many sessions, including assistant echoes and unrelated mentions. So the method
+**systematically under-reports retrieval misses on exactly the question shape it was built to
+diagnose.** LongMemEval flags the specific answer-bearing turns (`has_answer: true`, 896 across the
+500 questions); checking those turns individually against the context
+(`scripts/longmemeval/answer_turn_attribution.py`, calibration mode) gives the corrected table:
 
-So ~2 of 5 are genuine Aeon-side recall failures (the mention never reached the model) and ~3 of 5 are
-EXTRACT dropping facts that were demonstrably in front of it. This is consistent with, and refines,
-the existing session-recall diagnostic (96% all-golds-in-top-k30 at `max_sessions=10`, 98.2% mean gold
-fraction): recall is high *on average* but degrades exactly on the high-gold-count aggregation
-questions this bucket is made of (`81507db6`: 5 gold sessions, only 60% retrieved). **The EXTRACT
-prompt has never been modified in this stage** -- v2, v3, and the probe all changed COMPUTE or the
-system prompt -- but "never tried" is a reason to *test* EXTRACT, not evidence that EXTRACT is the
-fix; two of the five cases cannot be fixed there at all.
+| question | answer-bearing turns retrieved | locus |
+|---|---|---|
+| `8e91e7d9` (4 siblings) | **1 of 2** | **retrieval miss** |
+| `ba358f49` (user's age) | **1 of 2** | **retrieval miss** |
+| `1a8a66a6` (2 subscriptions) | **1 of 3** -- keyword grep called this "retrieved" | **retrieval miss** (was: extraction loss) |
+| `gpt4_ab202e7f` (5 kitchen items) | **5 of 5** | **extraction loss** (confirmed) |
+| `81507db6` (3 ceremonies) | **1 of 3** -- keyword grep called this "retrieved" | **retrieval miss** (was: extraction loss) |
+
+Corrected reading: **4 of 5 are Aeon-side retrieval failures**, not EXTRACT failures -- the answer
+turns never reached the model. Only `gpt4_ab202e7f` is a verified extraction loss. This moves the
+aggregation bucket's centre of gravity from a prompt fix to a **retrieval/recall fix in the product
+itself**, which is the opposite of the conclusion the keyword method produced. It also refines the
+existing session-recall diagnostic (96% all-golds-in-top-k30, 98.2% mean gold fraction): recall is
+high *per gold session on average*, but aggregation questions need **every** answer turn, and
+`top_k=30`/`max_sessions=10` is losing most of them on exactly these questions. **The EXTRACT prompt
+has never been modified in this stage** -- v2, v3, and the probe all changed COMPUTE or the system
+prompt -- but "never tried" is a reason to *test* EXTRACT, not evidence it is the fix; on this
+corrected split, 4 of 5 cases cannot be fixed there at all.
+
+Five cases still cannot size a bucket, which is why the same `has_answer` method is run over all 500
+questions as a four-way attribution (retrieval miss / extraction loss / compute-or-judge / correct) --
+results in the next entry.
 
 **Correcting an over-claim before it propagates:** the oracle comparison (80.0% gold-context vs ETC's
 82% on the same 50) does *not* establish "we are at the model's capability ceiling." That is n=50
@@ -4745,8 +4762,8 @@ run, no matter how long it takes.
 | bucket | errors | what's broken | mechanism status | candidate fix | expected gain | trade-off | detectable at n=500? |
 |---|---|---|---|---|---|---|---|
 | temporal-reasoning, missing "now" | 21+ of 43 | `question_date` never passed to any prompt; model invents or refuses | **verified** (grep: 0 code refs; 21 outputs name it) | pass `question_date` into EXTRACT + COMPUTE + baseline | ~15-21 questions (3-4 pts) | none -- bug fix; but **invalidates every prior temporal number**, so baseline must be re-run too | **yes**, ~3x noise |
-| multi-session aggregation -- **extraction loss** | ~3 of 5 read | the gold mention IS in the assembled context and EXTRACT drops it; compute then faithfully sums the subset | **verified by direct grep of the rebuilt context** (see split below) | EXTRACT-side fix (never yet attempted in this stage): enumerate-all-instances / count-oriented extraction | unsized -- needs a probe first | more extraction tokens; over-extraction may hurt precision-sensitive types | borderline alone; pair with the date fix |
-| multi-session aggregation -- **retrieval miss** | ~2 of 5 read | the gold mention is **absent from the assembled context entirely** -- `top_k=30`/`max_sessions=10` never surfaced it | **verified by direct grep** (`8e91e7d9`, `ba358f49`) | raise/adapt `top_k`+`max_sessions` for aggregation-shaped queries; Aeon-side recall work | unsized | latency, context size, num_ctx pressure | borderline alone |
+| multi-session aggregation -- **retrieval miss** | **4 of 5 read** (corrected) | answer-bearing turns never reach the assembled context -- `top_k=30`/`max_sessions=10` surfaces 1 of 2-3 answer turns on aggregation questions | **verified per-`has_answer`-turn**; sized over all 500 in the next entry | raise/adapt `top_k`+`max_sessions` for aggregation-shaped queries -- **Aeon-side recall work, the product itself** | unsized until the n=500 attribution | latency, context size, num_ctx pressure | pending attribution |
+| multi-session aggregation -- **extraction loss** | 1 of 5 read (`gpt4_ab202e7f`) | all answer turns present in context, EXTRACT drops one; compute faithfully sums the subset | **verified** (5/5 turns retrieved, 4 extracted) | EXTRACT-side fix (never yet attempted in this stage) | smaller than previously implied | more extraction tokens; over-extraction may hurt precision-sensitive types | pending attribution |
 | single-session-preference | 19 | 11 unfixed by any arm; pre-existing baseline weakness (14/30), not caused by ETC | **partly diagnosed** -- the 5 ETC-regressed cases were read (modes ii/iii above); the **14 wrong-in-both-arms have never been read** | unknown; read the 14 first | unknown | -- | n/a until diagnosed |
 | single-session-user regression | 9 | modes (i)/(ii)/(iii) above -- pragmatic-license gap, verified | **verified** (probe + per-case grep) | hybrid raw-session input, single-session-gated | **<= 9 questions (1.8 pts)** | 2x latency; new component | **NO -- at/below the ~1.2-pt noise floor.** A full n=500 likely cannot distinguish this fix from noise |
 | knowledge-update supersession | 8 | 2 hard-core; rest inside noise | inferred, not verified | kernel supersession track (parked) | ~2-6 | kernel work | no, alone |
@@ -4761,6 +4778,86 @@ subtype deltas; (b) set acceptance bars at **>= 2x the measured noise floor**; (
 floor properly (repeat one arm on a fixed ~100-question slice) rather than relying on this
 opportunistic 4/50; and (d) treat any subtype bucket smaller than ~50 questions as undecidable on its
 own.
+
+**Answer-turn attribution over all 500 questions (2026-08-25). Zero LLM calls**
+(`scripts/longmemeval/answer_turn_attribution.py`, results in
+`answer_turn_attribution.json`). Requested before authorizing any rerun: settle the
+extraction-vs-retrieval split properly rather than from 5 hand-picked cases. LongMemEval flags the
+exact turns containing each answer (`has_answer: true`, 896 turns across the 500 questions), so the
+split becomes mechanical: rebuild each question's assembled context deterministically, check which
+answer-bearing turns reached it, and cross that with the stored n=500 extraction and correctness.
+
+*Integrity checks, all clean*: the rebuilt context is byte-identical to the recorded `context_chars`
+on **479/479** questions (retrieval is deterministic -- the 8% run-to-run flip rate is entirely
+LLM-side, confirming the noise attribution above); the retrieval matcher passes calibration against
+five per-turn-verified cases; and assistant-role answer turns are retrieved **54/54**, so there is no
+user-turn bias in retrieval or `format_events` (a hypothesis worth killing, now killed). The 21
+questions with no answer-bearing turns are the abstention set and are excluded from attribution.
+
+| type | n | correct | retrieval miss | retrieved-but-wrong |
+|---|---|---|---|---|
+| temporal-reasoning | 127 | 84 | **15** | 28 |
+| multi-session | 121 | 93 | **9** | 19 |
+| single-session-preference | 30 | 11 | 1 | 18 |
+| single-session-user | 64 | 55 | 2 | 7 |
+| knowledge-update | 72 | 64 | 0 | 8 |
+| single-session-assistant | 56 | 54 | 0 | 2 |
+| **TOTAL** | **479** | **369** | **27 (25% of errors)** | **83 (75% of errors)** |
+
+**The retrieval number is solid, and the causal check is the strongest signal in this whole stage:**
+
+| | mean answer-turn recall | all answer turns present |
+|---|---|---|
+| correct answers (n=369) | **99.5%** | **98.9%** |
+| wrong answers (n=110) | **85.9%** | **75.5%** |
+
+A quarter of wrong answers are missing at least one answer-bearing turn, against ~1% of correct ones.
+**27 of 110 errors (25%) are Aeon-side recall failures** -- the evidence never reached the model, so no
+prompt anywhere in the pipeline could have fixed them. This is the first hard number sizing Aeon's own
+retrieval as a contributor to benchmark error, and it is concentrated exactly where the earlier
+per-case reads pointed: aggregation questions needing several answer turns, where `top_k=30`/
+`max_sessions=10` surfaces one of two or three.
+
+**NEGATIVE RESULT -- the automated extraction/compute split does not work, and the number it produced
+is withdrawn.** The plan was to sub-split the 83 retrieved-but-wrong errors by content-word overlap
+between each answer turn and the stored `extracted_facts`. That metric produced "extraction_loss=36
+(33% of errors)", and it is **invalid**: among questions that were answered **correctly** with all
+answer turns retrieved -- where extraction demonstrably succeeded -- the metric flags **50%** as
+"extraction incomplete" at the generous threshold and **91%** at the strict one, a *higher* false-
+positive rate than it produces on wrong answers (43% / 82%). It has no discriminating power; it
+measures turn verbosity (long assistant turns lose most content words to any faithful summary), not
+extraction fidelity. Reported here rather than quietly dropped, because the point of this exercise was
+to stop trusting unvalidated proxies -- and because the same failure would recur in anyone's next
+attempt at it. Splitting extraction from compute needs an LLM-judged pass ("is this fact present in
+these extracted facts?"), which is a run, not free re-analysis.
+
+**Hand-read of 9 retrieved-but-wrong cases** (indicative, not a sizing) gives a provisional shape:
+
+| case | verdict |
+|---|---|
+| `gpt4_ab202e7f` (5 kitchen items) | **extraction loss** -- 5/5 turns retrieved, 4 extracted |
+| `46a3abf7` (3 tanks) | compute -- facts complete, excluded the "old" 5-gallon tank |
+| `8979f9ec` (8 meals) | compute -- refused to add 3+5, same pragmatic-literalism mode as the ss-user losses |
+| `gpt4_7fce9456` (4 properties) | compute -- counted the target townhouse itself |
+| `2318644b` (Hawaii vs Tokyo) | **judge** -- answered "Over $270" against gold "$270"; the arithmetic is right |
+| `gpt4_e072b769`, `gpt4_59149c78`, `gpt4_b0863698`, `9a707b82` | **all four are the `question_date` bug** |
+
+Two things follow. First, **4 of 9 -- and, on the earlier scan, 21 of the 43 temporal errors -- are the
+already-fixed `question_date` bug**, so a large share of the temporal "retrieved-but-wrong" column is
+expected to clear on the next run without any new work. Second, among multi-session cases, only 1 of 5
+was extraction loss; the rest are compute-side counting and literalism errors -- the same failure mode
+already verified on single-session-user, appearing again in the largest bucket. **The corrected
+picture inverts the working assumption of this stage: the aggregation bucket is retrieval + compute,
+not extraction.** The EXTRACT prompt, still never modified, remains untested rather than exonerated,
+but nothing found so far makes it the leading candidate.
+
+**Revised priority, evidence-ranked:** (1) `question_date` fix -- done in code, ~21 questions, needs a
+paired rerun to bank; (2) **Aeon-side retrieval recall on aggregation questions -- 27 questions (25% of
+all errors), verified, and the one item that is squarely product work rather than benchmark
+prompt-tuning**; (3) compute-side literalism/counting -- the largest remaining bucket but the one
+where three prompt attempts have already failed; (4) EXTRACT -- untested; (5) the hybrid ss-user arm --
+unchanged at <= 9 questions against a ~6-question noise floor, still the least measurable item on the
+list.
 
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
