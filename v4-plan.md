@@ -4641,6 +4641,108 @@ experiment scope, not a rerun of anything pre-registered above, and per the stan
 self-authorized -- it's presented to the user alongside the original hold/router/always-on-ETC
 decision, not run.
 
+**Full failure inventory before authorizing any further n=500 (2026-08-25). Zero LLM calls -- pure
+re-analysis of the three arms already on disk (`full_session_n500_results.json`,
+`extract_then_compute_n500_results.json`, `extract_then_compute_n500_v3_results.json`) plus the
+existing oracle and session-recall diagnostics.** Motivated by the user's question -- do we actually
+understand what's broken before spending hours on another run? Answer: no, and the three most
+important findings all contradict what this stage had been assuming.
+
+**Finding 1 -- the noise floor was never measured, and past decisions were made inside it.** The n=50
+extract-then-compute sample is fully nested in the n=500 run with identical model, seed, prompts,
+`base_top_k`, and `max_sessions` -- so those 50 questions were run twice under identical config. They
+disagree on **4 of 50 (8%)**. Attribution by final `Answer:` line: 3 are generation nondeterminism
+(different answers: 3 vs 2, "$720" vs "not enough information", 10 vs 7), 1 is pure judge
+nondeterminism (`ce6d2d27`, byte-identical answer "thursday and friday", opposite verdicts). Deeper:
+`extracted_facts` reproduces verbatim on only **31/50**, and the final hypothesis on only 24/50 --
+i.e. **extraction is nondeterministic on ~38% of questions at `temperature=0.0`** (`gemma4:31b-cloud`
+is a cloud-batched model; temp 0 is not determinism). 4/50 is a wide CI (~2-19%), so call it "roughly
+8%, preliminary" -- but even at that estimate, ~40 of 500 questions flip run-to-run, giving a net-delta
+standard deviation of ~sqrt(40) ~= **6 questions (~1.2 points) at n=500**. Consequences, stated
+plainly: v3's headline "regressions" (knowledge-update -4, temporal-reasoning -3) are **inside the
+noise band**, as is knowledge-update's +1, single-session-assistant's -1, and abstention's +2. v3's
+"exact 390/390 tie" hides **32 changed questions** (16 gained, 16 lost) -- almost exactly the ~40
+expected from noise alone. The v2 revert, decided on +1/-1/-1 deltas at n=50, was decided on noise.
+**No acceptance bar written in this stage had a noise model; that is the methodological defect behind
+both reverts, not the prompts themselves.**
+
+**What survives the noise test.** ETC's overall +23 (367 -> 390, +4.6 points), multi-session +12, and
+temporal-reasoning +17 are all far outside the band -- **real wins, unchanged**. The
+single-session-user regression also survives: 5 losses with **zero** offsetting gains (one-directional,
+p ~= 3% by chance), replicated at exactly 55/64 in two independent runs, and corroborated case-by-case
+by the deterministic system-prompt probe above. The noise finding does *not* dissolve it.
+
+**Finding 2 -- a real harness bug: `question_date` is never passed to the model.** LongMemEval ships
+`question_date` on all 500 questions (it is the reference "now" that makes relative-time questions
+answerable). It appears in **zero lines of Python in this repo** -- `run_benchmark.py`,
+`extract_then_compute_experiment.py`, and `session_expansion.py` all build prompts without it. Every
+relative-time question ("What kitchen appliance did I buy 10 days ago?", "How many weeks ago did I
+start using Ibotta?", "an art event two weeks ago -- where was it held?") is therefore **unanswerable
+by construction**. The failure is visible verbatim in the outputs: `gpt4_e072b769` -- *"The provided
+text does not contain the current date, so the number of weeks cannot be calculated"*; `gpt4_59149c78`
+-- the model **hallucinates** *"The current date is 2023/01/15"* and reasons from it. Counting only
+answers that explicitly complain about or invent a current date: **21 questions, all
+temporal-reasoning, all wrong, 17 of them in the hard core** -- that is **49% of all
+temporal-reasoning errors and 19% of every error in the run**, and it is a strict lower bound (a
+question that just answers "I don't know" without naming the date isn't counted). **All
+temporal-reasoning numbers in this document -- baseline, ETC v1, ETC v3, and the +17-question ETC
+"win" -- are comparisons between two configurations that were both broken in the same way.** Fixing
+this is a bug fix, not an experiment, and it must land before any further temporal-reasoning claim is
+made.
+
+**Finding 3 -- the error mass was never where this stage was working, and retrieval is not the
+bottleneck.** ETC v1's 110 errors by bucket: temporal-reasoning 43 (39.1%), multi-session 28 (25.5%),
+single-session-preference 19 (17.3%), single-session-user 9 (8.2%), knowledge-update 8 (7.3%),
+single-session-assistant 2, abstention 1. **The single-session-user regression that consumed three
+consecutive fix attempts (v2, v3, the system-prompt probe) is 8.2% of the error mass**; temporal +
+multi-session + preference are 81.8% and, until this inventory, **no case in either of the two largest
+buckets had ever been read at the case level** in this stage. Reading 10 of them (5 temporal, 5
+multi-session, all from the 74-question hard core that is wrong under every arm) shows the dominant
+mode is neither retrieval nor compute reasoning but **incomplete fact recall on aggregation**:
+`8e91e7d9` (gold: 4 siblings) extracted only *"user: I have a brother"* -> answered 1; `1a8a66a6`
+(gold: 2 subscriptions) extracted one -> answered 1; `81507db6` (gold: 3 ceremonies) extracted two ->
+answered 1; `gpt4_ab202e7f` (gold: 5 kitchen items) extracted four -> answered 4. Cross-checked against
+the existing session-recall diagnostic (96% all-golds-in-top-k30 at `max_sessions=10`, 98.2% mean gold
+fraction): of the 6 hard-core questions with recall data, **5 had all gold sessions retrieved** and
+still failed -- retrieval delivered, and the loss is downstream. The single exception, `81507db6`, is
+the highest-gold-count question of the six (5 gold sessions, only 60% retrieved) -- which is where
+`top_k=30`/`max_sessions=10` truncation would be expected to bite. **The EXTRACT prompt has never been
+modified in this stage** -- v2, v3, and the probe all changed COMPUTE or the system prompt.
+
+**Correcting an over-claim before it propagates:** the oracle comparison (80.0% gold-context vs ETC's
+82% on the same 50) does *not* establish "we are at the model's capability ceiling." That is n=50
+(CI ~ +/-11 points), and the honest slice is the intersection of the oracle sample with the hard core:
+6 questions, of which the oracle **also failed 4** with perfect gold context (2 temporal, 1 preference,
+1 multi-session) and **got 2 right** that ETC got wrong. Supportable claim: *part* of the hard core is
+model-reasoning-bound; part is recoverable. n=6 cannot size the split. Similarly, the best-of-3-arms
+union ceiling (426/500 = 85.2%, +36 questions over the best single arm) is **headroom context only, not
+a routing pitch** -- a perfect 3-arm router is unattainable and the real classifier already measured
+77.6%.
+
+**Per-bucket decision table.** "Detectable?" is the noise model earning its keep: any effect smaller
+than ~2x the ~6-question net-delta sd cannot be distinguished from nondeterminism by a single n=500
+run, no matter how long it takes.
+
+| bucket | errors | what's broken | mechanism status | candidate fix | expected gain | trade-off | detectable at n=500? |
+|---|---|---|---|---|---|---|---|
+| temporal-reasoning, missing "now" | 21+ of 43 | `question_date` never passed to any prompt; model invents or refuses | **verified** (grep: 0 code refs; 21 outputs name it) | pass `question_date` into EXTRACT + COMPUTE + baseline | ~15-21 questions (3-4 pts) | none -- bug fix; but **invalidates every prior temporal number**, so baseline must be re-run too | **yes**, ~3x noise |
+| multi-session aggregation | ~19 of 28 | extraction returns a subset of the N mentions an aggregation needs; compute faithfully sums the subset | **verified** on 4 read cases + recall data (5/6 golds fully retrieved) | EXTRACT-side fix (never yet attempted): enumerate-all-instances / count-oriented extraction | unsized -- needs a small probe first | more extraction tokens; risk of over-extraction hurting precision-sensitive types | borderline alone; pair with the date fix |
+| high-gold-count retrieval truncation | ~1-5 | `top_k=30`/`max_sessions=10` truncates questions needing many sessions (`81507db6`: 5 golds, 60% retrieved) | **verified** on 1 case | adaptive `max_sessions` by gold-count proxy | small, few questions | latency, context size | **no** -- below noise |
+| single-session-preference | 19 | 11 unfixed by any arm; pre-existing baseline weakness (14/30), not caused by ETC | **not diagnosed** -- never read at case level | unknown; diagnose first | unknown | -- | n/a until diagnosed |
+| single-session-user regression | 9 | modes (i)/(ii)/(iii) above -- pragmatic-license gap, verified | **verified** (probe + per-case grep) | hybrid raw-session input, single-session-gated | **<= 9 questions (1.8 pts)** | 2x latency; new component | **NO -- at/below the ~1.2-pt noise floor.** A full n=500 likely cannot distinguish this fix from noise |
+| knowledge-update supersession | 8 | 2 hard-core; rest inside noise | inferred, not verified | kernel supersession track (parked) | ~2-6 | kernel work | no, alone |
+
+**The punchline for the ship decision: the hybrid-input arm -- the option this session was building
+toward -- targets at most 9 questions against a ~6-question noise sd, and is the *least* detectable
+item in the table, while the single largest, fully-verified, zero-experiment-needed defect
+(`question_date`) sits unfixed and contaminates 133 temporal-reasoning questions.** Running the
+hybrid n=500 next would spend hours to measure something the instrument cannot resolve. Any future
+n=500 in this stage must additionally: (a) report **paired McNemar-style gain/loss counts**, not raw
+subtype deltas; (b) set acceptance bars at **>= 2x the measured noise floor**; (c) re-measure the noise
+floor properly (repeat one arm on a fixed ~100-question slice) rather than relying on this
+opportunistic 4/50; and (d) treat any subtype bucket smaller than ~50 questions as undecidable on its
+own.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
