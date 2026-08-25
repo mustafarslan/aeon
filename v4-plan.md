@@ -4574,6 +4574,73 @@ single-session-user/preference regression against always-on ETC is unresolved --
 (COMPUTE's literalism) is understood, but the specific fix attempted for it did not work, and prompt-
 level iteration on this specific failure mode is now considered exhausted for this stage.
 
+**System-prompt probe (2026-08-25). Offline diagnostic, not a prompt-tuning attempt -- no rerun of
+the pipeline, no acceptance bar needed, script + results committed alongside this entry.** Advisor
+hypothesis after v3's failure: every LLM call in this benchmark (extract, compute, AND the
+single-shot baseline) reuses the same `SYSTEM_PROMPT` (`run_benchmark.py`), framed for the
+single-shot arm ("answering using ONLY the retrieved memory snippets below... say so plainly instead
+of guessing"). By COMPUTE time the input is `extracted_facts`, not snippets -- a frame mismatch, and
+a system-level "say so plainly" instruction could plausibly dominate a user-turn relaxation, which
+would explain why v3's explicit anti-hedging instructions moved single-session-user 0/8 despite being
+pre-registered and reasoned. Built `scripts/longmemeval/system_prompt_probe.py`: re-runs ONLY the
+COMPUTE step (no retrieval, no extraction -- reuses `extracted_facts` already on disk from the n=500
+v1 run) across `{v1 system, step-appropriate system, empty system} x {v1 compute, v3 compute}` on the
+8 known single-session-user/preference losses plus 5 abstention questions as regression canaries
+(one canary selection bug: sampled `abst[:5]` instead of `correct_abst[:5]`, so `09ba9854_abs` was
+already wrong under the stored v1 baseline -- the "canaries held" counts below are correct as raw
+counts but shouldn't be read as "4->5 is an improvement" for that one row).
+
+| system \ compute | v1 compute | v3 compute |
+|---|---|---|
+| v1 (single-shot-framed) | 0/8 flipped (known, on disk) | 2/8 flipped, 4/5 canaries held |
+| step-appropriate (rewritten for "facts, not snippets") | 0/8 flipped, 5/5 canaries held | 2/8 flipped, 5/5 canaries held |
+| empty (no system prompt at all) | 1/8 flipped, 4/5 canaries held | 4/8 flipped, 5/5 canaries held |
+
+**Hypothesis refuted.** The discriminating cell is step-appropriate-system/v1-compute: fixing the
+system-prompt frame mismatch while leaving COMPUTE's wording untouched flipped zero of the 8 losses.
+Even the maximal condition tested -- system prompt removed entirely, combined with v3's relaxed
+compute wording -- still left 4 of 5 single-session-user losses stuck. The system prompt is not the
+(or even a major) blocking factor. **This probe has zero coverage of knowledge-update and
+temporal-reasoning**, the two question types v3's real n=500 run regressed on (-4, -3) -- no cell in
+this table is a candidate to ship; it answers the mechanism question only.
+
+**Mechanism, corrected with per-case evidence (grepped each of the 5 single-session-user losses'
+raw answer-bearing session against the extracted fact and the question's exact wording) -- corrects
+the earlier "EXTRACT always captured the exact fact needed, verbatim" claim (made when only the
+extracted-facts side had been read, not the raw session):**
+
+| id | extraction vs. raw session | failure sub-mode |
+|---|---|---|
+| `311778f1` | raw session contains "documentaries on **Netflix**" in the same turn; the extracted bullet dropped "Netflix" | **(i) literal extraction loss** |
+| `ec81a493` | extracted bullet is verbatim-identical to the raw session's "limited edition of only 500 copies worldwide" | **(ii) pragmatic license** -- gold answer treats the poster's edition size as the album's worldwide release count, a leap the raw text doesn't literally state either |
+| `c14c00dd` | extracted bullet is verbatim-identical to the raw session's "shampoo... picked up at Trader Joe's" | **(ii) pragmatic license** -- gold answer treats the store as the brand |
+| `8a137a7f` | extracted bullet is verbatim-identical to the raw session; raw session never uses the word "replace" near the bulb at all | **(ii) pragmatic license** -- gold answer treats "currently using" as "replaced with," a leap not literally licensed by the raw text either |
+| `b86304ba` | "painting of a sunset" is absent from the raw session (grepped for it directly) -- same as it's absent from the extracted facts | **(iii) hedge-format difference** -- baseline's accepted answer is "the text doesn't mention a painting of a sunset, but it mentions a flea-market find worth triple"; COMPUTE's rejected answer is a flat "I don't know" over the identical gap |
+
+Only 1 of 5 is genuine extraction data loss. The dominant pattern (3 of 5, mode ii) is: the
+answer-bearing sentence is verbatim-identical between what COMPUTE saw and what the raw session
+contains, and the gold label itself requires a pragmatic leap (store-as-brand, currently-using-as-
+replaced) that a single-shot conversational read makes liberally and COMPUTE's "use ONLY the facts,
+determine the answer" framing does not, regardless of which of the six wordings above was tried. This
+is a fact about what LongMemEval's single-session-user/preference labels grade as correct (loose,
+conversationally-licensed inference), not a claim that baseline and COMPUTE had unequal information
+in these 3 cases -- they had the same answer-bearing sentence; what differed was the surrounding
+conversation and the task framing around it.
+
+**What this does and doesn't settle.** No prompt-level lever on COMPUTE (v2, v3, or this probe's
+system-prompt axis) fixes modes (ii)/(iii), because the missing ingredient isn't in the extracted
+facts to begin with -- prompt-level iteration on this failure mode is exhausted, now with the
+mechanism actually verified rather than inferred from output text alone. The `full_session` baseline
+is an existence proof that raw session text as input produces correct, judge-accepted answers on all
+5 of these questions, across all three sub-modes -- but that's evidence about raw-alone input, not
+about raw-text-plus-extracted-facts together (an untested combination), and says nothing about
+whether multi-session/temporal-reasoning's wins survive adding raw text back in for single-session-
+shaped queries. A hybrid-input arm (raw session alongside extracted facts, gated to single-session-
+shaped queries) is the one option actually aimed at this now-verified mechanism, but it is new
+experiment scope, not a rerun of anything pre-registered above, and per the standing guardrail is not
+self-authorized -- it's presented to the user alongside the original hold/router/always-on-ETC
+decision, not run.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
