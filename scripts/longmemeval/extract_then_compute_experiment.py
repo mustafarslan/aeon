@@ -81,14 +81,31 @@ EXTRACT_PROMPT_TEMPLATE = (
     "Relevant facts:"
 )
 
+# v3 (2026-08-25): targeted relaxation of an over-constraint diagnosed from
+# reading all 10 single-session-user/preference losses in the n=500 paired
+# run (v4-plan.md) -- EXTRACT always had the right fact; COMPUTE refused to
+# use it because "use ONLY the facts, determine the answer" framed every
+# question as an arithmetic problem. This is a relaxation of an existing
+# instruction, not a new semantic distinction (unlike the reverted v2 fix),
+# and is pre-registered with an acceptance bar in v4-plan.md before running.
 COMPUTE_PROMPT_TEMPLATE = (
     "You previously extracted these facts from retrieved memories:\n"
     "{extracted_facts}\n\n"
     "Question: {question}\n\n"
-    "Using ONLY the facts above, determine the answer. If the question "
-    "requires combining multiple facts (a sum, a count, a date difference), "
-    "show the calculation briefly. Give your final answer on its own line, "
-    "prefixed exactly with 'Answer:'.\n\nAnswer:"
+    "Using ONLY the facts above, determine the answer.\n"
+    "- If a fact directly states or clearly implies the information asked "
+    "for, that fact IS the answer -- do not say it is 'not mentioned' or "
+    "'not specified' just because the fact is worded differently than the "
+    "question or omits a category label the question happens to use.\n"
+    "- If the question asks for a recommendation or suggestion, synthesize "
+    "one directly from the facts above -- do not refuse just because no "
+    "single fact is itself phrased as a recommendation.\n"
+    "- If the question requires combining multiple facts (a sum, a count, "
+    "a date difference), show the calculation briefly.\n"
+    "- Only say the facts are insufficient if, after checking carefully, "
+    "the specific information asked for is genuinely absent above.\n"
+    "Give your final answer on its own line, prefixed exactly with "
+    "'Answer:'.\n\nAnswer:"
 )
 
 # v2 attempt (2026-08-24), tried and reverted -- kept here as a recorded

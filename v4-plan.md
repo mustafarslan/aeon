@@ -4495,6 +4495,49 @@ skip the router, wire always-on ETC instead -- simpler, statistically the same a
 latency and full single-session-user regression; (c) hold, keep single-shot the default, park both
 until there's a reason to revisit. Not decided in this pass.
 
+**COMPUTE prompt fix (v3), one pre-committed attempt. PRE-REGISTERED (2026-08-25), before running.**
+User asked what the best path was; advisor recommendation: the ss-user/preference regression is not an
+intrinsic property of extract-then-compute, it's one over-constrained instruction in the COMPUTE
+prompt. Reading all 10 losing questions (5 ss-user, 5 ss-preference, above) showed EXTRACT correctly
+captured the needed fact in every single case -- the failure is entirely COMPUTE refusing to use a
+directly-stated fact ("not mentioned") or refusing to synthesize a recommendation from complete facts,
+because "use ONLY the facts above, determine the answer, show the calculation" frames every question as
+an arithmetic problem. This is a targeted relaxation of an existing over-constraint, not a new
+semantic-distinction instruction (unlike the reverted v2 knowledge-update fix, which asked the model to
+reliably tell "update" from "repeat" -- a distinction it can't reliably make). Standing no-more-
+prompt-tuning guardrail explicitly lifted for this ONE attempt, because both conditions that justified
+it have changed: this runs at n=500 (not the n=50 noise floor) and the user explicitly asked for the
+best path forward (not a speculative side-quest).
+
+Change (COMPUTE prompt only -- EXTRACT stays v1 unchanged, since extraction was never the failure):
+add that (a) a fact which directly states or clearly implies the answer IS the answer, even under
+different wording or missing a category label the question happens to use -- never "not mentioned" in
+that case; (b) recommendation/suggestion questions are answered by synthesizing directly from the
+facts, not refused for lack of a pre-phrased recommendation; (c) abstain only when the specific
+information asked for is genuinely absent after checking carefully. Clause (c) is the regression risk
+of the fix itself -- ETC's abstention type is currently 96.7% (above baseline's 90%), and relaxing
+COMPUTE's strictness could pull that back down.
+
+**Acceptance bar, committed BEFORE the run, against the stored n=500 baseline** (`full_session_n500_results.json`,
+unchanged -- only the ETC arm reruns):
+
+| type | n | floor to pass |
+|---|---|---|
+| single-session-user | 64 | >= 59/64 (~92%, recovers to within ~1 net loss of baseline's 60/64) |
+| single-session-preference | 30 | no explicit floor (baseline itself is only 46.7% -- pre-existing weakness, not this fix's job) but must not fall below baseline's 14/30 |
+| multi-session | 121 | >= 109/121 (~90%, holds the confirmed win, allows minor CV-scale noise) |
+| temporal-reasoning | 127 | >= 102/127 (~80%, holds the confirmed win) |
+| abstention | 30 | >= 27/30 (90%, doesn't fall below single-shot's own abstention floor) |
+| overall | 500 | >= 78.0% (must not regress below the already-confirmed always-on ETC number) |
+
+One rerun only, no second iteration regardless of outcome. Clears the bar -> wire always-on
+extract-then-compute into the shell (`ContextManager`/`loop.py`), 2x per-turn generation latency stated
+plainly as the product cost at wiring time, router experiment stays parked as a separate, decoupled
+future latency optimization. Fails the bar -> revert to the v1 prompt, hold single-shot as the shell
+default, extract-then-compute stays a documented, verified-but-not-shipped finding. Unchanged either
+way: kernel supersession track stays parked (user didn't pick it), single-session-preference's 46.7%
+baseline is its own separate pre-existing thread, no classifier threshold tuning.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
