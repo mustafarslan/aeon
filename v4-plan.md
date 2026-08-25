@@ -4538,6 +4538,42 @@ default, extract-then-compute stays a documented, verified-but-not-shipped findi
 way: kernel supersession track stays parked (user didn't pick it), single-session-preference's 46.7%
 baseline is its own separate pre-existing thread, no classifier threshold tuning.
 
+**Result: FAILED, reverted (2026-08-25).** Ran the ETC arm only, n=500, same seed/model,
+`extract_then_compute_n500_v3_results.json`, `n_errors=0`. **Correction owed here first**: the
+committed multi-session (>=109/121, ~90%) and temporal-reasoning (>=102/127, ~80%) floors above were a
+calibration error on my part -- the technique's own already-confirmed n=500 baseline never reached
+those numbers (93/121 = 76.9%, 84/127 = 66.1%), so those two floors were unpassable by construction,
+independent of whether the fix worked. Flagging this plainly rather than letting a broken bar stand.
+Judged instead against the number that actually matters -- v3's raw counts vs. v1's own achieved
+counts, same 500 questions:
+
+| type | n | v1 | v3 | delta |
+|---|---|---|---|---|
+| single-session-user | 64 | 55 (85.9%) | 55 (85.9%) | **0 -- completely unchanged** |
+| single-session-preference | 30 | 11 (36.7%) | 17 (56.7%) | +6, genuine improvement |
+| multi-session | 121 | 93 (76.9%) | 94 (77.7%) | +1, noise |
+| temporal-reasoning | 127 | 84 (66.1%) | 81 (63.8%) | -3, new regression |
+| knowledge-update | 72 | 64 (88.9%) | 60 (83.3%) | -4, new regression |
+| single-session-assistant | 56 | 54 (96.4%) | 53 (94.6%) | -1, noise |
+| abstention | 30 | 29 (96.7%) | 30 (100%) | +1, noise |
+| **overall** | 500 | **390 (78.0%)** | **390 (78.0%)** | **exact tie** |
+
+Re-read the same 5 single-session-user questions diagnosed earlier (`ec81a493`, `311778f1`, `c14c00dd`,
+`8a137a7f`, `b86304ba`) directly against the v3 output: all 5 still fail, producing near-word-for-word
+the same "not mentioned"/"insufficient information" hedge as v1, despite the new instructions
+explicitly telling the model not to do that (e.g. `ec81a493`'s v3 hypothesis: *"the signed poster is a
+limited edition of 500 copies, but it does not specify the total number of album copies released...
+Answer: Not mentioned"* -- unchanged from v1's failure on the identical question). **The fix did not
+move the failure mode it targeted at all**, single-session-preference improved genuinely but that
+wasn't the metric the bar was written around, and the relaxation introduced two new regressions
+(knowledge-update, temporal-reasoning) that offset the preference gain almost exactly, for an overall
+tie. Reverted `extract_then_compute_experiment.py`'s COMPUTE prompt to v1 (v3 kept as a commented-out
+record). Per the pre-committed protocol: no second iteration. **Extract-then-compute stays a
+documented, verified, NOT-shipped finding**; single-shot remains the shell default. The
+single-session-user/preference regression against always-on ETC is unresolved -- the mechanism
+(COMPUTE's literalism) is understood, but the specific fix attempted for it did not work, and prompt-
+level iteration on this specific failure mode is now considered exhausted for this stage.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

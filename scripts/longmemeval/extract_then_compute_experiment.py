@@ -81,32 +81,50 @@ EXTRACT_PROMPT_TEMPLATE = (
     "Relevant facts:"
 )
 
-# v3 (2026-08-25): targeted relaxation of an over-constraint diagnosed from
-# reading all 10 single-session-user/preference losses in the n=500 paired
-# run (v4-plan.md) -- EXTRACT always had the right fact; COMPUTE refused to
-# use it because "use ONLY the facts, determine the answer" framed every
-# question as an arithmetic problem. This is a relaxation of an existing
-# instruction, not a new semantic distinction (unlike the reverted v2 fix),
-# and is pre-registered with an acceptance bar in v4-plan.md before running.
 COMPUTE_PROMPT_TEMPLATE = (
     "You previously extracted these facts from retrieved memories:\n"
     "{extracted_facts}\n\n"
     "Question: {question}\n\n"
-    "Using ONLY the facts above, determine the answer.\n"
-    "- If a fact directly states or clearly implies the information asked "
-    "for, that fact IS the answer -- do not say it is 'not mentioned' or "
-    "'not specified' just because the fact is worded differently than the "
-    "question or omits a category label the question happens to use.\n"
-    "- If the question asks for a recommendation or suggestion, synthesize "
-    "one directly from the facts above -- do not refuse just because no "
-    "single fact is itself phrased as a recommendation.\n"
-    "- If the question requires combining multiple facts (a sum, a count, "
-    "a date difference), show the calculation briefly.\n"
-    "- Only say the facts are insufficient if, after checking carefully, "
-    "the specific information asked for is genuinely absent above.\n"
-    "Give your final answer on its own line, prefixed exactly with "
-    "'Answer:'.\n\nAnswer:"
+    "Using ONLY the facts above, determine the answer. If the question "
+    "requires combining multiple facts (a sum, a count, a date difference), "
+    "show the calculation briefly. Give your final answer on its own line, "
+    "prefixed exactly with 'Answer:'.\n\nAnswer:"
 )
+
+# v3 (2026-08-25), TRIED AND REVERTED -- kept as a recorded negative result.
+# Targeted relaxation of an over-constraint diagnosed from reading all 10
+# single-session-user/preference losses in the n=500 paired run
+# (v4-plan.md): EXTRACT always had the right fact; COMPUTE refused to use
+# it because "use ONLY the facts, determine the answer" framed every
+# question as an arithmetic problem. Pre-registered with an acceptance bar
+# before running (n=500, ETC arm only, `extract_then_compute_n500_v3_results.json`).
+# Result: single-session-user accuracy was EXACTLY unchanged (55/64 both
+# v1 and v3) -- re-reading the same 5 diagnosed cases showed the model
+# produced near-identical "not mentioned" hedges word-for-word despite the
+# new instructions explicitly telling it not to. single-session-preference
+# genuinely improved (11/30 -> 17/30), but knowledge-update (-4) and
+# temporal-reasoning (-3) regressed, for an exact overall tie (390/500
+# both times). Reverted per the pre-committed one-attempt protocol -- no
+# second iteration.
+# COMPUTE_PROMPT_TEMPLATE = (
+#     "You previously extracted these facts from retrieved memories:\n"
+#     "{extracted_facts}\n\n"
+#     "Question: {question}\n\n"
+#     "Using ONLY the facts above, determine the answer.\n"
+#     "- If a fact directly states or clearly implies the information asked "
+#     "for, that fact IS the answer -- do not say it is 'not mentioned' or "
+#     "'not specified' just because the fact is worded differently than the "
+#     "question or omits a category label the question happens to use.\n"
+#     "- If the question asks for a recommendation or suggestion, synthesize "
+#     "one directly from the facts above -- do not refuse just because no "
+#     "single fact is itself phrased as a recommendation.\n"
+#     "- If the question requires combining multiple facts (a sum, a count, "
+#     "a date difference), show the calculation briefly.\n"
+#     "- Only say the facts are insufficient if, after checking carefully, "
+#     "the specific information asked for is genuinely absent above.\n"
+#     "Give your final answer on its own line, prefixed exactly with "
+#     "'Answer:'.\n\nAnswer:"
+# )
 
 # v2 attempt (2026-08-24), tried and reverted -- kept here as a recorded
 # negative result, not a silently-dropped experiment. Added a
