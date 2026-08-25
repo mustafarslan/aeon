@@ -4802,7 +4802,11 @@ questions with no answer-bearing turns are the abstention set and are excluded f
 | single-session-user | 64 | 55 | 2 | 7 |
 | knowledge-update | 72 | 64 | 0 | 8 |
 | single-session-assistant | 56 | 54 | 0 | 2 |
+| abstention (answer-bearing subset only) | 9 | 8 | 0 | 1 |
 | **TOTAL** | **479** | **369** | **27 (25% of errors)** | **83 (75% of errors)** |
+
+(21 of the 30 abstention questions have no answer-bearing turn by construction and are excluded
+entirely; the 9 shown are the remainder, which do carry one.)
 
 **The retrieval number is solid, and the causal check is the strongest signal in this whole stage:**
 
@@ -4852,12 +4856,56 @@ not extraction.** The EXTRACT prompt, still never modified, remains untested rat
 but nothing found so far makes it the leading candidate.
 
 **Revised priority, evidence-ranked:** (1) `question_date` fix -- done in code, ~21 questions, needs a
-paired rerun to bank; (2) **Aeon-side retrieval recall on aggregation questions -- 27 questions (25% of
-all errors), verified, and the one item that is squarely product work rather than benchmark
-prompt-tuning**; (3) compute-side literalism/counting -- the largest remaining bucket but the one
+paired rerun to bank; (2) **Aeon-side retrieval -- 27 questions (25% of all errors), verified, and the only
+item that is squarely product work rather than benchmark prompt-tuning; it splits into 20 partial-recall
+(top_k/max_sessions tuning) and 7 complete misses caused by semantic dilution of buried asides
+(embedding/chunking work -- a different repair, and raising top_k will not touch it)**; (3) compute-side literalism/counting -- the largest remaining bucket but the one
 where three prompt attempts have already failed; (4) EXTRACT -- untested; (5) the hybrid ss-user arm --
 unchanged at <= 9 questions against a ~6-question noise floor, still the least measurable item on the
 list.
+
+**Shape of the 27 retrieval misses -- two different failures needing two different fixes.** The
+previous entry described these as aggregation truncation, a shape verified only on multi-session
+cases; 15 of the 27 are temporal and had never been inspected. Splitting by how many answer turns
+each question has:
+
+| shape | n | by type | mechanism | fix |
+|---|---|---|---|---|
+| **partial recall** (e.g. 1 of 3 turns retrieved) | **20** | multi-session 9, temporal 10, preference 1 | question needs several answer turns; `top_k=30`/`max_sessions=10` surfaces some | raise/adapt `top_k`+`max_sessions` for multi-evidence queries |
+| **complete miss** (0 of N retrieved) | **7** | temporal 5, single-session-user 2 | see below -- ranking/relevance, not truncation | embedding/chunking work |
+
+Reading the 7 complete misses shows one consistent, nameable mechanism: **the answer is a passing
+aside inside a turn whose dominant topic is something else.** `gpt4_8279ba03` (gold: a smoker) --
+the answer turn is a request for *BBQ sauce recipes* ending "By the way, I just got a smoker today";
+`726462e0` (gold: 10% discount) -- the turn is about *promoting writing services on Instagram and
+Twitter*; `gpt4_468eb064` (gold: Emma) -- the turn is about *social media advertising tips*. Aeon
+embeds the whole turn, so the aside is swamped by the turn's main topic and the query never matches
+it. This is **semantic dilution, a genuine kernel/embedding-side finding**, and distinct from the
+truncation story: raising `top_k` will not fix it, because the turn does not rank anywhere near the
+query at any `k`. Candidate directions (none attempted): sub-turn chunking before embedding,
+multi-vector per turn, or query expansion. Worth stating plainly because it is the one failure in this
+entire stage that is unambiguously about Aeon's own indexing rather than prompt scaffolding.
+
+**Single-session-preference, previously flagged "read the 14 first" -- now read.** Four
+retrieved-but-wrong cases inspected (`09d032c9`, `6b7dfb22`, `75f70248`, `38146c39`). One is an
+extraction loss (`09d032c9`: the answer turn was retrieved, extraction returned "No relevant facts").
+The other three share a single mechanism: **the rubric grades personalization, and COMPUTE answers
+generically from a sterile fact list.** `38146c39` -- facts carry the user's turbinado-sugar
+experiments; the answer recommends "a pinch of flaky sea salt", never mentioning turbinado.
+`6b7dfb22` -- facts carry Instagram flower paintings and a 30-day challenge; the answer says "seek
+inspiration from social media, art communities". `75f70248` -- facts carry the shedding cat; the
+answer restates the facts without committing to a recommendation. This is the same root as mode (ii)
+in the single-session-user diagnosis: extraction converts a conversation into a decontextualized fact
+list, and the two-step split strips exactly the conversational specificity these rubrics reward.
+**It also retro-explains v3**: v3's clause (b) told COMPUTE to synthesize recommendations directly from
+the facts, and preference was the one type that genuinely moved (11 -> 17). On the noise analysis
+above, that +6 was real signal and the -4/-3 that killed v3 were not -- v3 was reverted against a bar
+with no noise model.
+
+**Sampling caveat**: the 9 retrieved-but-wrong reads and these 4 preference reads were first-N per
+type, not random draws, and all 4 temporal draws happened to hit the `question_date` bug. Treat them
+as indicative of mechanism, never as rates. The independent scan (21 of 43 temporal errors naming a
+missing/invented current date) is the number to cite for the date bug's size.
 
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 

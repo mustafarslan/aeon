@@ -16,6 +16,17 @@ measurement over every question:
                         context at all (Aeon-side recall failure)
   extraction loss    -- the answer turn WAS in context, but EXTRACT's output
                         doesn't carry its content (EXTRACT-side failure)
+                        *** WITHDRAWN -- DO NOT QUOTE THIS AXIS. Validated
+                        against questions answered CORRECTLY with all answer
+                        turns retrieved (where extraction demonstrably worked):
+                        the content-word metric flags 50% of them (generous
+                        threshold) and 91% (strict) as "extraction incomplete"
+                        -- a HIGHER false-positive rate than it produces on
+                        wrong answers. It measures turn verbosity, not
+                        extraction fidelity, and has no discriminating power.
+                        Retained only so the negative result is reproducible.
+                        See v4-plan.md. Splitting extraction from compute needs
+                        an LLM-judged pass. ***
   compute/judge      -- answer turn retrieved AND extracted, still wrong
                         (COMPUTE reasoning, or judge nondeterminism)
   correct            -- answered correctly
@@ -272,6 +283,9 @@ def main() -> None:
         print(f"  {label:<8} n={len(grp):<4} mean answer-turn recall={frac*100:.1f}%  "
               f"all-present rate={allp*100:.1f}%")
 
+    print("\n*** WARNING: the extraction_loss column above is WITHDRAWN as invalid --")
+    print("*** it flags ~50% of CORRECTLY-answered questions as 'extraction incomplete'.")
+    print("*** Treat extraction_loss + compute_or_judge as one 'retrieved-but-wrong' bucket.")
     print("\n--- EXTRACTION THRESHOLD SENSITIVITY (the approximate axis) ---")
     ret_ok = [r for r in real if r["n_retrieved"] == r["n_answer_turns"]]
     for name, key in (("strict %.2f" % args.strict, "n_extracted_strict"),
