@@ -5244,6 +5244,94 @@ genuine, reproducible, mechanism-confirmed 17-question win from being shipped as
 its true net effect was +3 questions for 2.7x the context. A cohort proves mechanism; only an
 aggregate decides worth.
 
+## PRODUCT DIRECTION (2026-08-26): Aeon competes on precision-per-token, not recall
+
+Everything in this stage has been LongMemEval accuracy optimisation, which measures *the LLM's answer
+quality given whatever context Aeon assembles*. That is not the same question as *is Aeon the best
+memory engine*, and four measurements taken from the runs already on disk separate them sharply.
+
+**1. 71% of remaining error is not Aeon's.** Of ETC's 87 errors at 30x10, **25 (29%) are Aeon-side**
+(an answer-bearing turn never reached the model) and **62 (71%) are LLM-side** (the evidence was
+delivered and the model still failed). Benchmark accuracy is mostly a measure of the generator.
+
+**2. Aeon is already invisible in end-to-end latency, and always will be.**
+
+| config | Aeon retrieval | LLM generation | Aeon's share of wall-clock |
+|---|---|---|---|
+| single-shot @30x10 | 12.6 ms | 1.5 s (1 call) | **0.83%** |
+| ETC @30x10 | 12.2 ms | 2.5 s (2 calls) | **0.49%** |
+| ETC @200x20 | 13.0 ms | 4.5 s (2 calls) | **0.29%** |
+
+The kernel's 2.23us insert and 3.09us navigate are excellent and **do not move end-to-end latency at
+all** -- they are table stakes. System latency is ~99% LLM, and **LLM latency is context-bound**:
+tripling the context at 200x20 took generation from 2.5s to 4.5s. The only lever Aeon has on the
+latency a user actually feels is **how many tokens it sends**.
+
+**3. 99.2% of what Aeon delivers is padding (measured, not estimated).** Answer-bearing turns are a
+**median 292 chars each, 563 chars per question in total**, against a **median 100,831 chars
+delivered**. Load-bearing share: median 0.58%, mean 0.76%.
+
+**4. The north-star metric follows: correct answers per 1k chars delivered.**
+
+| config | accuracy | median context | **correct / 1k chars** |
+|---|---|---|---|
+| single-shot @30x10 | 77.6% | 100,889 | 3.85 |
+| **ETC @30x10** | **82.6%** | 100,889 | **4.09** |
+| ETC @200x20 | 83.2% | 270,972 | 1.54 |
+
+The 200x20 run was, in this frame, a 2.7x regression on the metric that matters bought for +3
+questions of noise -- and its failure mode (aggregation collapsing under a bigger haystack) is direct
+evidence that **for a memory engine, sending less is not merely cheaper, it is often more accurate.**
+
+**The thesis, stated carefully: precision at small context -- NOT small context per se.** Two results
+in this document are counterevidence to naive compression and must stay in the thesis rather than be
+buried under it. (a) Raw `top_k=30` snippets -- small context, low precision -- scored **68%**, nine
+points *below* full-session expansion at ~100k chars; that gap is why session expansion exists.
+(b) ETC's extract step **is** a compression layer, and it costs **-12 single-session questions**
+because compression strips the conversational licensing that mode (ii) failures depend on
+(Trader-Joe's-as-brand). So some padding is load-bearing, and **the accuracy-vs-context-size curve
+between ~2k and ~100k chars has never been measured.** That unmeasured curve is exactly where the
+product lives.
+
+**Reading ETC correctly reframes it as evidence FOR this direction.** ETC wins (82.6% vs 77.6%)
+*because* it compresses ~100k chars into a short fact list before answering -- but it buys that
+compression with a second LLM call, which is why it costs 2x generation latency. **If the compression
+happened in the retrieval layer at ms latency instead of in a second LLM call, the same accuracy would
+come at single-shot latency or better.** That is the product: not a faster index, a *smaller, better
+context*. Precise claim, since it is easy to overstate: the kernel cannot do ETC's semantic
+extraction. The realistic version is **"retrieval at sub-turn granularity plus cheap reranking
+approximates the extract step at us-ms latency"**, and how good that approximation can get is an
+empirical question with a cheap answer, below.
+
+**RECOMMENDED NEXT STEP -- the oracle-precision arm (cheap, decisive, proposed not run).** Context =
+the `has_answer` turns plus one neighbouring turn on each side (neighbourhood preserved specifically
+to test whether pragmatic licensing survives compression), single-shot, n=500. Annotations already
+exist; contexts are ~2-4k chars, so this is fast and cheap -- roughly single-shot latency on 1/30th
+the context. It measures **the ceiling of perfect compression**:
+
+*Pre-registered bar (to be committed before running)*: primary -- **>= 82.6%** (matches always-on ETC)
+would validate the entire direction end-to-end: ETC-or-better accuracy, **one** LLM call, ~30-50x less
+context, sub-second generation. Secondary -- **single-session-user/preference must not fall below
+single-shot's 60/64 and 16/30**; if they tank even with neighbouring turns included, that measures
+precisely what compression must preserve, which is the most useful possible negative result. Existing
+`oracle_results_gemma.json` already hints at parity (80% at n=50 on whole gold *sessions*, ~10k
+tokens); this sharpens it to answer-turn granularity at n=500 and, unlike that file, also measures
+whether single-shot on compressed context beats two-call ETC on raw context.
+
+**Build stack if the oracle arm confirms**, ascending cost: (1) **sub-turn chunking in the kernel** --
+fixes buried-aside findability at constant context, promoted by the 200x20 result; (2) a **ms-scale
+salience/rerank layer** between retrieval and the LLM -- the cheap approximation of EXTRACT;
+(3) **neighbourhood stitching** to preserve the licensing that mode (ii) needs. All three are Aeon
+product work, all three improve correct-per-token, and all three cut LLM latency and cost as a side
+effect rather than trading against them.
+
+**Explicitly parked, so nothing lapses silently:** routing (three independent measurements, always at
+or below its oracle ceiling); deep retrieval (measured wash, -12 on the north-star metric); the 100x10
+fallback (undecidable by construction); compute-prompt v4 clause (b) (still a valid ~+6 preference
+play, but benchmark polish rather than product direction -- and the compression thesis subsumes its
+target if the oracle arm confirms). The **ship decision on wiring always-on ETC into the shell remains
+open and orthogonal** to all of this.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
