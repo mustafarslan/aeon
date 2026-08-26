@@ -6187,6 +6187,17 @@ be the most important negative result of this direction and would stop it.
 ~25 min of answering and ~10 min for the repeat slice -- **~4.5 h wall-clock**, versus ~9 h before
 the parallel work. Records persist, so any later read-path variant on this sample costs minutes.
 
+**PAUSED at the user's request (2026-08-26), 135/500 questions consolidated.** No result, and the
+pre-registration above stands unchanged for whenever it resumes -- bars are committed, so pausing
+cannot become an opportunity to reinterpret them.
+
+**Resuming is cheap because the expensive half is checkpointed.** Consolidation is the ~4.2 h of the
+~4.5 h, and it is idempotent and cached per question: the 135 already-consolidated question record
+sets are committed to
+`reproducibility_benchmarks/longmemeval/records_composite_partial.json`. Restarting the same command
+skips them and continues from 136, so the remaining cost is **~2.7 h rather than 4.5 h**. Nothing is
+lost by stopping here, which is a property of the cache design rather than luck.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
