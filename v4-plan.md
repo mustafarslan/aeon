@@ -4989,6 +4989,15 @@ questions whose pre-fix answer complained about or invented a current date, **19
 correct** -- against a pre-registered estimate of 15-21, so the sizing was well calibrated rather than
 lucky.
 
+**Why this is the fix and not cloud-model drift.** `gemma4:31b-cloud` is a remote, unpinned model; the
+pre-fix runs are from 2026-08-24/25 and the post-fix runs from 2026-08-26, so a server-side model
+change is a live alternative explanation for any improvement and has to be ruled out rather than
+assumed away. Three things rule it out: the gain is **concentrated 19-of-21 inside the exact cohort
+that named the missing date pre-fix** (drift would lift questions indiscriminately); the post-fix
+outputs show explicit date arithmetic that was previously impossible ("6 - 2 = 4", "January 31 -
+January 10 = 21 days"); and **every non-temporal row sits at noise level in both arms** -- a generally
+stronger model would not leave six of seven types unmoved.
+
 **Consequences.** The `question_date` bug is confirmed as a real ~19-question defect, and **every
 pre-fix temporal-reasoning number in this document is formally superseded** -- including the
 "+17-question ETC win on temporal", which was measured between two equally-broken configurations.
@@ -5016,12 +5025,17 @@ were previously indistinguishable from noise (single-session-assistant -4, prefe
 the threshold, so the collateral cost is broader than the ss-user framing implied: it is a
 **single-session-shaped** regression, exactly what the mode (ii) pragmatic-license diagnosis predicts.
 
-**The router question is now settled, and the answer is no.** Post-fix type-oracle routing (ETC for
+**The router question is now settled on accuracy, and the answer is no.** Post-fix type-oracle routing (ETC for
 temporal + multi-session, baseline otherwise) scores **420/500 = 84.0%**, only **+7 over always-on
 ETC** -- *below* the 11.5-question noise threshold at n=500. This is the oracle using TRUE type labels,
 i.e. an unattainable upper bound for any real classifier, and the real classifier previously measured
 77.6% out-of-fold. Routing was not worth it pre-fix (a wash), and it is still not worth it post-fix,
-now demonstrated against a measured noise floor rather than argued. Best-of-both union is 439/500
+now demonstrated against a measured noise floor rather than argued. (Strictly, routed and always-ETC
+differ only on the 252 non-routed questions, so the applicable threshold is ~8.2 rather than 11.5 --
++7 is inside it either way.) **This kills the ACCURACY case only.** Routing's other motivation was
+latency -- ~45% of queries would skip the second LLM call, and always-on ETC doubles per-turn
+generation latency. That remains a live reason to build it later; the router is **parked as a pure
+latency optimisation, not refuted.** Best-of-both union is 439/500
 (87.8%), reported as headroom context only.
 
 **Error mass after the fix** (ETC, 87 errors, down from 110): multi-session 25 (28.7%),
