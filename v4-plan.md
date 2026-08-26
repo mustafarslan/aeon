@@ -5636,6 +5636,65 @@ only improve, and nothing here measures whether consolidated records **cost** ac
 questions that already pass. That is the composite n=500's job and remains user-gated. Cost of the
 probe: 859 extraction calls + 36 answer calls, roughly 45 minutes.
 
+**CONSOLIDATION PROBE RESULT (2026-08-26). `n_errors=0`. BAR PASSED.** Baseline was 0/18 by
+construction -- every cohort question is wrong under oracle AND ETC AND single-shot.
+
+| arm | conversions | note |
+|---|---|---|
+| **R** (records only) | **4/18** | meets the >=4 bar on its own |
+| **R+E** (records + episodic selection) | **6/18 reported, 5 real** | see judge correction below |
+| union of both arms | 7 reported, 6 real | |
+
+Expected noise on 18 questions at the measured 6.7% rate is ~1.2 flips, so **5 real conversions is
+~4x noise. The mechanism is confirmed: query-blind write-time consolidation answers questions that
+perfect raw-turn retrieval measurably cannot.**
+
+**Judge correction, applied before reporting**: one R+E "conversion" (`e4e14d04`) answered
+*"Approximately three weeks"* against a gold of *"Two weeks"* and the judge returned `yes`. That is a
+judge false-positive, so the honest count is 5, not 6. Flagged rather than banked -- the same judge
+nondeterminism measured at ~1/6 of the noise floor is visible here as a *directional* error too.
+
+**What actually converted, and why it matters:**
+
+- **`ITEM(category)` enumeration works exactly as designed.** *"How many babies were born to friends
+  and family?"* -- gold **5**; the oracle, holding perfect evidence, answered **6** (over-counted);
+  records answered **5**, naming all five. Counting became enumeration of an existing list instead of
+  a multi-hop scan over scattered mentions.
+- **`UPDATE` produces explicit supersession.** *"What was I pre-approved for?"* -- records answered
+  **"$400,000 (previously $350,000)"**, surfacing both the current value and what it replaced. This is
+  the knowledge-update mechanism that `supersession.py` does not implement (it is governance
+  plumbing); write-time detection is what was missing, and this is the first evidence it works.
+- **Temporal is the strength: 4/9.** Dated `EVENT` records turn interval arithmetic into subtraction
+  over stored timestamps ("The Nightingale: Jan 1 to Jan 15 (~2 weeks)").
+- **Multi-session is the weakness: 1/8.** The aggregation target converted least, which is the
+  opposite of what the failure->requirement table predicted and is the main open problem.
+
+**The composite beats records-alone (5-6 vs 4), which validates "different information sources, not a
+router."** Three prior routing experiments failed because the arms carried the *same* information;
+records and episodic turns do not. Every case where R+E won and R lost needed a number or phrasing
+that lived in the raw turn rather than in the record ("save ~$50, as a taxi is around $60").
+
+**Cost profile, which is the product argument:** median records are **21,584 chars / 292 lines**
+against a **~487,000-char raw haystack -- 22.6x smaller**, and unlike the episodic selector's budget
+they are *complete* rather than truncated. Consolidation costs ~1 minute per question for ~46
+sessions **once, at write time**, and is fully amortised across every later query. That is ETC's
+extract step moved off the query path: the same consolidation benefit with **no** second LLM call at
+answer time.
+
+**Honest limits.** (1) The cohort is selected on being wrong, so it can only improve; nothing here
+measures whether records *cost* accuracy on the ~400 questions that already pass -- that is the
+composite n=500's job and stays user-gated. (2) Some cohort questions are **granularity-ambiguous
+rather than solvable** (documented in `consolidation_probe.py`: gold 3 counts two physical items as
+three obligations), so 18 was never a fully winnable denominator. (3) `TASK` was added to the schema
+after inspecting one smoke case; disclosed, and justified as a category any assistant memory needs
+independent of this benchmark. (4) Single model, single benchmark.
+
+**Next, in order:** the schema is validated enough to build against, so the persistent semantic layer
+(Atlas-backed records with provenance links, write-time UPDATE detection, background consolidation)
+is now justified work rather than speculation. The open problem to attack first is
+**multi-session/aggregation at 1/8**, since that is where the failure->requirement table predicted the
+largest win and did not get it.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

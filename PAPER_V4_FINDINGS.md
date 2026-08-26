@@ -285,8 +285,17 @@ should lead the paper's systems section.
       ("smoker" ↔ "kitchen appliance") at any granularity, so chunking alone recovers only 4/27.
 - [x] Retrieval-side cost of the precision layer — measured: **~10.2 s/question to build the chunk
       index** (≈2× turn-level ingest, amortised across queries) and **15.7 ms query-time selection**.
-- [ ] **Does query-blind write-time consolidation exceed the raw-retrieval ceiling on its cohort?**
-      NEW TOP ITEM. 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
+- [x] **Does query-blind write-time consolidation exceed the raw-retrieval ceiling on its cohort?**
+      **YES — first evidence.** On 18 questions wrong under oracle AND ETC AND single-shot,
+      query-blind consolidation converts **4/18 (records only)** and **5/18 (composite, after
+      discounting one judge false-positive)** — ~4× the ~1.2 expected noise flips. `ITEM(category)`
+      enumeration fixed a count the oracle got wrong with perfect evidence (gold 5, oracle 6, records
+      5); `UPDATE` produced explicit supersession ("$400,000, previously $350,000"). Records are
+      **22.6× smaller than the raw haystack** (21,584 vs ~487,000 chars) and complete rather than
+      truncated, at ~1 min/question **one-time at write time** — ETC's extract step moved off the
+      query path. Temporal converted 4/9; **multi-session only 1/8, the main open problem.**
+      Remaining: does consolidation *cost* accuracy on already-passing questions (composite n=500)?
+- [ ] (superseded framing) 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
       wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
       oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.
       Risk to test: ETC's extraction was query-conditioned; write-time extraction is query-blind.
