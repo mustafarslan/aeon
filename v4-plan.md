@@ -5434,6 +5434,78 @@ necessary rather than assumed) is chasing a verified ceiling of ~84% at ~5.6k ch
 ~0.5s generation.** Correct-per-token becomes this stage's headline metric, and the honest target for
 a real reranker is stated as a fraction of the 74.10 oracle figure rather than as an accuracy number.
 
+**PRECISION SELECTOR — TIER 1 (free) and TIER 2 (cheap), 2026-08-26.** Building the real,
+non-oracle counterpart to the oracle-precision arm (`scripts/longmemeval/precision_selector.py`,
+`precision_coverage_sweep.py`, `precision_arm_experiment.py`). Deliberately **shell-side first**: the
+open question is algorithmic (what fraction of the oracle ceiling a real selector reaches), and a
+C++/kernel port is a later deliverable gated on *latency at scale*, not accuracy. Porting an
+unvalidated algorithm would be weeks of work ordered before the experiment that can kill it.
+
+Design: split every turn into sentence-level chunks, embed each bare, rank chunks, map hits back to
+parent turns, stitch +/-1 neighbours, dedupe, stop at a char budget. `has_answer` is used only to
+score coverage, never inside selection.
+
+**Tier 1 — coverage (zero LLM calls, n=82 incl. all 27 known retrieval misses).** Round 1 produced
+three findings, two of them negative:
+
+- **Sub-turn chunking works, and is measurable at the mechanism level.** For the diagnosed buried-aside
+  cases, the answer-bearing content moves from turn-rank 71/500 to chunk-rank 53/4827, and for
+  `726462e0` from turn-rank 32/501 to **chunk-rank 0/4838**. De-dilution is real.
+- **MMR diversity is a NEGATIVE** (43.3% vs 49.7% turn coverage). It was added on direct evidence --
+  the top-10 chunks for a failing question were near-duplicates -- but pushing them apart lost more
+  evidence than the redundancy cost. Dropped.
+- **Design A (chunk-index) == Design B (two-stage pool)** on coverage, so the wide turn-level
+  pre-pool adds nothing.
+
+Round 1 also exposed a tension that had to be resolved rather than assumed away: **inline +/-1
+stitching costs 21 points of coverage at a fixed budget** (83.8% -> 62.6%), because neighbours consume
+budget that would otherwise hold more evidence -- yet stitching is the one constraint this project
+*proved* necessary. Round 2 resolved it by ordering the spend (`stitch_mode="post"`: fill 70% of the
+budget with evidence turns, then buy neighbourhoods with the remainder):
+
+| config | answer-turn coverage (unbiased n=55) | median chars |
+|---|---|---|
+| **production turn-level top_k=30** | **100.0%** | 100,889 |
+| selector, no stitch | 83.8% | 8,983 |
+| selector, inline stitch | 62.6% | 8,932 |
+| **selector, post stitch** | **78.8%** | **8,694** |
+| selector, post stitch, 12k budget | 82.8% | 11,785 |
+
+Post-ordering recovers most of the stitching cost (62.6% -> 78.8%) *and* fixes more known misses
+(5 vs 4). Two implementation bugs were found and fixed here, one of them substantive: short fragments
+were merged **backward**, which glued the standalone sentence *"By the way, I just got a smoker
+today."* (38 chars, under the threshold) onto an unrelated chunk -- **re-creating inside the chunker
+exactly the topic-dilution that sub-turn chunking exists to remove.**
+
+**Tier 2 — end-to-end (n=85: a 60-question stratified sample unioned with all 27 known misses, so one
+cheap run measures conversion and collateral together). `n_errors=0`.**
+
+| arm | all 85 | normal 58 | known-miss 27 |
+|---|---|---|---|
+| single-shot @top_k=30 | 49 | 46 | 3 |
+| ETC @top_k=30 | **54** | 52 | 2 |
+| **precision selector** | 48 | 44 | 4 |
+| oracle-precision (ceiling) | **70** | 49 | **21** |
+
+Cost: **8,689 median chars (11.6x less than production), 0.54 s generation (2.8x faster than
+single-shot), 15.7 ms selection**. North-star: **5.52 correct per 1k chars — 1.35x ETC's 4.09, but only
+7.4% of the oracle's 74.10.**
+
+**The honest reading, and it is the answer to PAPER_V4_FINDINGS §9's central question.** A real
+selector **matches single-shot accuracy at one twelfth the context and roughly a third of the
+generation latency** — a genuine cost win, and the first evidence that the precision thesis survives
+contact with a non-oracle implementation. But it does **not** reach ETC's accuracy, and it captures
+only **4 of the 21** hard retrieval misses the oracle recovers. **The binding constraint has moved:
+it is no longer context size, it is ranking quality.** The oracle proves 83.8% is reachable at 5.6k
+chars; the selector reaches ~79% answer-turn coverage and pays for the missing 21% in accuracy.
+Closing that gap is a retrieval-quality problem (hypernym gaps like "smoker" vs "kitchen appliance"
+are not bridged by embedding similarity at any granularity), not a budget problem.
+
+**Ingest cost, previously unmeasured and now reported** (the asterisk in the latency table): building
+the chunk index costs **~10.2 s per question** against ~4.7 s for turn-level ingest — roughly a 2x
+ingest-time penalty, amortised across queries in production but real. Query-time selection is
+**15.7 ms**, negligible.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

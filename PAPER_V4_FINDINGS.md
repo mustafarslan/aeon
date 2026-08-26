@@ -273,10 +273,21 @@ should lead the paper's systems section.
 
 ## 9. Open items before publication
 
-- [ ] **Real reranker vs the 74.10 correct-per-1k-chars ceiling** — the central open question; an
-      oracle result alone does not support a product claim.
-- [ ] Sub-turn chunking implementation + its effect on the 7 buried-aside misses.
-- [ ] Retrieval-side cost of the precision layer (the oracle arm has no retrieval step to measure).
+- [x] **Real reranker vs the 74.10 correct-per-1k-chars ceiling** — FIRST ANSWER (tier 2, n=85):
+      a sub-turn selector reaches **5.52 correct/1k chars = 7.4% of the oracle ceiling**, which is
+      1.35× ETC's 4.09. It **ties single-shot accuracy at 1/11.6 the context and 1/2.8 the generation
+      latency**, but does not reach ETC's accuracy. **The binding constraint has moved from context
+      size to ranking quality**: the selector reaches ~79% answer-turn coverage vs the oracle's 100%,
+      and captures only 4 of the 21 hard misses the oracle recovers. Pending confirmation at n=500.
+- [x] Sub-turn chunking implementation + its effect on the buried-aside misses — implemented;
+      de-dilution confirmed at the mechanism level (turn-rank 32/501 → chunk-rank 0/4838 on one case,
+      71/500 → 53/4827 on another), but embedding similarity does not bridge hypernym gaps
+      ("smoker" ↔ "kitchen appliance") at any granularity, so chunking alone recovers only 4/27.
+- [x] Retrieval-side cost of the precision layer — measured: **~10.2 s/question to build the chunk
+      index** (≈2× turn-level ingest, amortised across queries) and **15.7 ms query-time selection**.
+- [ ] Confirm the tier-2 result at n=500 with pre-registered bars.
+- [ ] Close the ranking-quality gap (hybrid lexical+semantic scoring, or query expansion) — now the
+      highest-value open problem, since context size is no longer binding.
 - [ ] Confirm findings hold on ≥1 additional model — every number here is single-model, and the noise
       floor is a property of this cloud-served deployment.
 - [ ] Consider reporting correct-per-1k-chars as a standard axis for memory-system papers; current

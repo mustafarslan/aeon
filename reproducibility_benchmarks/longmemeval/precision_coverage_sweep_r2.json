@@ -1,0 +1,3702 @@
+{
+  "grid": [
+    "B/b9000/s0/inline",
+    "B/b9000/s1/inline",
+    "B/b9000/s1/post",
+    "B/b12000/s1/post",
+    "B/b15000/s1/post",
+    "B/b15000/s0/inline"
+  ],
+  "results": [
+    {
+      "question_id": "81507db6",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4865,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8962,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8890,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8715,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 11492,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 13475,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 14993,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4712,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8987,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8794,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8635,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11931,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14216,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14982,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "f0853d11",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4701,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8988,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8988,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8773,
+          "turns": 17
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 10892,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14792,
+          "turns": 12
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14980,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 3,
+      "n_chunks": 4638,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 8990,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8931,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 8935,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 11993,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14917,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 14982,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4723,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8983,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8920,
+          "turns": 13
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8993,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 10806,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14904,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14982,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4810,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8983,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8954,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 7191,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11943,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14065,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14979,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4599,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8965,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8788,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8494,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11980,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14654,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14988,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "9bbe84a2",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4692,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8999,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8984,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8675,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11671,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14498,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14959,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "001be529",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4676,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8999,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8943,
+          "turns": 7
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8836,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11985,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14943,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14989,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "46a3abf7",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4823,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8963,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8927,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8673,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 11457,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14436,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 14947,
+          "turns": 9
+        }
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "is_known_miss": false,
+      "report_type": "abstention",
+      "n_answer_turns": 1,
+      "n_chunks": 4814,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8999,
+          "turns": 6
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8948,
+          "turns": 14
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 7729,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11532,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 13998,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14977,
+          "turns": 10
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 4,
+      "n_chunks": 4700,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 8998,
+          "turns": 12
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 8970,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 8655,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 11965,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 14926,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 14963,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4857,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8958,
+          "turns": 19
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8871,
+          "turns": 19
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 7940,
+          "turns": 25
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11094,
+          "turns": 27
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 13612,
+          "turns": 27
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14995,
+          "turns": 21
+        }
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4785,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8990,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8942,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8931,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11786,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14989,
+          "turns": 19
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14997,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4782,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8971,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8819,
+          "turns": 13
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8689,
+          "turns": 19
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 10767,
+          "turns": 20
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14851,
+          "turns": 24
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14944,
+          "turns": 9
+        }
+      }
+    },
+    {
+      "question_id": "a346bb18",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4830,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8974,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8991,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8801,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11343,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14999,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14960,
+          "turns": 10
+        }
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 5037,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8971,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8971,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8940,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11926,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14805,
+          "turns": 23
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14995,
+          "turns": 18
+        }
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4682,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8997,
+          "turns": 15
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8975,
+          "turns": 16
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8745,
+          "turns": 16
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11836,
+          "turns": 20
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14857,
+          "turns": 21
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14985,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4723,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8950,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8963,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8501,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11953,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14740,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14997,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 4,
+      "n_chunks": 4875,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 4,
+          "chars": 8946,
+          "turns": 13
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 4,
+          "chars": 8975,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 4,
+          "chars": 8922,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 4,
+          "chars": 11755,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 4,
+          "chars": 14750,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 4,
+          "chars": 14999,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "6ae235be",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4761,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8955,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8928,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8804,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11721,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14811,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14973,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "75f70248",
+      "is_known_miss": false,
+      "report_type": "single-session-preference",
+      "n_answer_turns": 1,
+      "n_chunks": 4780,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8968,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8936,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 6744,
+          "turns": 6
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11643,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14969,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14994,
+          "turns": 10
+        }
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4893,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8991,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8936,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8873,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11387,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14056,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14999,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "bbf86515",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4913,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8995,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8900,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8699,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11536,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 13877,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14992,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4748,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8997,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8975,
+          "turns": 13
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8357,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11800,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14113,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14972,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4965,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8965,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8985,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8807,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11557,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14308,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14968,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4802,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8974,
+          "turns": 13
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8927,
+          "turns": 17
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 7860,
+          "turns": 17
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11359,
+          "turns": 21
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 13142,
+          "turns": 23
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14962,
+          "turns": 21
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 6,
+      "n_chunks": 4772,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 8985,
+          "turns": 12
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 6,
+          "chars": 8835,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 3,
+          "total": 6,
+          "chars": 8147,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 11890,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 4,
+          "total": 6,
+          "chars": 14877,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 14989,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4721,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8955,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8862,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 7634,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11531,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14614,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14962,
+          "turns": 17
+        }
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4683,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8998,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8987,
+          "turns": 12
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8992,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11954,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14891,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14994,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4668,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8978,
+          "turns": 6
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8919,
+          "turns": 6
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 7955,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11703,
+          "turns": 9
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14640,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14997,
+          "turns": 8
+        }
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4860,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8994,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8936,
+          "turns": 15
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8380,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11997,
+          "turns": 18
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14353,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14950,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4640,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8977,
+          "turns": 20
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8932,
+          "turns": 20
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8327,
+          "turns": 17
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11007,
+          "turns": 19
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14617,
+          "turns": 23
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14994,
+          "turns": 18
+        }
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4698,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8961,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8995,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 7589,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 9385,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 13952,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14998,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4804,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8989,
+          "turns": 13
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8983,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8038,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11879,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14846,
+          "turns": 19
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14968,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "is_known_miss": false,
+      "report_type": "single-session-preference",
+      "n_answer_turns": 1,
+      "n_chunks": 4945,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8912,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8722,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 7314,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11889,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14916,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14988,
+          "turns": 9
+        }
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4683,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8998,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8964,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8798,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11227,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 13451,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14970,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4834,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8961,
+          "turns": 16
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8988,
+          "turns": 17
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8961,
+          "turns": 16
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11833,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14917,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14986,
+          "turns": 26
+        }
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4678,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8990,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8865,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 7047,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 9819,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 12208,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14998,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4891,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8969,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8743,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8816,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11473,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14794,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14981,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4694,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8984,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8936,
+          "turns": 7
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8672,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11243,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14262,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14989,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4671,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8993,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8999,
+          "turns": 12
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 7813,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11848,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 13639,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14998,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4802,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8912,
+          "turns": 11
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8305,
+          "turns": 13
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8176,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 10324,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14760,
+          "turns": 19
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14907,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4591,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8993,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8616,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8957,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11839,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14915,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14993,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "is_known_miss": false,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4596,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8989,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8849,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8407,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 11753,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 14947,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 14983,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4635,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8990,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8972,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8881,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11850,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14922,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14994,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4660,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8992,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8718,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8951,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11954,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14633,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14989,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4656,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8948,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 8974,
+          "turns": 15
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 7479,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 10284,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14789,
+          "turns": 19
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14983,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4954,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8989,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8714,
+          "turns": 12
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8156,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11928,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14979,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14973,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "853b0a1d",
+      "is_known_miss": false,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4702,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8959,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8955,
+          "turns": 12
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8545,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 9208,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14941,
+          "turns": 21
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14997,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "is_known_miss": false,
+      "report_type": "single-session-preference",
+      "n_answer_turns": 1,
+      "n_chunks": 4858,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8980,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8985,
+          "turns": 14
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8947,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11050,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14720,
+          "turns": 21
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14992,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4731,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8991,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8913,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8875,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11967,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14557,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14981,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "is_known_miss": false,
+      "report_type": "single-session-preference",
+      "n_answer_turns": 2,
+      "n_chunks": 4664,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8997,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8908,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8022,
+          "turns": 8
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 9269,
+          "turns": 7
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 13590,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14990,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4924,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8974,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8982,
+          "turns": 13
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8782,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11920,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14383,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14960,
+          "turns": 16
+        }
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "is_known_miss": false,
+      "report_type": "single-session-assistant",
+      "n_answer_turns": 1,
+      "n_chunks": 4867,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8969,
+          "turns": 11
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8951,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8831,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11784,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14799,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14992,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "is_known_miss": false,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4803,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8970,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8941,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8882,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 11008,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14145,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14999,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "is_known_miss": false,
+      "report_type": "knowledge-update",
+      "n_answer_turns": 2,
+      "n_chunks": 4660,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8934,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8863,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 7530,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 9969,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14763,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14976,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_8279ba03",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4827,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8952,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8932,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8823,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11933,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14891,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14988,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "ba358f49",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4801,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8969,
+          "turns": 6
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8951,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8432,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 10575,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14443,
+          "turns": 18
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14996,
+          "turns": 10
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_e061b84f",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 3,
+      "n_chunks": 4816,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8999,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8774,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8820,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 11533,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 12673,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 14996,
+          "turns": 9
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_21adecb5",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4616,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8986,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 8857,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8948,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11909,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 14950,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14994,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "d6233ab6",
+      "is_known_miss": true,
+      "report_type": "single-session-preference",
+      "n_answer_turns": 2,
+      "n_chunks": 4661,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8932,
+          "turns": 11
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8984,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8536,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11941,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14889,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14942,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_d31cdae3",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 2,
+      "n_chunks": 4652,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8996,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8769,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8726,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11911,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14737,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14944,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "8e91e7d9",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4488,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8996,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8919,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8970,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11850,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14572,
+          "turns": 21
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14975,
+          "turns": 17
+        }
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 4,
+      "n_chunks": 4821,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 4,
+          "chars": 8983,
+          "turns": 11
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 8744,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 8759,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 11918,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 14982,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 4,
+          "chars": 14960,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "1a8a66a6",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4935,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8965,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8889,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 7596,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 11961,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 12667,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 14959,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7abb270c",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 6,
+      "n_chunks": 4452,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 6,
+          "chars": 8999,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 6,
+          "chars": 8963,
+          "turns": 7
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 8273,
+          "turns": 9
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 11946,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 14744,
+          "turns": 13
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 14973,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "aae3761f",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4916,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8987,
+          "turns": 12
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8879,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8981,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 11898,
+          "turns": 16
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 14933,
+          "turns": 21
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 14977,
+          "turns": 17
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 3,
+      "n_chunks": 4802,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8979,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8754,
+          "turns": 6
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 7878,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 11911,
+          "turns": 7
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14721,
+          "turns": 10
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 14990,
+          "turns": 12
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_468eb064",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4624,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8990,
+          "turns": 7
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14960,
+          "turns": 2
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 7422,
+          "turns": 7
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11191,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14280,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14964,
+          "turns": 6
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_a1b77f9c",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 6,
+      "n_chunks": 4883,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 8988,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 6,
+          "chars": 8966,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 6520,
+          "turns": 6
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 11337,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 13382,
+          "turns": 12
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 14980,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "c18a7dc8",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4726,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8994,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8881,
+          "turns": 10
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 8780,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 11807,
+          "turns": 15
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14659,
+          "turns": 19
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 14974,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aec",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4639,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8991,
+          "turns": 5
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8812,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8784,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11939,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14988,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14977,
+          "turns": 13
+        }
+      }
+    },
+    {
+      "question_id": "0bc8ad92",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 3,
+      "n_chunks": 4741,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8973,
+          "turns": 14
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8785,
+          "turns": 12
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8959,
+          "turns": 14
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 11822,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 14883,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14995,
+          "turns": 21
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_468eb063",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 1,
+      "n_chunks": 4819,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8976,
+          "turns": 13
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8817,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8853,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11822,
+          "turns": 18
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14905,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14996,
+          "turns": 17
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_45189cb4",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 3,
+      "n_chunks": 4645,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 8996,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 8999,
+          "turns": 14
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 7661,
+          "turns": 10
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 11845,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14812,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 14961,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "b46e15ed",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 5,
+      "n_chunks": 4934,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 2,
+          "total": 5,
+          "chars": 8970,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 5,
+          "chars": 8991,
+          "turns": 9
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 5,
+          "chars": 8922,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 2,
+          "total": 5,
+          "chars": 11679,
+          "turns": 13
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 14265,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 2,
+          "total": 5,
+          "chars": 14996,
+          "turns": 14
+        }
+      }
+    },
+    {
+      "question_id": "10d9b85a",
+      "is_known_miss": true,
+      "report_type": "multi-session",
+      "n_answer_turns": 2,
+      "n_chunks": 4805,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 8963,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 8906,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 8774,
+          "turns": 12
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 11508,
+          "turns": 12
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 14753,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 14981,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "726462e0",
+      "is_known_miss": true,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4838,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8999,
+          "turns": 9
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8910,
+          "turns": 6
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 8910,
+          "turns": 15
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 11866,
+          "turns": 14
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14904,
+          "turns": 15
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 14968,
+          "turns": 15
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7f6b06db",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 3,
+      "n_chunks": 4789,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8974,
+          "turns": 8
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8972,
+          "turns": 14
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 8081,
+          "turns": 13
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 11726,
+          "turns": 17
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 14907,
+          "turns": 17
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 3,
+          "chars": 14956,
+          "turns": 11
+        }
+      }
+    },
+    {
+      "question_id": "a3838d2b",
+      "is_known_miss": true,
+      "report_type": "temporal-reasoning",
+      "n_answer_turns": 6,
+      "n_chunks": 4705,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 3,
+          "total": 6,
+          "chars": 8950,
+          "turns": 10
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 1,
+          "total": 6,
+          "chars": 8791,
+          "turns": 8
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 2,
+          "total": 6,
+          "chars": 8482,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 4,
+          "total": 6,
+          "chars": 11809,
+          "turns": 11
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 4,
+          "total": 6,
+          "chars": 14872,
+          "turns": 16
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 4,
+          "total": 6,
+          "chars": 14985,
+          "turns": 18
+        }
+      }
+    },
+    {
+      "question_id": "5d3d2817",
+      "is_known_miss": true,
+      "report_type": "single-session-user",
+      "n_answer_turns": 1,
+      "n_chunks": 4774,
+      "configs": {
+        "B/b9000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8966,
+          "turns": 6
+        },
+        "B/b9000/s1/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8847,
+          "turns": 11
+        },
+        "B/b9000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 8813,
+          "turns": 11
+        },
+        "B/b12000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 11748,
+          "turns": 10
+        },
+        "B/b15000/s1/post": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14055,
+          "turns": 14
+        },
+        "B/b15000/s0/inline": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 14993,
+          "turns": 12
+        }
+      }
+    }
+  ]
+}
