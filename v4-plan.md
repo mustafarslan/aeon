@@ -5793,6 +5793,54 @@ composite n=500 -- where both aggregate gain *and* collateral on already-passing
 measurable -- is the real test, and it remains user-gated. Build order now proceeds to **(b), the
 persistent semantic layer**, against this locked schema.
 
+**PERSISTENT SEMANTIC LAYER -- PROVENANCE (2026-08-26).** `shell/aeon_py/records.py` +
+`tests/test_records.py` (21 tests, green; full suite 150 passed / 6 skipped, no regressions).
+Built provenance first, deliberately: it is the one part the consolidation probe never exercised,
+and everything else depends on it.
+
+**Storage.** Records live in **Atlas**, not Trace -- they are semantic and accumulate/revise,
+whereas Trace is an append-only log of what was said. Each record is one Atlas node: the vector is
+the record's embedding, and the fixed-size `metadata` field carries the structure
+(`kind / bucket / subtype / date / provenance / supersedes / text`).
+
+**Provenance is `session_id` + turn indices, NOT raw event or node ids.** That is a correctness
+decision: this codebase already documents that a raw Atlas node id can shift after `compact_mmap()`
+reclaims tombstoned slots (supersession.py's known limitation), and Trace exposes history *per
+session* rather than by id. Session id plus turn index survives compaction and matches the API that
+actually exists. Contiguous indices compress to ranges (`0-3`), which matters because provenance
+shares a fixed metadata budget with the record text.
+
+**Three real bugs found and fixed while building, each documented in the code:**
+
+1. **Silent truncation.** `Atlas.insert()` truncates rather than raising (documented in `core.pyi`,
+   verified empirically: a 600-byte write reads back 511). Every write is now length-checked, and
+   the encoding puts **provenance before free text** so an oversized record loses its text tail
+   rather than its origin link -- *a record you can still trace back beats one whose text is intact
+   but whose provenance is gone.*
+2. **UTF-8 truncation split a character.** The first `_fit` appended a 3-byte `…` onto an already
+   full budget; the stored payload ended mid-sequence and **every subsequent read raised
+   `UnicodeDecodeError`**. This is the exact bug the C++ side already fixed on
+   `TraceEvent.text_preview` (`safe_utf8_truncate_length` in `trace.cpp`) -- now mirrored in Python,
+   plus defensive reads so one bad row written by an older version cannot make a whole store
+   unreadable.
+3. **Roles rendered as ints.** `get_history` returns `role` as an integer, and a local formatter
+   emitted `- [0]` instead of `- [user]`. Fixed by rendering through
+   `session_expansion.format_events`, so rehydrated provenance is byte-identical to every other
+   context this repo builds and that class of drift cannot recur.
+
+**Rehydration is the payoff, and it is the measured constraint made operational.** Given records,
+`RecordStore.rehydrate()` returns their source turns with `+/-1` neighbouring turns. Demonstrated on
+the exact failure mode that cost 12 questions: the record `ITEM(POSSESSION/toiletry): lavender
+shampoo` **cannot** answer *"what brand?"*, while its rehydrated neighbourhood contains *"picked up
+a lavender shampoo at Trader Joe's"*. **Compression discards pragmatic licensing; provenance is how
+it comes back on demand rather than by shipping 100k chars up front.** `max_turns` bounds
+rehydration so provenance cannot quietly reintroduce the context this layer exists to avoid, and
+missing/dangling/out-of-range provenance degrades to an empty list rather than raising.
+
+Next in the layer: the write path (per-session extraction on ingest, via `Architect`), the
+consolidation/merge pass as the `Dreamer`'s real job replacing `StubSummarizer`, and the composite
+read path (records + budgeted episodic selection, one LLM call).
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
