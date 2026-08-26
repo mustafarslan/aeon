@@ -122,7 +122,10 @@ def main() -> None:
             trace = TraceGraph(path=str(tp))
             _ingest_haystack(trace, encoder, q)
             qv = np.asarray(encoder.encode(q["question"]), dtype=np.float32).tolist()
-            ev = build_expanded_context(trace, qv, "turn", base_top_k=ABSTENTION_EVENTS,
+            # unit="none" = raw top-k hits with no session expansion, which is
+            # the closest analogue to what a precision-oriented retriever would
+            # surface for a question whose answer does not exist.
+            ev = build_expanded_context(trace, qv, "none", base_top_k=ABSTENTION_EVENTS,
                                         max_sessions=1)
             ctx = "\n".join(f"- [{e.get('role', 'user')}] {e.get('text', '')}"
                             for e in ev[:ABSTENTION_EVENTS]) or "(nothing retrieved)"

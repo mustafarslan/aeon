@@ -5373,6 +5373,67 @@ has). It measures the **ceiling** of a perfect compressor, not what a real reran
 value is bounding the design space cheaply -- if even a perfect compressor cannot match 82.6%, no
 reranker will, and the direction dies for ~25 minutes of compute instead of a quarter of kernel work.
 
+**ORACLE-PRECISION RESULT (2026-08-26). `n_errors=0`. PRIMARY BAR PASSED. The product thesis is
+validated.**
+
+| arm | accuracy | median context | LLM calls | median generation | **correct / 1k chars** |
+|---|---|---|---|---|---|
+| single-shot @30x10 | 77.6% | 100,889 | 1 | 1.51 s | 3.85 |
+| ETC @30x10 | 82.6% | 100,889 | 2 | 2.46 s | 4.09 |
+| ETC @200x20 | 83.2% | 270,972 | 2 | 4.47 s | 1.54 |
+| **oracle-precision** | **83.8%** | **5,654** | **1** | **0.51 s** | **74.10** |
+
+Bars: primary >= 413 -> **419 (83.8%), PASS**. Floor ss-user >= 60/64 -> **63/64, PASS**. Floor
+preference >= 16/30 -> **15/30, MISSED BY ONE** (2x sd is 2.8, so this is statistically
+indistinguishable from the floor, and still +2 above ETC's 13 -- reported as a miss because it was
+pre-registered as one, not explained away).
+
+**Read the headline correctly: this is accuracy PARITY, not an accuracy win.** Paired against ETC the
+overall delta is **+6 (+49/-43) against an 11.5 threshold -- noise.** The oracle context changes ~92
+individual answers in both directions and nets out level. Nothing here says perfect compression makes
+the model smarter. What it says is far more useful for the product: **the same accuracy is available
+at 1/18th the context, half the LLM calls, and 1/5th the generation latency.** On the north-star
+metric the gap is not marginal -- **74.10 vs 4.09 correct per 1k chars, an 18x improvement** -- and
+that metric is the one that converts directly into user-visible latency and per-turn cost.
+
+*Per-type against ETC*, everything inside noise except one:
+
+| type | ETC | oracle | delta | gain/loss | verdict |
+|---|---|---|---|---|---|
+| **single-session-user** | 55 | **63** | **+8** | +8/-0 | **REAL** |
+| single-session-preference | 13 | 15 | +2 | +5/-3 | noise |
+| single-session-assistant | 52 | 53 | +1 | +2/-1 | noise |
+| abstention | 28 | 28 | 0 | +1/-1 | noise |
+| knowledge-update | 66 | 65 | -1 | +4/-5 | noise |
+| multi-session | 96 | 95 | -1 | +15/-16 | noise |
+| temporal-reasoning | 103 | 100 | -3 | +14/-17 | noise |
+
+**The single-session-user result is the one that matters mechanistically, and it vindicates a specific
+design choice.** ETC's compression *broke* this type (60 -> 55, the mode (ii) pragmatic-license
+failures: "Trader Joe's" stops reading as a brand once the surrounding chat is stripped). Oracle
+compression at **+/-1 neighbouring turn scores 63/64 -- better than ETC by a REAL +8 and better than
+the uncompressed single-shot baseline's 60.** So the -12 single-session cost that has shadowed this
+entire stage **is not intrinsic to compression at all; it was caused by compressing to bare facts
+without their conversational neighbourhood.** Keeping one turn of context on each side is enough to
+preserve the licensing. That is a concrete, transferable design constraint for any reranker built
+next, and it was obtained for 15 minutes of compute.
+
+**Honest limits, stated plainly.** (1) This is an **oracle** -- it uses gold `has_answer` annotations
+no production system has. It bounds the ceiling of a perfect compressor; it does not say a real
+reranker reaches it, and the gap between them is the entire engineering risk of the direction.
+(2) Multi-evidence types (temporal -3, multi-session -1, both noise but both negative) show heavy
+two-way churn, so perfect precision is *not* strictly dominant -- for aggregation questions some of
+the surrounding session appears to carry real signal, consistent with the 200x20 finding that these
+types behave differently from everything else. (3) The preference floor was missed by one question.
+
+**What this settles for the roadmap.** The accuracy-vs-context curve between ~5k and ~100k chars is
+**flat** -- 83.8% at 5.6k versus 82.6% at 100.9k. Aeon has been shipping ~95k chars per query for no
+measurable accuracy return, at direct cost in LLM latency and tokens. **The build stack
+(sub-turn chunking -> ms-scale salience/rerank -> neighbourhood stitching, the last now proven
+necessary rather than assumed) is chasing a verified ceiling of ~84% at ~5.6k chars, one LLM call,
+~0.5s generation.** Correct-per-token becomes this stage's headline metric, and the honest target for
+a real reranker is stated as a fraction of the 74.10 oracle figure rather than as an accuracy number.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
