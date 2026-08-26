@@ -5590,6 +5590,52 @@ the product goal rather than a leaderboard.**
   information sources*, and records cost a few hundred chars. Always include both -- records +
   budgeted episodic selection -- in **one** LLM call. Each component is now separately measured.
 
+**CONSOLIDATION PROBE. PRE-REGISTERED 2026-08-26, before running.** First experiment of the semantic
+half. It is deliberately the *schema-validation* step of building that half, not a detour: the probe
+uses LLM extraction as a stand-in for the persistent layer, and **its record schema is intended to
+become the production schema**. Building storage before knowing the schema works would be weeks spent
+on the wrong shape.
+
+*Cohort*: the **18 questions wrong under oracle AND ETC AND single-shot** in the aggregation/temporal/
+update types (multi-session 8, temporal-reasoning 9, knowledge-update 1). These are the cleanest
+possible target: the oracle had the gold evidence in hand and still failed, so **no retrieval
+improvement of any kind can fix them** and any conversion is unambiguously attributable to
+consolidation rather than to better search.
+
+*Method*: for each of the **859 sessions** across the cohort (median 46 per question), run
+**query-blind** extraction into a fixed schema -- the extractor never sees the question, exactly as a
+real write-time consolidator never would. Records are then the only memory available at answer time.
+Schema, designed from the failure→requirement table:
+
+| line type | purpose | targets |
+|---|---|---|
+| `FACT:` | durable attribute / possession / relationship | entity state |
+| `EVENT [date]:` | something that happened, dated | temporal arithmetic |
+| `ITEM(category):` | one member of a countable collection | **aggregation miscounts** |
+| `UPDATE:` | a statement revising an earlier one | knowledge-update supersession |
+| `PREF:` | stated preference | preference questions |
+
+`ITEM(category)` is the load-bearing element: the oracle's counting failures ("how many albums": gold
+3, answered 2) happen because counting is a multi-hop operation over scattered raw mentions. Emitting
+one `ITEM` line per member converts counting into enumeration of an existing list.
+
+*Arms*, both answering from records with one LLM call:
+- **R**: records only.
+- **R+E**: records **plus** the budgeted episodic selection from the precision selector -- the
+  composite context. Tests the "different information sources, not a router" hypothesis, and supplies
+  the provenance neighbourhood that mode (ii) licensing needs.
+
+*Bar*: all 18 are currently wrong, so expected noise flips at the measured 6.7% rate is ~1.2.
+**>= 4 conversions in either arm confirms the mechanism** (>3x noise). Fewer than 4 means query-blind
+extraction cannot anticipate what the questions need -- which is the named risk (ETC's extraction was
+query-*conditioned*) -- and the consolidation direction needs a different schema or a query-aware
+component before any storage work begins.
+
+*Explicitly not claimed by this probe*: net benefit. The cohort is selected on being wrong, so it can
+only improve, and nothing here measures whether consolidated records **cost** accuracy on the ~400
+questions that already pass. That is the composite n=500's job and remains user-gated. Cost of the
+probe: 859 extraction calls + 36 answer calls, roughly 45 minutes.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
