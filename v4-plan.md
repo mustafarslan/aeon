@@ -4907,6 +4907,57 @@ type, not random draws, and all 4 temporal draws happened to hit the `question_d
 as indicative of mechanism, never as rates. The independent scan (21 of 43 temporal errors naming a
 missing/invented current date) is the number to cite for the date bug's size.
 
+**PAIRED RERUN WITH THE `question_date` FIX. PRE-REGISTERED 2026-08-26, before any run.** User
+authorized the recommended option: bank the verified bug fix and get a clean noise measurement to size
+everything else against. Three runs, all `gemma4:31b-cloud`, seed 42, `base_top_k=30`,
+`max_sessions=10`, temperature 0, sequentially (not concurrently -- concurrency is itself a config
+change that could alter the nondeterminism this run is trying to measure):
+
+| run | arm | n | output |
+|---|---|---|---|
+| A | extract-then-compute (v1 prompt + date fix) | 500 | `extract_then_compute_n500_datefix_results.json` |
+| B | ETC repeat, identical config to A | 100 | `extract_then_compute_n100_datefix_repeat.json` |
+| C | full_session single-shot baseline (+ date fix) | 500 | `full_session_n500_datefix_results.json` |
+
+Run B is the **deliberate noise measurement**, replacing the opportunistic 4/50 estimate: `_stratified_sample`
+shuffles each type bucket from the same seeded RNG and differs only in how many it takes, so the n=100
+sample is nested in the n=500 one and those 100 questions are run twice under identical conditions.
+
+**This is a BUG FIX, not a prompt experiment -- the bar decides what we may CLAIM, not whether the fix
+stays.** Passing `question_date` is correct on its face (the field exists precisely to make
+relative-time questions answerable, and the pre-fix outputs show the model inventing dates); the fix is
+kept regardless of outcome. That is the key difference from the v2/v3 pre-registrations, where the bar
+gated a revert.
+
+**Bars, computed from the measured ~8% flip rate.** For a type of size n, expected flips ~= 0.08n and
+net-delta sd ~= sqrt(0.08n); bars are set at >= 2x that sd, per the standing rule this stage adopted:
+
+| type | n | noise sd | 2x sd | pre-fix ETC | pre-fix baseline | bar (BOTH arms, vs own pre-fix count) |
+|---|---|---|---|---|---|---|
+| **temporal-reasoning (PRIMARY)** | 127 | ~3.2 | ~6.4 | 84 | 67 | **>= +7 questions** (ETC >= 91, baseline >= 74) |
+| multi-session | 121 | ~3.1 | ~6.2 | 93 | 81 | guard: must not fall >6 |
+| knowledge-update | 72 | ~2.4 | ~4.8 | 64 | 63 | guard: must not fall >5 |
+| single-session-user | 64 | ~2.3 | ~4.5 | 55 | 60 | guard: must not fall >5 |
+| single-session-preference | 30 | ~1.5 | ~3.1 | 11 | 14 | guard: must not fall >3 |
+| abstention | 30 | ~1.5 | ~3.1 | 29 | 27 | guard: must not fall >3 |
+| overall | 500 | ~6.3 | ~12.6 | 390 | 367 | must not regress |
+
+The guard rows exist because the date line is prepended to **every** prompt, not just temporal ones --
+a plausible way to lose accuracy elsewhere by distraction, and the fix's own risk.
+
+**Reporting rules, committed now:** results reported as **paired McNemar-style gain/loss counts**
+(how many questions flipped each way), never as raw subtype deltas; any bucket smaller than ~50
+questions treated as undecidable on its own; run B's flip rate reported as the noise floor and used to
+re-derive every bar above if it differs materially from 8%. `n_errors=0` required in all three runs
+before any number is trusted.
+
+**Interpretation committed in advance:** primary bar met in both arms -> the date bug is confirmed as a
+real ~15-21-question defect, all pre-fix temporal numbers in this document are formally superseded, and
+the ETC-vs-baseline comparison is re-decided on the post-fix numbers. Primary bar missed -> the fix is
+still kept (it is correct), but the 21-question estimate was wrong and temporal's residual is
+model-capability-bound rather than harness-bound, which redirects priority to the 27 verified
+retrieval misses. Either way, no prompt-level iteration follows from this run.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
