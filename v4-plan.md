@@ -5506,6 +5506,90 @@ the chunk index costs **~10.2 s per question** against ~4.7 s for turn-level ing
 ingest-time penalty, amortised across queries in production but real. Query-time selection is
 **15.7 ms**, negligible.
 
+## STRATEGIC REFRAME (2026-08-26): the benchmark has been testing the episodic half only
+
+Prompted by the standing goal -- make Aeon the best long-term memory for LLM agents, with benchmark
+scores as a *consequence* rather than the target. Stepping back from the measurement work produced a
+structural observation that changes what to build next.
+
+**Every quality experiment in this stage imported exactly three things from Aeon**: `TraceGraph`,
+`session_expansion`, and `llm` (grep-verified across all of `scripts/longmemeval/`). Untouched by any
+end-to-end quality run: `Atlas`/`client.py` (the concept index), `dreamer.py` (consolidation),
+`architect.py` (write-time ingestion), `context.py`, `promotion.py`. So the entire stage has measured
+**vector search over raw conversation turns** -- which is the *least differentiated* thing Aeon does,
+and precisely where it competes with any off-the-shelf vector store.
+
+**Stated precisely, because the stronger version is also the true one** (an earlier draft of this
+entry overclaimed): this is not "we forgot to switch features on." The semantic half is largely
+*unbuilt* for this purpose -- `dreamer.py` ships a `StubSummarizer` and is designed for
+summarise-to-forget rather than entity-state-for-answering; `architect.py` is a thin ingest wrapper;
+and `supersession.py`, which looked at first glance like a knowledge-update engine, is **audited
+governance plumbing** for externally-triggered node exclusion. It provides a reusable audited
+primitive, but the hard part of knowledge-update -- *detecting* that "3 recipes" supersedes "2
+recipes" -- exists nowhere. Kernel microbenchmarks cover Atlas; no end-to-end **quality** experiment
+does. **This stage's findings are therefore the requirements spec for the semantic half.**
+
+**The evidence for the thesis is already in our own data.** Extract-then-compute *is* consolidation,
+performed at query time -- and it won (+23 overall) precisely on aggregation and temporal questions.
+That is direct evidence that *computing over extracted facts beats computing over raw turns*.
+Write-time consolidation is ETC's extract step moved to ingest: paid once, amortised across queries,
+and -- critically for the latency story -- it converts ETC's second LLM call into background work.
+
+**The sharpest consequence: 83.8% is the ceiling of one architecture, not of a memory system.** The
+oracle-precision arm bounds *perfect selection of raw turns*. It is not a bound on what a system that
+*derives* answers can do. The proof is in the oracle's own failures: 28 questions are wrong under
+oracle **and** ETC **and** single-shot -- the gold evidence was in hand and the answer was still
+wrong. Samples: *"How many items of clothing do I need to pick up?"* gold 3, oracle answered 1;
+*"How many babies were born?"* gold 5, oracle answered 6 (over-counted); *"How many albums have I
+purchased or downloaded?"* gold 3, oracle answered 2; *"How many years in formal education?"* gold 10,
+oracle answered 8. **A maintained record `siblings: 4` or `clothing_to_collect: [...]` answers these by
+lookup, where perfect raw evidence plus multi-hop counting measurably does not.** Consolidation also
+*reduces generator dependence*, which is a product claim independent of any benchmark.
+
+### Failure → record-requirement table (the core artifact of this reframe)
+
+| measured failure | evidence | record requirement |
+|---|---|---|
+| aggregation miscounts, *even with perfect evidence* | 8 multi-session in the oracle-failed cohort | entity-state records with running counts/sets |
+| temporal-arithmetic residue | 9 temporal in the oracle-failed cohort | timestamps on records; derived intervals |
+| knowledge-update (~1-in-9 miss) | `v4-plan.md` supersession finding | supersession links + **write-time detection (unbuilt)** |
+| hypernym gap ("smoker" ↔ "kitchen appliance") | selector recovers 4/27 vs oracle 21/27 | category/type enrichment at write time |
+| mode-(ii) licensing loss (−12 single-session under ETC) | oracle ±1 neighbour scores 63/64 | provenance links back to source turns + neighbourhood |
+| *architecture constraint* | ETC extraction was query-**conditioned** | write-time extraction is query-**blind** and must anticipate |
+
+**The key technical risk, named so the probe tests exactly it**: ETC extracted "facts relevant to this
+question." Write-time extraction cannot see the question. The mitigating hypothesis is that the
+dominant failures are **entity-state** (siblings, subscriptions, tanks, kitchen items, albums), which a
+generic user-model schema covers without knowing the question -- but that is a hypothesis until
+measured.
+
+### LongMemEval v2 is a different benchmark, and it reinforces this direction
+
+The repo already contains a v2 harness (`scripts/longmemeval-v2/`) and dataset (451 questions). **v2
+does not share v1's question types at all**: `static-environment` 134, `dynamic-environment` 86,
+`procedure` 74, plus `-abs` variants and `errors-gotchas` 29, across web/enterprise domains with
+`eval_function` scoring. It tests **environment state, procedures, and learned gotchas** -- not
+conversation recall. The recorded v2 oracle run is **37.5% overall at 95% haystack coverage**
+(n=40): even *with* the gold evidence located, the model fails most of the time.
+
+Two consequences. First, **v1 retrieval tuning will not transfer to v2** -- optimising `top_k` against
+v1 buys nothing there. Second, v2's categories are almost a literal specification for the semantic
+half: "dynamic-environment" is entity-state-that-changes (supersession), "procedure" is multi-step
+knowledge worth storing once rather than re-deriving, "errors-gotchas" is learned-lesson memory.
+**The consolidation direction is the one that serves both benchmarks, and it is the one that matches
+the product goal rather than a leaderboard.**
+
+### Decisions recorded
+
+- **The pre-registered tier-3 selector n=500 is PARKED as superseded by this pivot.** Its expected
+  result ("ties single-shot at ~1/12 context") is already established at n=85 and would not change
+  what to build next. Recorded rather than left to lapse silently.
+- The selector is **not** discarded: it becomes the *episodic component* of a composite context.
+- **The destination is a composite context, not a router.** The three prior routing failures compared
+  arms carrying the *same* information; consolidated records and episodic turns are *different
+  information sources*, and records cost a few hundred chars. Always include both -- records +
+  budgeted episodic selection -- in **one** LLM call. Each component is now separately measured.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

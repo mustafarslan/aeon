@@ -285,7 +285,17 @@ should lead the paper's systems section.
       ("smoker" ↔ "kitchen appliance") at any granularity, so chunking alone recovers only 4/27.
 - [x] Retrieval-side cost of the precision layer — measured: **~10.2 s/question to build the chunk
       index** (≈2× turn-level ingest, amortised across queries) and **15.7 ms query-time selection**.
-- [ ] Confirm the tier-2 result at n=500 with pre-registered bars.
+- [ ] **Does query-blind write-time consolidation exceed the raw-retrieval ceiling on its cohort?**
+      NEW TOP ITEM. 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
+      wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
+      oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.
+      Risk to test: ETC's extraction was query-conditioned; write-time extraction is query-blind.
+- [ ] LongMemEval v2 is a *different* benchmark (static/dynamic-environment, procedure,
+      errors-gotchas; 451 questions), and its recorded oracle is 37.5% at 95% haystack coverage —
+      i.e. generator-bound, not retrieval-bound. v1 retrieval tuning does not transfer; v2's
+      categories are close to a specification for entity-state + procedure memory.
+- [~] Confirm the tier-2 selector result at n=500 — PARKED as superseded by the consolidation pivot;
+      the expected result is already known at n=85 and would not change what to build next.
 - [ ] Close the ranking-quality gap (hybrid lexical+semantic scoring, or query expansion) — now the
       highest-value open problem, since context size is no longer binding.
 - [ ] Confirm findings hold on ≥1 additional model — every number here is single-model, and the noise
