@@ -5332,6 +5332,47 @@ play, but benchmark polish rather than product direction -- and the compression 
 target if the oracle arm confirms). The **ship decision on wiring always-on ETC into the shell remains
 open and orthogonal** to all of this.
 
+**ORACLE-PRECISION ARM. PRE-REGISTERED 2026-08-26, before running.** Tests the product thesis
+directly: what accuracy is reachable if the retrieval layer delivered only the load-bearing evidence?
+Context = `has_answer` turns plus one neighbouring turn each side, **single-shot (one LLM call)**,
+n=500, same model/judge/date-fix as every other arm
+(`scripts/longmemeval/oracle_precision_experiment.py`).
+
+*Abstention handling, decided before seeing results*: 21 questions have no answer-bearing turn by
+construction. An empty context would make them trivially correct and inflate the headline, so they
+receive real Aeon-retrieved context trimmed to comparable size -- **abstention stays earned**.
+Reported both overall and on the 479-question answer-bearing subset.
+
+*Comparison points* (all n=500, date fix, same judge):
+
+| arm | accuracy | median context | LLM calls | median generation |
+|---|---|---|---|---|
+| single-shot @30x10 | 77.6% | 100,889 | 1 | 1.5 s |
+| ETC @30x10 | 82.6% | 100,889 | 2 | 2.5 s |
+| ETC @200x20 | 83.2% | 270,972 | 2 | 4.5 s |
+| **oracle-precision** | ? | **~3,000 (smoke)** | **1** | **~0.5 s (smoke)** |
+
+*Bars*: **primary -- >= 82.6% (>= 413/500)**, matching always-on ETC. Clearing it validates the
+direction end-to-end: ETC-or-better accuracy at **one** LLM call, ~33x less context and ~5x faster
+generation, which is the entire product thesis in one measurement. **Secondary floor --
+single-session-user >= 60/64 and single-session-preference >= 16/30** (single-shot's own numbers):
+this is the mode (ii) test, checking whether pragmatic licensing survives compression when neighbours
+are included.
+
+*Interpretation committed in advance.* Primary met -> perfect compression is at least as good as the
+100k-char firehose, the build stack (sub-turn chunking -> ms-scale rerank -> neighbourhood stitching)
+is chasing a verified ceiling, and correct-per-token becomes the stage's headline metric. Primary
+missed but single-session floors held -> compression is lossy in aggregate and the curve between 3k
+and 100k has a real slope worth mapping before building. **Single-session floors breached -> the most
+useful negative result available**: it measures exactly what a compressor must preserve, and any
+reranker built later must be evaluated against that constraint rather than raw hit-rate. No outcome
+here authorises kernel work by itself; it sizes the ceiling that work would be chasing.
+
+*Not claimed either way*: this is an ORACLE (it uses gold answer-turn annotations no production system
+has). It measures the **ceiling** of a perfect compressor, not what a real reranker would achieve. Its
+value is bounding the design space cheaply -- if even a perfect compressor cannot match 82.6%, no
+reranker will, and the direction dies for ~25 minutes of compute instead of a quarter of kernel work.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
