@@ -1,0 +1,1824 @@
+{
+  "grid_top_k": [
+    30,
+    60,
+    100,
+    200
+  ],
+  "grid_max_sessions": [
+    10,
+    15,
+    20
+  ],
+  "results": [
+    {
+      "question_id": "gpt4_8279ba03",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 126370
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 135682
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 135682
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 145021
+        },
+        "60x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 193382
+        },
+        "60x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 225780
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 178070
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 222250
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 265863
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 257442
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 278228
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 306113
+        }
+      }
+    },
+    {
+      "question_id": "ba358f49",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 136331
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 193784
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 215565
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 165498
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 207452
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 259634
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 198499
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 229553
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 275232
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 277516
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 295213
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 333786
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_e061b84f",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 109410
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 144875
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 144875
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 116253
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 166866
+        },
+        "60x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 227638
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 133899
+        },
+        "100x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 179015
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 239542
+        },
+        "200x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 224309
+        },
+        "200x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 249703
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 283721
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_21adecb5",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 112368
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 149798
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 149798
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 121036
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 161183
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 215188
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 130256
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 167677
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 219011
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 215884
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 247882
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 287022
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 96767
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 110232
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 110232
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 108420
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 159666
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 200507
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 133603
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 166486
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 206224
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 203235
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 222255
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 246693
+        }
+      }
+    },
+    {
+      "question_id": "d6233ab6",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 136694
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 153535
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 153535
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 146937
+        },
+        "60x15": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 204425
+        },
+        "60x20": {
+          "retrieved": 0,
+          "total": 2,
+          "chars": 236725
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 165917
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 218169
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 279933
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 237064
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 278798
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 312073
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_d31cdae3",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 83522
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 83522
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 83522
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 87266
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 132653
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 174140
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 110062
+        },
+        "100x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 151969
+        },
+        "100x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 191797
+        },
+        "200x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 192580
+        },
+        "200x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 211783
+        },
+        "200x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 241755
+        }
+      }
+    },
+    {
+      "question_id": "8e91e7d9",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 68460
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 68460
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 68460
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 125111
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 162498
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 206581
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 153051
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 173775
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 215708
+        },
+        "200x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 235428
+        },
+        "200x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 245449
+        },
+        "200x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 282606
+        }
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "dilution": false,
+      "n_answer_turns": 4,
+      "settings": {
+        "30x10": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 93953
+        },
+        "30x15": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 93953
+        },
+        "30x20": {
+          "retrieved": 3,
+          "total": 4,
+          "chars": 93953
+        },
+        "60x10": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 125039
+        },
+        "60x15": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 157089
+        },
+        "60x20": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 157089
+        },
+        "100x10": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 144503
+        },
+        "100x15": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 192417
+        },
+        "100x20": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 244237
+        },
+        "200x10": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 218498
+        },
+        "200x15": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 244412
+        },
+        "200x20": {
+          "retrieved": 4,
+          "total": 4,
+          "chars": 276674
+        }
+      }
+    },
+    {
+      "question_id": "1a8a66a6",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 120374
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 139240
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 139240
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 127035
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 191924
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 231382
+        },
+        "100x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 150933
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 206975
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 244603
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 215153
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 258439
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 289610
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7abb270c",
+      "dilution": false,
+      "n_answer_turns": 6,
+      "settings": {
+        "30x10": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 106746
+        },
+        "30x15": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 106746
+        },
+        "30x20": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 106746
+        },
+        "60x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 134332
+        },
+        "60x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 166361
+        },
+        "60x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 166361
+        },
+        "100x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 145012
+        },
+        "100x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 170449
+        },
+        "100x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 207890
+        },
+        "200x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 228434
+        },
+        "200x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 235061
+        },
+        "200x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 259526
+        }
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 127486
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 127486
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 127486
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 3,
+          "chars": 137945
+        },
+        "60x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 193131
+        },
+        "60x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 232181
+        },
+        "100x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 159633
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 198972
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 241918
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 227846
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 243150
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 279371
+        }
+      }
+    },
+    {
+      "question_id": "aae3761f",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 83752
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 83752
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 83752
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 100864
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 135910
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 156683
+        },
+        "100x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 121464
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 153798
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 191663
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 187866
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 204949
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 227519
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 104977
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 151883
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 197494
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 119722
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 162319
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 225327
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 147743
+        },
+        "100x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 180620
+        },
+        "100x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 236332
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 244062
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 273513
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 306550
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_468eb064",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 124801
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 143194
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 143194
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 136158
+        },
+        "60x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 170337
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 229453
+        },
+        "100x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 164127
+        },
+        "100x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 194489
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 241270
+        },
+        "200x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 238870
+        },
+        "200x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 249576
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 282009
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_a1b77f9c",
+      "dilution": false,
+      "n_answer_turns": 6,
+      "settings": {
+        "30x10": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 94689
+        },
+        "30x15": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 94689
+        },
+        "30x20": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 94689
+        },
+        "60x10": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 154261
+        },
+        "60x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 191626
+        },
+        "60x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 191626
+        },
+        "100x10": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 180855
+        },
+        "100x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 213848
+        },
+        "100x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 251765
+        },
+        "200x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 240827
+        },
+        "200x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 266675
+        },
+        "200x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 294324
+        }
+      }
+    },
+    {
+      "question_id": "c18a7dc8",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 107833
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 162216
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 182121
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 123506
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 164973
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 205045
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 144874
+        },
+        "100x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 179241
+        },
+        "100x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 216872
+        },
+        "200x10": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 222458
+        },
+        "200x15": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 243106
+        },
+        "200x20": {
+          "retrieved": 2,
+          "total": 2,
+          "chars": 273601
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aec",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 116311
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 138932
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 138932
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 129689
+        },
+        "60x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 161678
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 206260
+        },
+        "100x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 151860
+        },
+        "100x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 174616
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 217084
+        },
+        "200x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 223771
+        },
+        "200x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 230095
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 259728
+        }
+      }
+    },
+    {
+      "question_id": "0bc8ad92",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 104960
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 104960
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 104960
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 115735
+        },
+        "60x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 179608
+        },
+        "60x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 215449
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 134285
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 197319
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 243228
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 213056
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 252457
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 282722
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_468eb063",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 111898
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 159302
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 182638
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 125213
+        },
+        "60x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 171188
+        },
+        "60x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 213495
+        },
+        "100x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 139893
+        },
+        "100x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 182847
+        },
+        "100x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 222272
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 191943
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 230138
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 264942
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_45189cb4",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 122582
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 122582
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 122582
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 142997
+        },
+        "60x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 184207
+        },
+        "60x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 204787
+        },
+        "100x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 159921
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 199806
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 243873
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 222798
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 258302
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 286865
+        }
+      }
+    },
+    {
+      "question_id": "b46e15ed",
+      "dilution": false,
+      "n_answer_turns": 5,
+      "settings": {
+        "30x10": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 108808
+        },
+        "30x15": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 150048
+        },
+        "30x20": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 150048
+        },
+        "60x10": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 118160
+        },
+        "60x15": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 165350
+        },
+        "60x20": {
+          "retrieved": 4,
+          "total": 5,
+          "chars": 221116
+        },
+        "100x10": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 148106
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 5,
+          "chars": 183743
+        },
+        "100x20": {
+          "retrieved": 4,
+          "total": 5,
+          "chars": 235749
+        },
+        "200x10": {
+          "retrieved": 5,
+          "total": 5,
+          "chars": 206654
+        },
+        "200x15": {
+          "retrieved": 5,
+          "total": 5,
+          "chars": 234564
+        },
+        "200x20": {
+          "retrieved": 5,
+          "total": 5,
+          "chars": 276789
+        }
+      }
+    },
+    {
+      "question_id": "10d9b85a",
+      "dilution": false,
+      "n_answer_turns": 2,
+      "settings": {
+        "30x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 168588
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 226658
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 226658
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 173721
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 240362
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 254060
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 193786
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 248338
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 287457
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 248150
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 276079
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 2,
+          "chars": 309680
+        }
+      }
+    },
+    {
+      "question_id": "726462e0",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 77059
+        },
+        "30x15": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 77059
+        },
+        "30x20": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 77059
+        },
+        "60x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 122459
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 148475
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 148475
+        },
+        "100x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 137421
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 156263
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 202184
+        },
+        "200x10": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 187083
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 199190
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 237470
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7f6b06db",
+      "dilution": false,
+      "n_answer_turns": 3,
+      "settings": {
+        "30x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 105575
+        },
+        "30x15": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 131221
+        },
+        "30x20": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 131221
+        },
+        "60x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 117336
+        },
+        "60x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 164480
+        },
+        "60x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 194877
+        },
+        "100x10": {
+          "retrieved": 2,
+          "total": 3,
+          "chars": 131248
+        },
+        "100x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 170078
+        },
+        "100x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 206285
+        },
+        "200x10": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 181557
+        },
+        "200x15": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 198357
+        },
+        "200x20": {
+          "retrieved": 3,
+          "total": 3,
+          "chars": 224995
+        }
+      }
+    },
+    {
+      "question_id": "a3838d2b",
+      "dilution": false,
+      "n_answer_turns": 6,
+      "settings": {
+        "30x10": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 76882
+        },
+        "30x15": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 76882
+        },
+        "30x20": {
+          "retrieved": 5,
+          "total": 6,
+          "chars": 76882
+        },
+        "60x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 133091
+        },
+        "60x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 150318
+        },
+        "60x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 150318
+        },
+        "100x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 145724
+        },
+        "100x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 174375
+        },
+        "100x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 226495
+        },
+        "200x10": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 196935
+        },
+        "200x15": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 217461
+        },
+        "200x20": {
+          "retrieved": 6,
+          "total": 6,
+          "chars": 249945
+        }
+      }
+    },
+    {
+      "question_id": "5d3d2817",
+      "dilution": true,
+      "n_answer_turns": 1,
+      "settings": {
+        "30x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 87344
+        },
+        "30x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 124439
+        },
+        "30x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 124439
+        },
+        "60x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 117364
+        },
+        "60x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 146583
+        },
+        "60x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 200448
+        },
+        "100x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 135503
+        },
+        "100x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 157948
+        },
+        "100x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 210451
+        },
+        "200x10": {
+          "retrieved": 0,
+          "total": 1,
+          "chars": 226321
+        },
+        "200x15": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 237855
+        },
+        "200x20": {
+          "retrieved": 1,
+          "total": 1,
+          "chars": 260806
+        }
+      }
+    }
+  ]
+}

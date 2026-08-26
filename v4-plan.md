@@ -5044,6 +5044,55 @@ knowledge-update 6, single-session-assistant 4, abstention 2. Temporal is no lon
 bucket. The 27 verified retrieval misses are unaffected by this fix (retrieval is unchanged) and now
 represent a **larger share** of remaining error -- roughly 31% of the 87.
 
+**Retrieval coverage sweep (2026-08-26). ZERO LLM CALLS** (`scripts/longmemeval/retrieval_coverage_sweep.py`,
+results in `retrieval_coverage_sweep.json`). Before spending a run on retrieval tuning: would more
+retrieval actually put the 27 verified missing answer-turns into the context? If coverage doesn't
+move, accuracy cannot. Each question ingested once, then the context rebuilt at every
+`base_top_k` x `max_sessions` combination.
+
+| setting | fully covered | answer-turn coverage | median context | x baseline |
+|---|---|---|---|---|
+| **30x10 (current)** | **0/27** | **56.9%** | 107,833 | 1.00 |
+| 60x10 | 6/27 | 66.7% | 125,111 | 1.16 |
+| **100x10** | **12/27** | **77.8%** | 145,724 | **1.35** |
+| 60x15 | 12/27 | 76.4% | 165,350 | 1.53 |
+| 100x15 | 16/27 | 83.3% | 180,620 | 1.67 |
+| 200x10 | 19/27 | 88.9% | 222,798 | 2.07 |
+| 100x20 | 19/27 | 88.9% | 235,749 | 2.19 |
+| **200x20** | **23/27** | **94.4%** | 279,371 | **2.59** |
+
+**Finding 1 -- `base_top_k` is the binding constraint, not `max_sessions`.** 100x10 reaches the same
+12/27 coverage as 60x15 with *less* context (145k vs 165k chars), and 200x10 matches 100x20 (19/27) at
+smaller size. Session expansion is not what's missing; the answer turns are not in the top-30
+candidate set to begin with. The efficient knee is **100x10 -- 12 of 27 recovered for a 35% context
+increase**; 200x20 recovers 23 of 27 but at 2.6x context.
+
+**Finding 2 -- CORRECTION: the "semantic dilution" claim was wrong, and my own wording overstated it.**
+The previous entry said a buried aside "does not rank anywhere near the query at any `k`" and framed
+the 7 complete misses as needing sub-turn chunking or multi-vector embedding -- kernel rearchitecting.
+**All 7 are fully recovered at 200x20**, and 6 of 7 by 100x20. They rank *low*, not *off the list*.
+The underlying mechanism is still real (a passing aside is swamped by its turn's dominant topic, so the
+turn ranks far below where its answer-bearing content deserves), but the practical consequence is much
+cheaper than claimed: **retrieve deeper, don't re-architect the index.** Sub-turn chunking remains a
+legitimate efficiency idea -- it would reach the same coverage at far smaller context -- but it is now
+an optimisation, not a prerequisite, and nothing in the benchmark blocks on it.
+
+**What this does NOT establish.** Coverage is necessary, not sufficient: putting the answer turn in
+front of the model does not mean the model will use it, and every one of these settings makes the
+prompt substantially larger, which carries real needle-in-haystack risk for the other 473 questions.
+The one historical data point (`topk_sweep_30` vs `topk_sweep_50`, n=50, pre-expansion) showed raising
+top_k neither helped nor hurt -- weak evidence of low dilution risk, not evidence of gain. **12
+recovered questions also sits right at the 11.5-question noise threshold**, so a coverage win of that
+size might not be separable in aggregate even if every one converts.
+
+**Cheap next step, proposed not run: a cohort-only conversion test.** Running the 27 miss IDs alone
+through ETC at a raised setting costs ~12 minutes rather than ~3.5 hours, and answers the only open
+question -- does coverage convert to correctness? Expected noise flips on a 27-question cohort at the
+measured 6.7% rate is ~1.8, so 8+ conversions would be unambiguous. Only if it converts is a full
+n=500 (needed to measure the collateral cost on everything else) worth authorizing. This ordering --
+free coverage check, then cheap cohort check, then expensive aggregate check -- is the pattern the
+date fix validated, and it keeps the expensive run for the question only it can answer.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
