@@ -5841,6 +5841,51 @@ Next in the layer: the write path (per-session extraction on ingest, via `Archit
 consolidation/merge pass as the `Dreamer`'s real job replacing `StubSummarizer`, and the composite
 read path (records + budgeted episodic selection, one LLM call).
 
+**PERSISTENT SEMANTIC LAYER -- WRITE PATH (2026-08-26).** `shell/aeon_py/consolidation.py` +
+`tests/test_consolidation.py` (42 tests; suite total now **192 passed / 6 skipped**, no regressions).
+
+Deliberately split from `records.py`: storage stays LLM-free (its 21 tests run in ~0.1s), while
+this module owns the model-facing prompts and parsing. Two stages, matching what the probe
+validated -- `extract_session()` (per-session, query-blind, runs as each session arrives) and
+`consolidate()` (global merge across accumulated records, which is the concrete job `dreamer.py`
+was designed for and currently stubs out).
+
+**Turn citations, so provenance is useful rather than nominal.** The extractor is shown numbered
+turns and asked to cite them. Session-granularity provenance would be worthless -- a session is
+~10 turns, so rehydrating a whole session plus neighbours is just the uncompressed context again.
+Records whose citation is missing or out-of-range fall back to session-level provenance, so a bad
+citation *degrades the neighbourhood* instead of losing the link.
+
+**Two safety properties the tests pin down**, both of which would silently destroy memory:
+
+- An **invented bucket** degrades to a `FACT` rather than minting a category. A category that
+  exists once never accumulates with anything -- that is precisely the failure the closed
+  vocabulary was introduced to fix, so the parser must not quietly reintroduce it.
+- A **collapsing consolidation pass is rejected**. Consolidation is normalisation, not
+  summarisation; if the merge returns less than 30% of the input records, the original set is
+  kept. Accepting it would be indistinguishable from deleting the user's memory.
+
+**Validated against real model output, not just hand-written shapes -- and that caught a
+3.3% loss.** Running the parser over the **4,504 record lines the model actually produced** in the
+consolidation probe gave **96.7%**, and the failures showed a consistent emergent pattern: the model
+frequently drops the `ITEM(...)` wrapper and writes the bucket as the kind -- `HEALTH: ...`,
+`OBLIGATION/decision: ...`, `EVENT_ATTENDED [2023/08/14]: ...`. Rejecting that shorthand was
+discarding **149 records including every HEALTH and EVENT_ATTENDED record in the corpus**. The
+shorthand is unambiguous *because the bucket vocabulary is closed*, so it is now accepted:
+**parse rate 99.9% (4,500/4,504)**, with the remaining 4 being `Consolidated records:` headers that
+are correctly rejected as non-records. Those real shapes are pinned as regression tests against the
+measured corpus rather than against invented examples.
+
+Bucket distribution over that corpus, which is also the first evidence the closed taxonomy is
+actually *used* across its range rather than collapsing onto two or three buckets: OBLIGATION 524,
+POSSESSION 509, PROJECT 219, MEDIA 179, CONSUMABLE 177, PERSON 159, ACQUISITION 136, TRAVEL 121,
+EVENT_ATTENDED 109, HEALTH 101, EDUCATION_WORK 84, FINANCE 51 -- all twelve populated.
+
+Remaining in the layer: wiring extraction into ingest (`Architect`), replacing `StubSummarizer` with
+`consolidate()` in the `Dreamer`, and the composite read path (records + budgeted episodic
+selection, one LLM call). The composite n=500 -- the first run that measures whether records *cost*
+accuracy on the ~400 already-passing questions -- remains user-gated.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
