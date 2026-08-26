@@ -4958,6 +4958,78 @@ still kept (it is correct), but the 21-question estimate was wrong and temporal'
 model-capability-bound rather than harness-bound, which redirects priority to the 27 verified
 retrieval misses. Either way, no prompt-level iteration follows from this run.
 
+**RESULT of the pre-registered paired rerun (2026-08-26). All three runs `n_errors=0`. PRIMARY BAR
+PASSED IN BOTH ARMS.**
+
+*Noise floor, measured deliberately for the first time (run B):* the n=100 sample is confirmed nested
+in the n=500 run (100/100 overlap), and re-running those 100 questions under identical config flips
+**6 (6.0%**, 95% CI 1.3-10.7%; 5 generation, 1 judge-only). Pooled with the earlier opportunistic
+measurement, **10 flips / 150 questions = 6.7%**. The bars were pre-registered assuming 8%, so they
+were *conservative*, not lenient -- nothing needed re-deriving in a self-serving direction. All
+"REAL / noise" verdicts below use 2x sd at the measured rate.
+
+*The `question_date` fix, both arms, paired McNemar counts:*
+
+| type | n | ETC pre -> post | gain/loss | baseline pre -> post | gain/loss | 2x sd | verdict |
+|---|---|---|---|---|---|---|---|
+| **temporal-reasoning** | 127 | **84 -> 103 (+19)** | +23/-4 | **67 -> 83 (+16)** | +21/-5 | 5.8 | **REAL, both arms** |
+| multi-session | 121 | 93 -> 96 (+3) | +5/-2 | 81 -> 84 (+3) | +5/-2 | 5.7 | noise |
+| knowledge-update | 72 | 64 -> 66 (+2) | +3/-1 | 63 -> 63 (0) | 0/0 | 4.4 | noise |
+| single-session-user | 64 | 55 -> 55 (0) | 0/0 | 60 -> 60 (0) | 0/0 | 4.1 | noise |
+| single-session-assistant | 56 | 54 -> 52 (-2) | 0/-2 | 55 -> 56 (+1) | +1/0 | 3.9 | noise |
+| single-session-preference | 30 | 11 -> 13 (+2) | +5/-3 | 14 -> 16 (+2) | +3/-1 | 2.8 | noise |
+| abstention | 30 | 29 -> 28 (-1) | 0/-1 | 27 -> 26 (-1) | 0/-1 | 2.8 | noise |
+| **overall** | 500 | **390 -> 413 (+23)** | +36/-13 | **367 -> 388 (+21)** | +30/-9 | 11.5 | **REAL, both arms** |
+
+The primary bar was >= +7 temporal in both arms independently; delivered **+19 and +16**, roughly 3x
+the bar and >5x the noise sd, and strongly one-directional in both (+23/-4, +21/-5). **Every guard row
+held** -- prepending a date line to *every* prompt cost nothing measurable on non-temporal types, so
+the distraction risk the pre-registration flagged did not materialise. Direct cohort check: of the 21
+questions whose pre-fix answer complained about or invented a current date, **19 (90%) are now
+correct** -- against a pre-registered estimate of 15-21, so the sizing was well calibrated rather than
+lucky.
+
+**Consequences.** The `question_date` bug is confirmed as a real ~19-question defect, and **every
+pre-fix temporal-reasoning number in this document is formally superseded** -- including the
+"+17-question ETC win on temporal", which was measured between two equally-broken configurations.
+Post-fix, both arms rise by about the same amount, so ETC's advantage on temporal was not an artefact
+of the bug: it survives at +20 head-to-head.
+
+*Post-fix head-to-head, the comparison the ship decision actually rests on:*
+
+| type | n | baseline | ETC | delta | gain/loss | verdict |
+|---|---|---|---|---|---|---|
+| temporal-reasoning | 127 | 83 | 103 | **+20** | +22/-2 | **REAL** |
+| multi-session | 121 | 84 | 96 | **+12** | +18/-6 | **REAL** |
+| knowledge-update | 72 | 63 | 66 | +3 | +6/-3 | noise |
+| single-session-user | 64 | 60 | 55 | **-5** | 0/-5 | **REAL** |
+| single-session-assistant | 56 | 56 | 52 | **-4** | 0/-4 | **REAL** |
+| single-session-preference | 30 | 16 | 13 | **-3** | +3/-6 | **REAL** |
+| abstention | 30 | 26 | 28 | +2 | +2/0 | noise |
+| **overall** | 500 | **388 (77.6%)** | **413 (82.6%)** | **+25** | +51/-26 | **REAL** |
+
+With a proper noise model, ETC's profile is now measured rather than inferred: **+32 questions on its
+two target types, -12 across all three single-session types, net +25.** The single-session-user
+regression reproduces at exactly -5 for the third consecutive measurement with zero churn in either
+direction -- these failures are deterministic, matching the system-prompt probe. Two regressions that
+were previously indistinguishable from noise (single-session-assistant -4, preference -3) now cross
+the threshold, so the collateral cost is broader than the ss-user framing implied: it is a
+**single-session-shaped** regression, exactly what the mode (ii) pragmatic-license diagnosis predicts.
+
+**The router question is now settled, and the answer is no.** Post-fix type-oracle routing (ETC for
+temporal + multi-session, baseline otherwise) scores **420/500 = 84.0%**, only **+7 over always-on
+ETC** -- *below* the 11.5-question noise threshold at n=500. This is the oracle using TRUE type labels,
+i.e. an unattainable upper bound for any real classifier, and the real classifier previously measured
+77.6% out-of-fold. Routing was not worth it pre-fix (a wash), and it is still not worth it post-fix,
+now demonstrated against a measured noise floor rather than argued. Best-of-both union is 439/500
+(87.8%), reported as headroom context only.
+
+**Error mass after the fix** (ETC, 87 errors, down from 110): multi-session 25 (28.7%),
+temporal-reasoning 24 (27.6%), single-session-preference 17 (19.5%), single-session-user 9 (10.3%),
+knowledge-update 6, single-session-assistant 4, abstention 2. Temporal is no longer the largest
+bucket. The 27 verified retrieval misses are unaffected by this fix (retrieval is unchanged) and now
+represent a **larger share** of remaining error -- roughly 31% of the 87.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
