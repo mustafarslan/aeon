@@ -16,9 +16,13 @@ optimise for.
 ## 1. Headline thesis
 
 > For an LLM-agent memory system, the binding constraint is **precision per token delivered**, not
-> retrieval recall and not kernel latency. The accuracy-vs-context-size curve is **flat between ~5.6k
-> and ~101k characters**, while latency and cost scale with context. A memory engine's job is to send
-> the *smallest sufficient* context, not the largest affordable one.
+> retrieval recall and not kernel latency. Accuracy is **flat between the measured endpoints of ~5.6k
+> and ~101k characters** (and *falls* at 271k), while latency and cost scale with context throughout.
+> A memory engine's job is to send the *smallest sufficient* context, not the largest affordable one.
+>
+> *Sampling caveat*: the curve is characterised by three measured points (5.6k / 101k / 271k);
+> intermediate sizes are not sampled, so "flat" is a statement about those endpoints, not a
+> demonstration that no interior structure exists.
 
 Supporting measurements, all n=500, same model/judge/seed (§2):
 
