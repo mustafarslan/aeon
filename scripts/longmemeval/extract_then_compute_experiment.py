@@ -153,7 +153,8 @@ def _fresh_trace_path(tmp_dir: Path, question_id: str) -> Path:
     return trace_path
 
 
-def _run_one(question: dict, encoder, llm: OllamaProvider, tmp_dir: Path) -> dict:
+def _run_one(question: dict, encoder, llm: OllamaProvider, tmp_dir: Path,
+             base_top_k: int = BASE_TOP_K, max_sessions: int = MAX_SESSIONS) -> dict:
     trace_path = _fresh_trace_path(tmp_dir, question["question_id"])
     trace = TraceGraph(path=str(trace_path))
     ingest_seconds = _ingest_haystack(trace, encoder, question)
@@ -161,7 +162,7 @@ def _run_one(question: dict, encoder, llm: OllamaProvider, tmp_dir: Path) -> dic
     t0 = time.perf_counter()
     q_vec = np.asarray(encoder.encode(question["question"]), dtype=np.float32).tolist()
     events = build_expanded_context(
-        trace, q_vec, "full_session", base_top_k=BASE_TOP_K, max_sessions=MAX_SESSIONS,
+        trace, q_vec, "full_session", base_top_k=base_top_k, max_sessions=max_sessions,
     )
     context_block = format_events(events)
     context_seconds = time.perf_counter() - t0
@@ -266,6 +267,26 @@ def main() -> None:
              "Default: run the full stratified sample (all types), same as expansion_unit_experiment.py, "
              "for a like-for-like comparison against full_session's recorded numbers.",
     )
+    parser.add_argument(
+        "--question-ids", nargs="+", default=None,
+        help="Run exactly these question_ids, bypassing stratified sampling. For targeted "
+             "COHORT tests -- e.g. re-running only the 25 verified retrieval-miss questions to "
+             "check whether a retrieval-parameter change converts coverage into correctness, "
+             "which costs ~12 minutes instead of the ~3.5 hours a full n=500 takes. Pairs with "
+             "--base-top-k/--max-sessions. See v4-plan.md: expected noise flips on a 25-question "
+             "cohort at the measured 6.7%% rate is ~1.7, so a handful of conversions is already "
+             "unambiguous, while the aggregate cost on the other 475 questions needs a full run.",
+    )
+    parser.add_argument(
+        "--base-top-k", type=int, default=BASE_TOP_K,
+        help=f"Retrieval breadth passed to build_expanded_context (default {BASE_TOP_K}). The "
+             "coverage sweep found this -- not --max-sessions -- is the binding constraint on "
+             "whether answer-bearing turns reach the context at all.",
+    )
+    parser.add_argument(
+        "--max-sessions", type=int, default=MAX_SESSIONS,
+        help=f"Session-expansion cap (default {MAX_SESSIONS}).",
+    )
     parser.add_argument("--out", required=True)
     parser.add_argument("--tmp-dir", default=None)
     args = parser.parse_args()
@@ -277,10 +298,20 @@ def main() -> None:
 
     with open(args.dataset) as f:
         all_questions = json.load(f)
-    sample = _stratified_sample(all_questions, args.num_questions, args.seed)
-    if args.question_types:
-        sample = [q for q in sample if q["question_type"] in args.question_types]
-    print(f"Sampled {len(sample)} questions (seed={args.seed}) from {len(all_questions)} total")
+    if args.question_ids:
+        by_id = {q["question_id"]: q for q in all_questions}
+        missing = [qid for qid in args.question_ids if qid not in by_id]
+        if missing:
+            raise SystemExit(f"--question-ids not found in dataset: {missing}")
+        sample = [by_id[qid] for qid in args.question_ids]
+        print(f"Cohort mode: running {len(sample)} explicitly-named questions "
+              f"(stratified sampling bypassed)")
+    else:
+        sample = _stratified_sample(all_questions, args.num_questions, args.seed)
+        if args.question_types:
+            sample = [q for q in sample if q["question_type"] in args.question_types]
+        print(f"Sampled {len(sample)} questions (seed={args.seed}) from {len(all_questions)} total")
+    print(f"Retrieval: base_top_k={args.base_top_k}, max_sessions={args.max_sessions}")
 
     encoder = _get_encoder()
     llm = OllamaProvider()
@@ -294,7 +325,8 @@ def main() -> None:
 
     all_results = []
     for i, q in enumerate(sample):
-        r = _run_one(q, encoder, llm, tmp_dir)
+        r = _run_one(q, encoder, llm, tmp_dir,
+                     base_top_k=args.base_top_k, max_sessions=args.max_sessions)
         all_results.append(r)
         status = "TRANSPORT_ERR" if r["is_error"] else ("OK" if r["correct"] else "WRONG")
         print(
@@ -308,8 +340,9 @@ def main() -> None:
         "model": llm.model,
         "seed": args.seed,
         "num_questions": len(sample),
-        "base_top_k": BASE_TOP_K,
-        "max_sessions": MAX_SESSIONS,
+        "base_top_k": args.base_top_k,
+        "max_sessions": args.max_sessions,
+        "cohort_ids": args.question_ids,
         "summary": summary,
         "results": all_results,
     }

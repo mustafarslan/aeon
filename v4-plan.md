@@ -5093,6 +5093,43 @@ n=500 (needed to measure the collateral cost on everything else) worth authorizi
 free coverage check, then cheap cohort check, then expensive aggregate check -- is the pattern the
 date fix validated, and it keeps the expensive run for the question only it can answer.
 
+**COHORT CONVERSION TEST. PRE-REGISTERED 2026-08-26, before running.** Does the retrieval coverage
+the sweep proved available actually convert into correct answers? Adds `--question-ids`,
+`--base-top-k` and `--max-sessions` to `extract_then_compute_experiment.py` so a named cohort can be
+re-run without the stratified sampler.
+
+*Cohort*: the 25 of the 27 verified retrieval-miss questions that are **still wrong after the date
+fix** (`0bc8ad92` and `a3838d2b` were already recovered by it and are excluded, since a question that
+is already correct cannot demonstrate conversion). Baseline is therefore a clean **0/25** at the
+current 30x10 setting -- every one of these is wrong today, and verified to be wrong *because an
+answer-bearing turn never reached the model*.
+
+*Arms*, both ETC with the v1 prompt and the date fix, everything except retrieval held constant:
+
+| arm | setting | answer-turn coverage (from the free sweep) | cost |
+|---|---|---|---|
+| 1 | `--base-top-k 100 --max-sessions 10` | 12/27 fully covered, 77.8% turn coverage | 1.35x context |
+| 2 | `--base-top-k 200 --max-sessions 20` | 23/27 fully covered, 94.4% turn coverage | 2.59x context |
+
+Both arms are run because they answer different questions: arm 2 is the **mechanism** test (with
+near-total coverage, does the model use the evidence?) and arm 1 is the **efficiency** test (does the
+cheap setting capture most of the benefit?). ~12 minutes each.
+
+*Bar*: expected noise flips on a 25-question cohort at the measured 6.7% rate is ~1.7, so
+**>= 5 conversions in arm 2 counts as the mechanism confirmed** (~3x expected noise, and every one of
+these questions is a verified retrieval miss, so a conversion has a known cause rather than being an
+unexplained flip). Fewer than 5 means coverage does not convert -- the model is given the answer turn
+and still fails -- and the entire retrieval-parameter lever is dead regardless of how much coverage is
+theoretically available, which would redirect effort to the compute-side levers.
+
+*Explicitly NOT claimed by this test, whatever it returns*: net benefit. The cohort is selected on
+being wrong, so it can only go up, and it says nothing about the collateral cost of a 1.35-2.6x larger
+prompt on the other 475 questions -- needle-in-haystack risk is real and is precisely what a cohort
+test cannot see. **A positive result here authorises nothing by itself**; it makes a full paired n=500
+worth proposing, with per-type guards and latency/context-size reporting, which remains the user's
+call. This is the free -> cheap -> expensive ordering the date fix validated, and the cohort/aggregate
+split advisor flagged: a cohort check proves the mechanism, only the aggregate decides net worth.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
