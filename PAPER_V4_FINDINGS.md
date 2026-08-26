@@ -295,6 +295,16 @@ should lead the paper's systems section.
       truncated, at ~1 min/question **one-time at write time** — ETC's extract step moved off the
       query path. Temporal converted 4/9; **multi-session only 1/8, the main open problem.**
       Remaining: does consolidation *cost* accuracy on already-passing questions (composite n=500)?
+- [x] **Why did aggregation convert worst (1/8) when the requirements table predicted it best?**
+      Diagnosed: not extraction recall — the evidence is present but does not *accumulate*. Free-form
+      per-session categories scatter members across labels and record types (of three albums, one was
+      an `ITEM`, one a `PREF`, one an `EVENT`), and independent query-blind calls sharing no
+      vocabulary cannot name categories consistently. Fixed with a **closed 12-bucket taxonomy +
+      global merge pass**: the two diagnosed cases now answer correctly (albums 1→3, clothing 2→3).
+      **The aggregate did not move** (R 4→5, R+E 5→5 genuine; multi-session +1, temporal −1) — all
+      inside the n=18 noise floor. Schema locked on mechanism grounds; aggregate claim deferred to
+      the composite n=500. A negative-result reminder that mechanism fixes verified on diagnosed
+      cases do not automatically show at cohort scale.
 - [ ] (superseded framing) 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
       wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
       oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.

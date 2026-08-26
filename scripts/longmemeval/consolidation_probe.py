@@ -56,6 +56,40 @@ from run_benchmark import (  # noqa: E402
 
 import numpy as np  # noqa: E402
 
+
+# ---------------------------------------------------------------------------
+# SCHEMA v2 -- closed two-level taxonomy.
+#
+# v1 used a free-form ITEM(<anything>) category and multi-session conversion was
+# 1/8. Diagnosis (v4-plan.md): the evidence WAS present but did not accumulate --
+# each query-blind, per-session call invented its own category names and picked its
+# own record type, so members of one real-world category scattered. Worked example:
+# of three albums, one landed in ITEM(music album/EP), one in a PREF line, one in an
+# EVENT line, so counting ITEM lines returned 1 against a gold of 3. The v1 prompt
+# asked for consistent naming, but independent calls sharing no vocabulary cannot
+# comply -- that instruction was never satisfiable.
+#
+# Fix: a CLOSED top-level bucket set, handed to the extractor on every call, with a
+# free-form subtype underneath. Counting happens at the stable bucket level; the
+# subtype keeps expressiveness. Buckets deliberately overlap (an album purchase is
+# both ACQUISITION and MEDIA) because the third v1 failure mode was type-assignment:
+# one real fact often needs several records, and v1 only asked for that on TASK.
+BUCKETS = [
+    ("POSSESSION",     "something the user owns or has"),
+    ("ACQUISITION",    "something acquired: bought, downloaded, received, adopted, won"),
+    ("MEDIA",          "a book, film, show, album, article or game consumed"),
+    ("PERSON",         "a person in the user's life, and their relationship"),
+    ("EVENT_ATTENDED", "something the user attended, participated in, or completed"),
+    ("OBLIGATION",     "something still to do, return, pick up, finish or decide"),
+    ("EDUCATION_WORK", "schooling, degrees, jobs, roles, and their durations"),
+    ("HEALTH",         "symptoms, treatments, appointments, habits"),
+    ("TRAVEL",         "trips, destinations, transport, accommodation"),
+    ("PROJECT",        "an ongoing project, repair, or home/garden improvement"),
+    ("FINANCE",        "amounts, prices, budgets, savings, approvals"),
+    ("CONSUMABLE",     "food, drink, recipes, supplies"),
+]
+BUCKET_BLOCK = "\n".join(f"    {b} -- {d}" for b, d in BUCKETS)
+
 EXTRACT_SYSTEM = (
     "You maintain a durable long-term memory record about a user. You are shown ONE "
     "conversation session at a time and you do NOT know what will be asked later, so you "
@@ -83,6 +117,59 @@ EXTRACT_PROMPT = (
     "an ITEM line -- a question may count either what the user owns or what they still owe.\n"
     "- If the session contains nothing durable about the user, output exactly: (none)\n\n"
     "Records:"
+)
+
+
+EXTRACT_PROMPT_V2 = (
+    "Session date: {date}\n\n"
+    "Conversation:\n{session}\n\n"
+    "Write memory records about the USER, one per line.\n\n"
+    "COUNTABLE MEMBERS use one of these EXACT bucket names -- never invent a bucket:\n"
+    "{buckets}\n\n"
+    "  ITEM(<BUCKET>/<short subtype>): <the member> [<date if known>]\n\n"
+    "Other record types:\n"
+    "  FACT: <a durable attribute or relationship>\n"
+    "  EVENT [{date}]: <something that happened, with its date>\n"
+    "  UPDATE: <a statement revising something stated earlier; say what it replaces>\n"
+    "  PREF: <a stated preference>\n\n"
+    "Rules:\n"
+    "- Record only what the user states or clearly implies about themselves.\n"
+    "- EMIT AN ITEM LINE FOR EVERY COUNTABLE THING, even when you also record it as a\n"
+    "  FACT, EVENT or PREF. One real fact often needs several records: an album the\n"
+    "  user downloaded is BOTH ITEM(ACQUISITION/music album) AND ITEM(MEDIA/music\n"
+    "  album); a bike they serviced is BOTH ITEM(POSSESSION/bicycle) AND an EVENT.\n"
+    "  Never let a countable thing exist only inside a PREF or EVENT line.\n"
+    "- Use the bucket that matches HOW the user relates to the thing, not what the\n"
+    "  thing is: something they still have to collect is OBLIGATION as well as\n"
+    "  whatever it physically is.\n"
+    "- Always include dates when stated or implied.\n"
+    "- If the session contains nothing durable about the user, output exactly: (none)\n\n"
+    "Records:"
+)
+
+# The consolidation/merge pass -- this is precisely what dreamer.py exists to do, and
+# the first concrete requirement for it. Per-session extraction is necessarily local;
+# accumulation is a global operation, so it needs its own pass over the whole record
+# set. Runs once per user, offline, and is amortised like the extraction itself.
+CONSOLIDATE_SYSTEM = (
+    "You are consolidating a long-term memory record. You merge and normalise existing "
+    "records. You never invent facts that are not present in the input."
+)
+
+CONSOLIDATE_PROMPT = (
+    "Below are memory records about a user, accumulated from many separate sessions and "
+    "therefore inconsistent.\n\n{records}\n\n"
+    "Rewrite them into a consolidated record set:\n"
+    "1. PROMOTE: if a FACT, EVENT or PREF line mentions a countable thing that has no "
+    "ITEM line, add the missing ITEM line using the exact buckets below.\n"
+    "2. MERGE: give near-duplicate subtypes inside a bucket one consistent name "
+    "(\"music album/EP\", \"album\", \"vinyl\" -> one subtype), and drop exact duplicates.\n"
+    "3. RESOLVE: if the same real thing appears under several names, keep one line.\n"
+    "4. SUPERSEDE: where an UPDATE revises an earlier record, keep the current value and "
+    "mark it, e.g. 'ITEM(FINANCE/pre-approval): $400,000 [supersedes $350,000]'.\n\n"
+    "Buckets:\n{buckets}\n\n"
+    "Preserve every distinct fact -- this is normalisation, not summarisation. Output the "
+    "consolidated records only, one per line.\n\nConsolidated records:"
 )
 
 ANSWER_SYSTEM = (
@@ -121,6 +208,11 @@ def main() -> None:
                     help="Reuse/persist extracted records so re-running the ANSWER arms "
                          "does not repeat the expensive query-blind extraction pass.")
     ap.add_argument("--episodic-budget", type=int, default=6000)
+    ap.add_argument("--schema", default="v2", choices=["v1", "v2"])
+    ap.add_argument("--consolidate", action="store_true",
+                    help="Run the global merge pass over accumulated records (the "
+                         "Dreamer's job). Per-session extraction is local; accumulation "
+                         "is global and needs its own pass.")
     args = ap.parse_args()
 
     import os
@@ -151,7 +243,12 @@ def main() -> None:
             lines = []
             for si, (date, turns) in enumerate(zip(q["haystack_dates"],
                                                    q["haystack_sessions"])):
-                prompt = EXTRACT_PROMPT.format(date=date, session=session_text(turns))
+                if args.schema == "v2":
+                    prompt = EXTRACT_PROMPT_V2.format(date=date,
+                                                      session=session_text(turns),
+                                                      buckets=BUCKET_BLOCK)
+                else:
+                    prompt = EXTRACT_PROMPT.format(date=date, session=session_text(turns))
                 out = _generate_with_retry(llm, prompt, system_prompt=EXTRACT_SYSTEM,
                                            temperature=0.0)
                 if "[System Error:" in out:
@@ -164,6 +261,12 @@ def main() -> None:
                     print(f"    [{qi}/{len(cohort)}] {qid} extracted {si+1}/"
                           f"{len(q['haystack_sessions'])} sessions", flush=True)
             records = "\n".join(lines)
+            if args.consolidate and records:
+                merged = _generate_with_retry(
+                    llm, CONSOLIDATE_PROMPT.format(records=records, buckets=BUCKET_BLOCK),
+                    system_prompt=CONSOLIDATE_SYSTEM, temperature=0.0)
+                if "[System Error:" not in merged and len(merged) > len(records) * 0.3:
+                    records = merged
             t_extract = time.perf_counter() - t0
             cache[qid] = records
             if args.records_cache:

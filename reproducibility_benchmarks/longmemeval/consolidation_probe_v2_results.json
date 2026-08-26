@@ -1,0 +1,503 @@
+{
+  "model": "gemma4:31b-cloud",
+  "summary": {
+    "cohort_size": 18,
+    "baseline": "all wrong under oracle AND ETC AND single-shot",
+    "bar": ">=4 conversions in either arm",
+    "conversions": {
+      "R": 5,
+      "R+E": 6
+    },
+    "n_errors": 0,
+    "median_record_chars": 18258,
+    "median_record_lines": 254
+  },
+  "results": [
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "reference_answer": 3,
+      "record_chars": 21642,
+      "record_lines": 327,
+      "episodic_chars": 5857,
+      "extract_seconds": 81.03238091687672,
+      "arms": {
+        "R": {
+          "hypothesis": "3 items (navy blue blazer, exchanged boots, and old boots).",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 21925,
+          "generation_seconds": 0.6408301671035588
+        },
+        "R+E": {
+          "hypothesis": "2 items (pick up exchanged boots from Zara and return old boots to Zara).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 27829,
+          "generation_seconds": 0.5770937921479344
+        }
+      }
+    },
+    {
+      "question_id": "2e6d26dc",
+      "question_type": "multi-session",
+      "reference_answer": 5,
+      "record_chars": 17208,
+      "record_lines": 238,
+      "episodic_chars": 5873,
+      "extract_seconds": 87.61495016585104,
+      "arms": {
+        "R": {
+          "hypothesis": "6 babies (Jasper, Max, Charlotte, Ava, Lily, and Aaliyah).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 17499,
+          "generation_seconds": 0.6059325828682631
+        },
+        "R+E": {
+          "hypothesis": "6 babies (Jasper, Max, Charlotte, Ava, Lily, and Aaliyah).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 23419,
+          "generation_seconds": 0.6378077908884734
+        }
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "reference_answer": 3,
+      "record_chars": 17965,
+      "record_lines": 236,
+      "episodic_chars": 5582,
+      "extract_seconds": 0.0,
+      "arms": {
+        "R": {
+          "hypothesis": "2 (\"Happier Than Ever\" and \"Midnight Sky\")",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 18237,
+          "generation_seconds": 0.6435460420325398
+        },
+        "R+E": {
+          "hypothesis": "3 (\"Happier Than Ever\", \"Midnight Sky\", and Tame Impala vinyl)",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 23866,
+          "generation_seconds": 0.513894374947995
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed",
+      "question_type": "multi-session",
+      "reference_answer": "10 years",
+      "record_chars": 20987,
+      "record_lines": 273,
+      "episodic_chars": 4744,
+      "extract_seconds": 74.65451991697773,
+      "arms": {
+        "R": {
+          "hypothesis": "8 years (4 years of high school and 4 years for a Bachelor's degree).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 21314,
+          "generation_seconds": 0.7046595839783549
+        },
+        "R+E": {
+          "hypothesis": "8 years (4 years at Arcadia High School and 4 years at UCLA).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 26105,
+          "generation_seconds": 0.5239104169886559
+        }
+      }
+    },
+    {
+      "question_id": "51c32626",
+      "question_type": "multi-session",
+      "reference_answer": "February 1st",
+      "record_chars": 19669,
+      "record_lines": 275,
+      "episodic_chars": 5959,
+      "extract_seconds": 80.63287962507457,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not contain the submission date for your research paper.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 19939,
+          "generation_seconds": 0.8204749999567866
+        },
+        "R+E": {
+          "hypothesis": "The records do not contain the specific date you submitted your research paper.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 25945,
+          "generation_seconds": 0.4875459580216557
+        }
+      }
+    },
+    {
+      "question_id": "73d42213",
+      "question_type": "multi-session",
+      "reference_answer": "9:00 AM",
+      "record_chars": 16991,
+      "record_lines": 229,
+      "episodic_chars": 5735,
+      "extract_seconds": 56.945160125149414,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not state what time you reached the clinic, only that you left home at 7 AM.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 17246,
+          "generation_seconds": 0.7523960832040757
+        },
+        "R+E": {
+          "hypothesis": "The records do not contain the time you reached the clinic on Monday.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 23028,
+          "generation_seconds": 0.7920875831041485
+        }
+      }
+    },
+    {
+      "question_id": "09ba9854",
+      "question_type": "multi-session",
+      "reference_answer": "$50",
+      "record_chars": 17478,
+      "record_lines": 254,
+      "episodic_chars": 5921,
+      "extract_seconds": 71.58629000000656,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not contain the cost of a taxi or the train, so I cannot determine the savings.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 17778,
+          "generation_seconds": 0.5939023329410702
+        },
+        "R+E": {
+          "hypothesis": "You would save approximately $50, as a taxi is around $60 and the train is around $10.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 23746,
+          "generation_seconds": 0.5651477079372853
+        }
+      }
+    },
+    {
+      "question_id": "37f165cf",
+      "question_type": "multi-session",
+      "reference_answer": "856",
+      "record_chars": 17413,
+      "record_lines": 240,
+      "episodic_chars": 5147,
+      "extract_seconds": 69.27462074998766,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not contain information about novels finished in January and March.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 17699,
+          "generation_seconds": 3.959947166033089
+        },
+        "R+E": {
+          "hypothesis": "The records do not contain information about novels finished in January and March.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 22893,
+          "generation_seconds": 0.8822804579976946
+        }
+      }
+    },
+    {
+      "question_id": "9a707b81",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "record_chars": 21697,
+      "record_lines": 329,
+      "episodic_chars": 5149,
+      "extract_seconds": 79.84940787497908,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not state that you attended the baking class on the same day you made your friend's birthday cake.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 22020,
+          "generation_seconds": 0.6608979168813676
+        },
+        "R+E": {
+          "hypothesis": "You did not attend the baking class on the day you made the cake; the baking class was on 2022/03/20 and the cake was made on 2022/04/10.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 27216,
+          "generation_seconds": 0.626916459063068
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_7f6b06db",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "I went on a day hike to Muir Woods National Monument with my family, then I went on a road trip with friends to Big Sur and Monterey, and finally I started my solo camping trip to Yosemite National Park.",
+      "record_chars": 19302,
+      "record_lines": 269,
+      "episodic_chars": 5818,
+      "extract_seconds": 81.12387650017627,
+      "arms": {
+        "R": {
+          "hypothesis": "1. Trip to Himeji and Kobe (May 2023)\n2. Dubai and Abu Dhabi (April 22\u201328, 2023)\n3. Solo camping trip to Yosemite and road trip to Big Sur/Monterey (April 20, 2023)\n\nWait, correcting for chronological order:\n1. Solo camping trip to Yosemite and road trip to Big Sur/Monterey (April 20, 2023)\n2. Dubai and Abu Dhabi (April 22\u201328, 2023)\n3. Trip to Himeji and Kobe (May 2023)",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 19608,
+          "generation_seconds": 1.6875574169680476
+        },
+        "R+E": {
+          "hypothesis": "1. Dubai and Abu Dhabi (April 22\u201328), 2. Solo camping trip to Yosemite and road trip to Big Sur/Monterey (April 20), 3. Trip to Himeji and Kobe (May).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 25473,
+          "generation_seconds": 1.1816144161857665
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_a1b77f9c",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "2 weeks for 'The Nightingale', 4 weeks for 'Sapiens: A Brief History of Humankind', and 2 weeks for 'The Power', so a total of 8 weeks.",
+      "record_chars": 19498,
+      "record_lines": 268,
+      "episodic_chars": 5544,
+      "extract_seconds": 75.55019337497652,
+      "arms": {
+        "R": {
+          "hypothesis": "- The Nightingale: 2 weeks (2022/01/01 to 2022/01/15)\n- Sapiens: 4 weeks (2022/02/01 to 2022/03/01)\n- The Power: 2 weeks (2022/03/06 to 2022/03/20)\nTotal: 8 weeks",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 19847,
+          "generation_seconds": 0.9866928749252111
+        },
+        "R+E": {
+          "hypothesis": "- The Nightingale: 2 weeks (2022/01/01 to 2022/01/15)\n- Sapiens: 4 weeks (2022/02/01 to 2022/03/01)\n- The Power: 2 weeks (2022/03/06 to 2022/03/20)\n\nTotal: 8 weeks",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 25438,
+          "generation_seconds": 0.6771794999949634
+        }
+      }
+    },
+    {
+      "question_id": "370a8ff4",
+      "question_type": "temporal-reasoning",
+      "reference_answer": 15,
+      "record_chars": 13841,
+      "record_lines": 178,
+      "episodic_chars": 4565,
+      "extract_seconds": 74.37903916696087,
+      "arms": {
+        "R": {
+          "hypothesis": "Approximately 12 weeks (Recovered 2023/01/19; 10th jog 2023/04/10).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 14146,
+          "generation_seconds": 0.6289551251102239
+        },
+        "R+E": {
+          "hypothesis": "Recovered from flu: 2023/01/19; 10th jog: 2023/04/10. Approximately 12 weeks passed.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 18758,
+          "generation_seconds": 0.5422690829727799
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_85da3956",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "3 weeks ago",
+      "record_chars": 18482,
+      "record_lines": 237,
+      "episodic_chars": 5596,
+      "extract_seconds": 67.71640616608784,
+      "arms": {
+        "R": {
+          "hypothesis": "Approximately 6 weeks ago (attended in 2023/06).",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 18786,
+          "generation_seconds": 0.8619265838060528
+        },
+        "R+E": {
+          "hypothesis": "The records do not specify the exact date you attended the festival, only that it occurred in June 2023.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 24429,
+          "generation_seconds": 4.446546541992575
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_e414231f",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "road bike",
+      "record_chars": 17105,
+      "record_lines": 244,
+      "episodic_chars": 4487,
+      "extract_seconds": 82.11805420788005,
+      "arms": {
+        "R": {
+          "hypothesis": "You fixed a flat tire on your mountain bike.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 17369,
+          "generation_seconds": 0.7823522922117263
+        },
+        "R+E": {
+          "hypothesis": "The records do not mention any bike being fixed or serviced this past weekend.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 21903,
+          "generation_seconds": 1.6722774170339108
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "You participated in a social media challenge called #PlankChallenge.",
+      "record_chars": 18258,
+      "record_lines": 262,
+      "episodic_chars": 5418,
+      "extract_seconds": 76.26188454194926,
+      "arms": {
+        "R": {
+          "hypothesis": "You participated in the #PlankChallenge.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 18531,
+          "generation_seconds": 0.6992492091376334
+        },
+        "R+E": {
+          "hypothesis": "You participated in the #PlankChallenge.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 23996,
+          "generation_seconds": 1.5256736660376191
+        }
+      }
+    },
+    {
+      "question_id": "982b5123",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "Five months ago",
+      "record_chars": 16629,
+      "record_lines": 226,
+      "episodic_chars": 5924,
+      "extract_seconds": 70.66937541682273,
+      "arms": {
+        "R": {
+          "hypothesis": "The records do not contain information on when the Airbnb in San Francisco was booked.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 16900,
+          "generation_seconds": 0.7518632088322192
+        },
+        "R+E": {
+          "hypothesis": "You booked it three months in advance.",
+          "judge_raw": "no",
+          "correct": false,
+          "is_error": false,
+          "prompt_chars": 22871,
+          "generation_seconds": 0.4688019580207765
+        }
+      }
+    },
+    {
+      "question_id": "e4e14d04",
+      "question_type": "temporal-reasoning",
+      "reference_answer": "Two weeks",
+      "record_chars": 21452,
+      "record_lines": 264,
+      "episodic_chars": 5862,
+      "extract_seconds": 80.48414579220116,
+      "arms": {
+        "R": {
+          "hypothesis": "You had been a member for 14 days.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 21743,
+          "generation_seconds": 0.6666519169230014
+        },
+        "R+E": {
+          "hypothesis": "About three weeks.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 27652,
+          "generation_seconds": 0.6248375829309225
+        }
+      }
+    },
+    {
+      "question_id": "852ce960",
+      "question_type": "knowledge-update",
+      "reference_answer": "$400,000",
+      "record_chars": 14707,
+      "record_lines": 185,
+      "episodic_chars": 5937,
+      "extract_seconds": 63.21886591706425,
+      "arms": {
+        "R": {
+          "hypothesis": "$400,000",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 15002,
+          "generation_seconds": 0.4805464169476181
+        },
+        "R+E": {
+          "hypothesis": "You were pre-approved for $400,000 from Wells Fargo.",
+          "judge_raw": "yes",
+          "correct": true,
+          "is_error": false,
+          "prompt_chars": 20986,
+          "generation_seconds": 0.548984166001901
+        }
+      }
+    }
+  ]
+}

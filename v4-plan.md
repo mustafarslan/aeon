@@ -5748,6 +5748,51 @@ and the documentation-truth gap recorded in guardrail #2 is closed for this clas
 record layer: it supplies sub-linear block scan for free at scale -- though per this stage's own
 latency finding it will not move end-to-end numbers, where Aeon is 0.3-0.8% of wall-clock.
 
+**SCHEMA v2 RESULT -- closed taxonomy + merge pass (2026-08-26). `n_errors=0`.** Twelve fixed
+top-level buckets (POSSESSION, ACQUISITION, MEDIA, PERSON, EVENT_ATTENDED, OBLIGATION, EDUCATION_WORK,
+HEALTH, TRAVEL, PROJECT, FINANCE, CONSUMABLE) with a free-form subtype, handed to the extractor on
+every call, plus explicit multi-type discipline and a global consolidation/merge pass over the
+accumulated records.
+
+**The diagnosed mechanism is fixed -- demonstrably, on the cases that exposed it:**
+
+| case | gold | v1 | **v2** |
+|---|---|---|---|
+| `bf659f65` "how many albums or EPs" | 3 | 1 | **3** ("Happier Than Ever", "Midnight Sky", Tame Impala vinyl) |
+| `0a995998` "how many clothing items to pick up/return" | 3 | 2 | **3** (blazer, exchanged boots, old boots) |
+
+The records show why: all three albums now carry consistent `ITEM(<BUCKET>/music album)` lines instead
+of hiding inside `PREF`/`EVENT` prose, and the clothing case is answered from the `OBLIGATION` bucket
+that free-form categories never produced.
+
+**But the aggregate did not move, and that is reported as the result rather than the mechanism win:**
+
+| | v1 | v2 |
+|---|---|---|
+| R (records only) | 4 | **5** |
+| R+E (composite) | 6 reported / 5 real | 6 reported / **5 real** |
+| union | 7 | 7 |
+| multi-session (union) | 2 | **3** |
+| temporal-reasoning (union) | 4 | **3** |
+
+Judge audit of every v2 conversion found **the same false-positive as v1** (`e4e14d04` R+E answered
+*"About three weeks"* against gold *"Two weeks"*, judged `yes`), so both arms are **5 genuine**. Note
+the R arm answered the same question correctly and differently -- *"You had been a member for 14
+days"* -- which is a true conversion.
+
+**Honest reading.** v2 moved R by +1 and R+E by 0; multi-session +1, temporal -1. **Every one of those
+deltas is inside the ~1.2-flip noise floor for n=18.** The taxonomy is justified on *mechanism*
+grounds -- two specific diagnosed failures are fixed and the record structure visibly does what it was
+designed to do -- but **there is no aggregate evidence at n=18 that v2 beats v1**, and it would be
+exactly the error this project already documented (reverting v2/v3 prompts on noise-level deltas) to
+claim otherwise.
+
+**Decision: lock the schema and stop iterating here.** n=18 cannot resolve +/-2, so further schema
+tuning against this cohort would be fitting to noise. The schema is locked on mechanism grounds; the
+composite n=500 -- where both aggregate gain *and* collateral on already-passing questions become
+measurable -- is the real test, and it remains user-gated. Build order now proceeds to **(b), the
+persistent semantic layer**, against this locked schema.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
