@@ -1,0 +1,634 @@
+{
+  "model": "gemma4:31b-cloud",
+  "seed": 42,
+  "num_questions": 25,
+  "base_top_k": 200,
+  "max_sessions": 20,
+  "cohort_ids": [
+    "gpt4_8279ba03",
+    "ba358f49",
+    "gpt4_e061b84f",
+    "gpt4_21adecb5",
+    "gpt4_68e94288",
+    "d6233ab6",
+    "gpt4_d31cdae3",
+    "8e91e7d9",
+    "d23cf73b",
+    "1a8a66a6",
+    "gpt4_7abb270c",
+    "81507db6",
+    "aae3761f",
+    "gpt4_372c3eed",
+    "gpt4_468eb064",
+    "gpt4_a1b77f9c",
+    "c18a7dc8",
+    "gpt4_1e4a8aec",
+    "gpt4_468eb063",
+    "gpt4_45189cb4",
+    "b46e15ed",
+    "10d9b85a",
+    "726462e0",
+    "gpt4_7f6b06db",
+    "5d3d2817"
+  ],
+  "summary": {
+    "n": 25,
+    "n_errors": 0,
+    "accuracy": 0.68,
+    "per_question_type": {
+      "multi-session": {
+        "n": 9,
+        "accuracy": 0.5555555555555556
+      },
+      "single-session-preference": {
+        "n": 1,
+        "accuracy": 0.0
+      },
+      "single-session-user": {
+        "n": 2,
+        "accuracy": 0.5
+      },
+      "temporal-reasoning": {
+        "n": 13,
+        "accuracy": 0.8461538461538461
+      }
+    }
+  },
+  "results": [
+    {
+      "question_id": "gpt4_8279ba03",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "a smoker",
+      "extracted_facts": "- [2023/03/15 (Wed) 11:56] user: I just got a smoker today.",
+      "hypothesis": "2023/03/25 minus 10 days is 2023/03/15.\nAnswer: a smoker",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 306113,
+      "context_num_ctx": {
+        "extract": 88741,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.0243742919992656,
+        "context_build": 0.023922333028167486,
+        "extract": 4.172177749918774,
+        "compute": 1.0865764170885086,
+        "judge": 0.42788075003772974
+      }
+    },
+    {
+      "question_id": "ba358f49",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "33",
+      "extracted_facts": "- [system] [2022/09/01 (Thu) 03:06] assistant: Congratulations to Rachel on her upcoming wedding!",
+      "hypothesis": "The provided text does not contain your age or the date of Rachel's wedding.\n\nAnswer: I don't know",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 333786,
+      "context_num_ctx": {
+        "extract": 96652,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.332580582937226,
+        "context_build": 0.018220500089228153,
+        "extract": 4.544183582998812,
+        "compute": 0.48017387511208653,
+        "judge": 0.4442184171639383
+      }
+    },
+    {
+      "question_id": "gpt4_e061b84f",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I first completed the Spring Sprint Triathlon, then took part in the Midsummer 5K Run, and finally participated in the company's annual charity soccer tournament.",
+      "extracted_facts": "- [2023/06/02 (Fri) 15:29] user: I just completed the Spring Sprint Triathlon today.\n- [2023/06/10 (Sat) 15:00] user: I just finished a 5K run... at the Midsummer 5K Run.\n- [2023/06/17 (Sat) 11:09] user: I participate in the company's annual charity soccer tournament today.",
+      "hypothesis": "Calculation: 2023/06/02 (Spring Sprint Triathlon) < 2023/06/10 (Midsummer 5K Run) < 2023/06/17 (charity soccer tournament)\n\nAnswer: Spring Sprint Triathlon, Midsummer 5K Run, charity soccer tournament",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 283721,
+      "context_num_ctx": {
+        "extract": 82362,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.650956708937883,
+        "context_build": 0.019742624834179878,
+        "extract": 4.427100541070104,
+        "compute": 0.5589374999981374,
+        "judge": 0.40911787492223084
+      }
+    },
+    {
+      "question_id": "gpt4_21adecb5",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "6 months",
+      "extracted_facts": "- [system] [2022/11/17 (Thu) 09:25] assistant: Congratulations on completing your undergraduate degree in Computer Science!\n- [user] [2023/05/15 (Mon) 20:01] user: I just submitted my master's thesis on computer science today.",
+      "hypothesis": "From 2022/11/17 to 2023/05/15 is approximately 5 months and 28 days.\n\nAnswer: Approximately 6 months",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 287022,
+      "context_num_ctx": {
+        "extract": 83306,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.10415512486361,
+        "context_build": 0.017787083983421326,
+        "extract": 4.268073624931276,
+        "compute": 1.3388944580219686,
+        "judge": 0.470692666945979
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "You participated in a social media challenge called #PlankChallenge.",
+      "extracted_facts": "- [user] [2023/03/15 (Wed) 09:07] user: I participated in a social media challenge called #PlankChallenge today.",
+      "hypothesis": "Calculation: 2023/03/20 minus 5 days = 2023/03/15.\n\nAnswer: #PlankChallenge",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 246693,
+      "context_num_ctx": {
+        "extract": 71769,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.593366583110765,
+        "context_build": 0.011569582857191563,
+        "extract": 3.417064917040989,
+        "compute": 0.9281034581363201,
+        "judge": 0.47207320807501674
+      }
+    },
+    {
+      "question_id": "d6233ab6",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that draw upon their personal experiences and memories, specifically their positive high school experiences such as being part of the debate team and taking advanced placement courses. They would prefer suggestions that highlight the potential benefits of attending the reunion, such as reconnecting with old friends and revisiting favorite subjects like history and economics. The user might not prefer generic or vague responses that do not take into account their individual experiences and interests.",
+      "extracted_facts": "- [2023/05/23 (Tue) 16:25] The user remembers happy high school experiences, such as being part of the debate team and taking advanced placement courses in economics.",
+      "hypothesis": "The provided memories do not contain information to determine if attending a high school reunion is a good idea.\n\nAnswer: I don't have enough information to answer.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 312073,
+      "context_num_ctx": {
+        "extract": 90461,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.421831416897476,
+        "context_build": 0.017458958085626364,
+        "extract": 3.958492500009015,
+        "compute": 0.5519859590567648,
+        "judge": 0.48152499995194376
+      }
+    },
+    {
+      "question_id": "gpt4_d31cdae3",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The family road trip across the American Southwest",
+      "extracted_facts": "- [2023/05/22 (Mon) 00:37] The user has been to the Grand Canyon before with their family on a road trip across the American Southwest a few years ago.\n- [2023/05/22 (Mon) 11:56] The user took a solo trip to Europe last summer, where they spent two weeks backpacking through Italy, Switzerland, and Germany.",
+      "hypothesis": "The family road trip was \"a few years ago,\" while the solo trip to Europe was \"last summer.\"\n\nAnswer: the family road trip across the American Southwest",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 241755,
+      "context_num_ctx": {
+        "extract": 70374,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.806331333005801,
+        "context_build": 0.02044216706417501,
+        "extract": 3.5428687089588493,
+        "compute": 0.5347455418668687,
+        "judge": 0.4271352088544518
+      }
+    },
+    {
+      "question_id": "8e91e7d9",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "4",
+      "extracted_facts": "- [2023/05/24 (Wed) 08:18] user: I come from a family with 3 sisters.\n- [2023/05/24 (Wed) 08:50] user: I'm thinking of going to a Manchester United match with my brother.",
+      "hypothesis": "3 sisters + 1 brother = 4 siblings\n\nAnswer: 4",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 282606,
+      "context_num_ctx": {
+        "extract": 82025,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.882690500002354,
+        "context_build": 0.019058584002777934,
+        "extract": 3.857291958993301,
+        "compute": 0.5553651659283787,
+        "judge": 0.5804631658829749
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 4,
+      "extracted_facts": "- [2023/05/21 (Sun) 05:29] user expressed interest in trying Pok Pok's Thai cuisine.\n- [2023/05/22 (Mon) 16:12] user mentioned their friends gave them a cookbook from Williams-Sonoma.\n- [2023/05/24 (Wed) 14:34] user tried out a new Ethiopian restaurant in town last week.\n- [2023/05/24 (Wed) 14:34] user learned a recipe for Misir Wot (Ethiopian red lentil stew).\n- [2023/05/24 (Wed) 14:34] user learned a recipe for Injera bread (Ethiopian sourdough flatbread).\n- [2023/05/29 (Mon) 15:26] user tried out a recipe for Korean bibimbap from a cooking class's online recipe library.\n- [2023/05/29 (Mon) 15:26] user attended a workshop on fermentation where they learned to make sauerkraut and kimchi (Korean).\n- [2023/05/29 (Mon) 15:26] user is planning to make kimchi fried rice.\n- [2023/05/29 (Mon) 15:26] user is planning a stir-fry with chicken and mixed veggies.\n- [2023/05/26 (Fri) 14:14] user mastered chicken tikka masala in an Indian cuisine cooking class.\n- [2023/05/26 (Fri) 14:14] user is planning to make naan bread and saag paneer (Indian).\n- [2023/05/30 (Tue) 02:40] user attended a class on vegan cuisine.\n- [2023/05/30 (Tue) 02:40] user learned how to make a vegan lasagna with a cashew-based ricotta cheese substitute.",
+      "hypothesis": "Thai (interest), Ethiopian, Korean, Indian, and Vegan.\nCalculation: 1 + 1 + 1 + 1 + 1 = 5\n\nAnswer: 5",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 276674,
+      "context_num_ctx": {
+        "extract": 80342,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.214380457997322,
+        "context_build": 0.01814429205842316,
+        "extract": 10.431983917020261,
+        "compute": 0.5638416660949588,
+        "judge": 0.41233541700057685
+      }
+    },
+    {
+      "question_id": "1a8a66a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "extracted_facts": "- [2023/04/01 (Sat) 00:37] user: canceled my Forbes magazine subscription in early March\n- [2023/04/01 (Sat) 00:37] user: enjoying other publications like The New Yorker, which I subscribed to in early February\n- [2023/04/01 (Sat) 04:47] user: getting Architectural Digest, which I love for home decor inspiration\n- [2023/04/01 (Sat) 04:52] user: buying my last National Geographic issue on my way back from the gym on March 15th\n- [2023/04/01 (Sat) 19:02] user: loving my subscription to The New Yorker magazine, which I subscribed to in early February",
+      "hypothesis": "The user has subscriptions to The New Yorker and Architectural Digest (Forbes was canceled).\nCalculation: 1 (The New Yorker) + 1 (Architectural Digest) = 2\n\nAnswer: 2",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 289610,
+      "context_num_ctx": {
+        "extract": 84028,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.988571624970064,
+        "context_build": 0.01198674994520843,
+        "extract": 4.511428249999881,
+        "compute": 0.8567872501444072,
+        "judge": 0.38878512498922646
+      }
+    },
+    {
+      "question_id": "gpt4_7abb270c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Science Museum, Museum of Contemporary Art, Metropolitan Museum of Art, Museum of History, Modern Art Museum, Natural History Museum",
+      "extracted_facts": "- [2023/01/15 (Sun) 16:31] user visited the Science Museum's \"Space Exploration\" exhibition.\n- [2023/01/15 (Sun) 16:31] user attended a lecture series at the Museum of Contemporary Art.\n- [2023/02/10 (Fri) 22:26] user visited the Metropolitan Museum of Art's \"Ancient Egyptian Artifacts\" exhibition.\n- [2023/02/15 (Wed) 12:20] user took a behind-the-scenes tour of the Museum of History's conservation lab.\n- [2023/02/20 (Mon) 06:37] user participated in a guided tour at the Modern Art Gallery on February 17th.\n- [2023/03/04 (Sat) 19:42] user took their niece to the Natural History Museum to see the \"Dinosaur Fossils\" exhibition today (March 4th).",
+      "hypothesis": "1. Science Museum (2023/01/15)\n2. Museum of Contemporary Art (2023/01/15)\n3. Metropolitan Museum of Art (2023/02/10)\n4. Museum of History (2023/02/15)\n5. Modern Art Gallery (2023/02/17)\n6. Natural History Museum (2023/03/04)\n\nAnswer: Science Museum, Museum of Contemporary Art, Metropolitan Museum of Art, Museum of History, Modern Art Gallery, Natural History Museum",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 259526,
+      "context_num_ctx": {
+        "extract": 75438,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.823187249945477,
+        "context_build": 0.018924874952062964,
+        "extract": 4.614681959152222,
+        "compute": 1.0424596660304815,
+        "judge": 0.434224541997537
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "extracted_facts": "- [2023/07/21 (Fri) 06:56] user: mentioned feeling guilty about missing my nephew Jack's eighth grade graduation ceremony last month.\n- [2023/07/21 (Fri) 09:29] user: attended my little cousin Emma's preschool graduation about two months ago.\n- [2023/07/21 (Fri) 13:23] user: attended my colleague Alex's graduation from a leadership development program at work a few weeks ago.\n- [2023/07/21 (Fri) 14:52] user: attended my best friend Rachel's master's degree graduation ceremony a couple of weeks ago.",
+      "hypothesis": "Calculation: Emma's preschool graduation + Alex's leadership program graduation + Rachel's master's degree graduation = 3\n\nAnswer: 3",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 279371,
+      "context_num_ctx": {
+        "extract": 81108,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.1912256251089275,
+        "context_build": 0.014423416927456856,
+        "extract": 3.93373745912686,
+        "compute": 0.5109047091100365,
+        "judge": 0.5318634170107543
+      }
+    },
+    {
+      "question_id": "aae3761f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "15 hours for getting to the three destinations (or 30 hours for the round trip)",
+      "extracted_facts": "- [2023/05/21 (Sun) 16:32] user: my recent trip to Outer Banks in North Carolina - it only took me four hours to drive there from my place.\n- [2023/05/21 (Sun) 16:32] user: My last trip to Outer Banks only took about four hours.\n- [2023/05/21 (Sun) 18:02] user: my recent trip to the mountains in Tennessee - I drove for five hours to get there.\n- [2023/05/26 (Fri) 16:58] user: I drove for six hours to Washington D.C. recently.",
+      "hypothesis": "4 hours (Outer Banks) + 5 hours (Tennessee) + 6 hours (Washington D.C.) = 15 hours\n\nAnswer: 15 hours",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 227519,
+      "context_num_ctx": {
+        "extract": 66298,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.666612499859184,
+        "context_build": 0.0196534579154104,
+        "extract": 4.380347708938643,
+        "compute": 0.4995617500972003,
+        "judge": 0.4183720829896629
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "10 years",
+      "extracted_facts": "- [2021/08/20 (Fri) 04:09] user: graduated with a Bachelor's in Computer Science from UCLA in 2020, which took me four years to complete.\n- [2021/08/20 (Fri) 21:27] user: attended Arcadia High School from 2010 to 2014.",
+      "hypothesis": "High school (2010-2014): 4 years; Bachelor's degree: 4 years. 4 + 4 = 8.\n\nAnswer: 8 years",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 306550,
+      "context_num_ctx": {
+        "extract": 88886,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.7682816670276225,
+        "context_build": 0.021112000104039907,
+        "extract": 3.991379333892837,
+        "compute": 0.6083401669748127,
+        "judge": 0.37990054092369974
+      }
+    },
+    {
+      "question_id": "gpt4_468eb064",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Emma",
+      "extracted_facts": "- [2023/04/11 (Tue) 22:13] The user caught up with Emma, a freelance writer, over lunch.",
+      "hypothesis": "Last Tuesday was 2023/04/11.\nAnswer: Emma",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 282009,
+      "context_num_ctx": {
+        "extract": 81856,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.722302708076313,
+        "context_build": 0.02786895795725286,
+        "extract": 3.5943835829384625,
+        "compute": 0.45647279103286564,
+        "judge": 0.8013614160008729
+      }
+    },
+    {
+      "question_id": "gpt4_a1b77f9c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "2 weeks for 'The Nightingale', 4 weeks for 'Sapiens: A Brief History of Humankind', and 2 weeks for 'The Power', so a total of 8 weeks.",
+      "extracted_facts": "- [user] [2022/01/01 (Sat) 20:18] user: I started reading 'The Nightingale' by Kristin Hannah today.\n- [user] [2022/01/15 (Sat) 11:56] user: I just finished reading \"The Nightingale\" by Kristin Hannah today.\n- [user] [2022/02/01 (Tue) 18:18] user: I just started listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today.\n- [user] [2022/03/01 (Tue) 22:45] user: I just finished listening to 'Sapiens: A Brief History of Humankind' by Yuval Noah Harari today.\n- [user] [2022/03/20 (Sun) 05:21] user: I just finished listening to 'The Power' by Naomi Alderman today.",
+      "hypothesis": "- 'The Nightingale': 2022/01/01 to 2022/01/15 = 14 days (2 weeks)\n- 'Sapiens': 2022/02/01 to 2022/03/01 = 28 days (4 weeks)\n- 'The Power': Start date not provided.\n\nThe provided snippets do not contain the start date for 'The Power'.\n\nAnswer: Not enough information",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 294324,
+      "context_num_ctx": {
+        "extract": 85399,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.898651707917452,
+        "context_build": 0.01926033291965723,
+        "extract": 5.688778624869883,
+        "compute": 1.1369314577896148,
+        "judge": 0.4368391251191497
+      }
+    },
+    {
+      "question_id": "c18a7dc8",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "7",
+      "extracted_facts": "- [user] [2023/05/26 (Fri) 19:08] user: I have a Bachelor's degree in Business Administration with a concentration in Marketing from the University of California, Berkeley, which I completed at the age of 25.\n- [user] [2023/05/25 (Thu) 17:24] user: As a 32-year-old Digital Marketing Specialist at TechSavvy Inc.\n- Current date: 2023/05/30 (Tue) 23:37.",
+      "hypothesis": "32 (current age) - 25 (age at graduation) = 7\n\nAnswer: 7 years",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 273601,
+      "context_num_ctx": {
+        "extract": 79457,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.426138874841854,
+        "context_build": 0.012287916149944067,
+        "extract": 3.9870005829725415,
+        "compute": 0.6527304169721901,
+        "judge": 0.39144016592763364
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aec",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "planting 12 new tomato saplings",
+      "extracted_facts": "- [2023/04/21 (Fri) 00:30] user: I just planted 12 new tomato saplings today.\n- [2023/04/15 (Sat) 16:46] user: I attended a gardening workshop in my neighborhood recently.",
+      "hypothesis": "Two weeks ago from 2023/05/05 is 2023/04/21.\nAnswer: Planted 12 new tomato saplings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 259728,
+      "context_num_ctx": {
+        "extract": 75491,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.82379937521182,
+        "context_build": 0.015869665890932083,
+        "extract": 3.6606054161675274,
+        "compute": 0.6506924999412149,
+        "judge": 0.40424908394925296
+      }
+    },
+    {
+      "question_id": "gpt4_468eb063",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "9 days ago. 10 days (including the last day) is also acceptable.",
+      "extracted_facts": "- [user] [2023/04/11 (Tue) 23:18] user: I catch up with Emma, a freelance writer, over lunch today and she's now a potential collaborator for a project I'm working on.",
+      "hypothesis": "2023/04/20 minus 2023/04/11 = 9 days\n\nAnswer: 9 days ago",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 264942,
+      "context_num_ctx": {
+        "extract": 76975,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.390717749949545,
+        "context_build": 0.01935433316975832,
+        "extract": 3.7723238330800086,
+        "compute": 0.5901019999291748,
+        "judge": 0.4065802919212729
+      }
+    },
+    {
+      "question_id": "gpt4_45189cb4",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "First, I attended a NBA game at the Staples Center, then I watched the College Football National Championship game, and finally, I watched the NFL playoffs.",
+      "extracted_facts": "- [2023/01/05 (Thu) 16:31] user: I just went to a NBA game there [Staples Center in LA] with my coworkers today... We watched the Lakers take on the Chicago Bulls.\n- [2023/01/15 (Sun) 00:46] user: I'm still riding high from the College Football National Championship game I watched with my family at home yesterday, where Georgia took down Alabama 33-18.\n- [2023/01/22 (Sun) 12:52] user: I'm still on a high from watching the Kansas City Chiefs defeat the Buffalo Bills in the Divisional Round of the NFL playoffs last weekend at my friend Mike's place.",
+      "hypothesis": "1. NBA game (Lakers vs. Bulls) on 2023/01/05\n2. College Football National Championship (Georgia vs. Alabama) on 2023/01/14 (yesterday relative to 01/15)\n3. NFL Divisional Round (Chiefs vs. Bills) on the weekend of 2023/01/14-15 (last weekend relative to 01/22)\n\nAnswer: NBA game, College Football National Championship, NFL Divisional Round",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 286865,
+      "context_num_ctx": {
+        "extract": 83246,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.403629000065848,
+        "context_build": 0.014107000082731247,
+        "extract": 4.257844124920666,
+        "compute": 0.6916779160965234,
+        "judge": 12.802538790972903
+      }
+    },
+    {
+      "question_id": "b46e15ed",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 2,
+      "extracted_facts": "- [user] [2023/02/14 (Tue) 09:06] user: just got back from the \"24-Hour Bike Ride\" charity event, where I cycled for 4 hours non-stop to raise money for a local children's hospital.\n- [user] [2023/02/15 (Wed) 08:39] user: I participated in the 'Ride to Cure Cancer' charity bike ride and rode 40 miles on my road bike recently.\n- [user] [2023/02/15 (Wed) 19:39] user: I volunteered at the \"Books for Kids\" charity book drive event at my local library today.\n- [user] [2023/03/19 (Sun) 15:02] user: I just did the \"Walk for Hunger\" charity event today with my colleagues from work.",
+      "hypothesis": "The user participated in charity events on 2023/02/14 and 2023/02/15.\nFrom 2023/02/15 to 2023/04/18 is approximately 2 months.\n\nAnswer: 2 months",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 276789,
+      "context_num_ctx": {
+        "extract": 80379,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 6.906591417035088,
+        "context_build": 0.01876766700297594,
+        "extract": 7.959714000113308,
+        "compute": 0.7521120421588421,
+        "judge": 0.429524082923308
+      }
+    },
+    {
+      "question_id": "10d9b85a",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3 days",
+      "extracted_facts": "- [user] [2023/05/01 (Mon) 16:19] user: I recently attended a lecture on sustainable development at the public library on the 10th of April.",
+      "hypothesis": "The user attended one lecture on April 10th.\n\nCalculation: 1 day\n\nAnswer: 1",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 309680,
+      "context_num_ctx": {
+        "extract": 89771,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 4.594756874954328,
+        "context_build": 0.01846049982123077,
+        "extract": 4.013497666921467,
+        "compute": 0.5578339169733226,
+        "judge": 0.41511258319951594
+      }
+    },
+    {
+      "question_id": "726462e0",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "10%",
+      "extracted_facts": "- [2023/05/23 (Tue) 05:40] user: I remember getting a 10% discount on my first purchase from that new clothing brand last month.",
+      "hypothesis": "The user received a 10% discount.\n\nAnswer: 10%",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "context_chars": 237470,
+      "context_num_ctx": {
+        "extract": 69138,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.0270393749233335,
+        "context_build": 0.012952499790117145,
+        "extract": 3.667028582887724,
+        "compute": 0.4491901670116931,
+        "judge": 0.4479959160089493
+      }
+    },
+    {
+      "question_id": "gpt4_7f6b06db",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I went on a day hike to Muir Woods National Monument with my family, then I went on a road trip with friends to Big Sur and Monterey, and finally I started my solo camping trip to Yosemite National Park.",
+      "extracted_facts": "- [2023/02/14 (Tue) 01:01] user mentions a road trip to Yosemite National Park.\n- [2023/02/20 (Mon) 05:52] user mentions spending two nights at the Yosemite Valley Lodge during their road trip to Yosemite National Park.\n- [2023/04/20 (Thu) 04:17] user mentions just returning from a road trip with friends to Big Sur and Monterey today (2023/04/20).\n- [2023/04/20 (Thu) 04:17] user mentions just returning from a solo camping trip to Yosemite.\n- [2023/05/15 (Mon) 09:54] user mentions having just returned from a solo camping trip to Yosemite National Park today (2023/05/15).",
+      "hypothesis": "The trips occurred on:\n1. Road trip to Yosemite (mentioned 2023/02/14)\n2. Road trip to Big Sur and Monterey (returned 2023/04/20)\n3. Solo camping trip to Yosemite (returned 2023/05/15)\n\nAnswer: Road trip to Yosemite, road trip to Big Sur and Monterey, solo camping trip to Yosemite",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 224995,
+      "context_num_ctx": {
+        "extract": 65579,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.398907250026241,
+        "context_build": 0.012101625092327595,
+        "extract": 3.7175110829994082,
+        "compute": 0.6815502501558512,
+        "judge": 0.3714457079768181
+      }
+    },
+    {
+      "question_id": "5d3d2817",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Marketing specialist at a small startup",
+      "extracted_facts": "- [2023/05/24 (Wed) 23:58] user: In my previous role at the startup, I was responsible for managing a team of interns.\n- [2023/05/24 (Wed) 23:58] user: I've used Trello in my previous role as a marketing specialist at a small startup.",
+      "hypothesis": "Marketing specialist at a small startup.\n\nAnswer: Marketing specialist",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "context_chars": 260806,
+      "context_num_ctx": {
+        "extract": 75793,
+        "compute": 8192
+      },
+      "timing_seconds": {
+        "ingest": 5.147312375018373,
+        "context_build": 0.019541166024282575,
+        "extract": 3.6721110839862376,
+        "compute": 5.05155966617167,
+        "judge": 0.38991662487387657
+      }
+    }
+  ]
+}

@@ -5130,6 +5130,51 @@ worth proposing, with per-type guards and latency/context-size reporting, which 
 call. This is the free -> cheap -> expensive ordering the date fix validated, and the cohort/aggregate
 split advisor flagged: a cohort check proves the mechanism, only the aggregate decides net worth.
 
+**COHORT CONVERSION RESULT (2026-08-26). Both arms `n_errors=0`. BAR PASSED, decisively.**
+Baseline was a verified 0/25 -- every cohort question wrong at 30x10, each for the known reason that
+an answer-bearing turn never reached the model.
+
+| arm | context | fully covered (predicted) | **correct (actual)** |
+|---|---|---|---|
+| 100x10 | 1.35x | 11/25 | **13/25 (52%)** |
+| 200x20 | 2.59x | 21/25 | **17/25 (68%)** |
+
+The bar was >= 5 conversions against ~1.7 expected noise flips; 200x20 delivered **17, roughly 10x
+expected noise**. **Coverage converts into correctness** -- the model does use the recovered evidence.
+This retires the last doubt about the retrieval lever's mechanism.
+
+Two details worth keeping. At 200x20, coverage (21/25) exceeds conversions (17/25): **4 questions got
+the answer turn and still failed**, which is the compute-side residue showing through and a reminder
+that retrieval is necessary, not sufficient. At 100x10 the reverse -- 13 correct on 11 fully-covered --
+so partial evidence sometimes suffices. Two questions flip the "wrong" way between arms
+(`d23cf73b`, `gpt4_a1b77f9c` correct at 100x10 but not 200x20), consistent with more context
+occasionally burying the needle, which is exactly the collateral risk the aggregate run must measure.
+
+**FULL AGGREGATE RUN. PRE-REGISTERED, before running.** Per the standing rule that a cohort proves
+mechanism while only an aggregate decides net worth: ETC, v1 prompt, date fix, **`--base-top-k 200
+--max-sessions 20`**, n=500, seed 42, paired against `extract_then_compute_n500_datefix_results.json`
+(same questions, same everything except retrieval breadth).
+
+*Why the extreme setting rather than the efficient one*: 200x20 maximises both the expected gain
+(+17 on cohort evidence, comfortably above the 11.5-question noise threshold, where 100x10's +13 would
+land uncomfortably close to it) **and** the collateral risk, so a single run bounds the design space in
+both directions. If it is net positive, the follow-up question is tuning down for efficiency; if the
+collateral cost swamps the gain at 2.6x context, that is decisive about the whole family and 100x10
+is the fallback to test.
+
+*Bars*: primary -- **overall must improve by >= 12 questions** (2x the measured noise sd at n=500).
+Cohort guard -- the 25 cohort questions should show ~17 correct, confirming the effect reproduces at
+scale. Collateral guards -- **no question type may fall by more than 2x its own noise sd**
+(temporal 5.8, multi-session 5.7, knowledge-update 4.4, ss-user 4.1, ss-assistant 3.9, preference 2.8,
+abstention 2.8). Reported as paired McNemar counts, plus median context size and per-question latency,
+since a 2.6x prompt is a real product cost even where accuracy improves and the ship decision needs
+both numbers.
+
+*Committed in advance*: a net gain that clears the bar makes raised `base_top_k` a genuine Aeon-side
+improvement worth wiring, with the exact setting to be chosen by a follow-up efficiency comparison,
+not assumed to be 200x20. A miss means the collateral cost of large prompts cancels the recovered
+evidence, and the retrieval lever is capped well below what the coverage sweep suggested.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
