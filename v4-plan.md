@@ -5695,6 +5695,59 @@ is now justified work rather than speculation. The open problem to attack first 
 **multi-session/aggregation at 1/8**, since that is where the failure->requirement table predicted the
 largest win and did not get it.
 
+**WHY MULTI-SESSION CONVERTED 1/8 — diagnosed, and it reverses the build order (2026-08-26).**
+Free re-analysis of the probe's cached records, no new LLM calls.
+
+The aggregation target was expected to be consolidation's *strongest* case and was its weakest. The
+cause is not extraction recall -- **the evidence is present in the records** -- it is that the
+evidence does not **accumulate into a countable set**. Worked example, `bf659f65` (*"How many music
+albums or EPs have I purchased or downloaded?"*, gold 3, answered 1); all three are in the records,
+under three different record types:
+
+| item | how it was recorded |
+|---|---|
+| "Happier Than Ever" (downloaded) | `PREF: The user likes Billie Eilish, specifically the album...` |
+| "Midnight Sky" (purchased) | `ITEM(music album/EP): Midnight Sky` ✓ |
+| Tame Impala vinyl | `EVENT [...]: saw Tame Impala live ... and got their vinyl` |
+
+Only one of three landed in an `ITEM` line, so counting `ITEM` lines yields 1. The same pattern
+explains the rest of the bucket: the albums question's extracted categories are `movie`, `bird seen`,
+`sport`, `pet purchase` -- **no music category exists at all**; the education question has no
+education category; the babies question lumped newborns into `ITEM(person)` (12 members) and
+over-counted to 6, exactly as the oracle did.
+
+**Root cause: the category vocabulary is emergent and per-session.** Each session is extracted by an
+independent, query-blind call that invents its own category names and picks its own record type, so
+members of one real-world category scatter across many labels and never meet. The extraction prompt
+asks for consistent naming, but **independent calls with no shared vocabulary cannot comply** -- that
+instruction was never satisfiable.
+
+**Consequence for build order.** The persistent layer's whole value is that records accumulate across
+sessions. Building storage now would harden a **free-form category field** -- precisely the broken
+part -- into the schema and the on-disk format. So the order is reversed, per the user's standing
+allowance to do so: **fix accumulation first, then build persistence against the corrected schema.**
+This is not a detour from (b); a schema that does not accumulate is not worth persisting.
+
+**Three fixes, in the order they should be tried** (the second is what `dreamer.py` exists for, which
+is a useful convergence -- the architecture already anticipated this component even though it ships a
+`StubSummarizer`):
+
+1. **Closed category taxonomy.** Replace free-form `ITEM(<anything>)` with a fixed, enumerated set
+   given to the extractor in every call, so members accumulate by construction.
+2. **A consolidation/merge pass over accumulated records** -- canonicalise near-duplicate categories,
+   resolve entities, and promote `PREF`/`EVENT` mentions that are really category members into `ITEM`
+   lines. This is exactly the Dreamer's job, and the first concrete requirement for it.
+3. **Type-assignment discipline**: a fact may need to appear as more than one record type (the vinyl
+   is both an event and a collection member), which the current prompt only requests for `TASK`.
+
+**Also resolved while checking (a stale TODO from 2026-08-17):** `TraceBlockIndex` is **no longer
+orphaned**. It is constructed in `TraceManager`, appended to on every embedded event, and queried in
+the semantic-search path (`core/src/trace.cpp:624-631`), with `core/tests/test_trace_semantic_search.cpp`
+covering it. The `README.md`/`ARCHITECTURE.md`/`INTERNALS.md` sub-linear claim is therefore accurate
+and the documentation-truth gap recorded in guardrail #2 is closed for this class. Relevance to the
+record layer: it supplies sub-linear block scan for free at scale -- though per this stage's own
+latency finding it will not move end-to-end numbers, where Aeon is 0.3-0.8% of wall-clock.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
