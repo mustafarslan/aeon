@@ -5984,6 +5984,46 @@ it.
 *Cost*: ~3,900 query-blind extraction calls, ~40 minutes at the measured 4-worker concurrency
 (~80 sequential). Records are cached, so every later read-path variation on this sample is minutes.
 
+**BACKGROUND CONSOLIDATION WIRING (2026-08-26).** `shell/aeon_py/consolidator.py` +
+`shell/aeon_py/compose.py` + 33 tests (suite **239 passed / 6 skipped**). This is the product
+wiring the goal asks for, landed alongside benchmark iteration rather than behind it.
+
+**Ingest stays at kernel speed, measured not asserted.** The write path only enqueues:
+
+    ingest  ->  mark_dirty(session_id)     **163 ns**, O(1), no I/O, no LLM
+    later   ->  background cycle drains the queue
+
+For scale: `mark_dirty` is **13.7x cheaper than Aeon's own 2.23 us insert**, and **~8,000,000x
+cheaper** than the ~1.3 s extraction call it replaces on that path. Consolidation cost is real
+(~36 s per 46 sessions at 4-way concurrency) but lives entirely off **both** hot paths -- the write
+path enqueues, the read path reads finished records. That is what makes a semantic layer affordable
+in a system whose pitch is ultra-low latency, and it is the claim the paper should make.
+
+**Not forced through `LLMSummarizer`.** `dreamer.py`'s existing pluggable interface is shaped
+`summarize(texts) -> (text, embedding)` -- summarise-N-into-1, for summarise-to-forget.
+Consolidation is a different operation (one session becomes many typed records; records merge
+*across* sessions), so it is wired as its own cycle rather than bent through an interface built for
+something else.
+
+**Silent-data-loss properties, which is where the tests are concentrated.** Losing a session's
+records is **invisible at read time** -- the answer is merely worse, never an error -- so it is
+precisely the failure that never gets reported as a bug. Therefore: the dirty queue is a *set*, so
+a session written ten times consolidates once (otherwise consolidation cost scales with write
+volume rather than distinct sessions); a claimed session moves to in-flight rather than being
+forgotten, and a failure **requeues rather than drops**; `requeue_in_flight()` recovers anything
+unconfirmed after a crash; one bad session does not block the others; and a merge that returns
+nothing is **refused**, because overwriting a populated store with an empty result is
+indistinguishable from erasing the user's memory. Commit order is deterministic despite concurrent
+extraction, so two runs over the same dirty set produce the same store -- reproducibility a
+background worker would otherwise quietly destroy.
+
+**The composite read path (`compose.py`)** assembles one call over records + episodic turns, with
+records **ordered so countable members of a category are contiguous**: a model counting `ITEM` lines
+scattered through 250 unordered records is doing the same multi-hop scan on a smaller haystack.
+`select_records()` provides the scaling path as a **structured category scan** -- every member of a
+bucket, never a top-k, because counting requires completeness and a subset turns a complete answer
+into a plausible wrong one.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
