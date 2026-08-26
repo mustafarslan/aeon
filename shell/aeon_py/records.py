@@ -39,6 +39,31 @@ correctness decision, not a convenience: this codebase already documents that a 
 id can shift after `compact_mmap()` reclaims tombstoned slots (see supersession.py's known
 limitation), and Trace exposes history per session rather than by id. Session id plus turn
 index survives compaction and matches the API that exists.
+
+Provenance is also the **erasure cascade index**. Records are PII derived from conversation,
+and `erasure.py` tombstones Atlas nodes but nothing previously cascaded to derived records.
+Because every record carries the session it came from, honouring a deletion request is a
+filter on `provenance.session_id` -- the field built for pragmatic licensing turns out to be
+the right-to-be-forgotten index too. See `records_for_session()`.
+
+USES THE KERNEL RATHER THAN REIMPLEMENTING IT. Three capabilities that already exist are used
+instead of Python equivalents:
+
+  * **Atlas is a tree**, not a flat list (`insert(parent_id, ...)` / `get_children(parent_id)`).
+    The closed bucket taxonomy IS a tree, so each bucket is a node and its records are its
+    children. A category scan -- which counting requires, since a subset turns a complete
+    answer into a plausible wrong one -- is therefore `get_children()`, a kernel subtree walk,
+    not a Python filter over every record.
+  * **`session_id` scoping** on `insert()`, with `drop_session()` for teardown. The first
+    version passed neither, which is invisible in a benchmark (one store per question) and
+    fatal in a multi-tenant product.
+  * **`supersede_node()` / `revoke_node_supersede()`** -- reversible, branchless exclusion from
+    search results. A superseded record can be *removed from retrieval* rather than shown to
+    the model alongside its replacement and hoped about.
+
+Not reimplemented and deliberately not used here: `event_time` is a `TraceEvent` field, and
+records are Atlas nodes whose only payload is the metadata string, so dates live in the record
+text. That is the available option, not an oversight.
 """
 
 from __future__ import annotations
@@ -64,6 +89,7 @@ KINDS: tuple[str, ...] = ("ITEM", "FACT", "EVENT", "UPDATE", "PREF", "TASK")
 _SEP = "\x1f"          # field separator, cannot occur in model-generated text
 _RANGE_SEP = ","
 _DEFAULT_METADATA = 1024
+_BUCKET_MARKER = "BUCKET"      # metadata prefix marking a taxonomy node, not a record
 
 
 @dataclass
@@ -168,23 +194,81 @@ class RecordStore:
     accumulate and are revised, whereas Trace is an append-only log of what was said.
     """
 
+    ROOT = 0
+
     def __init__(self, atlas_path: str | Path, dim: int,
-                 metadata_size: int = _DEFAULT_METADATA) -> None:
+                 metadata_size: int = _DEFAULT_METADATA,
+                 session_id: Optional[str] = None) -> None:
         self.path = Path(atlas_path)
         self.atlas = core.Atlas(str(self.path), dim=dim, metadata_size=metadata_size)
         self.dim = dim
+        self.session_id = session_id
+        self._bucket_nodes: dict[str, int] = {}
         # insert() truncates silently rather than raising (documented in core.pyi), so every
         # write is length-checked here instead. -1 leaves room for the null terminator.
         self.capacity = _as_int(self.atlas.metadata_size) - 1
+
+    def _bucket_node(self, bucket: str, embedding: Sequence[float]) -> int:
+        """The Atlas node standing for a bucket. Created on first use, so the taxonomy
+        materialises as a subtree without a separate schema-init step."""
+        if not bucket:
+            return self.ROOT
+        node = self._bucket_nodes.get(bucket)
+        if node is None:
+            node = self.atlas.insert(self.ROOT, list(embedding),
+                                     _SEP.join((_BUCKET_MARKER, bucket)), self.session_id)
+            self._bucket_nodes[bucket] = node
+        return node
 
     def add(self, record: Record, embedding: Sequence[float]) -> int:
         payload = record.encode()
         if len(payload.encode("utf-8")) > self.capacity:
             record = self._fit(record)
             payload = record.encode()
-        node_id = self.atlas.insert(0, list(embedding), payload)
+        parent = self._bucket_node(record.bucket, embedding)
+        node_id = self.atlas.insert(parent, list(embedding), payload, self.session_id)
         record.node_id = node_id
         return node_id
+
+    def records_in_bucket(self, bucket: str) -> list[Record]:
+        """Every record in a bucket, via the kernel's subtree walk.
+
+        This is the structured category scan the counting failures need. It returns ALL
+        members by construction -- unlike a vector top-k, which would return a subset and
+        turn a complete answer into a plausible wrong one.
+        """
+        node = self._bucket_nodes.get(bucket)
+        if node is None:
+            return []
+        try:
+            raw = self.atlas.get_children_raw(node)
+        except Exception:
+            return []
+        return self._decode(np.frombuffer(bytes(raw), dtype=np.uint64))
+
+    def supersede(self, record: Record) -> bool:
+        """Reversibly exclude a superseded record from retrieval, using the kernel's own
+        supersession rather than a text marker the model has to interpret.
+
+        Inherits the documented limitation that a raw node id can shift after
+        `compact_mmap()` reclaims tombstoned slots.
+        """
+        if record.node_id is None:
+            return False
+        try:
+            self.atlas.supersede_node(int(record.node_id))
+            return True
+        except Exception:
+            return False
+
+    def records_for_session(self, session_id: str) -> list[Record]:
+        """Records derived from one session -- the erasure cascade index.
+
+        `erasure.py` tombstones Atlas nodes but nothing cascaded to records derived from an
+        erased conversation. Provenance makes that a filter rather than a new mechanism.
+        """
+        return [r for r in self.all_records()
+                if r.provenance.session_id == session_id]
 
     def _fit(self, record: Record) -> Record:
         """Trim the record's TEXT until the encoded payload fits, preserving every structural
@@ -208,22 +292,25 @@ class RecordStore:
                       record.subtype, record.date, record.provenance, record.supersedes,
                       record.node_id)
 
-    def query(self, embedding: Sequence[float], top_k: int = 20) -> list[Record]:
-        raw = self.atlas.navigate_raw(list(embedding), beam_width=max(4, top_k))
+    def _decode(self, node_ids: Iterable[int]) -> list[Record]:
+        """Decode node ids into records, skipping the taxonomy's own bucket nodes.
+
+        Shared by every read path so the "is this a record or a bucket marker?" rule exists
+        once rather than three times.
+        """
         out: list[Record] = []
-        for nid in _node_ids_from_raw(raw, top_k):
-            meta = self._read_metadata(nid)
-            if meta:
-                out.append(Record.decode(meta, node_id=nid))
+        for nid in node_ids:
+            meta = self._read_metadata(int(nid))
+            if meta and not meta.startswith(_BUCKET_MARKER):
+                out.append(Record.decode(meta, node_id=int(nid)))
         return out
 
+    def query(self, embedding: Sequence[float], top_k: int = 20) -> list[Record]:
+        raw = self.atlas.navigate_raw(list(embedding), beam_width=max(4, top_k))
+        return self._decode(_node_ids_from_raw(raw, top_k))
+
     def all_records(self) -> list[Record]:
-        out: list[Record] = []
-        for nid in range(_as_int(self.atlas.size)):
-            meta = self._read_metadata(nid)
-            if meta:
-                out.append(Record.decode(meta, node_id=nid))
-        return out
+        return self._decode(range(_as_int(self.atlas.size)))
 
     def _read_metadata(self, node_id: int) -> str:
         """Reads defensively. A store may outlive the code that wrote it, and one bad row --

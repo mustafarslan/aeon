@@ -6082,6 +6082,69 @@ measured improvement to the product: better answers, a quarter of the context, o
 of two, sub-second generation, with consolidation cost paid once at write time and off both hot
 paths (ingest enqueues in **163 ns**).
 
+## KERNEL-CAPABILITY AUDIT (2026-08-26): the semantic layer had drifted off Aeon's own architecture
+
+Prompted by the user's observation that this work may have drifted from v3/v4 capabilities that could
+help. It had -- and the finding is better framed as **convergence** than as an error:
+`EdgeType::MergesWith` in `schema.hpp` is documented as *"this event and supersedes_id were
+consolidated (Dreaming)"*. **The kernel anticipated the consolidation layer this stage built.** That
+is an architecture argument worth making, not just a mea culpa.
+
+**Two genuine reinventions, now removed** -- both were parameters of functions the shell was already
+calling, so adopting them **deleted Python rather than adding it**:
+
+| kernel capability | what the layer did instead | now |
+|---|---|---|
+| **Atlas is a tree** (`insert(parent_id, …)` / `get_children(parent_id)`) | inserted every record flat at `parent_id=0` and filtered in Python | each bucket is a node, records are its children; `records_in_bucket()` is a kernel subtree walk |
+| **`session_id` on `insert()`** (+ `drop_session`) | passed `None` -- unscoped | records are tenant-scoped at write |
+
+**One self-charge withdrawn after checking**: `event_time` is a **`TraceEvent`** field. Records are
+Atlas nodes whose only payload is the metadata string, so dates-as-text is the available option, not
+an oversight. Recorded because an inaccurate confession is as bad as a missed capability.
+
+**The taxonomy IS the tree.** The closed 12-bucket vocabulary was designed so countable members
+accumulate; Atlas is a tree of nodes reached by descent. Those are the same structure, and the
+"structured category scan" named earlier as the scaling path is exactly `get_children()` -- already
+implemented, in the kernel, at kernel speed. Honest sizing: **this buys nothing measurable today** (a
+Python scan over 263 records is microseconds, and Aeon is <1% of end-to-end latency). It is adopted
+for product correctness and scale, and an **equivalence test is pinned first** -- same records in,
+byte-identical `render_records()` out -- so the refactor cannot silently move the measured 72/85.
+
+**Supersession is first-class in the kernel and was being done in text.** `supersede_node()` /
+`revoke_node_supersede()` / `is_node_superseded()` are exposed, reversible and branchless. The
+composite currently shows the model both values plus a `[supersedes $350,000]` marker and hopes it
+picks correctly; the kernel can **exclude the stale record from retrieval entirely**, reversibly.
+`RecordStore.supersede()` now uses it. Because that changes prompt content it goes through the
+free->cheap ladder rather than straight into a run: the knowledge-update cohort first.
+
+**The most valuable output of the audit was two production-readiness gaps it exposed**, neither
+visible in any benchmark:
+
+1. **Tenant isolation.** A benchmark uses one store per question, so unscoped inserts look fine and
+   are fatal in a multi-tenant product. Fixed at the point of insert.
+2. **Erasure cascade.** Records are PII *derived* from conversation. `erasure.py` tombstones Atlas
+   nodes, but nothing cascaded to derived records. **`provenance.session_id` is exactly the cascade
+   index** -- the field built for pragmatic licensing is also the right-to-be-forgotten index
+   (`records_for_session()`). Convergence again, and worth a line in the paper.
+
+**Two corrections to this stage's own work, found by the same audit:**
+
+- **`DirtyQueue`'s crash-safety claim was overstated.** It is an in-memory set: process death loses
+  every pending entry, and `requeue_in_flight()` only covers in-process failures. Docstring corrected
+  rather than papered over. The kernel-aligned fix is to make dirty state **derivable** (a session's
+  latest Trace event vs. a per-session consolidation watermark) so recovery is a rescan and needs no
+  second write-ahead structure beside the one Trace already has.
+- **There are two extraction prompts.** `composite_arm_experiment.py` imports the probe's
+  citation-less prompt, while the production path in `consolidation.py` (turn citations + provenance
+  rehydration) has **never been exercised at scale**. The measured 72/85 is on the harness path, not
+  the product path. Kept deliberately for now so the n=500 stays comparable to every prior arm;
+  reconciled afterwards by a cheap equivalence check.
+
+**Parked explicitly, with reasons**: `scope_bitmap` read-filtering (the all-records design makes it
+moot), `expand_window`/`expand_summary` replacing the selector (the measured path works),
+`promotion.py` (cross-agent shared records -- roadmap, and `PROMOTED_FROM` is the right edge), and
+`HierarchicalSLB` (already parked: 12 ms retrieval is <1% of latency).
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

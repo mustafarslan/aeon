@@ -170,3 +170,95 @@ def test_records_persist_across_reopen(tmp_root, unit_vec):
     reopened = RecordStore(path, dim=DIM, metadata_size=512)
     (rec,) = reopened.all_records()
     assert rec.text == "Midnight Sky" and rec.provenance.turn_indices == (2,)
+
+
+# --- kernel capabilities adopted instead of reimplemented --------------------
+
+def test_buckets_materialise_as_an_atlas_subtree(tmp_root, unit_vec):
+    """The closed taxonomy IS a tree, and Atlas is a tree. Records become children of their
+    bucket node so a category scan is a kernel subtree walk, not a Python filter."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for i in range(3):
+        store.add(Record(kind="ITEM", text=f"album{i}", bucket="ACQUISITION",
+                         subtype="music album", provenance=Provenance("s1", (i,))), unit_vec)
+    store.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                     provenance=Provenance("s1", (9,))), unit_vec)
+    assert len(store.records_in_bucket("ACQUISITION")) == 3
+    assert len(store.records_in_bucket("MEDIA")) == 1
+
+
+def test_category_scan_returns_every_member_not_a_subset(tmp_root, unit_vec):
+    """Counting requires completeness; a top-k would return a subset and turn a complete
+    answer into a plausible wrong one."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for i in range(12):
+        store.add(Record(kind="ITEM", text=f"m{i}", bucket="MEDIA", subtype="film",
+                         provenance=Provenance("s1", (i,))), unit_vec)
+    assert len(store.records_in_bucket("MEDIA")) == 12
+
+
+def test_unknown_bucket_scan_is_empty_not_an_error(tmp_root):
+    assert RecordStore(tmp_root / "r.atlas", dim=DIM).records_in_bucket("NOPE") == []
+
+
+def test_bucket_nodes_are_not_returned_as_records(tmp_root, unit_vec):
+    """The taxonomy's own nodes live in the same Atlas; they must never leak into a record
+    set, or every count would be inflated by its category marker."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    store.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                     provenance=Provenance("s1", (0,))), unit_vec)
+    recs = store.all_records()
+    assert len(recs) == 1 and recs[0].text == "Dune"
+
+
+def test_records_are_session_scoped_for_multi_tenancy(tmp_root, unit_vec):
+    """`Atlas.insert` takes a session_id and the first version passed none -- invisible in a
+    benchmark (one store per question), fatal in a multi-tenant product."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM, session_id="tenant-a")
+    store.add(Record(kind="FACT", text="x", provenance=Provenance("s1", (0,))), unit_vec)
+    assert store.session_id == "tenant-a"
+    assert len(store.all_records()) == 1
+
+
+def test_supersede_uses_the_kernel_primitive(tmp_root, unit_vec):
+    """A superseded record should be excluded from retrieval, reversibly -- not shown to the
+    model beside its replacement with a text marker and hoped about."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    rec = Record(kind="ITEM", text="$350,000", bucket="FINANCE", subtype="pre-approval",
+                 provenance=Provenance("s1", (0,)))
+    store.add(rec, unit_vec)
+    assert store.supersede(rec) is True
+    assert store.atlas.is_node_superseded(rec.node_id) is True
+
+
+def test_supersede_without_a_node_id_is_a_no_op(tmp_root):
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    assert store.supersede(Record(kind="FACT", text="never stored")) is False
+
+
+def test_provenance_doubles_as_the_erasure_cascade_index(tmp_root, unit_vec):
+    """Records are PII derived from conversation. erasure.py tombstones Atlas nodes but
+    nothing cascaded to derived records; provenance makes that a filter, not a new
+    mechanism."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for sess in ("keep", "erase", "keep"):
+        store.add(Record(kind="FACT", text=f"from {sess}",
+                         provenance=Provenance(sess, (0,))), unit_vec)
+    assert len(store.records_for_session("erase")) == 1
+    assert len(store.records_for_session("keep")) == 2
+
+
+def test_tree_refactor_does_not_change_rendered_context(tmp_root, unit_vec):
+    """EQUIVALENCE GUARD. The composite's measured 72/85 depends on what render_records()
+    emits; moving records into a bucket subtree must not alter that by one byte."""
+    from aeon_py.compose import render_records
+    recs = [Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                   provenance=Provenance("s1", (0,))),
+            Record(kind="ITEM", text="album", bucket="ACQUISITION", subtype="music album",
+                   provenance=Provenance("s1", (1,))),
+            Record(kind="FACT", text="owns a bike", provenance=Provenance("s1", (2,)))]
+    expected = render_records(recs)
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for r in recs:
+        store.add(r, unit_vec)
+    assert render_records(store.all_records()) == expected

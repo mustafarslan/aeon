@@ -18,10 +18,18 @@ Consolidation is a different operation (a session becomes many typed records, an
 merge across sessions), so it is wired as its own cycle rather than forced through an
 interface built for something else.
 
-CRASH SAFETY: the queue records intent, and entries are only cleared once their records are
-committed. A session interrupted mid-consolidation is retried rather than silently dropped --
-losing a session's records is invisible at read time (the answer is merely worse), which is
-exactly the kind of data loss that never gets reported as a bug.
+FAILURE HANDLING, stated precisely: entries are cleared only once their records are committed,
+so a session that fails mid-consolidation is retried rather than silently dropped. Losing a
+session's records is invisible at read time -- the answer is merely worse, never an error --
+which is exactly the kind of data loss that never gets reported as a bug.
+
+**This is NOT crash safety, and an earlier version of this docstring overstated it.** The queue
+is an in-memory set: process death loses every pending entry, and `requeue_in_flight()` only
+recovers from in-process failures such as a cancelled cycle. The kernel-aligned fix is to make
+dirty state *derivable* rather than durable -- compare a session's latest Trace event against a
+per-session consolidation watermark, so recovery is a rescan and needs no second write-ahead
+structure alongside the one Trace already has. Recorded as the follow-up rather than papered
+over.
 """
 
 from __future__ import annotations
