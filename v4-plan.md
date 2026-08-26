@@ -5886,6 +5886,62 @@ Remaining in the layer: wiring extraction into ingest (`Architect`), replacing `
 selection, one LLM call). The composite n=500 -- the first run that measures whether records *cost*
 accuracy on the ~400 already-passing questions -- remains user-gated.
 
+**PARALLELISM (2026-08-26).** `shell/aeon_py/parallel.py` + 14 tests (suite **206 passed /
+6 skipped**). Prompted by the standing goal's instruction to exhaust cache/parallel options before
+spending hours on tests -- and the arithmetic justified it: a composite n=500 consolidation pass is
+**~23,000 extraction calls, ~9 hours sequential**. **Nothing in the shell was parallel** (grep-verified:
+no `ThreadPool`, `asyncio.gather`, or `concurrent.futures` anywhere), despite per-session extraction
+being embarrassingly parallel.
+
+**The measured numbers, and a methodological correction worth more than the speedup.** A synthetic
+probe (short prompts, ~5-line outputs) reported **3.2x at 4 workers**. The real workload -- one
+question, 46 sessions, ~200-token outputs -- measured:
+
+| workers | wall-clock | speedup |
+|---|---|---|
+| 1 | 74.6 s | -- |
+| **4** | **36.2 s** | **2.06x** |
+| 8 | 52.9 s | 1.41x |
+| 12 | 36.6 s | 2.04x |
+
+**The synthetic figure overstated the real one by 55%** -- longer generations contend harder, so a
+concurrency number measured on toy prompts does not transfer. And the 8-worker result being worse
+than *both* 4 and 12 is endpoint noise on single runs, not knee structure; reading a shape into it
+would be precisely the unvalidated-constant error this stage has already documented twice. The
+supportable claim is deliberately narrow: **~2x at 4 workers, no reliable gain past 4.** The
+docstring and its test carry the real numbers, not the flattering ones.
+
+**Three silent-failure properties pinned by tests**, all of which would corrupt results rather than
+crash: results preserve **input order** (otherwise two runs over identical input produce different
+record sets and every downstream comparison is unreproducible); each worker gets its **own
+provider** via `ThreadLocalResource`, because `OllamaProvider.last_num_ctx` is mutable per-call state
+that result files record per question, so a shared instance mis-attributes context sizes silently;
+and **one failing item cannot abort the pass** -- a single malformed session must not lose the other
+22,999.
+
+**Two design corrections adopted before they were built in, both advisor-flagged:**
+
+1. **Extraction does NOT belong on the ingest path.** It is a ~1.3s LLM call; inline, it would
+   destroy the write-latency story that is half the product argument. Correct locus: ingest marks
+   the session dirty at kernel speed, and **`DreamingWorker` consumes the dirty queue in
+   background**, with extraction + `consolidate()` as its cycle, replacing `StubSummarizer`.
+   Consolidation cost is real but lives entirely off *both* hot paths.
+2. **The composite read path must use ALL records, not vector top-k over records.** The probe
+   validated all-records-in-context (~21k chars at 46 sessions). Top-k over records would fetch 3 of
+   5 `ITEM(ACQUISITION/music album)` lines and reintroduce partial recall on exactly the counting
+   questions this layer exists to fix -- the old failure in new clothes. The scaling path for long
+   histories is a **structured category scan** (all ITEMs in a bucket, cheap because records are
+   small), not vector retrieval. Noted, not built.
+
+**Parked explicitly**: wiring `HierarchicalSLB` into the benchmark path. Retrieval is 12 ms, under
+1% of end-to-end latency, so it moves nothing this goal cares about. It is a scale item, and saying
+so keeps it from lapsing or tempting.
+
+**Comparability note for future bars**: parallelism is a change to the instrument, and the 6.7%
+noise floor was measured sequentially. The nested-repeat slice will be piggybacked inside the first
+parallel run and *that* floor used for the composite's bars, rather than inheriting the sequential
+one blind.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not

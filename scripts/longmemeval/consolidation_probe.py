@@ -55,6 +55,7 @@ from run_benchmark import (  # noqa: E402
 )
 
 import numpy as np  # noqa: E402
+from aeon_py.parallel import ThreadLocalResource, parallel_map  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -209,6 +210,11 @@ def main() -> None:
                          "does not repeat the expensive query-blind extraction pass.")
     ap.add_argument("--episodic-budget", type=int, default=6000)
     ap.add_argument("--schema", default="v2", choices=["v1", "v2"])
+    ap.add_argument("--workers", type=int, default=4,
+                    help="Bounded concurrency for the per-session extraction pass. 4 is the "
+                         "MEASURED knee on this endpoint (3.2x; 8 gives 2.9x, 16 gives 2.5x "
+                         "-- throughput degrades past 4 because the server already batches). "
+                         "Sessions are independent, so this is embarrassingly parallel.")
     ap.add_argument("--consolidate", action="store_true",
                     help="Run the global merge pass over accumulated records (the "
                          "Dreamer's job). Per-session extraction is local; accumulation "
@@ -219,6 +225,10 @@ def main() -> None:
     os.environ["AEON_LLM_MODEL"] = args.model
     from aeon_py.llm import OllamaProvider
     llm = OllamaProvider()
+    # One provider per worker thread: OllamaProvider carries mutable per-call state
+    # (last_num_ctx) that results files record, so a shared instance would race and
+    # silently mis-attribute context sizes rather than crash.
+    _providers = ThreadLocalResource(OllamaProvider)
 
     ds = {q["question_id"]: q for q in json.load(open(args.dataset))}
     cohort = json.load(open(args.cohort))
@@ -240,26 +250,35 @@ def main() -> None:
             t_extract = 0.0
         else:
             t0 = time.perf_counter()
-            lines = []
-            for si, (date, turns) in enumerate(zip(q["haystack_dates"],
-                                                   q["haystack_sessions"])):
+
+            def _extract(pair):
+                date, turns = pair
                 if args.schema == "v2":
                     prompt = EXTRACT_PROMPT_V2.format(date=date,
                                                       session=session_text(turns),
                                                       buckets=BUCKET_BLOCK)
                 else:
                     prompt = EXTRACT_PROMPT.format(date=date, session=session_text(turns))
-                out = _generate_with_retry(llm, prompt, system_prompt=EXTRACT_SYSTEM,
-                                           temperature=0.0)
-                if "[System Error:" in out:
+                return _generate_with_retry(_providers.get(), prompt,
+                                            system_prompt=EXTRACT_SYSTEM, temperature=0.0)
+
+            sessions = list(zip(q["haystack_dates"], q["haystack_sessions"]))
+            outs = parallel_map(
+                _extract, sessions, max_workers=args.workers,
+                # One malformed session must not lose the other 45.
+                on_error=lambda item, exc: "",
+                progress=lambda d, n: (
+                    print(f"    [{qi}/{len(cohort)}] {qid} extracted {d}/{n} sessions",
+                          flush=True) if d % 15 == 0 else None),
+            )
+            lines = []
+            for out in outs:                      # input order -> reproducible record sets
+                if not out or "[System Error:" in out:
                     continue
                 for ln in out.splitlines():
                     ln = ln.strip()
                     if ln and ln != "(none)" and not ln.lower().startswith("records:"):
                         lines.append(ln)
-                if (si + 1) % 15 == 0:
-                    print(f"    [{qi}/{len(cohort)}] {qid} extracted {si+1}/"
-                          f"{len(q['haystack_sessions'])} sessions", flush=True)
             records = "\n".join(lines)
             if args.consolidate and records:
                 merged = _generate_with_retry(
