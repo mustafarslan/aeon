@@ -5942,6 +5942,48 @@ noise floor was measured sequentially. The nested-repeat slice will be piggyback
 parallel run and *that* floor used for the composite's bars, rather than inheriting the sequential
 one blind.
 
+**COMPOSITE ARM, TIER 2. PRE-REGISTERED 2026-08-26, before running.** First measurement of the
+semantic layer as a *system* rather than a probe, and the first that can show a REGRESSION -- every
+consolidation result so far was on questions selected for being wrong, so it could only improve.
+
+*Sample*: the same **85 questions** used for the precision-selector tier 2 -- a 60-question
+stratified sample unioned with all 27 known retrieval misses -- so one run measures conversion on
+hard cases and collateral on normal ones, and every arm is directly comparable on identical
+questions.
+
+*Arm*: `compose()` -- **all records + provenance-rehydrated episodic turns, one LLM call**. Two
+things differ from the probe's R+E, both from `compose.py`: records are **ordered so countable
+members of a category are contiguous** (a model counting `ITEM` lines scattered through 250
+unordered records is doing the same multi-hop scan on a smaller haystack), and episodic context is
+**rehydrated from the records' own provenance** rather than from an independent retrieval pass, so
+excerpts are guaranteed to be about the records in play.
+
+*Reference points on these same 85 questions*:
+
+| arm | all 85 | normal 58 | known-miss 27 |
+|---|---|---|---|
+| single-shot @top_k=30 | 49 | 46 | 3 |
+| ETC @top_k=30 | 54 | 52 | 2 |
+| precision selector | 48 | 44 | 4 |
+| oracle-precision (ceiling) | 70 | 49 | 21 |
+
+*Bars*: **primary -- >= 54 overall**, i.e. matching the best existing arm (ETC) while using one LLM
+call instead of two. **Collateral guard -- the 58 normal questions must not fall below 46**
+(single-shot's count); noise there is ~4 flips at the measured 6.7% rate, so this guard catches large
+regressions only, and that limitation is stated now rather than discovered later. **Conversion floor
+-- >= 4 of the 27 known misses**, reproducing the probe.
+
+*Committed in advance*: clearing the primary bar makes the semantic layer a real improvement to
+Aeon rather than a validated mechanism, and justifies the composite n=500. Missing it while holding
+the collateral guard means records help the hard cases but do not yet pay for themselves in
+aggregate -- in which case the next question is record *ordering and density*, not more extraction.
+Breaching the collateral guard means consolidated records actively cost accuracy on ordinary
+questions, which would be the most important negative result of the whole direction and would stop
+it.
+
+*Cost*: ~3,900 query-blind extraction calls, ~40 minutes at the measured 4-worker concurrency
+(~80 sequential). Records are cached, so every later read-path variation on this sample is minutes.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
