@@ -5175,6 +5175,75 @@ improvement worth wiring, with the exact setting to be chosen by a follow-up eff
 not assumed to be 200x20. A miss means the collateral cost of large prompts cancels the recovered
 evidence, and the retrieval lever is capped well below what the coverage sweep suggested.
 
+**AGGREGATE RESULT at 200x20 (2026-08-26). `n_errors=0`. PRIMARY BAR FAILED -- and the failure is the
+most informative result of this stage.**
+
+| type | n | 30x10 | 200x20 | delta | gain/loss | guard | verdict |
+|---|---|---|---|---|---|---|---|
+| temporal-reasoning | 127 | 103 | 110 | **+7** | +13/-6 | 5.8 | REAL |
+| **multi-session** | 121 | 96 | 90 | **-6** | +7/-13 | 5.7 | **GUARD BREACH** |
+| knowledge-update | 72 | 66 | 63 | -3 | +2/-5 | 4.4 | noise |
+| single-session-user | 64 | 55 | 57 | +2 | +2/0 | 4.1 | noise |
+| single-session-assistant | 56 | 52 | 53 | +1 | +1/0 | 3.9 | noise |
+| single-session-preference | 30 | 13 | 13 | 0 | +3/-3 | 2.8 | noise |
+| abstention | 30 | 28 | 30 | +2 | +2/0 | 2.8 | noise |
+| **overall** | 500 | **413** | **416** | **+3** | +30/-27 | 11.5 | **FAIL (bar +12)** |
+
+**The cohort guard hit 17/25 -- exactly what the 25-question cohort test predicted.** The mechanism
+reproduced perfectly at scale; the targeted questions really were fixed. What the cohort could not see,
+and what the aggregate exists to measure, is that the collateral almost exactly cancelled the gain.
+Cost of that +3: **2.69x median context (100,889 -> 270,972 chars) and 1.8x generation latency
+(2.5s -> 4.5s per question)**. Not shippable.
+
+**The mechanism, and it inverts this document's earlier prescription.** Splitting the effect by how
+many answer-bearing turns a question needs:
+
+| question shape | deep helps | deep hurts | net |
+|---|---|---|---|
+| **1 answer turn** | 13 | 4 | **+9** |
+| 2 answer turns | 7 | 12 | **-5** |
+| 3+ answer turns | 9 | 11 | **-2** |
+
+Deep retrieval helps **findability** and harms **aggregation**, and those are opposing forces that
+roughly cancel. A single buried fact ranks low, so searching deeper finds it -- that is the temporal
++13 and the buried-aside recoveries. But a question needing several facts gets a 2.7x larger haystack,
+and the model miscounts: multi-session loses 13 questions to win 7. **The earlier decision-table entry
+prescribing "raise `top_k`/`max_sessions` for the 20 partial-recall multi-evidence misses" is
+therefore wrong and is retracted** -- their answer-turn *coverage* improves (the sweep proved that)
+while their *accuracy* falls. Coverage was necessary but, for multi-evidence questions, actively
+counterproductive at the context cost required to obtain it.
+
+**Routing is again marginal, for the third time.** Per-question oracle over the two settings is
+443/500 (88.6%), but that is unattainable. Type-based oracle routing (deep only for the types where
+deep wins net) gives **425/500 = 85.0%, +12 over always-30x10 -- right at the 11.5 threshold, using
+TRUE type labels.** Every previous real classifier has landed below its oracle. This is the same shape
+as the ETC router result and should be read the same way: not worth building for accuracy.
+
+**Where this leaves the retrieval lever, and what it promotes.** The lever is not dead but it is
+*capped*, and the cap is caused by context cost, not by retrieval quality: the findability win is real
+(+13 on temporal alone) and only the accompanying context bloat makes it a wash. That distinction
+matters, because it points at a fix that takes the win without paying the cost -- **improve ranking at
+constant context rather than retrieving more**. Sub-turn chunking / multi-vector embedding, which the
+coverage sweep downgraded to "an optimisation, not a prerequisite", is **promoted back to the leading
+Aeon-side candidate on this evidence**: a buried aside ranks low because its turn's embedding is
+dominated by the turn's main topic, and chunking fixes precisely that at `top_k=30`-scale context, so
+it would capture the +9-to-+13 findability gain *without* the -13 multi-session aggregation damage.
+It is real kernel work rather than a config change, and it is the only remaining candidate that
+addresses a verified defect without a measured downside.
+
+**The 100x10 fallback named in the pre-registration is not worth running on this evidence.** It sits
+on the same opposing-forces curve at a milder point: a smaller findability gain (13/25 cohort
+conversions vs 17/25) bought with milder aggregation damage. Its most likely outcome is a small net
+positive well inside the noise band -- a ~3-hour run whose result would be undecidable by
+construction. Recording that decision explicitly rather than letting a pre-registered fallback lapse
+silently.
+
+**Methodological note worth keeping.** The cohort test predicted 17/25 and the aggregate delivered
+17/25. The instrument works exactly as intended -- and the pre-registered bar is what stopped a
+genuine, reproducible, mechanism-confirmed 17-question win from being shipped as an improvement when
+its true net effect was +3 questions for 2.7x the context. A cohort proves mechanism; only an
+aggregate decides worth.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
