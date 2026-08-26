@@ -6145,6 +6145,48 @@ moot), `expand_window`/`expand_summary` replacing the selector (the measured pat
 `promotion.py` (cross-agent shared records -- roadmap, and `PROMOTED_FROM` is the right edge), and
 `HierarchicalSLB` (already parked: 12 ms retrieval is <1% of latency).
 
+**COMPOSITE ARM n=500. PRE-REGISTERED 2026-08-26, before running.** The decisive test: the first
+measurement of the semantic layer across the **full distribution**, where records must pay for
+themselves on the ~400 questions that already pass rather than only on questions selected for being
+wrong.
+
+*Configuration*: composite (all records + budgeted episodic selection, ONE LLM call), n=500, seed 42,
+**on the same path as the measured 85** -- probe extraction prompt, independent episodic selection.
+That is deliberate: switching to the production path (turn citations + provenance rehydration) at the
+same time would confound the arm change with a prompt change, and every prior arm is comparable only
+on this path. The production-path equivalence check follows separately.
+
+*Reference points at n=500* (all with the date fix, same model/judge): single-shot **388 (77.6%)**,
+ETC **413 (82.6%)**, ETC deep-retrieval **416 (83.2%)**.
+
+*Bars*:
+- **PRIMARY: >= 425 correct**, i.e. beating the best existing arm (ETC's 413) by more than **2x the
+  ~6-question noise sd**. Anything between 414 and 424 is an improvement that this instrument cannot
+  distinguish from noise, and will be reported as such rather than claimed.
+- **COLLATERAL GUARD**: no question type may fall more than 2x its own noise sd below ETC
+  (temporal 5.8, multi-session 5.7, knowledge-update 4.4, ss-user 4.1, ss-assistant 3.9,
+  preference 2.8, abstention 2.8). The 85-run showed the normal slice at 50 vs ETC's 52 -- inside
+  noise but **not** an improvement -- so a broad regression is the live risk, not a hypothetical one.
+- **KNOWN-MISS FLOOR: >= 15 of the 27** verified retrieval misses (the 85-run reached 22).
+
+*Noise slice, committed inside this run*: the ~6.7% floor was measured **sequentially**, and
+parallelism changes the instrument. A **100-question nested repeat** runs after the main pass. It
+measures **answer-stage noise with records held fixed** -- which is the noise that applies when
+comparing composite runs sharing a record cache. It does **not** measure extraction nondeterminism,
+which would add on top; stating that limit now rather than discovering it later.
+
+*Committed interpretation*: clearing the primary bar makes the semantic layer a measured improvement
+to Aeon across the full benchmark, not just on hard cases, and the kernel-alignment work
+(tree/scoping/supersession) then lands against a validated configuration. Missing it while holding
+the collateral guard means records help the hard cases but do not pay for themselves in aggregate --
+in which case the next question is record *density and ordering*, not more extraction. Breaching the
+collateral guard means consolidated records actively cost accuracy on ordinary questions, which would
+be the most important negative result of this direction and would stop it.
+
+*Cost*: ~415 questions still need consolidation (85 are cached) at ~36 s each = **~4.2 h**, plus
+~25 min of answering and ~10 min for the repeat slice -- **~4.5 h wall-clock**, versus ~9 h before
+the parallel work. Records persist, so any later read-path variant on this sample costs minutes.
+
 ## Verification plan (how to confirm this roadmap is being executed correctly, end to end)
 
 - **Per-stage gates above** are the primary mechanism — each is a concrete test or measurement, not
