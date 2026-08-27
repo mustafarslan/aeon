@@ -6834,3 +6834,46 @@ have walked into a 26-question regression that only fires once someone sends it.
 prompt as a lever for ETC (step-appropriate system + v1 compute flipped 0 of 8 losses). The prediction
 was "expect little"; the direction was not predicted, and is recorded as a miss in the prior rather than
 a confirmation of it.
+
+**STAGE 2b RESULT (2026-08-27). `n_errors=0`. 221 against the 220 baseline — +1, McNemar +3/−2,
+p=1.000. Bar was >=226; this is inside the pre-registered 221–225 within-noise band and is reported as
+such, not claimed.** Only temporal-reasoning moved at all (+1, noise). Counting cohort 84 vs 83, guard
+held.
+
+**The target check is the finding, and it falsifies the legibility hypothesis outright.** Both cases are
+still wrong, and the answers now show exactly why:
+
+| | model's own answer |
+|---|---|
+| `4b24c848` (gold **5**) | "1. Three tops (bought **2023/08/11**) 2. Five tops (bought **2023/09/30**) — **Total: 8**" |
+| `5831f84d` (gold **15**) | "10 videos (mentioned on **2023/08/11**), 15 videos (mentioned on **2023/09/30**) — **Total: 37**" |
+
+**The model now cites both dates, in order, in its own answer — and sums them anyway.** Chronology is
+fully legible. It was already legible before, and ordering it made no difference, because *ordering was
+never the missing thing*. The reader is not failing to see the sequence; it is making a **semantic**
+judgement that two statements of a running total are two events to add rather than one assertion
+revised.
+
+**That closes the record-layer line of attack, and it took three measured nulls to establish it:**
+
+| stage | change | dev result | target questions |
+|---|---|---|---|
+| 2a | co-referent collapse | +1, p=1.000 | unchanged |
+| 2b | chronological ordering | +1, p=1.000 | unchanged |
+| 1 | shipped system prompt | **−13, p=0.0044** | — |
+
+**No record-layer intervention can reach these errors** — not deduplication, not ordering, not date
+normalisation. They need something to assert that two records are *competing claims about one quantity*,
+and that assertion cannot come from per-session extraction (it never sees both sessions) nor from
+rendering (which can only present what the records already say). The only remaining route is an
+**LLM-mediated cross-record pass** — the `SUPERSEDE` step that already exists inside `CONSOLIDATE_PROMPT`
+and is switched **off** in the validated instrument, having been measured as a near-identity echo on ~88%
+of inputs. Turning it on is a real experiment with its own instrument change, not a tweak, and it is
+**not** self-authorised here.
+
+**What is kept, on correctness grounds and with no accuracy claim** (the 2a precedent): chronological
+ordering of EVENT/UPDATE, since a dated sequence rendered out of order is simply wrong; the widened
+date capture, which recovers ~10,700 lines' dates that were being dropped; and the `_decode`
+supersession exclusion, which is a verified bug fix invisible to this benchmark. **The measured
+instrument is now "composite v1 + dedup + chronology", and comparisons to the committed 429 must say
+so.**
