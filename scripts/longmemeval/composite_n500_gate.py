@@ -22,8 +22,15 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parents[2] / "reproducibility_benchmarks" / "longmemeval"
 
-PRIMARY_BAR = 425
+PRIMARY_BAR = 425          # the committed n=500 bar: ETC's 413 + 2x the ~6-question sd
 KNOWN_MISS_FLOOR = 15
+
+# Two noise floors, and they are not interchangeable (v4-plan.md).
+#   frozen     -- records held fixed, answer stage only. Measured 3/100 on the nested
+#                 repeat. Applies to any change that only re-answers the cached corpus.
+#   extraction -- record CONTENT changes, so extraction nondeterminism re-opens. The
+#                 inherited pooled figure, measured sequentially on ETC's full pipeline.
+FLIP_RATE = {"frozen": 0.030, "extraction": 0.067}
 
 # Per-type noise sd, measured on the n=100 date-fix repeat and committed at pre-registration.
 TYPE_SD = {
@@ -61,6 +68,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--composite", default=str(BASE / "composite_arm_n500.json"))
     ap.add_argument("--attribution", default=str(BASE / "answer_turn_attribution.json"))
+    ap.add_argument("--split", choices=("dev", "heldout", "all"), default="all",
+                    help="Score only one half. Bars rescale; the committed n=500 bars "
+                         "are used verbatim only for --split all.")
+    ap.add_argument("--noise-floor", choices=tuple(FLIP_RATE), default="frozen",
+                    help="frozen: re-answer over cached records. extraction: record "
+                         "content changed, so extraction noise adds on top.")
     args = ap.parse_args()
 
     comp = load(args.composite)
@@ -69,11 +82,37 @@ def main():
     miss_ids = [r["question_id"] for r in json.load(open(args.attribution))["results"]
                 if r["category"] == "retrieval_miss"]
 
+    # The composite file may already be a split run; intersect either way so the
+    # reference arms are compared on exactly the same questions.
+    keep = set(comp)
+    if args.split != "all":
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from splits import select as select_split
+        ds_ids = [{"question_id": q, "question_type": comp[q]["question_type"]} for q in comp]
+        keep = {q["question_id"] for q in select_split(ds_ids, args.split, 42, miss_ids)}
+        comp = {q: r for q, r in comp.items() if q in keep}
+    refs = {k: {q: r for q, r in v.items() if q in keep} for k, v in refs.items()}
+    etc = refs["ETC"]
+    miss_ids = [q for q in miss_ids if q in keep]
+
     n = len(comp)
+    sd = math.sqrt(n * FLIP_RATE[args.noise_floor])
+    etc_total = sum(r["correct"] for r in etc.values())
+    if args.split == "all" and args.noise_floor == "frozen":
+        primary_bar, bar_note = PRIMARY_BAR, "committed n=500 bar"
+    else:
+        primary_bar = math.ceil(etc_total + 2 * sd)
+        bar_note = (f"ETC {etc_total} + 2x sd {sd:.1f} on n={n}, "
+                    f"{args.noise_floor} noise floor")
+    miss_floor = (KNOWN_MISS_FLOOR if args.split == "all"
+                  else max(1, round(KNOWN_MISS_FLOOR * len(miss_ids) / 27)))
+    type_scale = math.sqrt(n / 500)
     correct = sum(r["correct"] for r in comp.values())
     errors = sum(r["is_error"] for r in comp.values())
-    print(f"composite n={n}  correct={correct}  accuracy={correct / n:.3%}  n_errors={errors}")
-    if n != 500:
+    print(f"composite n={n}  correct={correct}  accuracy={correct / n:.3%}  n_errors={errors}"
+          f"  split={args.split}  noise={args.noise_floor} (sd {sd:.1f})")
+    if args.split == "all" and n != 500:
         print(f"  !! partial run ({n}/500) -- bars below are NOT the pre-registered verdict")
     print()
 
@@ -86,18 +125,19 @@ def main():
     print(f"{'COMPOSITE':22s}{correct:>9}")
     print()
 
-    print("=== BAR 1 -- PRIMARY (>= 425 correct) ===")
-    if correct >= PRIMARY_BAR:
+    print(f"=== BAR 1 -- PRIMARY (>= {primary_bar} correct; {bar_note}) ===")
+    if correct >= primary_bar:
         primary = "PASS"
-        print(f"  {correct} >= {PRIMARY_BAR}  PASS -- beats ETC's 413 by more than 2x the noise sd")
-    elif correct > 413:
+        print(f"  {correct} >= {primary_bar}  PASS -- beats ETC's {etc_total} by more than 2x the sd")
+    elif correct > etc_total:
         primary = "INDISTINGUISHABLE"
-        print(f"  {correct} is in the 414-424 band: better than ETC's 413, but by less than 2x the "
+        print(f"  {correct} is in the {etc_total + 1}-{primary_bar - 1} band: better than "
+              f"ETC's {etc_total}, but by less than 2x the "
               f"noise sd. Pre-registered reading: an improvement this instrument CANNOT "
               f"distinguish from noise. Reported as such, not claimed.")
     else:
         primary = "FAIL"
-        print(f"  {correct} <= 413  FAIL -- does not beat ETC")
+        print(f"  {correct} <= {etc_total}  FAIL -- does not beat ETC")
     print()
 
     print("=== BAR 2 -- COLLATERAL GUARD (no type > 2x its own sd below ETC) ===")
@@ -109,7 +149,7 @@ def main():
             continue
         ec = sum(etc[q]["correct"] for q in ids if q in etc)
         cc = sum(comp[q]["correct"] for q in ids)
-        floor = ec - 2 * TYPE_SD[t]
+        floor = ec - 2 * TYPE_SD[t] * type_scale
         ok = cc >= floor
         if not ok:
             collateral, _ = "BREACH", breaches.append(t)
@@ -118,11 +158,11 @@ def main():
     print(f"  -> {collateral}" + (f" on {', '.join(breaches)}" if breaches else ""))
     print()
 
-    print(f"=== BAR 3 -- KNOWN-MISS FLOOR (>= {KNOWN_MISS_FLOOR} of 27) ===")
+    print(f"=== BAR 3 -- KNOWN-MISS FLOOR (>= {miss_floor} of {len(miss_ids)}) ===")
     have = [q for q in miss_ids if q in comp]
     got = sum(comp[q]["correct"] for q in have)
     etc_got = sum(etc[q]["correct"] for q in have if q in etc)
-    floor_v = "PASS" if got >= KNOWN_MISS_FLOOR else "FAIL"
+    floor_v = "PASS" if got >= miss_floor else "FAIL"
     print(f"  composite {got}/{len(have)}   ETC {etc_got}/{len(have)}   -> {floor_v}")
     print()
 

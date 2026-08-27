@@ -6556,3 +6556,53 @@ v1 remains the better system by 28 questions and is the configuration every othe
 document was taken on. Its breach is a **real, one-sided, 6-question regression on a 30-question
 slice** whose cause is now understood and whose obvious fix has been measured and rejected. The next
 move is a decision, not a run.
+
+## v4.1 — deepening the semantic layer on LongMemEval-S
+
+**STAGE 0 DONE (2026-08-27): held-out gating.** The protocol change the abstention work needed. The
+one-attempt rule is honest but burns an idea per attempt and makes refinement indistinguishable from
+fitting the test set; the replacement, following Regimes (arXiv:2606.10241), is seeded splits — iterate
+freely on `dev`, let `heldout` decide, publish only on a full 500.
+
+`scripts/longmemeval/splits.py` stratifies on **`(report_type, is_known_miss)`**, not on `question_type`
+as `_stratified_sample()` does. Both refinements are there for measured reasons: `report_type` splits
+`abstention` out of its base type (30 of 500, and it carries the standing breach), and `is_known_miss`
+keeps the 27 verified retrieval misses balanced. Strata are sorted by `question_id` before shuffling, so
+the split depends on the seed alone and not on load order, and assignment alternates within a stratum so
+each is balanced to ±1.
+
+| | dev | heldout |
+|---|---|---|
+| n | 252 | 248 |
+| abstention | 15 | 15 |
+| known-miss cohort | 15 | 12 |
+| every other type | | within 2 |
+
+`--split dev|heldout|all` on `composite_arm_experiment.py` and `composite_n500_gate.py`, defaulting to
+`all`; **the committed n=500 verdict re-runs byte-identically (PASS / BREACH / PASS)**, which is the
+regression that mattered. The gate now also carries `--noise-floor frozen|extraction` (3.0% vs 6.7%) and
+rescales bars by n, because a stage that re-answers cached records and a stage that changes record
+content are not measured against the same instrument.
+
+`tests/test_splits.py` pins determinism, order-independence, partition, per-stratum balance, and
+**outcome-blindness** — the last is a methodology guarantee, not an implementation detail: `dev_heldout()`
+receives only ids and types, so a split can never be chosen to flatter a result.
+
+**A test asserted a stronger guarantee than the design makes, and was corrected rather than the code.**
+`question_type` balance was asserted at ±1; it is ±2, because a type spans two strata (its own plus the
+abstention stratum its `_abs` variants moved to). On the real 500 that shows up as
+single-session-preference 16 vs 14. The per-stratum ±1 guarantee is now pinned separately.
+
+**FINDING THAT CHANGES STAGE 4, surfaced immediately by scoring both halves.** The split balances
+*membership*, and it cannot balance *errors* — it is outcome-blind by construction, which is the point.
+The consequence for abstention is severe: composite v1's **8 abstention errors land 1 in dev and 7 in
+heldout** (dev scores 14/15, heldout 8/15, and the collateral breach appears **only** on the heldout
+half). So **dev carries almost no abstention signal to iterate against.**
+
+This is not a reason to re-seed. Choosing a seed after seeing which half holds the errors is exactly the
+selection this whole mechanism exists to prevent, and the temptation is recorded here rather than acted
+on. The honest reading is that **held-out gating does not help a 30-question cohort with 8 errors** — any
+split leaves too little on both sides. Stage 4 therefore keeps the repo's existing rule instead: *cohorts
+prove mechanism, only aggregates decide worth* — mechanism on the full 30-question cohort, and the
+full-500 run decides. Held-out gating still does its job for Stage 2, where the counting class has 42
+errors spread across both halves.

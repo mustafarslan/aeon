@@ -28,6 +28,8 @@ from consolidation_probe import (  # noqa: E402
 )
 from judge_prompts import get_anscheck_prompt  # noqa: E402
 from precision_selector import build_index, select  # noqa: E402
+from splits import load_miss_ids  # noqa: E402
+from splits import select as select_split  # noqa: E402
 from run_benchmark import (  # noqa: E402
     _generate_with_retry, _get_encoder, _stratified_sample, format_question_with_date,
 )
@@ -50,6 +52,15 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--episodic-budget", type=int, default=6000)
     ap.add_argument("--consolidate", action="store_true")
+    # Held-out gating (v4-plan.md). "all" is the identity, so every invocation that
+    # predates this flag reproduces exactly.
+    ap.add_argument("--split", choices=("dev", "heldout", "all"), default="all")
+    ap.add_argument("--split-seed", type=int, default=42)
+    ap.add_argument("--attribution",
+                    default="reproducibility_benchmarks/longmemeval/answer_turn_attribution.json")
+    ap.add_argument("--system-prompt", default="",
+                    help="System prompt for the ANSWER call. Every composite number to date "
+                         "was measured with this empty -- compose.COMPOSE_SYSTEM was never sent.")
     args = ap.parse_args()
 
     import os
@@ -64,11 +75,16 @@ def main() -> None:
     if args.extra_ids:
         have = {q["question_id"] for q in sample}
         sample += [by_id[q] for q in args.extra_ids if q not in have]
+    if args.split != "all":
+        # Split the SAMPLE, not the dataset, so --split composes with --num-questions.
+        misses = load_miss_ids(args.attribution) if Path(args.attribution).exists() else None
+        sample = select_split(sample, args.split, args.split_seed, misses)
 
     cache_path = Path(args.records_cache)
     cache = json.load(open(cache_path)) if cache_path.exists() else {}
-    print(f"composite arm: {len(sample)} questions | cached records for {len(cache)} | "
-          f"workers={args.workers}", flush=True)
+    print(f"composite arm: {len(sample)} questions (split={args.split}) | "
+          f"cached records for {len(cache)} | workers={args.workers} | "
+          f"system_prompt={'set' if args.system_prompt else 'empty'}", flush=True)
     enc = _get_encoder()
     print(f"warm-up: {_generate_with_retry(llm, 'Say OK.', retries=5)[:20]!r}", flush=True)
 
@@ -123,7 +139,8 @@ def main() -> None:
         prompt = compose(records, epi["context"].splitlines(),
                          format_question_with_date(q))
         t0 = time.perf_counter()
-        hyp = _generate_with_retry(llm, prompt, system_prompt="", temperature=0.0)
+        hyp = _generate_with_retry(llm, prompt, system_prompt=args.system_prompt,
+                                   temperature=0.0)
         gen = time.perf_counter() - t0
         err = "[System Error:" in hyp
         correct, judge = False, ""
@@ -156,6 +173,8 @@ def main() -> None:
             [r["timing_seconds"]["generation"] for r in results]),
     }
     json.dump({"model": args.model, "mode": "composite (records + episodic, 1 call)",
+               "split": args.split, "split_seed": args.split_seed,
+               "system_prompt": args.system_prompt,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)
     print("\n=== summary ===")
     print(json.dumps(summary, indent=2))
