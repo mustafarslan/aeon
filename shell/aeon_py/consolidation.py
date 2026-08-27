@@ -90,7 +90,8 @@ EXTRACT_PROMPT = (
 
 CONSOLIDATE_SYSTEM = (
     "You are consolidating a long-term memory record. You merge and normalise existing "
-    "records. You never invent facts that are not present in the input."
+    "records, and you reconcile facts that were restated as they changed over time. You "
+    "never invent facts that are not present in the input."
 )
 
 CONSOLIDATE_PROMPT = (
@@ -103,8 +104,19 @@ CONSOLIDATE_PROMPT = (
     "2. MERGE: give near-duplicate subtypes inside a bucket one consistent name "
     "(\"music album/EP\", \"album\", \"vinyl\" -> one subtype); drop exact duplicates.\n"
     "3. RESOLVE: if the same real thing appears under several names, keep one line.\n"
-    "4. SUPERSEDE: where an UPDATE revises an earlier record, keep the current value and "
-    "mark it, e.g. 'ITEM(FINANCE/pre-approval): $400,000 [supersedes $350,000]'.\n\n"
+    "4. RECONCILE EVOLVING STATE. This is the step that matters most, and it is the one "
+    "the input cannot mark for you: these records come from sessions that were read "
+    "independently, so a later session NEVER knew it was revising an earlier one and no "
+    "UPDATE line will point it out. Look for two or more records giving a quantity, "
+    "total, status, price or role for the SAME thing on DIFFERENT dates. Decide whether "
+    "the later one RESTATES a running total -- \"three tops from H&M\" on 2023/08/11 and "
+    "\"five tops from H&M\" on 2023/09/30 means the user has five, not eight -- or "
+    "records a genuinely SEPARATE acquisition that adds to the earlier one. If it "
+    "restates, keep ONLY the latest and mark what it replaced, e.g. "
+    "'ITEM(ACQUISITION/clothing): five tops from H&M [2023/09/30] [supersedes three tops "
+    "from H&M]'. If they are separate, keep both.\n"
+    "   When you cannot tell, KEEP BOTH. A wrongly merged pair destroys a fact "
+    "permanently; a wrongly kept pair only leaves the reader where it already was.\n\n"
     "Buckets:\n{buckets}\n\n"
     "Preserve every distinct fact -- this is normalisation, not summarisation. Output the "
     "consolidated records only, one per line.\n\nConsolidated records:"

@@ -6998,3 +6998,55 @@ separate those two, not phrase the same check more carefully") arriving from a f
 **Reverted to `--counting-hint current`** as the default; `_RECONCILE_HINT` is kept in `compose.py` with
 this measurement beside it, following the `_PREMISE_GUARD` and `entities.py` precedent, so the negative
 is discoverable at the point of temptation.
+
+**PATH B PRE-REGISTERED 2026-08-27, before running. Authorised by the user after four reader-side
+nulls closed that hypothesis.** Cross-record consolidation: the one operation per-session extraction
+structurally cannot do, because accumulation is global and extraction is local.
+
+*Three things built:*
+
+1. **`run_merge()` actually writes back.** It computed `merged` and **discarded it** — the docstring
+   claimed to "refuse to write back an empty result" while no write-back code existed to refuse, so
+   consolidation was inert on the store regardless of what the merge returned. Now add-then-supersede,
+   in that order deliberately: a crash between the two steps must leave the user with **both** records (a
+   visible duplicate) rather than **neither** (silent loss) — the same reasoning the WAL's lock ordering
+   encodes. Records the merge left untouched are matched by encoded form and kept in place, so an
+   idempotent merge is a no-op on disk rather than a delete-and-rewrite churn.
+2. **`CONSOLIDATE_PROMPT` step 4 rewritten.** It previously fired only "where an **UPDATE** revises an
+   earlier record" — **dead by construction**, since per-session extraction never emits UPDATE for a
+   cross-session revision. It now names the mechanism explicitly ("these records come from sessions that
+   were read independently, so a later session NEVER knew it was revising an earlier one"), carries the
+   measured example verbatim, and **ties toward safety**: *"When you cannot tell, KEEP BOTH. A wrongly
+   merged pair destroys a fact permanently; a wrongly kept pair only leaves the reader where it already
+   was."* That clause exists because undercounts already outnumber overcounts.
+3. **`--merge-records`** on the harness, caching merged sets separately so the validated corpus stays
+   pristine and re-answers stay cheap.
+
+**MECHANISM GATE (cheap rung, run before the expensive one). 1 of 2 targets reconciled — the first
+non-null signal of the day.**
+
+| | before | after merge |
+|---|---|---|
+| `4b24c848` | "three tops from H&M" [08/11] **and** "five tops from H&M" [09/30], no marker | **"five tops from H&M" [2023/09/30] `[supersedes three tops from H&M]`** — the earlier records are gone. 302 -> 286 records. |
+| `5831f84d` | three EVENT records: 10 videos, 12th video, 15 videos | **unchanged, 0 markers.** They are `EVENT` kind, not `ITEM`, and "finished 10" then "watched 15" on different dates is genuinely ambiguous between restatement and separate viewing. |
+
+**What the gate does and does not establish.** It establishes that the record layer can now *assert* a
+supersession it previously could not express at all — the thing four reader-side interventions were
+missing. It does **not** establish that the reader will use it: the record now says "five tops
+[supersedes three tops]", and whether the answer stops being 8 is exactly what the run measures. Stating
+that before the result, because the same gap between mechanism and worth has already caught this project
+twice today.
+
+*Bars, dev n=252, baseline **221**, **extraction noise floor** (record content changes, so 6.7% not
+3.0%; sd ~4.1):*
+- **PRIMARY: >= 229** (221 + 2 sd). **222–228 within noise, reported not claimed.**
+- **COLLATERAL GUARDS, correctly spaced this time** — the Path A bars were set at the baseline with no
+  noise band, which is the defect this project has now recorded three times: counting **>= 76**,
+  multi-session **>= 37**, preference **>= 9**, abstention **>= 8**.
+- **TARGET CHECK**: `4b24c848` must answer 5, `5831f84d` must answer 15. Given the gate, `4b24c848` is
+  the real test and `5831f84d` is expected to fail at the record level — recorded now so a partial
+  result is not read as a partial success.
+- **CORPUS-DAMAGE GUARD, new and specific to this stage**: the merge rewrites the corpus (302 -> 286 on
+  one question, ~5%). If the run loses questions that were previously right *outside* the counting and
+  knowledge-update types, that is the merge destroying facts, and it stops the direction regardless of
+  the aggregate.

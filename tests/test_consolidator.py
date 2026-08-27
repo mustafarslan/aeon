@@ -228,3 +228,63 @@ def test_merge_runs_on_a_populated_store():
 def test_merge_on_an_empty_store_is_a_no_op():
     c = make(DirtyQueue(), store=FakeStore(), merge=lambda recs: recs)
     assert c.run_merge() == 0
+
+
+# --- run_merge write-back (v4.1 Path B) ---------------------------------------------
+
+def test_run_merge_writes_back_new_records_and_supersedes_the_old(tmp_path):
+    """Until v4.1 run_merge() computed `merged` and DISCARDED it -- its docstring claimed
+    to refuse an empty write-back while no write-back existed to refuse. Consolidation was
+    inert on the store no matter what the merge returned."""
+    from aeon_py.records import Provenance, Record, RecordStore
+    import numpy as np
+    store = RecordStore(tmp_path / "r.atlas", dim=8)
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    old_a = Record(kind="ITEM", text="three tops", bucket="ACQUISITION", subtype="clothing",
+                   provenance=Provenance("s1", (0,)))
+    old_b = Record(kind="ITEM", text="five tops", bucket="ACQUISITION", subtype="clothing",
+                   provenance=Provenance("s2", (0,)))
+    store.add(old_a, vec); store.add(old_b, vec)
+
+    merged_record = Record(kind="ITEM", text="five tops (previously three)",
+                           bucket="ACQUISITION", subtype="clothing",
+                           provenance=Provenance("s2", (0,)))
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [],
+                             extract=lambda *a: [], embed=lambda t: vec, store=store,
+                             merge=lambda recs: [merged_record])
+    assert sc.run_merge() == 1
+    live = [r.text for r in store.all_records()]
+    assert live == ["five tops (previously three)"]
+    assert sc.stats.records_merged_in == 1
+    assert sc.stats.records_superseded == 2
+
+
+def test_run_merge_is_a_no_op_when_the_merge_changes_nothing(tmp_path):
+    """An idempotent merge must not churn the store into a delete-and-rewrite."""
+    from aeon_py.records import Provenance, Record, RecordStore
+    import numpy as np
+    store = RecordStore(tmp_path / "r.atlas", dim=8)
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    r = Record(kind="FACT", text="unchanged", provenance=Provenance("s1", (0,)))
+    store.add(r, vec)
+    before = [x.node_id for x in store.all_records()]
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store,
+                             merge=lambda recs: list(recs))
+    assert sc.run_merge() == 1
+    assert [x.node_id for x in store.all_records()] == before
+    assert sc.stats.records_superseded == 0
+
+
+def test_run_merge_still_refuses_an_empty_result(tmp_path):
+    """Overwriting a populated store with nothing is indistinguishable from erasing the
+    user's memory. Now actually enforced, rather than only claimed."""
+    from aeon_py.records import Provenance, Record, RecordStore
+    import numpy as np
+    store = RecordStore(tmp_path / "r.atlas", dim=8)
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    store.add(Record(kind="FACT", text="keep", provenance=Provenance("s1", (0,))), vec)
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store, merge=lambda recs: [])
+    assert sc.run_merge() == 1
+    assert [r.text for r in store.all_records()] == ["keep"]

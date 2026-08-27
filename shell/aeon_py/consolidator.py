@@ -49,6 +49,8 @@ class ConsolidationStats:
     sessions_failed: int = 0
     records_written: int = 0
     merges_run: int = 0
+    records_merged_in: int = 0
+    records_superseded: int = 0
     seconds_spent: float = 0.0
 
 
@@ -207,5 +209,33 @@ class SessionConsolidator:
         merged = self._merge(current)
         if not merged:
             return len(current)
+
+        # THE WRITE-BACK. Until v4.1 this method computed `merged` and DISCARDED it --
+        # the docstring above claimed to "refuse to write back an empty result" while no
+        # write-back code existed to refuse. Consolidation was therefore inert on the
+        # store no matter what the merge callable returned.
+        #
+        # Order matters and is add-then-supersede, never the reverse: a crash between the
+        # two steps must leave the user with BOTH the old and the new record (a duplicate,
+        # visible and recoverable) rather than neither (silent data loss). The same
+        # reasoning the WAL's lock ordering encodes.
+        #
+        # Superseding is by node_id, so only records that came FROM the store are retired;
+        # a merged record the model invented has `node_id is None` and can supersede
+        # nothing. Records the merge left untouched are matched by identity of their
+        # encoded form and kept as they are, so an idempotent merge is a no-op on disk
+        # rather than a churn of delete-and-rewrite.
+        kept = {r.encode() for r in merged}
+        survivors = [r for r in current if r.encode() in kept]
+        retired = [r for r in current if r.encode() not in kept and r.node_id is not None]
+        fresh = [r for r in merged if r.encode() not in {x.encode() for x in current}]
+
+        for record in fresh:
+            self._store.add(record, self._embed(record.text))
+        for record in retired:
+            self._store.supersede(record)
+
         self.stats.merges_run += 1
-        return len(merged)
+        self.stats.records_merged_in += len(fresh)
+        self.stats.records_superseded += len(retired)
+        return len(survivors) + len(fresh)

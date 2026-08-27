@@ -36,7 +36,7 @@ from run_benchmark import (  # noqa: E402
 
 import numpy as np  # noqa: E402
 from aeon_py.compose import compose  # noqa: E402
-from aeon_py.consolidation import parse_records  # noqa: E402
+from aeon_py.consolidation import consolidate, parse_records  # noqa: E402
 from aeon_py.parallel import ThreadLocalResource, parallel_map  # noqa: E402
 
 
@@ -58,6 +58,11 @@ def main() -> None:
     ap.add_argument("--split-seed", type=int, default=42)
     ap.add_argument("--attribution",
                     default="reproducibility_benchmarks/longmemeval/answer_turn_attribution.json")
+    ap.add_argument("--merge-records", default=None,
+                    help="Path B: run consolidate() over the cached records with the "
+                         "reconciliation-aware CONSOLIDATE_PROMPT, caching merged sets to "
+                         "this path. Changes record CONTENT, so the extraction noise floor "
+                         "applies, not the frozen-records one.")
     ap.add_argument("--counting-hint", choices=("current", "none", "reconcile"),
                     default="current",
                     help="current: COUNT the matching records (every measured number to "
@@ -84,6 +89,8 @@ def main() -> None:
         misses = load_miss_ids(args.attribution) if Path(args.attribution).exists() else None
         sample = select_split(sample, args.split, args.split_seed, misses)
 
+    merge_cache = (json.load(open(args.merge_records))
+                   if args.merge_records and Path(args.merge_records).exists() else {})
     cache_path = Path(args.records_cache)
     cache = json.load(open(cache_path)) if cache_path.exists() else {}
     print(f"composite arm: {len(sample)} questions (split={args.split}) | "
@@ -132,6 +139,15 @@ def main() -> None:
             json.dump(cache, open(cache_path, "w"))
 
         records = parse_records(record_text, qid)
+        if args.merge_records:
+            if qid in merge_cache:
+                records = parse_records(merge_cache[qid], qid)
+            else:
+                merged = consolidate(records, lambda p, **kw: _generate_with_retry(
+                    llm, p, system_prompt=kw.get("system_prompt", ""), temperature=0.0))
+                merge_cache[qid] = "\n".join(r.display() for r in merged)
+                json.dump(merge_cache, open(args.merge_records, "w"))
+                records = merged
 
         # Episodic component. The probe's independent selection is kept here rather than
         # provenance-rehydration, because these records were extracted without turn citations
@@ -182,6 +198,7 @@ def main() -> None:
     json.dump({"model": args.model, "mode": "composite (records + episodic, 1 call)",
                "split": args.split, "split_seed": args.split_seed,
                "counting_hint": args.counting_hint,
+               "merge_records": bool(args.merge_records),
                "system_prompt": args.system_prompt,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)
     print("\n=== summary ===")
