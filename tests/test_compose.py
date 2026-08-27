@@ -182,3 +182,54 @@ def test_prose_records_keep_their_order_after_collapse():
 
 def test_empty_records_still_render_the_placeholder():
     assert render_records([]) == "(no records)"
+
+
+# --- chronology (v4.1 Stage 2b) -----------------------------------------------------
+
+def _ev(text, date=""):
+    return Record(kind="EVENT", text=text, date=date)
+
+
+def test_events_are_ordered_chronologically():
+    """The knowledge-update failures are not missing information -- `4b24c848` holds both
+    "three tops" [2023/08/11] and "five tops" [2023/09/30] and answers 8 against a gold of
+    5. Chronology is made legible rather than adjudicated."""
+    out = order_records([_ev("c", "2023/09/30"), _ev("a", "2023/01/02"), _ev("b", "2023/05/20")])
+    assert [r.text for r in out] == ["a", "b", "c"]
+
+
+def test_coarse_dates_sort_at_the_start_of_their_period():
+    """A record that says only "2023" cannot be placed later than one naming a day."""
+    out = order_records([_ev("day", "2023/05/20"), _ev("year", "2023"), _ev("month", "2023/05")])
+    assert [r.text for r in out] == ["year", "month", "day"]
+
+
+def test_prose_dates_sort_by_their_month():
+    out = order_records([_ev("late", "December 2023"), _ev("early", "spring 2023")])
+    assert [r.text for r in out] == ["early", "late"]
+
+
+def test_dash_and_slash_dates_sort_together():
+    out = order_records([_ev("b", "2023-06-01"), _ev("a", "2023/01/01")])
+    assert [r.text for r in out] == ["a", "b"]
+
+
+def test_undated_events_sort_last_and_keep_input_order():
+    out = order_records([_ev("z"), _ev("y"), _ev("dated", "2023/01/01")])
+    assert [r.text for r in out] == ["dated", "z", "y"]
+
+
+def test_item_ordering_is_unaffected_by_date():
+    """ITEM order is the counting-critical bucket grouping; reordering it by date would
+    scatter the contiguous category runs that grouping exists to build."""
+    recs = [item("b", "MEDIA", "film", date="2023/01/01"),
+            item("a", "MEDIA", "film", date="2023/12/31")]
+    assert [r.text for r in order_records(recs)] == ["a", "b"]   # text order, not date
+
+
+def test_updates_are_ordered_chronologically_before_events():
+    recs = [_ev("event", "2023/01/01"),
+            Record(kind="UPDATE", text="later", date="2023/06/01"),
+            Record(kind="UPDATE", text="earlier", date="2023/02/01")]
+    out = [r.text for r in order_records(recs)]
+    assert out.index("earlier") < out.index("later") < out.index("event")

@@ -262,3 +262,39 @@ def test_tree_refactor_does_not_change_rendered_context(tmp_root, unit_vec):
     for r in recs:
         store.add(r, unit_vec)
     assert render_records(store.all_records()) == expected
+
+
+def test_superseded_records_are_excluded_from_all_records(tmp_root, unit_vec):
+    """BUG FIX. supersede_node() sets hub_penalty, which excludes a node from BEAM SEARCH
+    and nothing else -- enumeration never consulted it, so a superseded record still
+    rendered into every prompt. This test fails against the code as it stood."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    keep = Record(kind="FACT", text="current", provenance=Provenance("s1", (0,)))
+    stale = Record(kind="FACT", text="stale", provenance=Provenance("s1", (1,)))
+    store.add(keep, unit_vec)
+    store.add(stale, unit_vec)
+    assert store.supersede(stale)
+    texts = [r.text for r in store.all_records()]
+    assert texts == ["current"]
+
+
+def test_include_superseded_returns_them_for_audit(tmp_root, unit_vec):
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    r = Record(kind="FACT", text="stale", provenance=Provenance("s1", (0,)))
+    store.add(r, unit_vec)
+    store.supersede(r)
+    assert store.all_records() == []
+    assert [x.text for x in store.all_records(include_superseded=True)] == ["stale"]
+
+
+def test_superseded_records_do_not_reach_the_rendered_context(tmp_root, unit_vec):
+    """The point of the fix: what the model is shown must not contain retired records."""
+    from aeon_py.compose import render_records
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    stale = Record(kind="ITEM", text="old salary", bucket="FINANCE", subtype="pay",
+                   provenance=Provenance("s1", (0,)))
+    store.add(stale, unit_vec)
+    store.add(Record(kind="ITEM", text="new salary", bucket="FINANCE", subtype="pay",
+                     provenance=Provenance("s1", (1,))), unit_vec)
+    store.supersede(stale)
+    assert "old salary" not in render_records(store.all_records())

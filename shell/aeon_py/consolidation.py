@@ -122,7 +122,26 @@ _BARE_BUCKET_RE = re.compile(
     r"^([A-Z_]+)\s*(?:/\s*([^:\[]*))?\s*(?:\[([^\]]*)\])?\s*:\s*(.*)$", re.S)
 _KIND_RE = re.compile(r"^(FACT|EVENT|UPDATE|PREF|TASK)\s*(?:\[([^\]]*)\])?\s*:\s*(.*)$", re.S)
 _TURNS_RE = re.compile(r"#\s*([0-9]+(?:\s*[,\-]\s*[0-9]+)*)\s*$")
-_DATE_RE = re.compile(r"\[([0-9]{4}/[0-9]{2}/[0-9]{2}[^\]]*)\]")
+# Widened for v4.1 Stage 2b. The original required a full YYYY/MM/DD, so `2021-12-17`,
+# `2023/05`, `2023` and `June 2023` all stayed embedded in the record TEXT and never
+# reached the `date` field -- measured at ~10,700 dated lines, 21% of all dated lines in
+# the cached corpus. Dashes are canonicalised to slashes on the way in (same field, same
+# type, normalised content -- not a schema change). Prose forms are captured verbatim and
+# parsed at READ time by `compose._date_key()`; rewriting "spring 2023" to `2023/03/01`
+# on write would invent precision the user never stated and destroy the original string.
+_DATE_RE = re.compile(
+    r"\[("
+    r"[0-9]{4}[/-][0-9]{2}(?:[/-][0-9]{2})?[^\]]*"          # 2023/05/20, 2021-12-17, 2023/05
+    r"|[0-9]{4}"                                            # 2023
+    r"|(?:January|February|March|April|May|June|July|August|September|October|November"
+    r"|December|Spring|Summer|Autumn|Fall|Winter)\s+[0-9]{4}"
+    r")\]", re.IGNORECASE)
+
+
+def _normalise_date(date: str) -> str:
+    """`2021-12-17` -> `2021/12/17`. Only the separator; nothing else is invented."""
+    return re.sub(r"^([0-9]{4})-([0-9]{2})(?:-([0-9]{2}))?",
+                  lambda m: "/".join(x for x in m.groups() if x), date.strip())
 _SUPERSEDES_RE = re.compile(r"\[supersedes\s+([^\]]+)\]", re.I)
 _PROV_RE = re.compile(r"\s*@prov:([^\s]+)\s*$")
 
@@ -219,11 +238,11 @@ def parse_record_line(line: str, session_id: str, *,
 def _finish(kind: str, text: str, bucket: str, subtype: str, session_id: str,
             turns: tuple[int, ...], supersedes: str,
             explicit_date: str = "") -> Optional[Record]:
-    date = explicit_date
+    date = _normalise_date(explicit_date) if explicit_date else ""
     if not date:
         md = _DATE_RE.search(text)
         if md:
-            date = md.group(1).strip()
+            date = _normalise_date(md.group(1))
             text = _DATE_RE.sub("", text).strip()
     else:
         text = _DATE_RE.sub("", text).strip()

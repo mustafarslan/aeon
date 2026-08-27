@@ -292,25 +292,50 @@ class RecordStore:
                       record.subtype, record.date, record.provenance, record.supersedes,
                       record.node_id)
 
-    def _decode(self, node_ids: Iterable[int]) -> list[Record]:
-        """Decode node ids into records, skipping the taxonomy's own bucket nodes.
+    def _decode(self, node_ids: Iterable[int],
+                include_superseded: bool = False) -> list[Record]:
+        """Decode node ids into records, skipping the taxonomy's own bucket nodes and
+        (by default) superseded ones.
 
         Shared by every read path so the "is this a record or a bucket marker?" rule exists
         once rather than three times.
+
+        THE SUPERSESSION SKIP IS A BUG FIX, not an optimisation. `supersede_node()` marks a
+        node by setting `hub_penalty = TOMBSTONE_PENALTY`, which excludes it from BEAM
+        SEARCH -- and nothing else. Enumeration never consulted it: `all_records()` walks
+        `range(atlas.size)` and `records_in_bucket()` walks a subtree, so a record could be
+        superseded and still render into every prompt, indefinitely. The kernel's own
+        `list_nodes_by_scope` documents the same behaviour ("Superseded nodes ARE
+        included"). `test_supersede_uses_the_kernel_primitive` passed while asserting only
+        that the flag was set, so this was invisible.
+
+        Fixed at the choke point rather than in three callers. The check degrades to
+        INCLUDING the record on any binding error, matching `_read_metadata()`'s defensive
+        posture: a change in the extension must fall back to today's behaviour, never to
+        records silently vanishing from a user's memory.
         """
         out: list[Record] = []
         for nid in node_ids:
             meta = self._read_metadata(int(nid))
-            if meta and not meta.startswith(_BUCKET_MARKER):
-                out.append(Record.decode(meta, node_id=int(nid)))
+            if not meta or meta.startswith(_BUCKET_MARKER):
+                continue
+            if not include_superseded:
+                try:
+                    if self.atlas.is_node_superseded(int(nid)):
+                        continue
+                except Exception:
+                    pass
+            out.append(Record.decode(meta, node_id=int(nid)))
         return out
 
     def query(self, embedding: Sequence[float], top_k: int = 20) -> list[Record]:
         raw = self.atlas.navigate_raw(list(embedding), beam_width=max(4, top_k))
         return self._decode(_node_ids_from_raw(raw, top_k))
 
-    def all_records(self) -> list[Record]:
-        return self._decode(range(_as_int(self.atlas.size)))
+    def all_records(self, include_superseded: bool = False) -> list[Record]:
+        """Every live record. `include_superseded=True` is for audit and admin paths that
+        must see what was retired, not for the read path."""
+        return self._decode(range(_as_int(self.atlas.size)), include_superseded)
 
     def _read_metadata(self, node_id: int) -> str:
         """Reads defensively. A store may outlive the code that wrote it, and one bad row --

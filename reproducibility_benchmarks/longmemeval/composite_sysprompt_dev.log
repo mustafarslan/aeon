@@ -1,0 +1,30 @@
+composite arm: 252 questions (split=dev) | cached records for 500 | workers=4 | system_prompt=set
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 7434.79it/s]
+warm-up: 'OK'
+[1/252] c8090214_abs (temporal-reasoning) -> OK (285 records, 27751 chars)
+[2/252] 60bf93ed_abs (multi-session) -> OK (280 records, 26244 chars)
+[3/252] eeda8a6d_abs (multi-session) -> OK (291 records, 26277 chars)
+[4/252] 19b5f2b3_abs (single-session-user) -> OK (279 records, 26505 chars)
+[5/252] 6456829e_abs (multi-session) -> OK (201 records, 22719 chars)
+[6/252] 29f2956b_abs (single-session-user) -> OK (235 records, 25476 chars)
+[7/252] gpt4_fe651585_abs (temporal-reasoning) -> OK (296 records, 29067 chars)
+[8/252] a96c20ee_abs (multi-session) -> WRONG (280 records, 27968 chars)
+[9/252] 0862e8bf_abs (single-session-user) -> OK (284 records, 27079 chars)
+[10/252] bc8a6e93_abs (single-session-user) -> OK (300 records, 28945 chars)
+[11/252] ba358f49_abs (multi-session) -> OK (247 records, 23255 chars)
+[12/252] 15745da0_abs (single-session-user) -> OK (246 records, 25002 chars)
+[13/252] 2311e44b_abs (multi-session) -> OK (259 records, 25735 chars)
+[14/252] f4f1d8a4_abs (single-session-user) -> OK (284 records, 27192 chars)
+[15/252] 0ddfec37_abs (knowledge-update) -> OK (239 records, 22528 chars)
+[16/252] 852ce960 (knowledge-update) -> WRONG (182 records, 20705 chars)
+[17/252] 1cea1afa (knowledge-update) -> OK (270 records, 26126 chars)
+[18/252] e493bb7c (knowledge-update) -> OK (278 records, 27372 chars)
+[19/252] 031748ae (knowledge-update) -> OK (259 records, 25409 chars)
+[20/252] 22d2cb42 (knowledge-update) -> OK (264 records, 26206 chars)
+[21/252] 5c40ec5b (knowledge-update) -> OK (254 records, 24755 chars)
+[22/252] c4ea545c (knowledge-update) -> OK (269 records, 25520 chars)
+[23/252] c7dc5443 (knowledge-update) -> OK (302 records, 27285 chars)
+[24/252] 9ea5eabc (knowledge-update) -> OK (288 records, 27151 chars)
+[25/252] 5831f84d (knowledge-update) -> WRONG (231 records, 24086 chars)
+[26/252] 6071bd76 (knowledge-update) -> OK (266 records, 24625 chars)
+[27/252] 69fee5aa (knowledge-update) -> OK (262 records, 25210 chars)

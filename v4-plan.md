@@ -6740,3 +6740,67 @@ problem:
 **The cohort regex is also wrong and should be fixed before it is used as a guard again**: `370a8ff4`
 ("how many days before…") was classified as counting when it is date arithmetic. `counting_cohort.json`
 overstates the counting class by an unknown amount, and the 42 figure inherits that error.
+
+**STAGES 2b + 2c PRE-REGISTERED 2026-08-27, before running. Reordered ahead of Stage 1's siblings at the
+user's direction, after the 2a falsification named supersession as a counting failure and not only a
+knowledge-update one.**
+
+**THE UPSTREAM FIX ASKED FOR CANNOT BE BUILT, and the reason is architectural rather than a prompt
+weakness.** The instruction was to make extraction emit `UPDATE` / `[supersedes]` tags. It cannot:
+**extraction runs per-session and in parallel** (`parallel_map` over `zip(haystack_dates,
+haystack_sessions)`). The extractor reading the 2023/09/30 session has never seen the 2023/08/11 session,
+so it has no way to know that "five tops from H&M" revises "three tops from H&M". `UPDATE` is emittable
+only for a revision *within one session*; **cross-session supersession is invisible to it by
+construction.** That is why `.supersedes` is populated on 4 of 133,902 records and 0 of 72
+knowledge-update corpora — not because the prompt is weak, but because the information is not in front of
+the model that would have to write the tag.
+
+**Nor is the information missing.** Both target cases already hold everything needed, correctly dated:
+
+| question | records present | gold | v1 answered |
+|---|---|---|---|
+| `4b24c848` | "three tops from H&M" **[2023/08/11]**, "five tops from H&M" **[2023/09/30]** | 5 | **8** (summed) |
+| `5831f84d` | "finished 10 Crash Course videos" **[2023/08/11]**, "watched 15 Crash Course videos" **[2023/09/30]** | 15 | **37** (10+12+15) |
+
+The reader sums a sequence of running totals because **nothing tells it they are a sequence**.
+
+**A mechanical supersession rule was prototyped against all 500 corpora and rejected before being
+built** — the Stage 2a discipline, applied earlier this time. Rule: same bucket + subtype +
+quantity-stripped canonical key, different dates, later wins. It **fires on 3 of 500 questions and
+suppresses 4 records**, and one of the three firings is a plain false positive: `eeda8a6d_abs` has a
+"10-gallon tank" and a "20-gallon tank", which are two tanks, not a revision. It also misses `5831f84d`
+entirely, whose competing statements are `EVENT` records with no shared key. **A one-in-three rule
+applied to three questions is a coin flip that converts knowledge-update errors into undercounts**, and
+there are already more undercounts than overcounts. Not built.
+
+*What IS built, and it is deliberately legibility rather than adjudication:*
+
+1. **`compose._date_key()` + chronological ordering of `EVENT` and `UPDATE` records.** `Record.date` has
+   existed since the schema was written, is populated on 31% of the cached corpus, and was read by
+   **nothing**. Coarse dates sort at the start of their period; prose ("spring 2023") is parsed at read
+   time, never rewritten on write, because guessing `2023/03/01` would invent precision the user never
+   stated. Undated records sort last and keep their relative order. **ITEM ordering is untouched** — it is
+   the counting-critical bucket grouping.
+2. **Write-time date capture widened.** `_DATE_RE` required a full `YYYY/MM/DD`, so `2021-12-17`,
+   `2023/05`, `2023` and `June 2023` stayed stuck in the record text — ~10,700 lines, 21% of all dated
+   lines. Dashes are canonicalised to slashes; nothing else is invented.
+3. **`RecordStore._decode()` now excludes superseded records — a BUG FIX, with no benchmark claim.**
+   `supersede_node()` sets `hub_penalty`, which excludes a node from **beam search and nothing else**;
+   enumeration never consulted it, so a superseded record rendered into every prompt indefinitely.
+   Verified rather than asserted: with the kernel flag confirmed set, the old enumeration path returns
+   `['current', 'stale']` and the fixed one returns `['current']`. **Invisible to this benchmark** — the
+   composite path goes `parse_records()` → `compose()` and never builds a `RecordStore` — so it ships on
+   unit tests alone.
+
+*Offline diff before spending LLM budget*: all 500 renders change order, **median 25 lines moved, max
+45**, and **character count is byte-identical for every question** — verified as a pure reordering, with
+no content added or lost. Larger blast radius than 2a's 6 lines, so it is measured on its own.
+
+*Bars, on dev (n=252), baseline = the dedup dev run's **220**, frozen-records sd 2.7*:
+- **PRIMARY: >= 226** to claim an improvement. **221–225 is within noise and will be reported as such.**
+- **TARGET CHECK (mechanism, not worth)**: `4b24c848` and `5831f84d` are both in scope; if the aggregate
+  moves while these two stay wrong, that is the 2a pattern repeating and will be called out.
+- **COLLATERAL**: counting cohort must not fall below its dev baseline of 83 by more than 2x its sd
+  (>= 78); `single-session-preference` (15) and `abstention` (14) must hold.
+- **One attempt.** Run 2b alone — Stage 1's system-prompt arm is a separate instrument and is measured
+  separately, because two prompt-affecting changes in one run produce an unattributable number.

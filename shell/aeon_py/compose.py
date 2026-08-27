@@ -37,6 +37,7 @@ retrieval. `select_records()` implements that filter; it is not yet needed at be
 
 from __future__ import annotations
 
+import re
 from typing import Iterable, Optional, Sequence
 
 from .entities import EntityGroup, group_entities
@@ -97,6 +98,69 @@ _PREMISE_GUARD = (
 )
 
 
+# --- chronology (v4.1 Stage 2b) -----------------------------------------------------
+#
+# `Record.date` has existed since the schema was written, is populated on 31% of the
+# cached corpus, and until now was read by NOTHING -- not this module's sort key, not
+# `select_records()`, not any date parsing anywhere in the semantic layer.
+#
+# That is measurably load-bearing. The knowledge-update failures are not missing
+# information: `4b24c848` holds "three tops from H&M" [2023/08/11] AND "five tops from
+# H&M" [2023/09/30] and answers 8 against a gold of 5; `5831f84d` holds "finished 10
+# Crash Course videos" [2023/08/11] and "watched 15 Crash Course videos" [2023/09/30]
+# and answers 10 + 12 + 15 = 37 against a gold of 15. Everything needed is present and
+# dated. The reader sums a sequence of running totals because nothing tells it they ARE
+# a sequence.
+#
+# So chronology is made legible rather than adjudicated. Deliberately NOT done here:
+# suppressing the earlier record. A mechanical "later value supersedes earlier" rule was
+# prototyped against all 500 corpora before writing any of this -- it fires on 3
+# questions, suppresses 4 records, and at least one firing is a plain false positive
+# ("10-gallon tank" and "20-gallon tank" are two tanks, not a revision). Deleting a
+# record on a coin flip converts a knowledge-update error into an undercount, and there
+# are already more undercounts than overcounts.
+
+_ISO_DATE = re.compile(r"(\d{4})[/-](\d{2})(?:[/-](\d{2}))?")
+_YEAR_ONLY = re.compile(r"\b(\d{4})\b")
+_MONTHS = {m: i for i, m in enumerate(
+    ("january", "february", "march", "april", "may", "june", "july", "august",
+     "september", "october", "november", "december"), start=1)}
+_SEASONS = {"winter": 1, "spring": 3, "summer": 6, "autumn": 9, "fall": 9}
+
+
+def _date_key(date: str) -> tuple:
+    """Sortable key for a record date. Returns `(sortable, y, m, d)` where `sortable` is
+    0 for a parseable date and 1 otherwise, so undated records sort LAST and -- because
+    every sort here is stable -- keep their existing relative order among themselves.
+
+    Coarse dates sort at the start of their period ("2023" before "2023/05/20"), which is
+    the only defensible reading: a record that says only "2023" cannot be placed later
+    than one that names a day.
+
+    Prose dates are parsed here rather than rewritten on write. "spring 2023" stays
+    verbatim in the record; guessing `2023/03/01` at write time would invent precision the
+    user never stated and destroy the original string, whereas being wrong HERE costs an
+    ordering, not a fact.
+    """
+    if not date:
+        return (1, 0, 0, 0)
+    d = date.strip().lower()
+    m = _ISO_DATE.search(d)
+    if m:
+        return (0, int(m.group(1)), int(m.group(2)), int(m.group(3) or 0))
+    y = _YEAR_ONLY.search(d)
+    if y:
+        year = int(y.group(1))
+        for name, mon in _MONTHS.items():
+            if name in d:
+                return (0, year, mon, 0)
+        for name, mon in _SEASONS.items():
+            if name in d:
+                return (0, year, mon, 0)
+        return (0, year, 0, 0)
+    return (1, 0, 0, 0)
+
+
 def order_records(records: Iterable[Record]) -> list[Record]:
     """Group records so countable members of one category are adjacent.
 
@@ -112,7 +176,14 @@ def order_records(records: Iterable[Record]) -> list[Record]:
     # them before falling back to the raw episodic text.
     updates = [r for r in others if r.kind == "UPDATE"]
     rest = [r for r in others if r.kind != "UPDATE"]
-    return items + updates + rest
+    # Chronological order for the kinds that assert something happened AT a time. ITEM
+    # ordering is untouched -- it is the counting-critical bucket grouping, and reordering
+    # it by date would scatter the contiguous category runs that grouping exists to build.
+    updates.sort(key=lambda r: _date_key(r.date))
+    events = [r for r in rest if r.kind == "EVENT"]
+    non_events = [r for r in rest if r.kind != "EVENT"]
+    events.sort(key=lambda r: _date_key(r.date))
+    return items + updates + events + non_events
 
 
 def select_records(records: Iterable[Record], *, buckets: Optional[Sequence[str]] = None,
