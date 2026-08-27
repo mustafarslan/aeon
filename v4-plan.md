@@ -7050,3 +7050,37 @@ twice today.
   one question, ~5%). If the run loses questions that were previously right *outside* the counting and
   knowledge-update types, that is the merge destroying facts, and it stops the direction regardless of
   the aggregate.
+
+**CORRECTION TO PATH B'S OWN PRE-REGISTRATION (2026-08-27), made before the run finished and before any
+result exists. The primary bar of >= 229 is UNPASSABLE BY CONSTRUCTION and is withdrawn.**
+
+Checked after the run was paused, and it should have been checked before it was written:
+
+| | errors |
+|---|---|
+| knowledge-update — the type supersession targets — on the **whole 500-question benchmark** | **4** |
+| detection threshold at n=500 (2x the 6.7% extraction sd of 5.8) | **11.6** |
+| detection threshold on dev n=252 (2x 4.1) | **8.2** |
+
+**A perfect supersession fix converts at most ~4 questions plus a few counting cases, against a threshold
+of 11.6.** No supersession work can clear an aggregate bar on this benchmark, however well it works.
+Setting one implied a validation that is mathematically incapable of validating.
+
+**This is the third instance of the same defect in this project's record**, and the first one I authored
+and pushed: the ETC v3 floors were "unpassable by construction" (v4-plan.md:4543), Path A's collateral
+guards were set at the baseline with no noise band, and now this. The standing rule — bars at >= 2x the
+sd — is necessary but not sufficient; **a bar must also be checked against the available headroom**, and
+that check is now added to the rule rather than being learned a fourth time.
+
+*Path B's instrument, re-scoped to what it can actually measure:*
+- **MECHANISM on the knowledge-update cohort** — does the merge produce the supersession, and does the
+  reader then use it. Reported as a cohort result, per the standing rule that cohorts prove mechanism
+  while only aggregates decide worth. **There is no aggregate available here, so no worth claim is made.**
+- **CORPUS-DAMAGE GUARD, retained unchanged** — the merge rewrites records, and losses outside the
+  targeted types mean it is destroying facts. That guard is about safety, not accuracy, and it remains
+  the reason to run the full dev split at all.
+
+*Where the headroom actually is, recorded so the next plan starts from it*: multi-session **33** and
+temporal-reasoning **20** — 75% of the remaining 71 errors. Four reader-side nulls and the supersession
+work all leave them untouched. **429 may be this instrument's ceiling**; that is a finding, not a gap to
+be filled by inventing a fifth intervention.
