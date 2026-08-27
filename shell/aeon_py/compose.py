@@ -65,6 +65,29 @@ _COUNTING_HINT = (
 # questions, and "COUNT the matching records" over zero matching records yields a confident 0.
 # So the guard is stated BEFORE the counting hint, which is thereby conditional on the premise
 # holding. It names the three override forms actually observed rather than any specific question.
+#
+# TRIED AND REVERTED (2026-08-27) -- kept, defaulted OFF, as a recorded negative result, and
+# `premise_guard=True` still enables it. It did exactly what it was designed to do and cost more
+# than it bought: abstention 22 -> 30 of 30 (+8, 8 wins to 0 losses, p=0.008), and the run overall
+# 429 -> 401 (-28, p=0.0018), failing the pre-registered primary bar of >=425. One attempt, no
+# wording iteration, per the pre-committed protocol.
+#
+# The damage is concentrated in single-session-preference: 28 -> 9, ZERO wins to 19 losses.
+# Those questions are ADVICE questions ("what should I meal-prep next week?", "tips for keeping
+# the kitchen clean?"), graded on whether the response reflects the user's stated preferences.
+# The right behaviour is to SYNTHESISE advice grounded in the records -- but the records never
+# contain "recipe suggestions for next week" verbatim, so the guard fires and the model refuses:
+# "The provided records and excerpts do not mention specific new recipe suggestions."
+#
+# The lesson is a distinction the guard cannot draw: "the question asks for a fact the records
+# do not contain" (abstain) versus "the question asks for advice the records inform"
+# (synthesise) look identical to a literal premise check. Any future attempt must separate those
+# two, not phrase the same check more carefully.
+#
+# Note also that the pre-registered RISK was named for the wrong cohort. The bar guarded the
+# known-miss 27, on the theory that suppressing commitment would suppress it where the fact is
+# present; that cohort HELD at 22/27. Over-abstention was the right prediction, the location was
+# wrong -- it landed where the answer is not a stored fact at all.
 _PREMISE_GUARD = (
     "First check whether the records and excerpts actually mention the specific thing the "
     "question asks about. If they do not, say that the information is not available and stop -- "
@@ -117,7 +140,7 @@ def render_records(records: Iterable[Record]) -> str:
 
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
-            *, counting_hint: bool = True, premise_guard: bool = True) -> str:
+            *, counting_hint: bool = True, premise_guard: bool = False) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""

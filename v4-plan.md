@@ -6495,3 +6495,64 @@ abstention slice cannot detect its own false positives: every question on it is 
 model that abstained unconditionally would also score 30/30. **This is a gate, not a result**, exactly
 as pre-registered, and the full 500 re-answer is what can falsify it -- above all the **known-miss
 cohort (bar >= 20 of 27)**, where the fact *is* present and withholding is the wrong move.
+
+**ABSTENTION FIX RESULT (2026-08-27). `n_errors=0`. THE FIX FAILS ITS OWN PRE-REGISTRATION AND IS
+REVERTED.** It did exactly what it was designed to do, and cost more than it bought.
+
+| bar | result |
+|---|---|
+| ABSTENTION >= 26 of 30 | **PASS -- 30/30** (+8 over v1, 8 wins to 0 losses, p=0.008) |
+| KNOWN-MISS >= 20 of 27 | **PASS -- 22/27**, unchanged from v1 |
+| PRIMARY >= 425 | **FAIL -- 401** (v1 was 429; -28, 24 wins to 52 losses, p=0.0018) |
+
+*Paired against v1, by type:*
+
+| type | v1 | v2 | delta | wins | losses | p |
+|---|---|---|---|---|---|---|
+| abstention | 22 | **30** | **+8** | 8 | 0 | 0.008 |
+| single-session-user | 61 | 60 | -1 | 0 | 1 | 1.000 |
+| single-session-assistant | 55 | 54 | -1 | 0 | 1 | 1.000 |
+| multi-session | 88 | 87 | -1 | 13 | 14 | 1.000 |
+| knowledge-update | 68 | 63 | -5 | 1 | 6 | 0.125 |
+| temporal-reasoning | 107 | 98 | -9 | 2 | 11 | 0.023 |
+| **single-session-preference** | 28 | **9** | **-19** | **0** | **19** | **<0.0001** |
+
+**The damage is one type, and the reason is a distinction the guard cannot draw.**
+single-session-preference questions are **advice** questions -- "what should I meal-prep next week?",
+"tips for keeping the kitchen clean?", "how do I improve my battery life?" -- graded on whether the
+response reflects the user's stated preferences. The correct behaviour is to **synthesise advice
+grounded in the records**. But the records never contain "recipe suggestions for next week"
+*verbatim*, so a literal premise check fires and the model refuses:
+
+| | |
+|---|---|
+| v1 | "Since you enjoy healthy, Mexican-inspired dishes and have previously prepped quinoa, roasted vegetables, and lentil bolognese, here are some suggestions..." **correct** |
+| v2 | "The provided records and excerpts do not mention specific new recipe suggestions for your meal prep next week." **wrong** |
+
+**"The question asks for a fact the records do not contain" (abstain) and "the question asks for
+advice the records inform" (synthesise) look identical to a literal premise check.** Any future
+attempt has to separate those two cases; phrasing the same check more carefully will not.
+
+**The pre-registered risk was right about the mechanism and wrong about the location, which is worth
+recording as a miss.** The bar was placed on the known-miss 27, reasoning that suppressing commitment
+would suppress it where the fact *is* present. That cohort **held at 22/27**. Over-abstention was the
+correct prediction; it landed where the answer is **not a stored fact at all**, a cohort no bar was
+watching.
+
+**Reverted per the pre-committed one-attempt protocol** -- no second wording iteration, matching the
+precedent set when the ETC v3 COMPUTE prompt was reverted on an exact tie. `_PREMISE_GUARD` is kept in
+`compose.py` defaulted **off** with the measurement recorded beside it and `premise_guard=True` still
+available, so the negative result stays discoverable rather than being deleted.
+
+**Where this leaves the semantic layer: no configuration passes everything, and that is the honest
+state.**
+
+| | primary | collateral | known-miss |
+|---|---|---|---|
+| **v1** (validated instrument) | **PASS 429** | **BREACH** (abstention 22 vs floor 22.4) | **PASS 22/27** |
+| **v2** (premise guard) | **FAIL 401** | PASS (abstention 30) | **PASS 22/27** |
+
+v1 remains the better system by 28 questions and is the configuration every other measurement in this
+document was taken on. Its breach is a **real, one-sided, 6-question regression on a 30-question
+slice** whose cause is now understood and whose obvious fix has been measured and rejected. The next
+move is a decision, not a run.

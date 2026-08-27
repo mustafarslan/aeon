@@ -97,13 +97,15 @@ def test_records_render_with_their_category_and_supersession():
     assert "FINANCE/pre-approval" in p and "supersedes $350,000" in p
 
 
-def test_premise_guard_is_present_by_default_and_suppressible():
-    assert "not available" in compose([item("x")], [], "Q")
-    assert "not available" not in compose([item("x")], [], "Q", premise_guard=False)
+def test_premise_guard_is_off_by_default_and_opt_in():
+    """Tried and reverted: it fixed abstention (22 -> 30/30) and cost 28 questions overall,
+    19 of them single-session-preference advice questions the guard refused to answer."""
+    assert "not available" not in compose([item("x")], [], "Q")
+    assert "not available" in compose([item("x")], [], "Q", premise_guard=True)
 
 
-def test_premise_guard_precedes_the_counting_hint():
-    """The guard must be read before "COUNT the matching records" -- with zero matching
-    records that hint is what produced the measured "Answer: 0" on an unanswerable question."""
-    p = compose([item("x")], [], "Q")
+def test_premise_guard_precedes_the_counting_hint_when_enabled():
+    """Ordering was the substance of the attempt: with zero matching records, "COUNT the
+    matching records" is what produced the measured "Answer: 0" on an unanswerable question."""
+    p = compose([item("x")], [], "Q", premise_guard=True)
     assert p.index("not available") < p.index("COUNT")
