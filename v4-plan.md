@@ -6301,3 +6301,86 @@ python scripts/longmemeval/composite_arm_experiment.py \
   --records-cache reproducibility_benchmarks/longmemeval/records_composite_partial.json \
   --out reproducibility_benchmarks/longmemeval/composite_arm_n500.json
 ```
+
+**COMPOSITE ARM n=500 RESULT (2026-08-27). `n_errors=0`. TWO BARS PASS, THE COLLATERAL GUARD
+BREACHES, AND THE BREACH IS REAL RATHER THAN A BOUNDARY ARTIFACT.** Scored by
+`scripts/longmemeval/composite_n500_gate.py`, which computes the pre-registered bars mechanically and
+was validated first by reproducing the committed 85-run's published numbers exactly.
+
+| arm | correct / 500 | vs ETC | McNemar | p |
+|---|---|---|---|---|
+| single-shot | 388 | -25 | | |
+| ETC | 413 | -- | | |
+| ETC deep-retrieval | 416 | +3 | | |
+| **COMPOSITE** | **429 (85.8%)** | **+16** | +59/-43 | **0.137** |
+
+**BAR 1 -- PRIMARY (>= 425): PASS on the committed instrument, and the paired test does not confirm
+it.** 429 clears 425. But the paired McNemar over the same 500 questions gives **p=0.137**. The bar
+was defined against a repeat-run sd of ~6 questions; McNemar tests the discordant pairs, and the two
+disagree here. **Both are reported, rather than quoting whichever is more flattering.** The
+pre-registered bar is the committed instrument and it passes; the honest gloss is that the aggregate
++16 over ETC is *not* independently confirmed as significant.
+
+**BAR 2 -- COLLATERAL GUARD: BREACH on abstention.** 22 against ETC's 28, with the floor at 22.4.
+
+| type | n | ETC | comp | delta | McNemar | p | real? |
+|---|---|---|---|---|---|---|---|
+| single-session-preference | 30 | 13 | **28** | **+15** | +15/-0 | **<0.001** | **REAL** |
+| single-session-user | 64 | 55 | 61 | +6 | +7/-1 | 0.070 | noise |
+| temporal-reasoning | 127 | 103 | 107 | +4 | +15/-11 | 0.557 | noise |
+| single-session-assistant | 56 | 52 | 55 | +3 | +4/-1 | 0.375 | noise |
+| knowledge-update | 72 | 66 | 68 | +2 | +5/-3 | 0.727 | noise |
+| multi-session | 121 | 96 | 88 | -8 | +13/-21 | 0.229 | noise |
+| **abstention** | 30 | 28 | **22** | **-6** | **+0/-6** | **0.031** | **REAL** |
+
+**The 0.4-question margin below the floor must not be used to soften this.** The paired test is
+**+0/-6, p=0.031** -- a perfectly one-sided regression. On the aggregate it cuts the other way too:
+excluding abstention the composite is **+22, p=0.032** (post-hoc, and labelled as such -- it is a
+diagnostic, not the result), meaning **one 30-question slice is what keeps the headline gain from
+being significant.**
+
+**The mechanism, which is narrower than the guard's clause anticipated.** On all six lost abstention
+questions the composite **correctly identifies the missing information and then answers anyway**:
+
+| question | reference | composite |
+|---|---|---|
+| `88432d0a_abs` | not enough info -- no egg tarts | "there is no mention of you baking egg tarts... You have baked cookies, a chocolate cake..." |
+| `gpt4_93159ced_abs` | not enough info -- hasn't started at Google | "you do not work at Google; you are a Backend Developer at NovaTech..." |
+| `gpt4_70e84552_abs` | not enough info -- no cow purchase | "There is no record of you purchasing three cows from Peter; in fact..." |
+
+ETC answers these with "Not enough information" / "I don't know" and scores. **This is not
+hallucination -- the composite's content is correct on every one.** It is an *abstention-behaviour*
+failure: a record-dense context makes the model substantive and helpful where the judge requires an
+explicit refusal. The guard's clause was written for "consolidated records actively cost accuracy on
+ordinary questions"; what was measured is narrower and specific to answer form.
+
+**BAR 3 -- KNOWN-MISS FLOOR (>= 15 of 27): PASS, 22/27 against ETC's 2/27** -- the 85-run's central
+result reproduces at full scale.
+
+**Cost, unchanged as the product argument:**
+
+| | accuracy | context | calls | generation | accuracy-pts / 10k chars |
+|---|---|---|---|---|---|
+| single-shot | 77.6% | 100,889 | 1 | 1.51 s | 7.69 |
+| ETC | 82.6% | 100,889 | 2 | 2.46 s | 8.19 |
+| **composite** | **85.8%** | **26,056** | **1** | **0.85 s** | **32.93** |
+
+**3.9x more context-efficient, half the LLM calls, 2.9x faster generation.**
+
+**What this run settles, and what it does not.** Settled: records convert on hard retrieval cases at
+full scale (22/27), and **preference is a large, unambiguous, real gain (+15, 15 wins to 0 losses)**
+that no prior arm produced. Not settled: the aggregate improvement over ETC -- 429 clears the
+pre-registered count but not the paired test, and abstention is why.
+
+**The pre-registered stop-clause fires.** It says a collateral breach "would be the most important
+negative result of this direction and would stop it." It fires on the numbers as committed. The
+measured mechanism is narrower than the clause's wording, and the fix is cheap and specific (the read
+path's instruction on how to answer when a record set does not contain the asked-for fact) -- but
+**deciding that a narrower mechanism warrants a scoped exception is not something this run may grant
+itself by reinterpreting its own bar after seeing the result.** Recorded as a breach; the next step
+is an abstention fix followed by a re-measure of the same 30-question slice, which costs minutes
+because the records are cached.
+
+**Still outstanding from this pre-registration**: the **100-question nested repeat** (the
+parallel-era answer-stage noise floor) has not been run. Every significance claim above therefore
+leans on McNemar and on the inherited sequential sd, not on a parallel-era repeat measurement.
