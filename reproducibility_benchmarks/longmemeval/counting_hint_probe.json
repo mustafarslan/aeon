@@ -1,0 +1,233 @@
+{
+  "reconcile_hint": "If the question asks for a count or total quantity:\n- If multiple records provide updated totals or revised statuses for the same item or activity across dates, use the latest updated figure rather than summing historical values.\n- If records describe separate, distinct additions or events, sum them.\n- If the item or activity is never mentioned at all, state that there is no record of it (do not answer 0).",
+  "results": [
+    {
+      "question_id": "4b24c848",
+      "gold": "five",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": false,
+          "tail": "f 8 tops from H&M.\n\n**Count:**\n1. Three tops (bought 2023/08/11)\n2. Five tops (bought 2023/09/30)\n**Total: 8**"
+        },
+        "no_hint": {
+          "correct": false,
+          "tail": "e bought a total of eight tops from H&M so far (three bought around 2023/08/11 and five bought by 2023/09/30)."
+        },
+        "reconcile": {
+          "correct": false,
+          "tail": "You have bought a total of 8 tops from H&M (three tops on 2023/08/11 and five tops on 2023/09/30)."
+        }
+      }
+    },
+    {
+      "question_id": "5831f84d",
+      "gold": "15",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": " most recent record from 2023/09/30 states that you watched **15** Crash Course videos in the few weeks prior."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "cience.\n*   **By September 30:** You mentioned watching another 15 videos in the few weeks prior to that date."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "ched 15 Crash Course videos in the past few weeks, according to your most recent update on September 30, 2023."
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_213fd887",
+      "gold": "volleyball league",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "oined the recreational volleyball league in March 2023, while the charity 5K run took place on April 24, 2023."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": " volleyball league first, which you joined in March 2023, whereas the charity 5K run took place in April 2023."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "oined the recreational volleyball league in March 2023, while the charity 5K run took place on April 24, 2023."
+        }
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "gold": "4",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": false,
+          "tail": " ricotta.\n5.  **Thai**: Expressed strong interest in Pok Pok (Thai cuisine) and its specific dishes.\n\nCount: 5"
+        },
+        "no_hint": {
+          "correct": false,
+          "tail": "w-based ricotta.\n5.  **Thai:** You expressed strong interest in visiting Pok Pok to try authentic Thai dishes."
+        },
+        "reconcile": {
+          "correct": false,
+          "tail": "in visiting Pok Pok to try Thai dishes (though the records primarily show your intent and desire to try them)."
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_15e38248",
+      "gold": "4",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": false,
+          "tail": "same West Elm table).\n\n**Total Count: 3 unique pieces of furniture** (Bookshelf, Coffee Table, Kitchen Table)."
+        },
+        "no_hint": {
+          "correct": false,
+          "tail": "the weekend prior to 2023/05/26.\n4.  **Living room furniture**: You rearranged your living room on 2023/05/21."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "/05/26).\n*   **Bought:** 1 cat tree (acquired 2023/05/23).\n\nThere are no records of you selling any furniture."
+        }
+      }
+    },
+    {
+      "question_id": "gpt4_59c863d7",
+      "gold": "I have worked on or bought five model kits. The scales of the models are: Revell",
+      "is_canary": false,
+      "cells": {
+        "current": {
+          "correct": false,
+          "tail": " I tank\n6. A \"simple Revell F-15 Eagle kit\" (mentioned in excerpts as the one you recently finished)\n\nCount: 6"
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "bomber\n*   Revell F-15 Eagle\n*   Tamiya Spitfire Mk.V\n*   German Tiger I tank\n\nTotal: **5 unique model kits**."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "his is the same as the Revell F-15 Eagle listed above).\n\n*Correction: Counting distinct kits, the total is 5.*"
+        }
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "gold": "2",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": false,
+          "tail": "/localhost:11434. Details: 503 Server Error: Service Unavailable for url: http://localhost:11434/api/generate]"
+        },
+        "no_hint": {
+          "correct": false,
+          "tail": "ith Dr. Johnson for April 1st and are considering an appointment with Dr. Patel, those have not occurred yet.)"
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": " records of completed appointments in March. (The EMG with Dr. Johnson is scheduled for April 1st).\n\nAnswer: 2"
+        }
+      }
+    },
+    {
+      "question_id": "031748ae",
+      "gold": "When you just started your new role as Senior Software Engineer, you led 4 engin",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "ad a team of 5 engineers (as mentioned in the conversation excerpt from 2023/10/24 and recorded in the facts)."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "your new role as Senior Software Engineer, you led a team of 4 engineers. Now, you lead a team of 5 engineers."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "your new role as Senior Software Engineer, you led a team of 4 engineers. Now, you lead a team of 5 engineers."
+        }
+      }
+    },
+    {
+      "question_id": "06db6396",
+      "gold": "5",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "You have completed 5 painting projects since starting your painting classes."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "You have completed 5 painting projects since starting your painting classes."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "You have completed 5 painting projects since starting your painting classes."
+        }
+      }
+    },
+    {
+      "question_id": "078150f1",
+      "gold": "$50",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "You raised $50 more than your initial goal. Your initial goal was $200, and you ended up raising $250."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "You raised $50 more than your initial goal. Your initial goal was $200, and you ended up raising $250."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "You raised $50 more than your initial goal. Your initial goal was $200, and you ended up raising $250."
+        }
+      }
+    },
+    {
+      "question_id": "09ba9854",
+      "gold": "$50",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "r train) costs around $9\u201311.\n\nBy taking the train instead of a taxi, you would save approximately **$49\u2013$51**."
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": " Narita Express or Keisei Skyliner), which costs around **$23\u2013$28**, you would save approximately **$32\u2013$37**."
+        },
+        "reconcile": {
+          "correct": false,
+          "tail": "in option is around $9\u2013$11.\n\nDepending on which train you choose, you would save approximately **$32 to $51**."
+        }
+      }
+    },
+    {
+      "question_id": "0a995998",
+      "gold": "3",
+      "is_canary": true,
+      "cells": {
+        "current": {
+          "correct": true,
+          "tail": "changed boots from Zara.\n2. Return old boots to Zara.\n3. Pick up navy blue blazer from dry cleaning.\n\nCount: 3"
+        },
+        "no_hint": {
+          "correct": true,
+          "tail": "anged boots from Zara.\n*   **Pick up:** Navy blue blazer from dry cleaning.\n*   **Return:** Old boots to Zara."
+        },
+        "reconcile": {
+          "correct": true,
+          "tail": "ck up exchanged boots from Zara.\n2. Return old boots to Zara.\n3. Pick up a navy blue blazer from dry cleaning."
+        }
+      }
+    }
+  ]
+}

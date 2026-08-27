@@ -6877,3 +6877,47 @@ date capture, which recovers ~10,700 lines' dates that were being dropped; and t
 supersession exclusion, which is a verified bug fix invisible to this benchmark. **The measured
 instrument is now "composite v1 + dedup + chronology", and comparisons to the committed 429 must say
 so.**
+
+**COUNTING-HINT ABLATION (2026-08-27). Free rung, run BEFORE pre-registering a replacement. Verdict:
+INCONCLUSIVE on aggregate, NEGATIVE on the flagship target.**
+
+The proposal — from an external analysis — is that `_COUNTING_HINT` ("If the question asks how many,
+COUNT the matching records and show the count") is *the direct cause* of the supersession sums, and that
+a reconciliation-aware replacement fixes them. `compose()` already exposes `counting_hint: bool`, so the
+discriminating experiment was free and did not need any new wording written first.
+
+| cell | targets | canaries |
+|---|---|---|
+| current hint | 2/6 | 5/6 (+1 infra failure) |
+| **no hint at all** | 3/6 | 5/6 |
+| reconciliation hint | 4/6 | 5/6 |
+
+**Those totals cannot carry any weight, and the probe's own noise proves it: 2 of 9 re-run cells
+disagree with their own dev-run label** — `5831f84d` was WRONG on dev and OK here under the *identical*
+configuration; `00ca467f` was OK on dev and WRONG here. That is a **22% self-disagreement rate at n=9**,
+against a measured 3.0% at scale — small-sample variance, and a 2→4 swing on six questions sits entirely
+inside it.
+
+**The qualitative reading is the useful one, and it is not encouraging for the proposal:**
+
+- **`4b24c848`, the flagship target, is wrong in all three cells including the reconciliation hint.**
+  Its answer there: *"a total of 8 tops from H&M (three tops on 2023/08/13 and five tops on
+  2023/09/30)"*. The directive was present and read; the model simply **classified the two records as
+  distinct additions rather than a revised total** — which is precisely the semantic judgement bullet 1
+  asks it to make. The instruction does not fail to be seen. It fails to change the judgement.
+- **`5831f84d` answered correctly in ALL three cells, including the unmodified one** — *"the most recent
+  record from 2023/09/30 states that you watched 15"*. The model can already do this reconciliation
+  unprompted, sometimes. That makes it a variance case, not a capability gap, and it means the dev run's
+  failure on it was luck rather than mechanism.
+- **One canary regressed under the reconciliation hint**: `09ba9854` went from a definite "$49–$51" to a
+  hedged "$32 to $51".
+
+**A defect in this probe, found by running it**: an Ollama 503 during model load was scored as a wrong
+answer, exactly the failure `run_benchmark.py:79-83` documents having been bitten by in this project's
+first pilot. A guard was added after the fact — and the guard as first written still missed it, because
+it matched on the stored 110-character *tail* while `[System Error:` appears at the *start* of the
+hypothesis. Recorded rather than quietly re-run.
+
+**Status of the causal claim: implicated, not convicted.** "COUNT the matching records" over two matching
+records literally yields **2**, not 8 — the model is summing quantities *inside* the records, which the
+hint does not literally command. The free rung was supposed to settle that and did not.
