@@ -7139,3 +7139,47 @@ would be indistinguishable from noise.
   lost (2x sd). Losses above that mean the merge is destroying facts rather than reconciling them, and
   that stops the direction regardless of how many targets convert. This is the safety question the full
   sweep was going to answer, asked on the slice where the merge is most active.
+
+**KNOWLEDGE-UPDATE COHORT RESULT (2026-08-27). `n_errors=0`. 35/36 against a baseline of 32/36.**
+
+| | |
+|---|---|
+| conversions | **3** — `4b24c848`, `5831f84d`, `852ce960` |
+| losses among the 32 previously correct | **0** (guard allowed 3) |
+| aggregate delta | **+3 against a 2x sd of 3.1 — at the threshold, does not clear it** |
+
+**The aggregate is not claimable and is not claimed.** +3 against 3.1 is inside the band by the
+project's own rule, and this is exactly the cohort where that rule was known in advance to bind — it is
+why the pre-registration said no aggregate claim was available before the run, not after.
+
+**The mechanism result is the real one, and it is qualitatively different from the four nulls.** In
+2a, 2b, Stage 1 and Path A the intervention was present and the *named targets were unchanged*. Here
+three of four pre-named targets converted, with the cause visible end to end: the stale record is gone
+from the prompt and the wrong answer went with it. Three named cases converting is stronger evidence of
+mechanism than a +3 aggregate is of worth, and the two must not be conflated.
+
+**Discounting my own result where it deserves it.** `5831f84d` answered correctly in *all three cells*
+of the earlier counting-hint ablation, including the unmodified one — it is a variance case and its
+conversion here is not evidence. **The solid conversions are `4b24c848` and `852ce960`**, both flagship,
+both previously immune to four interventions.
+
+**A pre-registered prediction of mine was wrong, and in the flattering direction.** I recorded before
+the run that `5831f84d` was "expected to stay wrong because the merge did not produce a marker for it".
+It converted. The prediction was wrong; the reasoning behind it (no marker was produced) was correct,
+which means the conversion happened for some reason other than supersession — reinforcing rather than
+weakening the decision to discount it.
+
+**`01493427` did not convert**, and shows the boundary: gold **25**, and it answers *"8 postcards
+(acquired ... 2023/11/30) — **Total: 50**"*. The merge did not reconcile it, and this is the
+predicate-boundary/accumulation failure the 2a falsification already named — not a supersession failure,
+so not something this mechanism reaches.
+
+**The safety question the full sweep was going to answer is answered on the slice that matters most.**
+Zero losses among 32 previously-correct questions, on the cohort where the merge is most active. The
+merge reconciles without destroying facts here. That is a *cohort-scale* result and does not license a
+claim about the other 216 dev questions, where the full sweep remains outstanding and is deferred to
+final validation.
+
+**Verdict for the gate: PASSES on mechanism, with no accuracy claim.** Proceeding to the TPG overlay is
+justified as product architecture — durable supersession links, timeline projection, and a queryable
+"what replaced this?" — and explicitly **not** as an accuracy play.

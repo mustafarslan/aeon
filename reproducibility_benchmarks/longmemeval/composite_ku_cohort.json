@@ -1,0 +1,668 @@
+{
+  "model": "gemma4:31b-cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "split": "all",
+  "split_seed": 42,
+  "counting_hint": "current",
+  "merge_records": true,
+  "system_prompt": "",
+  "summary": {
+    "n": 36,
+    "n_errors": 0,
+    "correct": 35,
+    "accuracy": 0.9722222222222222,
+    "median_records": 263.5,
+    "median_prompt_chars": 25473.5,
+    "median_generation_seconds": 0.823588938001194
+  },
+  "results": [
+    {
+      "question_id": "01493427",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "25",
+      "hypothesis": "Based on the records and conversation excerpts, you have added a total of **50** new postcards to your collection since you started collecting again:\n\n*   **17 postcards** (added and cataloged on 2023/08/11)\n*   **25 postcards** (mentioned on 2023/11/30)\n*   **8 postcards** (acquired from a local antique shop on 2023/11/30)\n\n**Total: 50 postcards**",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 21967,
+      "episodic_chars": 5743,
+      "prompt_chars": 27708,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4639781669975491
+      }
+    },
+    {
+      "question_id": "031748ae",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "When you just started your new role as Senior Software Engineer, you led 4 engineers. Now, you lead 5 engineers",
+      "hypothesis": "When you first started your new role as Senior Software Engineer, you led a team of 4 engineers (as mentioned in the conversation excerpt from 2023/05/11).\n\nNow, you lead a team of 5 engineers (as noted in the record FACT: \"The user leads a team of five engineers in their role as Senior Software Engineer. [2023/10/24]\").",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 245,
+      "record_chars": 19570,
+      "episodic_chars": 5788,
+      "prompt_chars": 24536,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.5973254999989877
+      }
+    },
+    {
+      "question_id": "06db6396",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5",
+      "hypothesis": "You have completed 5 projects since starting painting classes.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 253,
+      "record_chars": 19204,
+      "episodic_chars": 5760,
+      "prompt_chars": 23993,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.916796332996455
+      }
+    },
+    {
+      "question_id": "07741c45",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "in a shoe rack in my closet",
+      "hypothesis": "You previously kept your old sneakers under your bed, but you also mentioned having some in a shoe rack in your closet.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 244,
+      "record_chars": 18211,
+      "episodic_chars": 5760,
+      "prompt_chars": 23938,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6368057079962455
+      }
+    },
+    {
+      "question_id": "0977f2af",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Instant Pot",
+      "hypothesis": "You invested in an Instant Pot before getting the Air Fryer.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 17899,
+      "episodic_chars": 5487,
+      "prompt_chars": 23600,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6292724590020953
+      }
+    },
+    {
+      "question_id": "0ddfec37",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "15",
+      "hypothesis": "Based on the conversation excerpt from 2023/07/11, you stated that you had added 15 autographed baseballs to your collection since you started collecting three months prior.\n\nCount: 15",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 277,
+      "record_chars": 22141,
+      "episodic_chars": 5982,
+      "prompt_chars": 27563,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8987363330088556
+      }
+    },
+    {
+      "question_id": "0e4e4c46",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "132 points",
+      "hypothesis": "Your current highest score in Ticket to Ride is 132 points.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 20962,
+      "episodic_chars": 5441,
+      "prompt_chars": 26205,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7695103339938214
+      }
+    },
+    {
+      "question_id": "184da446",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "220",
+      "hypothesis": "You have read up to page 220 of \"A Short History of Nearly Everything.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20259,
+      "episodic_chars": 4699,
+      "prompt_chars": 24885,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8773175420064945
+      }
+    },
+    {
+      "question_id": "1cea1afa",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "600",
+      "hypothesis": "You currently have 600 Instagram followers.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20402,
+      "episodic_chars": 5737,
+      "prompt_chars": 26222,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6220808750076685
+      }
+    },
+    {
+      "question_id": "2133c1b5",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "3 months",
+      "hypothesis": "You have been living in your studio apartment in Harajuku for 3 months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 18193,
+      "episodic_chars": 5991,
+      "prompt_chars": 23566,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6432868330011843
+      }
+    },
+    {
+      "question_id": "22d2cb42",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "The music shop on Main St.",
+      "hypothesis": "You got your guitar serviced at a music shop on Main St called \"Rhythm Central.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 261,
+      "record_chars": 20205,
+      "episodic_chars": 5963,
+      "prompt_chars": 26130,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7342679160065018
+      }
+    },
+    {
+      "question_id": "2698e78f",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "every week",
+      "hypothesis": "You see your therapist, Dr. Smith, weekly.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 21440,
+      "episodic_chars": 5936,
+      "prompt_chars": 27427,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6266224580031121
+      }
+    },
+    {
+      "question_id": "3ba21379",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Ford F-150 pickup truck",
+      "hypothesis": "You are currently working on a 1/25 scale Ford F-150 pickup truck model.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 289,
+      "record_chars": 20357,
+      "episodic_chars": 5358,
+      "prompt_chars": 25377,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9523888750118203
+      }
+    },
+    {
+      "question_id": "4b24c848",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "hypothesis": "You have bought 5 tops from H&M so far.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 289,
+      "record_chars": 22083,
+      "episodic_chars": 5915,
+      "prompt_chars": 26504,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.703767125000013
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Your previous frequent flyer status on United Airlines was Premier Silver.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 294,
+      "record_chars": 21505,
+      "episodic_chars": 5632,
+      "prompt_chars": 27038,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8733288750081556
+      }
+    },
+    {
+      "question_id": "5831f84d",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "15",
+      "hypothesis": "Based on the records and excerpts, you have mentioned watching Crash Course videos on three separate occasions:\n\n1. On 2023/08/11, you mentioned finishing **10 videos** in the past few weeks.\n2. On 2023/08/11, you also mentioned finishing your **12th video** on computer science.\n3. On 2023/09/30, you mentioned watching **15 videos** in the few weeks prior.\n\nDepending on whether you are referring to your most recent streak or your total progress mentioned, you watched **15** Crash Course videos in the few weeks leading up to September 30, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 17997,
+      "episodic_chars": 5822,
+      "prompt_chars": 23956,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3130987499898765
+      }
+    },
+    {
+      "question_id": "5a4f22c0",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "TechCorp",
+      "hypothesis": "Rachel is currently working at TechCorp.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 299,
+      "record_chars": 22001,
+      "episodic_chars": 4983,
+      "prompt_chars": 27403,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7365926250058692
+      }
+    },
+    {
+      "question_id": "5c40ec5b",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "We've met up twice.",
+      "hypothesis": "Based on the records and conversation excerpts, you have met up with Alex from Germany **2** times.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 19884,
+      "episodic_chars": 4853,
+      "prompt_chars": 24439,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7223837919882499
+      }
+    },
+    {
+      "question_id": "603deb26",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "10",
+      "hypothesis": "You have tried making a Negroni at home 10 times since your friend Emma showed you how to make it.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 286,
+      "record_chars": 21437,
+      "episodic_chars": 5795,
+      "prompt_chars": 27107,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4373354999988806
+      }
+    },
+    {
+      "question_id": "6071bd76",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "You switched to less water (5 ounces) per tablespoon of coffee.",
+      "hypothesis": "You switched to **less** water per tablespoon of coffee. Your previous ratio was 1 tablespoon for every 6 ounces of water, and you updated it to 1 tablespoon for every 5 ounces of water.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 18938,
+      "episodic_chars": 5745,
+      "prompt_chars": 23834,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8491951670002891
+      }
+    },
+    {
+      "question_id": "69fee5aa",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "38",
+      "hypothesis": "You have 38 pre-1920 American coins in your collection.\n\n**Count:**\n*   Initial collection: 37 coins (ITEM(POSSESSION/coin): Pre-1920 American coins)\n*   Recent addition: 1 coin (ITEM(ACQUISITION/coin): 1915-S Barber quarter)\n*   **Total: 38**",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 18889,
+      "episodic_chars": 5989,
+      "prompt_chars": 25072,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.8921420840051724
+      }
+    },
+    {
+      "question_id": "71315a70",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "10-12 hours",
+      "hypothesis": "You have spent 10-12 hours on your abstract ocean sculpture.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 310,
+      "record_chars": 22536,
+      "episodic_chars": 5413,
+      "prompt_chars": 27773,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.654841875002603
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks as of 2023/09/30.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 22035,
+      "episodic_chars": 5931,
+      "prompt_chars": 28035,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4065968749928288
+      }
+    },
+    {
+      "question_id": "852ce960",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "$400,000",
+      "hypothesis": "You were pre-approved for $400,000 from Wells Fargo (which superseded a previous pre-approval of $350,000).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 181,
+      "record_chars": 14420,
+      "episodic_chars": 5937,
+      "prompt_chars": 20716,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6435400830087019
+      }
+    },
+    {
+      "question_id": "9ea5eabc",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Paris",
+      "hypothesis": "You went to Paris on your most recent family trip, which took place in April 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 288,
+      "record_chars": 21221,
+      "episodic_chars": 5826,
+      "prompt_chars": 27209,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.760933749988908
+      }
+    },
+    {
+      "question_id": "b6019101",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5",
+      "hypothesis": "Based on the records and conversation excerpts, you watched 5 MCU films in the last 3 months (as of May 29, 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19331,
+      "episodic_chars": 5455,
+      "prompt_chars": 24715,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7125843340036226
+      }
+    },
+    {
+      "question_id": "ba61f0b9",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "6",
+      "hypothesis": "Based on the provided records and conversation excerpts, there are conflicting mentions of the number of women on Rachel's team:\n\n*   In the conversation from 2023/01/18, the user states that \"half of them are women\" on a team of 10 people (which would be 5).\n*   In the conversation from 2023/07/20 and the stored FACT, the user states there are \"6 women out of 10 people.\"\n\nDepending on which statement is used, the count is either 5 or 6.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 251,
+      "record_chars": 18969,
+      "episodic_chars": 5312,
+      "prompt_chars": 24036,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4936735419905744
+      }
+    },
+    {
+      "question_id": "c4ea545c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Yes",
+      "hypothesis": "Yes, you go to the gym more frequently than you did previously.\n\nAccording to the conversation excerpts:\n*   On **2023/06/01**, you stated that you go to the gym on **Tuesdays, Thursdays, and Saturdays** (3 times a week).\n*   On **2023/08/15**, you mentioned that you have been consistent with your gym routine\u2014**four times a week**, actually.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 19646,
+      "episodic_chars": 5997,
+      "prompt_chars": 25570,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0262165000021923
+      }
+    },
+    {
+      "question_id": "c7dc5443",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5-2",
+      "hypothesis": "Your current record in the recreational volleyball league with your team, the Net Ninjas, is 5-2.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 22652,
+      "episodic_chars": 5262,
+      "prompt_chars": 28632,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8683664590062108
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "about two hours",
+      "hypothesis": "You dedicate approximately two hours each day to coding exercises.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 245,
+      "record_chars": 18674,
+      "episodic_chars": 5377,
+      "prompt_chars": 24256,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7584779169992544
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Friday",
+      "hypothesis": "You take a cocktail-making class on Fridays.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 274,
+      "record_chars": 21210,
+      "episodic_chars": 5935,
+      "prompt_chars": 26945,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6724892080092104
+      }
+    },
+    {
+      "question_id": "d7c942c3",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Yes.",
+      "hypothesis": "Yes, your mom is using the same grocery list app as you. While you previously mentioned she was stuck on her old paper list, you later confirmed on 2023/04/30 that she is now using the same app, allowing you both to easily share lists and keep track of what you need.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20274,
+      "episodic_chars": 5632,
+      "prompt_chars": 26236,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8577500829997007
+      }
+    },
+    {
+      "question_id": "dfde3500",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Wednesday",
+      "hypothesis": "You met with your previous language exchange tutor, Juan, every Wednesday evening.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 18087,
+      "episodic_chars": 4796,
+      "prompt_chars": 23017,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9014621670066845
+      }
+    },
+    {
+      "question_id": "e493bb7c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "in my bedroom",
+      "hypothesis": "The painting \"Ethereal Dreams\" by Emma Taylor is currently hanging in the bedroom, specifically above the bed.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 20992,
+      "episodic_chars": 5979,
+      "prompt_chars": 25309,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.797982709002099
+      }
+    },
+    {
+      "question_id": "ed4ddc30",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "20",
+      "hypothesis": "Based on the records and conversation excerpts, you currently have 20 dozen fresh eggs stocked up in the refrigerator (as of 2023/03/15).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 237,
+      "record_chars": 17710,
+      "episodic_chars": 4930,
+      "prompt_chars": 22952,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7433427499927348
+      }
+    },
+    {
+      "question_id": "f9e8c073",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "hypothesis": "Based on the records and excerpts, you attended 5 sessions of the bereavement support group.\n\nCount: 1 (ITEM(EVENT_ATTENDED/support_group): Bereavement support group (5 sessions) [last year])",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21651,
+      "episodic_chars": 5689,
+      "prompt_chars": 27672,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8902346670074621
+      }
+    }
+  ]
+}

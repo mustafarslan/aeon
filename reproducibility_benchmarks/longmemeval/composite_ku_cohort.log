@@ -1,0 +1,50 @@
+composite arm: 36 questions (split=all) | cached records for 500 | workers=4 | system_prompt=empty | counting_hint=current
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 30352.61it/s]
+warm-up: 'OK'
+[1/36] 01493427 (knowledge-update) -> WRONG (278 records, 27708 chars)
+[2/36] 031748ae (knowledge-update) -> OK (245 records, 24536 chars)
+[3/36] 06db6396 (knowledge-update) -> OK (253 records, 23993 chars)
+[4/36] 07741c45 (knowledge-update) -> OK (244 records, 23938 chars)
+[5/36] 0977f2af (knowledge-update) -> OK (230 records, 23600 chars)
+[6/36] 0ddfec37 (knowledge-update) -> OK (277 records, 27563 chars)
+[7/36] 0e4e4c46 (knowledge-update) -> OK (271 records, 26205 chars)
+[8/36] 184da446 (knowledge-update) -> OK (272 records, 24885 chars)
+[9/36] 1cea1afa (knowledge-update) -> OK (270 records, 26222 chars)
+[10/36] 2133c1b5 (knowledge-update) -> OK (230 records, 23566 chars)
+[11/36] 22d2cb42 (knowledge-update) -> OK (261 records, 26130 chars)
+[12/36] 2698e78f (knowledge-update) -> OK (260 records, 27427 chars)
+[13/36] 3ba21379 (knowledge-update) -> OK (289 records, 25377 chars)
+[14/36] 4b24c848 (knowledge-update) -> OK (289 records, 26504 chars)
+[15/36] 50635ada (knowledge-update) -> OK (294 records, 27038 chars)
+[16/36] 5831f84d (knowledge-update) -> OK (230 records, 23956 chars)
+[17/36] 5a4f22c0 (knowledge-update) -> OK (299 records, 27403 chars)
+[18/36] 5c40ec5b (knowledge-update) -> OK (247 records, 24439 chars)
+[19/36] 603deb26 (knowledge-update) -> OK (286 records, 27107 chars)
+[20/36] 6071bd76 (knowledge-update) -> OK (254 records, 23834 chars)
+[21/36] 69fee5aa (knowledge-update) -> OK (259 records, 25072 chars)
+[22/36] 71315a70 (knowledge-update) -> OK (310 records, 27773 chars)
+[23/36] 7a87bd0c (knowledge-update) -> OK (278 records, 28035 chars)
+[24/36] 852ce960 (knowledge-update) -> OK (181 records, 20716 chars)
+[25/36] 9ea5eabc (knowledge-update) -> OK (288 records, 27209 chars)
+[26/36] b6019101 (knowledge-update) -> OK (256 records, 24715 chars)
+[27/36] ba61f0b9 (knowledge-update) -> OK (251 records, 24036 chars)
+[28/36] c4ea545c (knowledge-update) -> OK (266 records, 25570 chars)
+[29/36] c7dc5443 (knowledge-update) -> OK (296 records, 28632 chars)
+[30/36] cc5ded98 (knowledge-update) -> OK (245 records, 24256 chars)
+[31/36] ce6d2d27 (knowledge-update) -> OK (274 records, 26945 chars)
+[32/36] d7c942c3 (knowledge-update) -> OK (270 records, 26236 chars)
+[33/36] dfde3500 (knowledge-update) -> OK (249 records, 23017 chars)
+[34/36] e493bb7c (knowledge-update) -> OK (249 records, 25309 chars)
+[35/36] ed4ddc30 (knowledge-update) -> OK (237 records, 22952 chars)
+[36/36] f9e8c073 (knowledge-update) -> OK (279 records, 27672 chars)
+
+=== summary ===
+{
+  "n": 36,
+  "n_errors": 0,
+  "correct": 35,
+  "accuracy": 0.9722222222222222,
+  "median_records": 263.5,
+  "median_prompt_chars": 25473.5,
+  "median_generation_seconds": 0.823588938001194
+}
