@@ -1,0 +1,5 @@
+composite arm: 500 questions | cached records for 500 | workers=4
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 20328.96it/s]
+warm-up: 'OK'
+[1/500] 45dc21b6 (knowledge-update) -> OK (296 records, 26833 chars)
+[2/500] e3038f8c (multi-session) -> OK (256 records, 25077 chars)

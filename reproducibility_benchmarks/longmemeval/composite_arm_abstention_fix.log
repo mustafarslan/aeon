@@ -1,0 +1,44 @@
+composite arm: 30 questions | cached records for 500 | workers=4
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 7939.75it/s]
+warm-up: 'OK'
+[1/30] 0862e8bf_abs (single-session-user) -> OK (284 records, 27656 chars)
+[2/30] 15745da0_abs (single-session-user) -> OK (246 records, 25507 chars)
+[3/30] bc8a6e93_abs (single-session-user) -> OK (300 records, 29405 chars)
+[4/30] 19b5f2b3_abs (single-session-user) -> OK (279 records, 26954 chars)
+[5/30] 29f2956b_abs (single-session-user) -> OK (235 records, 25984 chars)
+[6/30] f4f1d8a4_abs (single-session-user) -> OK (284 records, 27815 chars)
+[7/30] 88432d0a_abs (multi-session) -> OK (296 records, 28029 chars)
+[8/30] 80ec1f4f_abs (multi-session) -> OK (279 records, 27762 chars)
+[9/30] eeda8a6d_abs (multi-session) -> OK (291 records, 26824 chars)
+[10/30] 60bf93ed_abs (multi-session) -> OK (280 records, 26765 chars)
+[11/30] edced276_abs (multi-session) -> OK (207 records, 23180 chars)
+[12/30] gpt4_372c3eed_abs (multi-session) -> OK (265 records, 25483 chars)
+[13/30] 2311e44b_abs (multi-session) -> OK (259 records, 26537 chars)
+[14/30] 6456829e_abs (multi-session) -> OK (201 records, 23079 chars)
+[15/30] e5ba910e_abs (multi-session) -> OK (261 records, 26490 chars)
+[16/30] a96c20ee_abs (multi-session) -> OK (280 records, 28588 chars)
+[17/30] ba358f49_abs (multi-session) -> OK (247 records, 23917 chars)
+[18/30] 09ba9854_abs (multi-session) -> OK (282 records, 28128 chars)
+[19/30] gpt4_70e84552_abs (temporal-reasoning) -> OK (286 records, 26869 chars)
+[20/30] gpt4_93159ced_abs (temporal-reasoning) -> OK (215 records, 24301 chars)
+[21/30] 982b5123_abs (temporal-reasoning) -> OK (320 records, 30467 chars)
+[22/30] c8090214_abs (temporal-reasoning) -> OK (285 records, 28368 chars)
+[23/30] gpt4_c27434e8_abs (temporal-reasoning) -> OK (268 records, 25709 chars)
+[24/30] gpt4_fe651585_abs (temporal-reasoning) -> OK (296 records, 29483 chars)
+[25/30] 6aeb4375_abs (knowledge-update) -> OK (263 records, 25580 chars)
+[26/30] 031748ae_abs (knowledge-update) -> OK (262 records, 25554 chars)
+[27/30] 2698e78f_abs (knowledge-update) -> OK (294 records, 26246 chars)
+[28/30] 2133c1b5_abs (knowledge-update) -> OK (263 records, 27007 chars)
+[29/30] 0ddfec37_abs (knowledge-update) -> OK (239 records, 23007 chars)
+[30/30] f685340e_abs (knowledge-update) -> OK (247 records, 24701 chars)
+
+=== summary ===
+{
+  "n": 30,
+  "n_errors": 0,
+  "correct": 30,
+  "accuracy": 1.0,
+  "median_records": 273.5,
+  "median_prompt_chars": 26651.0,
+  "median_generation_seconds": 0.8351723960040545
+}

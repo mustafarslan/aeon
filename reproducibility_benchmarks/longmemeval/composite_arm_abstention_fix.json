@@ -1,0 +1,555 @@
+{
+  "model": "gemma4:31b-cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "summary": {
+    "n": 30,
+    "n_errors": 0,
+    "correct": 30,
+    "accuracy": 1.0,
+    "median_records": 273.5,
+    "median_prompt_chars": 26651.0,
+    "median_generation_seconds": 0.8351723960040545
+  },
+  "results": [
+    {
+      "question_id": "0862e8bf_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned your cat Luna but not your hamster.",
+      "hypothesis": "The provided records and excerpts do not mention a hamster; they only mention a cat named Luna. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 21696,
+      "episodic_chars": 5554,
+      "prompt_chars": 27656,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9185147079988383
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The provided records and excerpts do not mention how long you have been collecting vintage films; they only mention your collection of vintage cameras. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 246,
+      "record_chars": 19066,
+      "episodic_chars": 5800,
+      "prompt_chars": 25507,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7183190420037135
+      }
+    },
+    {
+      "question_id": "bc8a6e93_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned baking for your niece's birthday party but not your uncle's",
+      "hypothesis": "The provided records and excerpts do not mention anything baked for an uncle's birthday party; they only mention a lemon blueberry cake made for a niece's birthday party. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 300,
+      "record_chars": 22683,
+      "episodic_chars": 5939,
+      "prompt_chars": 29405,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9643592919965158
+      }
+    },
+    {
+      "question_id": "19b5f2b3_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned staying in Japan, but not in Korea.",
+      "hypothesis": "The provided records and excerpts do not mention how long you were in Korea; they only indicate that you are planning a trip to Seoul for July 2023. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21223,
+      "episodic_chars": 5314,
+      "prompt_chars": 26954,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7617505410016747
+      }
+    },
+    {
+      "question_id": "29f2956b_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned practing guitar everyday, but not violin.",
+      "hypothesis": "The provided records and excerpts do not mention how much time you dedicate to practicing the violin; they only mention that you practice guitar for 30 minutes daily. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 19417,
+      "episodic_chars": 5884,
+      "prompt_chars": 25984,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8146806670047226
+      }
+    },
+    {
+      "question_id": "f4f1d8a4_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned receiving a birthday gift from your sister, but not your dad.",
+      "hypothesis": "The provided records and excerpts do not mention what the user's father gave them as a birthday gift; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 21412,
+      "episodic_chars": 5987,
+      "prompt_chars": 27815,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9686146669992013
+      }
+    },
+    {
+      "question_id": "88432d0a_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention baking egg tarts.",
+      "hypothesis": "The provided records and excerpts do not mention baking egg tarts; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 21465,
+      "episodic_chars": 5837,
+      "prompt_chars": 28029,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7363829590030946
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "The provided records and excerpts do not mention any museums or galleries visited in December. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21473,
+      "episodic_chars": 5701,
+      "prompt_chars": 27762,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7195754580025095
+      }
+    },
+    {
+      "question_id": "eeda8a6d_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention that you have a 30-gallon tank.",
+      "hypothesis": "The provided records and excerpts do not mention a 30-gallon tank; they only refer to a 10-gallon tank and a 20-gallon tank. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 291,
+      "record_chars": 21287,
+      "episodic_chars": 4856,
+      "prompt_chars": 26824,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0628294580019428
+      }
+    },
+    {
+      "question_id": "60bf93ed_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention buying an iPad case.",
+      "hypothesis": "The provided records and excerpts do not mention an iPad case or its purchase and delivery dates. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21596,
+      "episodic_chars": 4733,
+      "prompt_chars": 26765,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6972062089989777
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "The records mention that the user returned from a 10-day island-hopping trip to Hawaii, but there is no mention of a trip to Seattle. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 207,
+      "record_chars": 16966,
+      "episodic_chars": 5731,
+      "prompt_chars": 23180,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7771956670039799
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned 4 years in high school (2010-2014), 2 years at PCC (2014-2016), and 4 years at UCLA (2016-2020). But you didn't mention the number of years you spend getting the Master's degree",
+      "hypothesis": "The provided records and excerpts do not mention the completion of a Master's degree; they only state that the user is considering pursuing one. Therefore, the information is not available.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 19707,
+      "episodic_chars": 4933,
+      "prompt_chars": 25483,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0390198340028292
+      }
+    },
+    {
+      "question_id": "2311e44b_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how many paged do you have left to read in 'Sapiens'.",
+      "hypothesis": "The provided records and excerpts do not mention the total page count of 'Sapiens' or the specific page the user is currently on; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 19918,
+      "episodic_chars": 5973,
+      "prompt_chars": 26537,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.6578264999989187
+      }
+    },
+    {
+      "question_id": "6456829e_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned planting 5 plants for tomatoes but you did not mention chili peppers.",
+      "hypothesis": "The records and excerpts mention that you initially planted 5 tomato plants, but there is no mention of chili peppers. Therefore, the information regarding chili peppers is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 201,
+      "record_chars": 16441,
+      "episodic_chars": 5932,
+      "prompt_chars": 23079,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7701303750000079
+      }
+    },
+    {
+      "question_id": "e5ba910e_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned purchasing a headphone, but you did not mention the iPad.",
+      "hypothesis": "The information regarding the cost of an iPad is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 261,
+      "record_chars": 20126,
+      "episodic_chars": 5613,
+      "prompt_chars": 26490,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6579782500048168
+      }
+    },
+    {
+      "question_id": "a96c20ee_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention presenting a poster for your undergrad course research project.",
+      "hypothesis": "The records and excerpts mention that the user presented a poster on their thesis research at their first research conference, which took place at Harvard University. However, they do not specify that this was for an \"undergrad course research project.\" Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21971,
+      "episodic_chars": 5940,
+      "prompt_chars": 28588,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1428172499945504
+      }
+    },
+    {
+      "question_id": "ba358f49_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how old Rachel is right now, nor when will you get married.",
+      "hypothesis": "The provided records and excerpts do not mention Rachel's age or the date of the user's marriage; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 18402,
+      "episodic_chars": 4855,
+      "prompt_chars": 23917,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8780430830011028
+      }
+    },
+    {
+      "question_id": "09ba9854_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how much will the bus take.",
+      "hypothesis": "The provided records and excerpts do not mention a specific price for a taxi from the airport to the user's hotel (only general estimates for Narita/Haneda and a mention that a $60 quote was \"pricey\"), nor do they provide a specific cost for a bus to the user's specific hotel. Therefore, the information required to calculate the exact savings is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 282,
+      "record_chars": 21383,
+      "episodic_chars": 5942,
+      "prompt_chars": 28128,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0643516249983804
+      }
+    },
+    {
+      "question_id": "gpt4_70e84552_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned fixing the fence but did not mention purchasing cows from Peter.",
+      "hypothesis": "The records mention that you fixed the broken fence on the east side of the property on 2023/04/30, but there is no mention of purchasing three cows from Peter. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 286,
+      "record_chars": 20787,
+      "episodic_chars": 5372,
+      "prompt_chars": 26869,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8556641250033863
+      }
+    },
+    {
+      "question_id": "gpt4_93159ced_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. From the information provided, You haven't started working at Google yet.",
+      "hypothesis": "The provided records and excerpts do not mention that you work at Google; they state that you are a Backend Developer at NovaTech. Therefore, the information regarding how long you worked before starting a job at Google is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 215,
+      "record_chars": 18033,
+      "episodic_chars": 5653,
+      "prompt_chars": 24301,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1258878330045263
+      }
+    },
+    {
+      "question_id": "982b5123_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You only mentioned booking Airbnb in San Francisco.",
+      "hypothesis": "The provided records and excerpts do not mention an Airbnb in Sacramento; they only mention an Airbnb in Haight-Ashbury, San Francisco. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 320,
+      "record_chars": 23867,
+      "episodic_chars": 5903,
+      "prompt_chars": 30467,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7844943750023958
+      }
+    },
+    {
+      "question_id": "c8090214_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned getting the iPhone 13 Pro and attending the market, but you did not mention buying an iPad.",
+      "hypothesis": "The provided records and excerpts do not mention when you bought an iPad; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21748,
+      "episodic_chars": 5908,
+      "prompt_chars": 28368,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8087524169968674
+      }
+    },
+    {
+      "question_id": "gpt4_c27434e8_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention starting the Porsche 991 Turbo S model.",
+      "hypothesis": "The provided records and excerpts mention the Ferrari 288 GTO model, but they do not mention a Porsche 991 Turbo S model. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 19765,
+      "episodic_chars": 5164,
+      "prompt_chars": 25709,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7455100000006496
+      }
+    },
+    {
+      "question_id": "gpt4_fe651585_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned Alex becoming a parent in January, but you didn't mention anything about Tom.",
+      "hypothesis": "The provided records and excerpts mention that Alex adopted a baby girl in January 2023, but there is no mention of a person named Tom or when he became a parent. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23341,
+      "episodic_chars": 5954,
+      "prompt_chars": 29483,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 74.20546387500508
+      }
+    },
+    {
+      "question_id": "6aeb4375_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned trying Korean restaurants but not Italian restaurants.",
+      "hypothesis": "The provided records and excerpts do not mention any Italian restaurants the user has tried; therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 19751,
+      "episodic_chars": 5119,
+      "prompt_chars": 25580,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7521635410012095
+      }
+    },
+    {
+      "question_id": "031748ae_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned starting the role as Senior Software Engineer but not Software Engineer Manager.",
+      "hypothesis": "The provided records and excerpts do not mention a role as \"Software Engineer Manager\"; they refer to the user's role as a \"Senior Software Engineer.\" Therefore, the information regarding how many engineers the user leads in a \"Software Engineer Manager\" role is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 19896,
+      "episodic_chars": 4964,
+      "prompt_chars": 25554,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.188851708000584
+      }
+    },
+    {
+      "question_id": "2698e78f_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned seeing Dr. Smith but not Dr. Johnson.",
+      "hypothesis": "The provided records and excerpts do not mention a Dr. Johnson; they only mention a therapist named Dr. Smith. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 294,
+      "record_chars": 19987,
+      "episodic_chars": 5576,
+      "prompt_chars": 26246,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8633908330011764
+      }
+    },
+    {
+      "question_id": "2133c1b5_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned living in Harajuku but not Shinjuku.",
+      "hypothesis": "The provided records and excerpts do not mention an apartment in Shinjuku; they state that the user lives in a studio apartment in Harajuku. Therefore, the information regarding an apartment in Shinjuku is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 20338,
+      "episodic_chars": 5995,
+      "prompt_chars": 27007,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.730508959000872
+      }
+    },
+    {
+      "question_id": "0ddfec37_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned collecting autographed baseball but not football.",
+      "hypothesis": "The provided records and excerpts do not mention any autographed footballs; they only refer to autographed baseballs. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 16983,
+      "episodic_chars": 5251,
+      "prompt_chars": 23007,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7373866249981802
+      }
+    },
+    {
+      "question_id": "f685340e_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned playing tennis but not table tennis.",
+      "hypothesis": "The provided records and excerpts do not mention table tennis; they only mention tennis. Therefore, the information is not available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 18291,
+      "episodic_chars": 5777,
+      "prompt_chars": 24701,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.939570583999739
+      }
+    }
+  ]
+}

@@ -6482,3 +6482,16 @@ result** -- if it recovers, the full 500 is re-answered (~1.4 h, records unchang
 corpus, so extraction is untouched) and re-scored by the same gate script. **The full re-answer is
 required, not optional**: the prompt change makes a new instrument, so composite-v2 needs its own
 n=500 count, and only the full run can show whether the guard induces over-abstention elsewhere.
+
+**ABSTENTION GATE SLICE: PASS, 30/30, `n_errors=0`.** Against a bar of >= 26, composite v1's breaching
+22, and ETC's 28. **All six questions that broke the collateral guard recovered**, and nothing on the
+slice is wrong.
+
+**A perfect score on the slice targeted by the fix is a reason for more scrutiny, not less.** The bar
+was 26 precisely because ~28 was the target; 30/30 is above ETC and above what the fix was designed to
+achieve, and the cheapest explanation for that is **over-abstention** -- a guard that makes the model
+withhold commitment more broadly would score perfectly here and pay for it everywhere else. The
+abstention slice cannot detect its own false positives: every question on it is unanswerable, so a
+model that abstained unconditionally would also score 30/30. **This is a gate, not a result**, exactly
+as pre-registered, and the full 500 re-answer is what can falsify it -- above all the **known-miss
+cohort (bar >= 20 of 27)**, where the fact *is* present and withholding is the wrong move.
