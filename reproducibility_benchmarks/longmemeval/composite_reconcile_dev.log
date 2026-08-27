@@ -1,0 +1,5 @@
+composite arm: 252 questions (split=dev) | cached records for 500 | workers=4 | system_prompt=empty | counting_hint=reconcile
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 19014.64it/s]
+warm-up: 'OK'
+[1/252] c8090214_abs (temporal-reasoning) -> OK (285 records, 28083 chars)
+[2/252] 60bf93ed_abs (multi-session) -> OK (280 records, 26576 chars)

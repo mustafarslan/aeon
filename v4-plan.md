@@ -6921,3 +6921,33 @@ hypothesis. Recorded rather than quietly re-run.
 **Status of the causal claim: implicated, not convicted.** "COUNT the matching records" over two matching
 records literally yields **2**, not 8 — the model is summing quantities *inside* the records, which the
 hint does not literally command. The free rung was supposed to settle that and did not.
+
+**PATH A PRE-REGISTERED 2026-08-27, before running: the reconciliation-aware counting hint.** One
+bounded dev arm, authorised by the user after the free ablation came back inconclusive. Stage 0's
+held-out gating is what makes this legitimate without spending a one-attempt token — that is what it was
+built for.
+
+*The change*: `_RECONCILE_HINT` replaces `_COUNTING_HINT` when enabled — latest figure rather than summed
+history for revised totals; sum genuinely distinct additions; say there is no record rather than
+answering zero. **Scoped to counting questions**, which is the separation the `_PREMISE_GUARD`
+post-mortem demanded: that guard failed because it was *unscoped* and fired on advice questions, costing
+19 preference questions.
+
+*Baseline is **221**, not 220* — the current instrument is v1 + dedup + chronology, and comparisons must
+say so.
+
+*Bars*:
+- **PRIMARY: >= 227** to claim (221 + 2x the 2.7 frozen-records sd). **222–226 is within noise and will
+  be reported as such.**
+- **NAMED COLLATERAL GUARDS**, each having been broken at least once: counting cohort **>= 84**,
+  multi-session **>= 45**, preference **>= 15**, abstention **>= 14**.
+- **TARGET CHECK**: `4b24c848` must go 8 -> 5 and `5831f84d` 37 -> 15. If the aggregate moves while these
+  stay wrong, that is the 2a/2b pattern for a third time and will be called out as such.
+
+*Two limits stated before the result, not after*:
+1. **The abstention clause cannot be validated here.** 7 of the 8 abstention errors live in the heldout
+   half (Stage 0's own finding), so dev carries 1. Whatever dev says about abstention means nothing;
+   that clause needs the 30-question cohort slice and heldout.
+2. **`5831f84d` is a weak target.** The ablation answered it correctly in all three cells including the
+   unmodified one, so its dev failure was variance. Converting it is not evidence; failing to convert it
+   is not disconfirming either.

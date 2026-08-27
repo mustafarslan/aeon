@@ -58,6 +58,10 @@ def main() -> None:
     ap.add_argument("--split-seed", type=int, default=42)
     ap.add_argument("--attribution",
                     default="reproducibility_benchmarks/longmemeval/answer_turn_attribution.json")
+    ap.add_argument("--counting-hint", choices=("current", "none", "reconcile"),
+                    default="current",
+                    help="current: COUNT the matching records (every measured number to "
+                         "date). reconcile: the reconciliation-aware variant under test.")
     ap.add_argument("--system-prompt", default="",
                     help="System prompt for the ANSWER call. Every composite number to date "
                          "was measured with this empty -- compose.COMPOSE_SYSTEM was never sent.")
@@ -84,7 +88,8 @@ def main() -> None:
     cache = json.load(open(cache_path)) if cache_path.exists() else {}
     print(f"composite arm: {len(sample)} questions (split={args.split}) | "
           f"cached records for {len(cache)} | workers={args.workers} | "
-          f"system_prompt={'set' if args.system_prompt else 'empty'}", flush=True)
+          f"system_prompt={'set' if args.system_prompt else 'empty'} | "
+          f"counting_hint={args.counting_hint}", flush=True)
     enc = _get_encoder()
     print(f"warm-up: {_generate_with_retry(llm, 'Say OK.', retries=5)[:20]!r}", flush=True)
 
@@ -137,7 +142,9 @@ def main() -> None:
                      stitch=1, stitch_mode="post")
 
         prompt = compose(records, epi["context"].splitlines(),
-                         format_question_with_date(q))
+                         format_question_with_date(q),
+                         counting_hint=args.counting_hint != "none",
+                         reconcile_hint=args.counting_hint == "reconcile")
         t0 = time.perf_counter()
         hyp = _generate_with_retry(llm, prompt, system_prompt=args.system_prompt,
                                    temperature=0.0)
@@ -174,6 +181,7 @@ def main() -> None:
     }
     json.dump({"model": args.model, "mode": "composite (records + episodic, 1 call)",
                "split": args.split, "split_seed": args.split_seed,
+               "counting_hint": args.counting_hint,
                "system_prompt": args.system_prompt,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)
     print("\n=== summary ===")

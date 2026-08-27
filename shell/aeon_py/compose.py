@@ -72,6 +72,32 @@ COMPOSE_SYSTEM = (
     "sentence, not a paragraph."
 )
 
+# Reconciliation-aware alternative to _COUNTING_HINT. Under test, not the default.
+#
+# The hypothesis: _COUNTING_HINT's "COUNT the matching records" is what drives the
+# supersession sums (`4b24c848` -> 3+5=8 against a gold of 5). Implicated but NOT
+# convicted -- counting two matching records literally yields 2, not 8; the model is
+# summing quantities *inside* the records, which the hint does not command.
+#
+# The free ablation (`scripts/longmemeval/counting_hint_probe.py`) could not settle it:
+# targets went 2/6 current, 3/6 no-hint, 4/6 reconcile, but 2 of 9 re-run cells disagreed
+# with their own dev label under identical config -- 22% self-disagreement at n=9 against
+# 3.0% at scale, so that swing is inside the noise. What the probe DID show is that on
+# `4b24c848` the directive is read and still loses: the model answers "a total of 8 tops
+# (three on 2023/08/11 and five on 2023/09/30)", classifying them as distinct additions
+# rather than a revised total. That is exactly the judgement bullet one asks it to make.
+#
+# Scoped to counting questions on purpose. `_PREMISE_GUARD` failed because it was
+# UNSCOPED and fired on advice questions, costing 19 preference questions; question-shape
+# scoping is the separation that post-mortem demanded.
+_RECONCILE_HINT = (
+    "If the question asks for a count or total quantity: if several records give updated "
+    "totals or revised statuses for the same item or activity on different dates, use the "
+    "latest figure rather than summing the historical ones; if the records describe "
+    "separate, distinct additions or events, sum them; and if the item or activity is "
+    "never mentioned at all, say there is no record of it rather than answering zero."
+)
+
 _COUNTING_HINT = (
     "If the question asks how many, COUNT the matching records and show the count."
 )
@@ -275,7 +301,8 @@ def render_records(records: Iterable[Record]) -> str:
 
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
-            *, counting_hint: bool = True, premise_guard: bool = False) -> str:
+            *, counting_hint: bool = True, premise_guard: bool = False,
+            reconcile_hint: bool = False) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""
@@ -287,7 +314,9 @@ def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_b
     tail = "Answer using the records and excerpts above."
     if premise_guard:
         tail += " " + _PREMISE_GUARD
-    if counting_hint:
+    if reconcile_hint:
+        tail += " " + _RECONCILE_HINT
+    elif counting_hint:
         tail += " " + _COUNTING_HINT
     parts.append(tail)
     parts.append("\nAnswer:")

@@ -233,3 +233,20 @@ def test_updates_are_ordered_chronologically_before_events():
             Record(kind="UPDATE", text="earlier", date="2023/02/01")]
     out = [r.text for r in order_records(recs)]
     assert out.index("earlier") < out.index("later") < out.index("event")
+
+
+def test_reconcile_hint_replaces_the_counting_hint_and_is_off_by_default():
+    """Under test, not default. Scoped to counting questions on purpose: _PREMISE_GUARD
+    failed because it was UNSCOPED and fired on advice questions, costing 19 preference
+    questions."""
+    assert "COUNT" in compose([item("x")], [], "Q")
+    out = compose([item("x")], [], "Q", reconcile_hint=True)
+    assert "COUNT the matching records" not in out
+    assert "use the latest figure rather than summing" in out
+
+
+def test_reconcile_hint_covers_all_three_measured_failure_shapes():
+    out = compose([item("x")], [], "Q", reconcile_hint=True)
+    assert "latest figure rather than summing" in out      # 4b24c848: 3+5=8
+    assert "distinct additions or events, sum them" in out  # the undercount risk
+    assert "rather than answering zero" in out              # the abstention Answer: 0
