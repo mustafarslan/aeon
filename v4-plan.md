@@ -7223,3 +7223,39 @@ unwinnable shape as supersession. It is agreed as a narrow product feature, not 
 carries a specific trap if it is ever built: `c8090214`'s gold is *"7 days. 8 days (including the last
 day) is also acceptable"*, so **fencepost tolerance is baked into the grading** and an
 inclusive/exclusive mismatch could create errors on the ~81 currently-correct relative-anchor questions.
+
+**FULL DEV VALIDATION SWEEP (2026-08-28). `n_errors=0`. The corpus-damage guard HOLDS and there is no
+aggregate claim, exactly as pre-registered.**
+
+| | |
+|---|---|
+| merged | **223 / 252** |
+| baseline (v1 + dedup + chronology) | 221 |
+| delta | **+2**, McNemar +6/−4, **p=0.754** |
+| extraction-floor 2× sd at n=252 | 8.2 |
+| **losses among 221 previously correct** | **4** |
+
+**The guard is the point of this run and it passes.** The merge rewrites the record corpus — 2.4% of
+records removed on the sampled questions — and the question it had to answer was whether that destroys
+facts. Four losses across 252 questions, three multi-session and one preference, against a noise
+threshold of 8.2. **The merge reconciles without damaging the corpus at dev scale.**
+
+**The aggregate is +2 at p=0.754 and no claim is made from it.** That was fixed before the run: the bar
+was withdrawn as unpassable by construction because knowledge-update carries 4 errors on the whole
+benchmark against a threshold of 11.6. This is the number that withdrawal predicted.
+
+**knowledge-update +3 (32 → 35) is the mechanism showing through at full-split scale**, consistent with
+the cohort run's +3 and with the `852ce960` gate. At n=36 that type's own 2× sd is ~2.1, so +3 clears its
+*own* type threshold while contributing nothing detectable to the aggregate — which is precisely the
+shape "cohorts prove mechanism, only aggregates decide worth" describes. Every other type is flat.
+
+**What the whole Path B line establishes, and what it does not.** Established: cross-session supersession
+can be produced at write time (39 markers across 55 questions where the prior corpus had 4 in 500),
+excluded from the prompt, and the reader then stops answering the stale value — `852ce960` went from
+"$350,000" to correct, and `4b24c848` from 8 to 5. Not established: any aggregate accuracy improvement.
+There is none, and the instrument could not have shown one.
+
+**Recorded as the honest close of this line**: five interventions on the read path produced four nulls
+and one negative; the write path produced a working mechanism with no measurable aggregate. **429 remains
+this instrument's ceiling**, and the remaining 71 errors are still 33 multi-session and 20
+temporal-reasoning — untouched by everything built today.
