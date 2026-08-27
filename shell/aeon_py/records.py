@@ -167,6 +167,13 @@ class Record:
     provenance: Provenance = field(default_factory=lambda: Provenance(""))
     supersedes: str = ""
     node_id: Optional[int] = None
+    # RUNTIME ONLY -- deliberately NOT a schema field. `encode()` writes 7 fields and
+    # `decode()` does `text=_SEP.join(parts[6:])`, so an eighth would be silently swallowed
+    # into `text` by every existing reader. `compare=False` keeps `Record.__eq__` identical,
+    # which `run_merge()`'s encode-identity matching and the audit tests both depend on.
+    # Set in `_decode()` from the `is_node_superseded()` call it already makes, so the
+    # timeline can distinguish live from retired without a second kernel round trip.
+    superseded: bool = field(default=False, compare=False, repr=False)
 
     def encode(self) -> str:
         """Provenance and structure are encoded BEFORE the free text. Overflow truncates the
@@ -381,13 +388,16 @@ class RecordStore:
             meta = self._read_metadata(int(nid))
             if not meta or meta.startswith(_BUCKET_MARKER):
                 continue
-            if not include_superseded:
-                try:
-                    if self.atlas.is_node_superseded(int(nid)):
-                        continue
-                except Exception:
-                    pass
-            out.append(Record.decode(meta, node_id=int(nid)))
+            retired = False
+            try:
+                retired = bool(self.atlas.is_node_superseded(int(nid)))
+            except Exception:
+                pass
+            if retired and not include_superseded:
+                continue
+            record = Record.decode(meta, node_id=int(nid))
+            record.superseded = retired
+            out.append(record)
         return out
 
     def query(self, embedding: Sequence[float], top_k: int = 20) -> list[Record]:

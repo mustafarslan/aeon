@@ -51,6 +51,11 @@ class ConsolidationStats:
     merges_run: int = 0
     records_merged_in: int = 0
     records_superseded: int = 0
+    # Turns the one-off "4 of 9 markers resolve" measurement into a production-observable
+    # number rather than a claim in a docstring.
+    edges_written: int = 0
+    edges_unresolved: int = 0
+    edges_dangling: int = 0
     seconds_spent: float = 0.0
 
 
@@ -136,6 +141,8 @@ class SessionConsolidator:
         session_date: Callable[[str], str] = lambda _s: "",
         merge: Optional[Callable[[Sequence[Record]], list[Record]]] = None,
         max_workers: int = DEFAULT_MAX_WORKERS,
+        trace=None,
+        tenant: str = "",
     ) -> None:
         self.queue = queue
         self._fetch_session = fetch_session
@@ -145,6 +152,10 @@ class SessionConsolidator:
         self._session_date = session_date
         self._merge = merge
         self._max_workers = max_workers
+        # Optional so every existing caller and test fake keeps working untouched -- the
+        # module's existing dependency-injection discipline.
+        self._trace = trace
+        self._tenant = tenant
         self.stats = ConsolidationStats()
 
     def run_cycle(self, limit: Optional[int] = None) -> ConsolidationStats:
@@ -234,6 +245,42 @@ class SessionConsolidator:
             self._store.add(record, self._embed(record.text))
         for record in retired:
             self._store.supersede(record)
+
+        # THE DURABLE EDGE. This is the one moment both node ids are in hand: `retired` and
+        # `fresh` are the two sides of the same merge decision, and after this method returns
+        # the pairing is gone. Recording it here is what turns `Record.supersedes` -- prose,
+        # unresolvable, 4-of-9 by the derived resolver -- into a link that answers "what
+        # replaced this?" exactly.
+        #
+        # Written AFTER the supersede, preserving this method's existing crash argument: a
+        # crash between them leaves a superseded record with no edge, which the derived
+        # resolver can still recover, rather than an edge pointing at a live record.
+        #
+        # Dangling links are skipped, not written. A dangling marker means the merge asserted
+        # a supersession it did not execute; writing an edge for it would record a lineage
+        # that never happened.
+        if self._trace is not None:
+            from . import timeline as _timeline
+            # Resolved against the FULL merged set, not just `fresh`: a marker pointing at a
+            # record the merge KEPT is the dangling case, and it is only visible if that
+            # record is in the candidate set. Passing `fresh` alone would silently
+            # reclassify every dangling marker as unresolved and lose the signal.
+            for link in _timeline.resolve_links(merged, retired):
+                if link.predecessor is None:
+                    self.stats.edges_unresolved += 1
+                    continue
+                if link.dangling:
+                    self.stats.edges_dangling += 1
+                    continue
+                if link.successor.node_id is None or link.predecessor.node_id is None:
+                    self.stats.edges_unresolved += 1
+                    continue
+                _timeline.write_supersession_edge(
+                    self._trace, tenant=self._tenant,
+                    survivor_node_id=link.successor.node_id,
+                    retired_node_id=link.predecessor.node_id,
+                    text=link.successor.text)
+                self.stats.edges_written += 1
 
         self.stats.merges_run += 1
         self.stats.records_merged_in += len(fresh)

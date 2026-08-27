@@ -288,3 +288,104 @@ def test_run_merge_still_refuses_an_empty_result(tmp_path):
                              embed=lambda t: vec, store=store, merge=lambda recs: [])
     assert sc.run_merge() == 1
     assert [r.text for r in store.all_records()] == ["keep"]
+
+
+# --- durable supersession edges (v4.1 Step 5) ---------------------------------------
+
+def _tpg_store(tmp_path, dim=8):
+    from aeon_py.records import RecordStore
+    return RecordStore(tmp_path / "r.atlas", dim=dim)
+
+
+def test_merge_writes_one_edge_per_resolved_supersession(tmp_path):
+    """`run_merge()` is the one moment both node ids are in hand -- after it returns, the
+    pairing is gone. This is what turns prose (`Record.supersedes`, 4-of-9 by the derived
+    resolver) into a link that answers "what replaced this?" exactly."""
+    import numpy as np
+    from aeon_py.records import Provenance, Record
+    from aeon_py.timeline import read_supersession_edges
+    from aeon_py.trace import TraceGraph
+    store = _tpg_store(tmp_path)
+    trace = TraceGraph(tmp_path / "t.trace")
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    old = Record(kind="ITEM", text="three tops from H&M", bucket="ACQUISITION",
+                 subtype="clothing", provenance=Provenance("s1", (0,)))
+    store.add(old, vec)
+    survivor = Record(kind="ITEM", text="five tops from H&M", bucket="ACQUISITION",
+                      subtype="clothing", supersedes="three tops from H&M",
+                      provenance=Provenance("s2", (0,)))
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store, merge=lambda r: [survivor],
+                             trace=trace, tenant="acme")
+    sc.run_merge()
+    edges = read_supersession_edges(trace, tenant="acme")
+    assert len(edges) == 1
+    assert int(edges[0]["supersedes_id"]) == old.node_id
+    assert int(edges[0]["atlas_id"]) == survivor.node_id
+    assert sc.stats.edges_written == 1
+
+
+def test_merge_without_a_trace_is_unchanged(tmp_path):
+    """EQUIVALENCE GUARD. Every existing caller passes no trace, and their behaviour must not
+    move -- the edge log is additive."""
+    import numpy as np
+    from aeon_py.records import Provenance, Record
+    store = _tpg_store(tmp_path)
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    old = Record(kind="ITEM", text="three tops", bucket="ACQUISITION", subtype="clothing",
+                 provenance=Provenance("s1", (0,)))
+    store.add(old, vec)
+    survivor = Record(kind="ITEM", text="five tops", bucket="ACQUISITION", subtype="clothing",
+                      supersedes="three tops", provenance=Provenance("s2", (0,)))
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store, merge=lambda r: [survivor])
+    assert sc.run_merge() == 1
+    assert sc.stats.edges_written == 0
+    assert [r.text for r in store.all_records()] == ["five tops"]
+
+
+def test_unresolved_markers_are_counted_not_silently_dropped(tmp_path):
+    """4 of 9 measured markers resolve. The other 5 must be observable in production, not a
+    number in a docstring."""
+    import numpy as np
+    from aeon_py.records import Provenance, Record
+    from aeon_py.trace import TraceGraph
+    store = _tpg_store(tmp_path)
+    trace = TraceGraph(tmp_path / "t.trace")
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    store.add(Record(kind="ITEM", text="unrelated", bucket="MEDIA", subtype="film",
+                     provenance=Provenance("s1", (0,))), vec)
+    survivor = Record(kind="ITEM", text="new value", bucket="MEDIA", subtype="film",
+                      supersedes="something never recorded",
+                      provenance=Provenance("s2", (0,)))
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store, merge=lambda r: [survivor],
+                             trace=trace, tenant="acme")
+    sc.run_merge()
+    assert sc.stats.edges_written == 0
+    assert sc.stats.edges_unresolved == 1
+
+
+def test_dangling_marker_does_not_write_an_edge(tmp_path):
+    """A dangling marker means the merge asserted a supersession it did not execute. Writing
+    an edge for it would record a lineage that never happened."""
+    import numpy as np
+    from aeon_py.records import Provenance, Record
+    from aeon_py.timeline import read_supersession_edges
+    from aeon_py.trace import TraceGraph
+    store = _tpg_store(tmp_path)
+    trace = TraceGraph(tmp_path / "t.trace")
+    vec = np.zeros(8, dtype=np.float32); vec[0] = 1.0
+    still_live = Record(kind="ITEM", text="three tops", bucket="ACQUISITION",
+                        subtype="clothing", provenance=Provenance("s1", (0,)))
+    store.add(still_live, vec)
+    survivor = Record(kind="ITEM", text="five tops", bucket="ACQUISITION", subtype="clothing",
+                      supersedes="three tops", provenance=Provenance("s2", (0,)))
+    # Both survive the merge -- the marker is asserted but not executed.
+    sc = SessionConsolidator(DirtyQueue(), fetch_session=lambda s: [], extract=lambda *a: [],
+                             embed=lambda t: vec, store=store,
+                             merge=lambda r: [still_live, survivor],
+                             trace=trace, tenant="acme")
+    sc.run_merge()
+    assert read_supersession_edges(trace, tenant="acme") == []
+    assert sc.stats.edges_dangling == 1

@@ -45,6 +45,7 @@ from .records import Record
 
 RECORDS_HEADER = "Long-term memory records about the user:"
 EPISODIC_HEADER = "Relevant conversation excerpts:"
+TIMELINE_HEADER = "How these changed over time:"
 
 # MEASURED HARMFUL (2026-08-27) -- do NOT wire this into the read path as written.
 #
@@ -318,11 +319,29 @@ def render_records(records: Iterable[Record]) -> str:
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
             *, counting_hint: bool = True, premise_guard: bool = False,
-            reconcile_hint: bool = False) -> str:
+            reconcile_hint: bool = False, timeline: bool = False,
+            retired: Sequence[Record] = ()) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""
-    parts = [RECORDS_HEADER, render_records(records), ""]
+    recs = list(records)
+    parts = [RECORDS_HEADER, render_records(recs), ""]
+    # ACTIVE STATE IS THE DEFAULT AND STAYS THE DEFAULT. `timeline=False` must produce output
+    # byte-identical to the measured renderer -- pinned by
+    # `test_timeline_flag_off_is_byte_identical`. A factual or counting question therefore
+    # never sees a historical value: the stale record is absent from `records` (removed by
+    # the merge, excluded by `_decode()`), not merely deprecated within it, which is the
+    # whole reason 852ce960 stopped answering $350,000.
+    #
+    # Timeline is opt-in because it is the fifth reader-side legibility intervention in a
+    # family with four nulls. It shows the model *both* values on purpose, which is exactly
+    # what active-state projection exists to avoid -- so it is for "how did X change over
+    # time", and for nothing else.
+    if timeline:
+        from .timeline import build_chains, render_timeline
+        chains, _ = build_chains(recs, retired)
+        if chains:
+            parts += [TIMELINE_HEADER, render_timeline(chains), ""]
     if episodic_lines:
         parts += [EPISODIC_HEADER, "\n".join(episodic_lines), ""]
     parts.append(question_block)
