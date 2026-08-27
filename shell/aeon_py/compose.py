@@ -90,6 +90,22 @@ COMPOSE_SYSTEM = (
 # Scoped to counting questions on purpose. `_PREMISE_GUARD` failed because it was
 # UNSCOPED and fired on advice questions, costing 19 preference questions; question-shape
 # scoping is the separation that post-mortem demanded.
+#
+# MEASURED AND REVERTED TO OPT-IN (2026-08-27). On dev (n=252, records frozen,
+# n_errors=0): **220 against the 221 baseline -- -1, McNemar +6/-7, p=1.000**, against a
+# bar of >=227. knowledge-update, the type it targets, moved +2 (32->34) -- but at n=36
+# that type's own 2x sd is ~2.1, so +2 is at the edge and does not clear it.
+#
+# The target check failed for the third consecutive intervention, and identically:
+# `4b24c848` answers "a total of 8 tops from H&M (three tops on 2023/08/11 and five tops
+# on 2023/09/30)" -- the same shape as under the original hint and under chronological
+# ordering. The directive is present, read, and loses. The model classifies the two
+# records as distinct additions rather than a revised total, which is exactly the
+# judgement the directive asks it to make.
+#
+# That is now four nulls from four directions -- co-referent collapse, chronological
+# ordering, the shipped system prompt, and this. Instructions do not change how the
+# reader CLASSIFIES; that is the `_PREMISE_GUARD` lesson arriving again.
 _RECONCILE_HINT = (
     "If the question asks for a count or total quantity: if several records give updated "
     "totals or revised statuses for the same item or activity on different dates, use the "
