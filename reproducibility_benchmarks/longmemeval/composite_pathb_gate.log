@@ -1,0 +1,22 @@
+composite arm: 252 questions (split=dev) | cached records for 500 | workers=4 | system_prompt=empty | counting_hint=current
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 8195.06it/s]
+warm-up: 'OK'
+[1/252] c8090214_abs (temporal-reasoning) -> OK (270 records, 26549 chars)
+[2/252] 60bf93ed_abs (multi-session) -> OK (273 records, 26179 chars)
+[3/252] eeda8a6d_abs (multi-session) -> OK (287 records, 26282 chars)
+[4/252] 19b5f2b3_abs (single-session-user) -> OK (278 records, 26487 chars)
+[5/252] 6456829e_abs (multi-session) -> OK (198 records, 22614 chars)
+[6/252] 29f2956b_abs (single-session-user) -> OK (232 records, 25063 chars)
+[7/252] gpt4_fe651585_abs (temporal-reasoning) -> OK (297 records, 29212 chars)
+[8/252] a96c20ee_abs (multi-session) -> WRONG (272 records, 26838 chars)
+[9/252] 0862e8bf_abs (single-session-user) -> OK (284 records, 27052 chars)
+[10/252] bc8a6e93_abs (single-session-user) -> OK (299 records, 29089 chars)
+[11/252] ba358f49_abs (multi-session) -> OK (233 records, 22437 chars)
+[12/252] 15745da0_abs (single-session-user) -> OK (243 records, 24976 chars)
+[13/252] 2311e44b_abs (multi-session) -> OK (254 records, 25654 chars)
+[14/252] f4f1d8a4_abs (single-session-user) -> OK (282 records, 26919 chars)
+[15/252] 0ddfec37_abs (knowledge-update) -> OK (225 records, 21563 chars)
+[16/252] 852ce960 (knowledge-update) -> OK (181 records, 20716 chars)
+[17/252] 1cea1afa (knowledge-update) -> OK (270 records, 26222 chars)
+[18/252] e493bb7c (knowledge-update) -> OK (249 records, 25309 chars)
+[19/252] 031748ae (knowledge-update) -> OK (245 records, 24536 chars)

@@ -7084,3 +7084,37 @@ that check is now added to the rule rather than being learned a fourth time.
 temporal-reasoning **20** — 75% of the remaining 71 errors. Four reader-side nulls and the supersession
 work all leave them untouched. **429 may be this instrument's ceiling**; that is a finding, not a gap to
 be filled by inventing a fifth intervention.
+
+**PATH B READER GATE (2026-08-27). The named case converts.**
+
+| `852ce960` (knowledge-update, gold **$400,000**) | |
+|---|---|
+| before — current instrument | *"You were pre-approved for **$350,000** from Wells Fargo."* **WRONG** |
+| after — merged records | **OK** |
+
+The merge removed the superseded record and marked the survivor
+(`ITEM(FINANCE/loan pre-approval): $400,000 from Wells Fargo [2023/11/30] [supersedes $350,000 from
+Wells Fargo]`), and the reader stopped answering the stale value. **This is the first target case to
+convert today** — co-referent collapse, chronological ordering, the system prompt and the reconciliation
+directive all left their targets untouched.
+
+**What this establishes, stated at the same size as the evidence.** It is **n=1**, against a measured
+answer-stage flip rate of 3.0% — roughly one spontaneous flip per 33 questions — so a single conversion
+is not, on its own, distinguishable from luck. What raises it above that is the mechanism being visible
+end to end rather than inferred: the stale record is *gone from the prompt*, not merely deprecated in it,
+and the wrong answer it produced went with it. That is the difference between this and the four nulls,
+where the intervention was present and the failure was unchanged.
+
+**It is a gate, not a result, exactly as pre-registered.** The claim it licenses is narrow: *removing a
+superseded record from the context can change the answer the reader gives.* It does **not** license an
+accuracy claim, and none is available — knowledge-update carries 4 errors on the whole benchmark against
+a threshold of 11.6.
+
+**`a96c20ee_abs`, the other known failure among the 20, is still wrong** — and should be: it is an
+abstention over-answering failure, which supersession does not target. Recorded so the gate is not read
+as 2-for-2.
+
+*The full dev run continues*, and its purpose is now solely the **corpus-damage guard**: the merge
+rewrites records, and losses outside the targeted types would mean it is destroying facts. That is a
+safety question, not an accuracy one, and it is the only reason the remaining ~230 questions are worth
+merging.
