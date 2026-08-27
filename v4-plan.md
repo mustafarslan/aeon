@@ -6804,3 +6804,33 @@ no content added or lost. Larger blast radius than 2a's 6 lines, so it is measur
   (>= 78); `single-session-preference` (15) and `abstention` (14) must hold.
 - **One attempt.** Run 2b alone — Stage 1's system-prompt arm is a separate instrument and is measured
   separately, because two prompt-affecting changes in one run produce an unattributable number.
+
+**STAGE 1 RESULT (2026-08-27). `n_errors=0`. The unsent system prompt is not neutral — it is a latent
+26-question regression sitting in the shipped library.**
+
+| dev (n=252) | correct |
+|---|---|
+| `system_prompt=""` (every measured number to date) | **220** |
+| `COMPOSE_SYSTEM` as shipped | **207** |
+
+**−13, McNemar +3/−16, p=0.0044.** Not noise, and in the wrong direction.
+
+*The cause is in the outputs, not inferred*: **median answer length collapses from 172 characters to
+49.** The clause *"Answer as concisely as possible -- a short phrase or sentence, not a paragraph"*
+truncates exactly the two types that need room — **single-session-preference −5**, whose judge is a
+**rubric** rewarding a response that reflects the user's stated preferences (a short phrase cannot), and
+**temporal-reasoning −4**, which needs the arithmetic shown. Abstention, ss-user and ss-assistant are
+unchanged.
+
+*This is the more useful half of the finding.* The plan framed Stage 1 as "make the benchmark send it,
+or delete it — shipping an unused system prompt is a defect regardless of the accuracy outcome." The
+accuracy outcome turns out to decide it: **sending it is worse**, so the status quo is correct and the
+defect is that the library ships a trap. It is annotated in `compose.py` with the measurement rather
+than deleted, because a production read path will eventually want *some* system prompt and this records
+what a revised one must avoid. **Anyone wiring `compose_from_store()` into `loop.py` (Stage 3) would
+have walked into a 26-question regression that only fires once someone sends it.**
+
+*Prior stated before running, and it held*: `system_prompt_probe.py` had already refuted the system
+prompt as a lever for ETC (step-appropriate system + v1 compute flipped 0 of 8 losses). The prediction
+was "expect little"; the direction was not predicted, and is recorded as a miss in the prior rather than
+a confirmation of it.

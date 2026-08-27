@@ -1,0 +1,4554 @@
+{
+  "model": "gemma4:31b-cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "split": "dev",
+  "split_seed": 42,
+  "system_prompt": "You are answering a question using a long-term memory record about the user, plus excerpts of the original conversation. If the information genuinely is not there, say so plainly instead of guessing. Answer as concisely as possible -- a short phrase or sentence, not a paragraph.",
+  "summary": {
+    "n": 252,
+    "n_errors": 0,
+    "correct": 207,
+    "accuracy": 0.8214285714285714,
+    "median_records": 268.0,
+    "median_prompt_chars": 25950.5,
+    "median_generation_seconds": 0.7457963750021008
+  },
+  "results": [
+    {
+      "question_id": "c8090214_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned getting the iPhone 13 Pro and attending the market, but you did not mention buying an iPad.",
+      "hypothesis": "The provided records do not mention an iPad purchase.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21748,
+      "episodic_chars": 5908,
+      "prompt_chars": 27751,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6700822909988347
+      }
+    },
+    {
+      "question_id": "60bf93ed_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention buying an iPad case.",
+      "hypothesis": "The provided records and excerpts do not contain information about an iPad case.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21596,
+      "episodic_chars": 4733,
+      "prompt_chars": 26244,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.851111290998233
+      }
+    },
+    {
+      "question_id": "eeda8a6d_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention that you have a 30-gallon tank.",
+      "hypothesis": "The records do not mention a 30-gallon tank.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 291,
+      "record_chars": 21287,
+      "episodic_chars": 4856,
+      "prompt_chars": 26277,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7895835839954088
+      }
+    },
+    {
+      "question_id": "19b5f2b3_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned staying in Japan, but not in Korea.",
+      "hypothesis": "The records do not state how long you were in Korea; they only mention a planned trip to Seoul in July 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21223,
+      "episodic_chars": 5314,
+      "prompt_chars": 26505,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0710944579986972
+      }
+    },
+    {
+      "question_id": "6456829e_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned planting 5 plants for tomatoes but you did not mention chili peppers.",
+      "hypothesis": "You initially planted 5 tomato plants; there is no mention of chili pepper plants.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 201,
+      "record_chars": 16441,
+      "episodic_chars": 5932,
+      "prompt_chars": 22719,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9013706670011743
+      }
+    },
+    {
+      "question_id": "29f2956b_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned practing guitar everyday, but not violin.",
+      "hypothesis": "The provided records do not mention practicing the violin; however, they note that you practice guitar for 30 minutes daily.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 19417,
+      "episodic_chars": 5884,
+      "prompt_chars": 25476,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6841142920020502
+      }
+    },
+    {
+      "question_id": "gpt4_fe651585_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned Alex becoming a parent in January, but you didn't mention anything about Tom.",
+      "hypothesis": "The records do not mention a person named Tom, but they state Alex adopted a baby girl in January 2023.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23341,
+      "episodic_chars": 5954,
+      "prompt_chars": 29067,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1451925829969696
+      }
+    },
+    {
+      "question_id": "a96c20ee_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention presenting a poster for your undergrad course research project.",
+      "hypothesis": "Harvard University",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21971,
+      "episodic_chars": 5940,
+      "prompt_chars": 27968,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.635598624998238
+      }
+    },
+    {
+      "question_id": "0862e8bf_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned your cat Luna but not your hamster.",
+      "hypothesis": "The provided records do not mention a hamster; they only mention a cat named Luna.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 21696,
+      "episodic_chars": 5554,
+      "prompt_chars": 27079,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7288079999998445
+      }
+    },
+    {
+      "question_id": "bc8a6e93_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned baking for your niece's birthday party but not your uncle's",
+      "hypothesis": "The records do not mention baking anything for an uncle's birthday party; however, you made a lemon blueberry cake for your niece's birthday party.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 300,
+      "record_chars": 22683,
+      "episodic_chars": 5939,
+      "prompt_chars": 28945,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7479350419962429
+      }
+    },
+    {
+      "question_id": "ba358f49_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how old Rachel is right now, nor when will you get married.",
+      "hypothesis": "The provided records do not contain Rachel's age or the user's marriage plans.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 18402,
+      "episodic_chars": 4855,
+      "prompt_chars": 23255,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6349019170011161
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "The records do not mention how long you have been collecting vintage films, only that you have been collecting vintage cameras for three months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 246,
+      "record_chars": 19066,
+      "episodic_chars": 5800,
+      "prompt_chars": 25002,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8086719999992056
+      }
+    },
+    {
+      "question_id": "2311e44b_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how many paged do you have left to read in 'Sapiens'.",
+      "hypothesis": "The provided records and excerpts do not mention the total page count of 'Sapiens' or the user's current page number in that book.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 19918,
+      "episodic_chars": 5973,
+      "prompt_chars": 25735,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8110437919967808
+      }
+    },
+    {
+      "question_id": "f4f1d8a4_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned receiving a birthday gift from your sister, but not your dad.",
+      "hypothesis": "The provided records do not mention a birthday gift from your father.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 21412,
+      "episodic_chars": 5987,
+      "prompt_chars": 27192,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8107576670008712
+      }
+    },
+    {
+      "question_id": "0ddfec37_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned collecting autographed baseball but not football.",
+      "hypothesis": "The records do not mention any autographed footballs; they only list autographed baseballs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 16983,
+      "episodic_chars": 5251,
+      "prompt_chars": 22528,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8101928329997463
+      }
+    },
+    {
+      "question_id": "852ce960",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "$400,000",
+      "hypothesis": "$350,000",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 182,
+      "record_chars": 14420,
+      "episodic_chars": 5937,
+      "prompt_chars": 20705,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7299016670003766
+      }
+    },
+    {
+      "question_id": "1cea1afa",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "600",
+      "hypothesis": "600 followers",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20402,
+      "episodic_chars": 5737,
+      "prompt_chars": 26126,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8843512079984066
+      }
+    },
+    {
+      "question_id": "e493bb7c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "in my bedroom",
+      "hypothesis": "Above the user's bed in the bedroom.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 20992,
+      "episodic_chars": 5979,
+      "prompt_chars": 27372,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7160772089991951
+      }
+    },
+    {
+      "question_id": "031748ae",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "When you just started your new role as Senior Software Engineer, you led 4 engineers. Now, you lead 5 engineers",
+      "hypothesis": "When you started, you led 4 engineers; now you lead 5 engineers.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 19570,
+      "episodic_chars": 5788,
+      "prompt_chars": 25409,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7620241670010728
+      }
+    },
+    {
+      "question_id": "22d2cb42",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "The music shop on Main St.",
+      "hypothesis": "Rhythm Central on Main St.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 20205,
+      "episodic_chars": 5963,
+      "prompt_chars": 26206,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6402412910028943
+      }
+    },
+    {
+      "question_id": "5c40ec5b",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "We've met up twice.",
+      "hypothesis": "You have met up with Alex twice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 19884,
+      "episodic_chars": 4853,
+      "prompt_chars": 24755,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.67989537500398
+      }
+    },
+    {
+      "question_id": "c4ea545c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Yes",
+      "hypothesis": "Yes, you now go four times a week, whereas you previously went three times a week (Tuesdays, Thursdays, and Saturdays).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 269,
+      "record_chars": 19646,
+      "episodic_chars": 5997,
+      "prompt_chars": 25520,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.070535207996727
+      }
+    },
+    {
+      "question_id": "c7dc5443",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5-2",
+      "hypothesis": "Your volleyball team, the Net Ninjas, has a 5-2 record.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 302,
+      "record_chars": 22652,
+      "episodic_chars": 5262,
+      "prompt_chars": 27285,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1305582919958397
+      }
+    },
+    {
+      "question_id": "9ea5eabc",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Paris",
+      "hypothesis": "Paris",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 288,
+      "record_chars": 21221,
+      "episodic_chars": 5826,
+      "prompt_chars": 27151,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6923598749999655
+      }
+    },
+    {
+      "question_id": "5831f84d",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "15",
+      "hypothesis": "You have watched 37 Crash Course videos (10, 12, and 15).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 231,
+      "record_chars": 17997,
+      "episodic_chars": 5822,
+      "prompt_chars": 24086,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7266199169971514
+      }
+    },
+    {
+      "question_id": "6071bd76",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "You switched to less water (5 ounces) per tablespoon of coffee.",
+      "hypothesis": "You switched to less water per tablespoon of coffee (from 6 ounces to 5 ounces).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 18938,
+      "episodic_chars": 5745,
+      "prompt_chars": 24625,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6838515420022304
+      }
+    },
+    {
+      "question_id": "69fee5aa",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "38",
+      "hypothesis": "38 (37 original coins plus a 1915-S Barber quarter)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 18889,
+      "episodic_chars": 5989,
+      "prompt_chars": 25210,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7353668330033543
+      }
+    },
+    {
+      "question_id": "dfde3500",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Wednesday",
+      "hypothesis": "Wednesday evening",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 253,
+      "record_chars": 18087,
+      "episodic_chars": 4796,
+      "prompt_chars": 23138,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.720489457999065
+      }
+    },
+    {
+      "question_id": "184da446",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "220",
+      "hypothesis": "You have read up to page 220.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 20259,
+      "episodic_chars": 4699,
+      "prompt_chars": 25255,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6382775829988532
+      }
+    },
+    {
+      "question_id": "ed4ddc30",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "20",
+      "hypothesis": "20 dozen",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 240,
+      "record_chars": 17710,
+      "episodic_chars": 4930,
+      "prompt_chars": 22975,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.67223337500036
+      }
+    },
+    {
+      "question_id": "0e4e4c46",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "132 points",
+      "hypothesis": "132 points",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 276,
+      "record_chars": 20962,
+      "episodic_chars": 5441,
+      "prompt_chars": 26380,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7024938750037109
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Friday",
+      "hypothesis": "Fridays",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21210,
+      "episodic_chars": 5935,
+      "prompt_chars": 27167,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7006582910034922
+      }
+    },
+    {
+      "question_id": "b6019101",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5",
+      "hypothesis": "5",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19331,
+      "episodic_chars": 5455,
+      "prompt_chars": 24637,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7164090419973945
+      }
+    },
+    {
+      "question_id": "2133c1b5",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "3 months",
+      "hypothesis": "3 months",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 232,
+      "record_chars": 18193,
+      "episodic_chars": 5991,
+      "prompt_chars": 23830,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6734329579994665
+      }
+    },
+    {
+      "question_id": "07741c45",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "in a shoe rack in my closet",
+      "hypothesis": "Under your bed.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 250,
+      "record_chars": 18211,
+      "episodic_chars": 5760,
+      "prompt_chars": 24080,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7329285000014352
+      }
+    },
+    {
+      "question_id": "71315a70",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "10-12 hours",
+      "hypothesis": "10-12 hours",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 312,
+      "record_chars": 22536,
+      "episodic_chars": 5413,
+      "prompt_chars": 28201,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8025019999986398
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "4 weeks",
+      "hypothesis": "4 weeks",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 22035,
+      "episodic_chars": 5931,
+      "prompt_chars": 28041,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7201060000006692
+      }
+    },
+    {
+      "question_id": "3ba21379",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Ford F-150 pickup truck",
+      "hypothesis": "A Ford F-150 pickup truck.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 291,
+      "record_chars": 20357,
+      "episodic_chars": 5358,
+      "prompt_chars": 25623,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7465418329957174
+      }
+    },
+    {
+      "question_id": "d7c942c3",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Yes.",
+      "hypothesis": "Yes, your mom is now using the same grocery list app as you.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20274,
+      "episodic_chars": 5632,
+      "prompt_chars": 26169,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7144228340039263
+      }
+    },
+    {
+      "question_id": "0ddfec37",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "15",
+      "hypothesis": "15 autographed baseballs",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 22141,
+      "episodic_chars": 5982,
+      "prompt_chars": 28011,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7679856250033481
+      }
+    },
+    {
+      "question_id": "603deb26",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "10",
+      "hypothesis": "10 times",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 288,
+      "record_chars": 21437,
+      "episodic_chars": 5795,
+      "prompt_chars": 27177,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6083877909986768
+      }
+    },
+    {
+      "question_id": "06db6396",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "5",
+      "hypothesis": "5",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 19204,
+      "episodic_chars": 5760,
+      "prompt_chars": 24992,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6511929580010474
+      }
+    },
+    {
+      "question_id": "2698e78f",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "every week",
+      "hypothesis": "You see Dr. Smith weekly.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 21440,
+      "episodic_chars": 5936,
+      "prompt_chars": 27519,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7282863750006072
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "about two hours",
+      "hypothesis": "Approximately two hours each day.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 18674,
+      "episodic_chars": 5377,
+      "prompt_chars": 24439,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6625526249990799
+      }
+    },
+    {
+      "question_id": "4b24c848",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "hypothesis": "8 tops",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 302,
+      "record_chars": 22083,
+      "episodic_chars": 5915,
+      "prompt_chars": 27571,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7051517090003472
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "The records do not mention your previous status before Premier Silver.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 297,
+      "record_chars": 21505,
+      "episodic_chars": 5632,
+      "prompt_chars": 27385,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8668087499972899
+      }
+    },
+    {
+      "question_id": "0977f2af",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Instant Pot",
+      "hypothesis": "Instant Pot",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 17899,
+      "episodic_chars": 5487,
+      "prompt_chars": 23551,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6671695839977474
+      }
+    },
+    {
+      "question_id": "5a4f22c0",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "TechCorp",
+      "hypothesis": "Rachel is currently working at TechCorp.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 299,
+      "record_chars": 22001,
+      "episodic_chars": 4983,
+      "prompt_chars": 27306,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7109288330029813
+      }
+    },
+    {
+      "question_id": "f9e8c073",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "hypothesis": "You mentioned attending three sessions in May 2023, but later recalled attending five sessions in total.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21651,
+      "episodic_chars": 5689,
+      "prompt_chars": 27714,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7864727080013836
+      }
+    },
+    {
+      "question_id": "ba61f0b9",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "6",
+      "hypothesis": "6 women",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 18969,
+      "episodic_chars": 5312,
+      "prompt_chars": 24522,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6240632079934585
+      }
+    },
+    {
+      "question_id": "01493427",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "25",
+      "hypothesis": "25 postcards",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 281,
+      "record_chars": 21967,
+      "episodic_chars": 5743,
+      "prompt_chars": 27857,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6670549999980722
+      }
+    },
+    {
+      "question_id": "61f8c8f8",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "10 minutes",
+      "hypothesis": "You finished 10 minutes faster (35 minutes compared to 45 minutes).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 20339,
+      "episodic_chars": 5798,
+      "prompt_chars": 26365,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8824799159992835
+      }
+    },
+    {
+      "question_id": "9ee3ecd6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "100",
+      "hypothesis": "You need a total of 300 points.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 267,
+      "record_chars": 19784,
+      "episodic_chars": 5932,
+      "prompt_chars": 25937,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.663243084003625
+      }
+    },
+    {
+      "question_id": "37f165cf",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "856",
+      "hypothesis": "The provided records do not mention any novels finished in January or March.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 241,
+      "record_chars": 17879,
+      "episodic_chars": 5147,
+      "prompt_chars": 23115,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6648506659985287
+      }
+    },
+    {
+      "question_id": "6d550036",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "You have led or are currently leading 3 projects: a Marketing Research class project, a team of five engineers for a product feature launch, and the Ethereum M\u00e9xico event.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 248,
+      "record_chars": 19596,
+      "episodic_chars": 5827,
+      "prompt_chars": 25613,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9670259170015925
+      }
+    },
+    {
+      "question_id": "681a1674",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "2",
+      "hypothesis": "2 (Avengers: Endgame and Spider-Man: No Way Home)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 18073,
+      "episodic_chars": 5824,
+      "prompt_chars": 24002,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6522778750004363
+      }
+    },
+    {
+      "question_id": "099778bb",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "20%",
+      "hypothesis": "Women hold 20% of the leadership positions (20 out of 100).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 19332,
+      "episodic_chars": 5722,
+      "prompt_chars": 25109,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6596429589990294
+      }
+    },
+    {
+      "question_id": "6cb6f249",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "17 days",
+      "hypothesis": "17 days (a 10-day break in mid-February and a week-long break in mid-January).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 225,
+      "record_chars": 17381,
+      "episodic_chars": 4563,
+      "prompt_chars": 21863,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6948467920010444
+      }
+    },
+    {
+      "question_id": "gpt4_ab202e7f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I replaced or fixed five items: the kitchen faucet, the kitchen mat, the toaster, the coffee maker, and the kitchen shelves.",
+      "hypothesis": "5 (kitchen shelves, kitchen faucet, toaster, coffee maker, and kitchen countertops/utensils decluttering).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 294,
+      "record_chars": 21050,
+      "episodic_chars": 5267,
+      "prompt_chars": 26278,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9648796670007869
+      }
+    },
+    {
+      "question_id": "0a995998",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "3 items (pick up exchanged boots from Zara, return old boots to Zara, and pick up navy blue blazer from dry cleaning).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 309,
+      "record_chars": 23056,
+      "episodic_chars": 5857,
+      "prompt_chars": 28355,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.006760917000065
+      }
+    },
+    {
+      "question_id": "3c1045c8",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "2.5 years",
+      "hypothesis": "You are 2.5 years older than the average age of employees in your department.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 232,
+      "record_chars": 17635,
+      "episodic_chars": 5192,
+      "prompt_chars": 22916,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8545516669983044
+      }
+    },
+    {
+      "question_id": "09ba9854",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$50",
+      "hypothesis": "You would save approximately $50, as a taxi is around $60 and the train is around $10.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 18965,
+      "episodic_chars": 5921,
+      "prompt_chars": 24750,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.797175874999084
+      }
+    },
+    {
+      "question_id": "3fdac837",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "11 days (or 12 days, if April 15th to 22nd is considered as 8 days)",
+      "hypothesis": "12 days (8 in Japan, 4 in Chicago).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 276,
+      "record_chars": 20893,
+      "episodic_chars": 4503,
+      "prompt_chars": 25101,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.868596542000887
+      }
+    },
+    {
+      "question_id": "d3ab962e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "8 miles",
+      "hypothesis": "8 miles (3-mile loop at Valley of Fire and 5-mile hike at Red Rock Canyon).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 258,
+      "record_chars": 19309,
+      "episodic_chars": 5088,
+      "prompt_chars": 24672,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6825313329973142
+      }
+    },
+    {
+      "question_id": "078150f1",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$50",
+      "hypothesis": "You raised $50 more than your initial goal ($250 raised vs. $200 goal).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 21051,
+      "episodic_chars": 5558,
+      "prompt_chars": 26783,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6905601250036852
+      }
+    },
+    {
+      "question_id": "e831120c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3.5 weeks",
+      "hypothesis": "It took approximately 3.5 weeks (two weeks for the MCU movies and a week and a half for the main Star Wars films).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 19465,
+      "episodic_chars": 5909,
+      "prompt_chars": 25425,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9911977500014473
+      }
+    },
+    {
+      "question_id": "60036106",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "12,000",
+      "hypothesis": "12,000 people (2,000 from the Facebook ad and 10,000 from the influencer collaboration).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 248,
+      "record_chars": 19091,
+      "episodic_chars": 5950,
+      "prompt_chars": 25460,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8013558329985244
+      }
+    },
+    {
+      "question_id": "c2ac3c61",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 5,
+      "hypothesis": "5 (3 on Coursera and 2 on edX)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 274,
+      "record_chars": 20999,
+      "episodic_chars": 4520,
+      "prompt_chars": 25814,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9193619170036982
+      }
+    },
+    {
+      "question_id": "1192316e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "an hour and a half",
+      "hypothesis": "1 hour and 30 minutes.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 252,
+      "record_chars": 19172,
+      "episodic_chars": 4807,
+      "prompt_chars": 24375,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6153507089984487
+      }
+    },
+    {
+      "question_id": "gpt4_2ba83207",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "Thrive Market",
+      "hypothesis": "Walmart ($120 on 2023/05/19).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23049,
+      "episodic_chars": 5814,
+      "prompt_chars": 28817,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0251981670007808
+      }
+    },
+    {
+      "question_id": "91b15a6e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$5,150",
+      "hypothesis": "$5,150",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 17952,
+      "episodic_chars": 5195,
+      "prompt_chars": 23285,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6508641660038847
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$1,300",
+      "hypothesis": "$1,300 ($800 for the Coach handbag and $500 for skincare).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 269,
+      "record_chars": 21319,
+      "episodic_chars": 5553,
+      "prompt_chars": 27088,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.006049333998817
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "4 days.",
+      "hypothesis": "3 days a week (Tuesdays, Thursdays, and Saturdays).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 21505,
+      "episodic_chars": 4892,
+      "prompt_chars": 26671,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7269589580027969
+      }
+    },
+    {
+      "question_id": "157a136e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "43",
+      "hypothesis": "Your grandma is 43 years older than you (75 - 32).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 309,
+      "record_chars": 22783,
+      "episodic_chars": 4357,
+      "prompt_chars": 27142,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8215059169961023
+      }
+    },
+    {
+      "question_id": "60bf93ed",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "5 days. 6 days (including the last day) is also acceptable.",
+      "hypothesis": "5 days (bought 1/15, arrived 1/20).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 22017,
+      "episodic_chars": 5959,
+      "prompt_chars": 28078,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6694353749990114
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$720",
+      "hypothesis": "$720 ($200 for writing, $500 for digital marketing, and $20 for mindfulness).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 322,
+      "record_chars": 23996,
+      "episodic_chars": 5950,
+      "prompt_chars": 30084,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8051133749977453
+      }
+    },
+    {
+      "question_id": "gpt4_d12ceb0e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "59.6",
+      "hypothesis": "The average age is 56.25 (User: 32, Mother: 55, Father: 58, Grandpa: 78, Grandma: 75 - though one record notes a grandmother passed away in March 2023).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 21101,
+      "episodic_chars": 5651,
+      "prompt_chars": 26829,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.888491083002009
+      }
+    },
+    {
+      "question_id": "e3038f8c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 99,
+      "hypothesis": "You have 93 rare items: 57 rare records, 25 rare coins, 5 rare books, and 6 rare figurines.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19102,
+      "episodic_chars": 5271,
+      "prompt_chars": 24552,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6916629999977886
+      }
+    },
+    {
+      "question_id": "gpt4_d84a3211",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$185",
+      "hypothesis": "$185 ($120 for the helmet, $40 for bike lights, and $25 for the chain replacement).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 20740,
+      "episodic_chars": 5837,
+      "prompt_chars": 26114,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8170934589943499
+      }
+    },
+    {
+      "question_id": "2788b940",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 5,
+      "hypothesis": "You attend 4 fitness classes: BodyPump (Mondays), Zumba (Tuesdays and Thursdays), Hip Hop Abs (Saturdays), and yoga (Sundays).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 252,
+      "record_chars": 18798,
+      "episodic_chars": 5771,
+      "prompt_chars": 24728,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8085900000005495
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3.83",
+      "hypothesis": "3.83",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 253,
+      "record_chars": 18989,
+      "episodic_chars": 5445,
+      "prompt_chars": 24518,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6182925000030082
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "3 (Dr. Smith on March 3rd, Dr. Thompson on March 20th, and a primary care physician appointment mentioned on March 27th).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 19687,
+      "episodic_chars": 4456,
+      "prompt_chars": 24173,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6911255840022932
+      }
+    },
+    {
+      "question_id": "1c549ce4",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$140",
+      "hypothesis": "$140 ($120 for the car cover and $20 for the detailing spray).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 18305,
+      "episodic_chars": 5255,
+      "prompt_chars": 23613,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.920459667002433
+      }
+    },
+    {
+      "question_id": "60472f9c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "3 (Data Mining project, Database Systems project, and the Cafe24 corporate website projects)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19410,
+      "episodic_chars": 5892,
+      "prompt_chars": 25379,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6918945829966106
+      }
+    },
+    {
+      "question_id": "6c49646a",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3,000 miles",
+      "hypothesis": "3,000 miles (1,800 miles from the first three trips and 1,200 miles from the Yellowstone trip).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 19099,
+      "episodic_chars": 5927,
+      "prompt_chars": 25122,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8025147919979645
+      }
+    },
+    {
+      "question_id": "gpt4_59c863d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I have worked on or bought five model kits. The scales of the models are: Revell F-15 Eagle (scale not mentioned), Tamiya 1/48 scale Spitfire Mk.V, 1/16 scale German Tiger I tank, 1/72 scale B-29 bomber, and 1/24 scale '69 Camaro.",
+      "hypothesis": "6 (1/24 '69 Camaro, 1/72 B-29 bomber, Revell F-15 Eagle, Tamiya 1/48 Spitfire Mk.V, 1/16 German Tiger I tank, and a Revell F-15 Eagle mentioned in excerpts).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 19100,
+      "episodic_chars": 4467,
+      "prompt_chars": 23323,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0216962080012308
+      }
+    },
+    {
+      "question_id": "b3c15d39",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "5 days. 6 days (including the last day) is also acceptable.",
+      "hypothesis": "It took 5 days (ordered February 5th, arrived February 10th).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 20084,
+      "episodic_chars": 5802,
+      "prompt_chars": 26140,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1415775829955237
+      }
+    },
+    {
+      "question_id": "a4996e51",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "50",
+      "hypothesis": "Up to 50 hours per week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 318,
+      "record_chars": 24635,
+      "episodic_chars": 4500,
+      "prompt_chars": 28876,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6753802090024692
+      }
+    },
+    {
+      "question_id": "73d42213",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "9:00 AM",
+      "hypothesis": "The records do not state what time you reached the clinic, only that you left home at 7 AM.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 223,
+      "record_chars": 17061,
+      "episodic_chars": 5735,
+      "prompt_chars": 23076,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7395732500008307
+      }
+    },
+    {
+      "question_id": "129d1232",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$5,850",
+      "hypothesis": "$5,850 ($5,000 from the Bike-a-Thon, $600 from the charity yoga event, and $250 from the charity walk).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 248,
+      "record_chars": 18004,
+      "episodic_chars": 5067,
+      "prompt_chars": 23511,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8419914579935721
+      }
+    },
+    {
+      "question_id": "ef9cf60a",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$300",
+      "hypothesis": "Approximately $300 (a $200 Tiffany's necklace and a $100 spa gift card).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 20687,
+      "episodic_chars": 5325,
+      "prompt_chars": 26304,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7848634589972789
+      }
+    },
+    {
+      "question_id": "d682f1a2",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "3 (Domino's Pizza, Uber Eats, and Fresh Fusion)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 20116,
+      "episodic_chars": 5348,
+      "prompt_chars": 25885,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0070040420032456
+      }
+    },
+    {
+      "question_id": "2318644b",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$270",
+      "hypothesis": "Over $270 more per night.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 244,
+      "record_chars": 18328,
+      "episodic_chars": 5988,
+      "prompt_chars": 24456,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6470983749968582
+      }
+    },
+    {
+      "question_id": "1f2b8d4f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$750",
+      "hypothesis": "$750",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 242,
+      "record_chars": 18561,
+      "episodic_chars": 5900,
+      "prompt_chars": 24588,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7261082080003689
+      }
+    },
+    {
+      "question_id": "a3332713",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$200",
+      "hypothesis": "$200 ($100 for the coworker and $100 for the brother).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 319,
+      "record_chars": 22907,
+      "episodic_chars": 5358,
+      "prompt_chars": 28241,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.007024292004644
+      }
+    },
+    {
+      "question_id": "4adc0475",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "5",
+      "hypothesis": "You have scored several goals and had two assists.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 19413,
+      "episodic_chars": 4157,
+      "prompt_chars": 23351,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9234799159967224
+      }
+    },
+    {
+      "question_id": "80ec1f4f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "2 (Natural History Museum and The Art Cube)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 20704,
+      "episodic_chars": 5945,
+      "prompt_chars": 26790,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6921047079958953
+      }
+    },
+    {
+      "question_id": "88432d0a",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 4,
+      "hypothesis": "5 (sourdough bread on 5/16, whole wheat baguette on 5/17, cookies on 5/18, chocolate cake on 5/21, and whole wheat baguette on 5/27)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 21824,
+      "episodic_chars": 4956,
+      "prompt_chars": 26581,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0020818330012844
+      }
+    },
+    {
+      "question_id": "gpt4_2f91af09",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "23",
+      "hypothesis": "23 pieces (5 short stories, 17 poems, and 1 piece for the writing challenge).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 226,
+      "record_chars": 17369,
+      "episodic_chars": 4194,
+      "prompt_chars": 21471,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6222054160025436
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "8 days.",
+      "hypothesis": "8 days (3 days in Big Sur and 5 days in Yellowstone).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 250,
+      "record_chars": 19051,
+      "episodic_chars": 4333,
+      "prompt_chars": 23695,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7040409170003841
+      }
+    },
+    {
+      "question_id": "5025383b",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "photography and cooking",
+      "hypothesis": "Photography and cooking.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 19671,
+      "episodic_chars": 5828,
+      "prompt_chars": 25779,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6166209169969079
+      }
+    },
+    {
+      "question_id": "55241a1f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "33",
+      "hypothesis": "33 comments (12 from the Facebook Live session and 21 from the most popular YouTube video).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 22594,
+      "episodic_chars": 5821,
+      "prompt_chars": 28458,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6553862919972744
+      }
+    },
+    {
+      "question_id": "92a0aa75",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "1 year and 5 months",
+      "hypothesis": "You have been a Senior Marketing Specialist for 2 years and 4 months.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 20016,
+      "episodic_chars": 5852,
+      "prompt_chars": 26115,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6180765409953892
+      }
+    },
+    {
+      "question_id": "77eafa52",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$300",
+      "hypothesis": "$300 (the price increased from an initial quote of $2,500 to a corrected price of $2,800).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 234,
+      "record_chars": 18868,
+      "episodic_chars": 5848,
+      "prompt_chars": 24977,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.85838062500261
+      }
+    },
+    {
+      "question_id": "dd2973ad",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "2 AM",
+      "hypothesis": "The provided records do not state what time you went to bed the day before your doctor's appointment.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 21524,
+      "episodic_chars": 5726,
+      "prompt_chars": 27377,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0442489589986508
+      }
+    },
+    {
+      "question_id": "6456829e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "8",
+      "hypothesis": "You initially planted 5 tomato plants and 3 cucumber plants.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 299,
+      "record_chars": 25351,
+      "episodic_chars": 5938,
+      "prompt_chars": 31016,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9205905409980915
+      }
+    },
+    {
+      "question_id": "bb7c3b45",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$300",
+      "hypothesis": "You saved $300 (originally $500, purchased for $200).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 308,
+      "record_chars": 23015,
+      "episodic_chars": 5341,
+      "prompt_chars": 28571,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.721869916000287
+      }
+    },
+    {
+      "question_id": "c18a7dc8",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "7",
+      "hypothesis": "You are 7 years older (currently 32, graduated at 25).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20373,
+      "episodic_chars": 5716,
+      "prompt_chars": 26201,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7259080840012757
+      }
+    },
+    {
+      "question_id": "aae3761f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "15 hours for getting to the three destinations (or 30 hours for the round trip)",
+      "hypothesis": "The provided records do not contain the total driving hours for all three destinations; they only mention a six-hour drive to Washington D.C.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 20206,
+      "episodic_chars": 5612,
+      "prompt_chars": 25964,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7013572500000009
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "3 (Emma's preschool graduation, Alex's leadership program graduation, and Rachel's master's degree graduation).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 20415,
+      "episodic_chars": 5890,
+      "prompt_chars": 26568,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7537582080040011
+      }
+    },
+    {
+      "question_id": "gpt4_372c3eed",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "10 years",
+      "hypothesis": "10 years (High school 2010-2014, UCLA 2016-2020).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 20987,
+      "episodic_chars": 4744,
+      "prompt_chars": 26095,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.262818208000681
+      }
+    },
+    {
+      "question_id": "1a8a66a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "1 (The New Yorker)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18931,
+      "episodic_chars": 5913,
+      "prompt_chars": 24878,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6601776250026887
+      }
+    },
+    {
+      "question_id": "cc539528",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I recommended learning Ruby, Python, or PHP as a back-end programming language.",
+      "hypothesis": "Ruby, Python, or PHP.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18650,
+      "episodic_chars": 5453,
+      "prompt_chars": 24396,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7863839580022614
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options were sexual fixations, problematic sexual behaviors, sexual impulsivity, and compulsive sexuality.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 21915,
+      "episodic_chars": 5923,
+      "prompt_chars": 28305,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.752627041998494
+      }
+    },
+    {
+      "question_id": "51b23612",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Nu, pogodi!",
+      "hypothesis": "The Soviet cartoon mentioned was \u201cNu, pogodi!\u201d.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 267,
+      "record_chars": 19432,
+      "episodic_chars": 5949,
+      "prompt_chars": 25759,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7548040419933386
+      }
+    },
+    {
+      "question_id": "4baee567",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The Chiefs played the Jaguars 12 times at Arrowhead Stadium.",
+      "hypothesis": "The Chiefs played the Jaguars 12 times at Arrowhead Stadium.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19836,
+      "episodic_chars": 5902,
+      "prompt_chars": 26032,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7289198750004289
+      }
+    },
+    {
+      "question_id": "1d4da289",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I mentioned biometric authentication or one-time passwords (OTP) as examples of two-factor authentication methods.",
+      "hypothesis": "The methods mentioned were biometric authentication (such as fingerprint or facial recognition) and one-time passwords (OTP) or codes sent to a mobile device.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21724,
+      "episodic_chars": 5457,
+      "prompt_chars": 27192,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.374780334001116
+      }
+    },
+    {
+      "question_id": "1de5cff2",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Veja",
+      "hypothesis": "Veja",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 18475,
+      "episodic_chars": 5306,
+      "prompt_chars": 24361,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.5989427089953097
+      }
+    },
+    {
+      "question_id": "6ae235be",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Atmospheric distillation, fluid catalytic cracking (FCC), alkylation, and hydrotreating.",
+      "hypothesis": "The Lake Charles Refinery uses atmospheric distillation, fluid catalytic cracking (FCC), alkylation, and hydrotreating.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 231,
+      "record_chars": 18383,
+      "episodic_chars": 5057,
+      "prompt_chars": 23520,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7246383329984383
+      }
+    },
+    {
+      "question_id": "ac031881",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The designation on your jumpsuit was 'LIV'.",
+      "hypothesis": "The designation on your jumpsuit was \"LIV\".",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 298,
+      "record_chars": 23079,
+      "episodic_chars": 5854,
+      "prompt_chars": 29241,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7172234999961802
+      }
+    },
+    {
+      "question_id": "3249768e",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Absinthe",
+      "hypothesis": "The fifth bottle recommended was Absinthe.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 339,
+      "record_chars": 24789,
+      "episodic_chars": 5576,
+      "prompt_chars": 30875,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8024212919990532
+      }
+    },
+    {
+      "question_id": "6222b6eb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The 6S algorithm is implemented in the SIAC_GEE tool.",
+      "hypothesis": "The 6S algorithm is implemented in the SIAC_GEE tool.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 20353,
+      "episodic_chars": 5754,
+      "prompt_chars": 26685,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6169342499997583
+      }
+    },
+    {
+      "question_id": "5809eb10",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "2014.",
+      "hypothesis": "The construction of the house began in 2014.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 20663,
+      "episodic_chars": 5661,
+      "prompt_chars": 26336,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9222206249978626
+      }
+    },
+    {
+      "question_id": "1568498a",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "28. Kg3",
+      "hypothesis": "Your move was 28. Kg3.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 20225,
+      "episodic_chars": 4382,
+      "prompt_chars": 24804,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6994436249951832
+      }
+    },
+    {
+      "question_id": "70b3e69b",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Manolo Garc\u00eda",
+      "hypothesis": "I did not provide an example of a singer-songwriter who supports unity; I only mentioned artists who promote Catalan identity and the novel \"Patria\" by Fernando Aramburu.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20433,
+      "episodic_chars": 5566,
+      "prompt_chars": 26385,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7144410839973716
+      }
+    },
+    {
+      "question_id": "352ab8bd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The average improvement in framerate was approximately 20% when using the Hardware-Aware Modular Training (HAMT) agent.",
+      "hypothesis": "The average improvement in framerate was approximately 20%.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 19298,
+      "episodic_chars": 5929,
+      "prompt_chars": 25702,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8735584579990245
+      }
+    },
+    {
+      "question_id": "e982271f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Revolution Hall",
+      "hypothesis": "Revolution Hall",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 308,
+      "record_chars": 22905,
+      "episodic_chars": 5857,
+      "prompt_chars": 28866,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7424280420018476
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "2-3 eggs",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 306,
+      "record_chars": 22535,
+      "episodic_chars": 5583,
+      "prompt_chars": 28336,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7018279580006492
+      }
+    },
+    {
+      "question_id": "7161e7e2",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Admon was assigned to the 8 am - 4 pm (Day Shift) on Sundays.",
+      "hypothesis": "Admon was scheduled for the 8 am - 4 pm (Day Shift).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 241,
+      "record_chars": 17812,
+      "episodic_chars": 5342,
+      "prompt_chars": 23620,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6907172089995584
+      }
+    },
+    {
+      "question_id": "c8f1aeed",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Pennsylvania",
+      "hypothesis": "Pennsylvania",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 316,
+      "record_chars": 23204,
+      "episodic_chars": 5521,
+      "prompt_chars": 29371,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.961328000004869
+      }
+    },
+    {
+      "question_id": "8cf51dda",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The three objectives were: 1) to identify molecular subtypes of endometrial cancer, 2) to investigate their clinical and biological significance, and 3) to develop biomarkers for early detection and prognosis.",
+      "hypothesis": "The three objectives were:\n1. Identify molecular subtypes of endometrial cancer using genomic and transcriptomic approaches.\n2. Investigate the clinical and biological significance of these subtypes, including patient outcomes and therapy response.\n3. Develop biomarkers for early detection and prognosis based on the identified subtypes.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 20450,
+      "episodic_chars": 4979,
+      "prompt_chars": 25783,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8664310000021942
+      }
+    },
+    {
+      "question_id": "8aef76bc",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Mod Podge or another sealant",
+      "hypothesis": "Mod Podge or another sealant.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 282,
+      "record_chars": 21828,
+      "episodic_chars": 5774,
+      "prompt_chars": 27859,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8489536670022062
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Roscioli",
+      "hypothesis": "Roscioli",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19974,
+      "episodic_chars": 5569,
+      "prompt_chars": 25807,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6289689170007478
+      }
+    },
+    {
+      "question_id": "488d3006",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The GR-90 trail.",
+      "hypothesis": "The hiking trail recommended was the GR-90.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 19392,
+      "episodic_chars": 5634,
+      "prompt_chars": 25181,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9259643330005929
+      }
+    },
+    {
+      "question_id": "e3fc4d6e",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Dr. Arati Prabhakar",
+      "hypothesis": "Dr. Arati Prabhakar",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 225,
+      "record_chars": 17805,
+      "episodic_chars": 5136,
+      "prompt_chars": 23254,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7651097499983734
+      }
+    },
+    {
+      "question_id": "16c90bf4",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I recommended using a Pilsner or Lager for the recipe.",
+      "hypothesis": "A pilsner or lager.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20449,
+      "episodic_chars": 5474,
+      "prompt_chars": 26381,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7394774169952143
+      }
+    },
+    {
+      "question_id": "fca762bc",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Memrise",
+      "hypothesis": "Memrise",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 19737,
+      "episodic_chars": 5904,
+      "prompt_chars": 25985,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6177617909997934
+      }
+    },
+    {
+      "question_id": "c4f10528",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Miss Bee Providore",
+      "hypothesis": "Miss Bee Providore",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21916,
+      "episodic_chars": 5946,
+      "prompt_chars": 28106,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6556891250002082
+      }
+    },
+    {
+      "question_id": "1903aded",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Transcriptionist.",
+      "hypothesis": "The 7th job in the list was transcriptionist.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20011,
+      "episodic_chars": 5956,
+      "prompt_chars": 25987,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8520376249944093
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "Andy was wearing an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 197,
+      "record_chars": 15171,
+      "episodic_chars": 5722,
+      "prompt_chars": 21314,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6876497920020483
+      }
+    },
+    {
+      "question_id": "09d032c9",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that build upon their previous mention of purchasing a portable power bank, such as suggestions on how to optimize its use, like ensuring it's fully charged before use. They might also appreciate tips on utilizing battery-saving features on their phone. The user may not prefer responses that suggest alternative solutions or unrelated advice.",
+      "hypothesis": "The provided records and excerpts do not contain information about your phone's battery life or tips to improve it.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 20684,
+      "episodic_chars": 4916,
+      "prompt_chars": 26061,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8761778749976656
+      }
+    },
+    {
+      "question_id": "95228167",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that highlight the differences between Fender Stratocaster and Gibson Les Paul electric guitars, such as the feel of the neck, weight, and sound profile. They might not prefer general tips on buying an electric guitar or suggestions that do not take into account their current guitar and desired upgrade.",
+      "hypothesis": "Since you are considering upgrading from your Fender Stratocaster to a Gibson Les Paul, look for a warmer, fuller tone with more sustain and a more substantial neck profile.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 242,
+      "record_chars": 18199,
+      "episodic_chars": 5928,
+      "prompt_chars": 24025,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4498625839987653
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Since you enjoyed \"Our Planet,\" \"Free Solo,\" and \"Tiger King,\" you might like \"Planet Earth,\" \"Blue Planet,\" \"Dynasties,\" or \"Chasing Coral.\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 310,
+      "record_chars": 22474,
+      "episodic_chars": 5725,
+      "prompt_chars": 28331,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1724357909988612
+      }
+    },
+    {
+      "question_id": "57f827a0",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that take into account their existing plans to replace the bedroom dresser and their interest in mid-century modern style, suggesting furniture layouts that accommodate the new dresser and incorporate elements of this design aesthetic. They might not prefer general furniture arrangement tips or suggestions that do not consider their specific design preferences.",
+      "hypothesis": "Since you are designing and building a mid-century modern walnut dresser, you might consider its placement relative to your router, which is currently about 20 feet away with a couple of walls in between.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 312,
+      "record_chars": 23832,
+      "episodic_chars": 5965,
+      "prompt_chars": 29810,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8943429580031079
+      }
+    },
+    {
+      "question_id": "caf03d32",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that provide tips and advice specifically tailored to their slow cooker experiences, utilizing their recent success with beef stew and interest in making yogurt in the slow cooker. They might not prefer general slow cooker recipes or advice unrelated to their specific experiences and interests.",
+      "hypothesis": "The provided records and excerpts do not contain advice on how to get better results with slow cooker recipes.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 19539,
+      "episodic_chars": 5476,
+      "prompt_chars": 25124,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7039381669965223
+      }
+    },
+    {
+      "question_id": "afdc33df",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that acknowledge and build upon their existing efforts to organize their kitchen, such as utilizing their new utensil holder to keep countertops clutter-free. They would also appreciate tips that address their concern for maintaining their granite surface, particularly around the sink area. Preferred responses would provide practical and actionable steps to maintain cleanliness, leveraging the user's current tools and setup. They might not prefer generic or vague suggestions that do not take into account their specific kitchen setup or concerns.",
+      "hypothesis": "Since you have granite countertops and a utensil holder, you can keep your kitchen tidy by regularly cleaning the holder to prevent bacteria and using it to keep your countertops clutter-free.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 18357,
+      "episodic_chars": 4928,
+      "prompt_chars": 23246,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7454025420011021
+      }
+    },
+    {
+      "question_id": "505af2f5",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that suggest variations on their existing almond milk, vanilla extract, and honey creamer recipe or new ideas that align with their goals of reducing sugar intake and saving money. They might not prefer responses that recommend commercial creamer products or recipes that are high in sugar or expensive.",
+      "hypothesis": "Since you currently use almond milk, vanilla extract, and honey, you could try adding cinnamon, nutmeg, or cardamom for flavor, or swapping the almond milk for cashew or oat milk for a creamier texture.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 277,
+      "record_chars": 20403,
+      "episodic_chars": 5948,
+      "prompt_chars": 26628,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7782119170005899
+      }
+    },
+    {
+      "question_id": "75832dbd",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions related to recent research papers, articles, or conferences that focus on artificial intelligence in healthcare, particularly those that involve deep learning for medical image analysis. They would not be interested in general AI topics or those unrelated to healthcare.",
+      "hypothesis": "You might be interested in conferences such as NeurIPS, CVPR, ICML, ICLR, and ICCV, as well as research on multi-modal image fusion, transfer learning, domain adaptation, and explainable AI in medical image analysis.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 20445,
+      "episodic_chars": 4473,
+      "prompt_chars": 25169,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.699486875004368
+      }
+    },
+    {
+      "question_id": "fca70973",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer theme park suggestions that cater to their interest in both thrill rides and special events, utilizing their previous experiences at Disneyland, Knott's Berry Farm, Six Flags Magic Mountain, and Universal Studios Hollywood as a reference point. They would also appreciate recommendations that highlight unique food experiences and nighttime shows. The user might not prefer suggestions that focus solely on one aspect of theme parks, such as only thrill rides or only family-friendly attractions, and may not be interested in parks that lack special events or unique dining options.",
+      "hypothesis": "Since you enjoy thrill rides, nighttime shows, and are particularly interested in Halloween-themed events, I suggest visiting Disneyland for the Oogie Boogie Bash, Knott's Berry Farm for Knott's Scary Farm, Six Flags Magic Mountain for Fright Fest, or Universal Studios Hollywood for Halloween Horror Nights.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 18190,
+      "episodic_chars": 5791,
+      "prompt_chars": 24012,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8820082920065033
+      }
+    },
+    {
+      "question_id": "195a1a1b",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions that involve relaxing activities that can be done in the evening, preferably before 9:30 pm. They would not prefer suggestions that involve using their phone or watching TV, as these activities have been affecting their sleep quality.",
+      "hypothesis": "You could try the \"Sleep\" guided meditation by Headspace or write in your journal, as you prefer winding down by 9:30 pm.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 252,
+      "record_chars": 18486,
+      "episodic_chars": 5154,
+      "prompt_chars": 23952,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8850699169997824
+      }
+    },
+    {
+      "question_id": "54026fce",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that acknowledge their desire for social interaction and collaboration while working remotely, utilizing their previous experiences with company initiatives and team collaborations. They might prefer suggestions of virtual team-building activities, regular check-ins, or joining interest-based groups within the company. The user may not prefer generic suggestions that do not take into account their specific work situation or previous attempts at staying connected with colleagues.",
+      "hypothesis": "You previously liked the idea of implementing virtual coffee breaks to replace \"watercooler conversations\" while working from home.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 329,
+      "record_chars": 23567,
+      "episodic_chars": 4750,
+      "prompt_chars": 28380,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8070942499980447
+      }
+    },
+    {
+      "question_id": "0edc2aef",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions of hotels in Miami that offer great views, possibly of the ocean or the city skyline, and have unique features such as a rooftop pool or a hot tub on the balcony. They may not prefer suggestions of basic or budget hotels without these features.",
+      "hypothesis": "I do not have any information about a trip to Miami in your records.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 20393,
+      "episodic_chars": 5611,
+      "prompt_chars": 26030,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6984497910016216
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "You might find a high-quality screen protector, a phone wallet case, and a wireless charging power bank useful for your iPhone 13 Pro.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20522,
+      "episodic_chars": 4335,
+      "prompt_chars": 24970,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8576673330026097
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "Since you enjoy painting realistic flowers and want to incorporate more texture, you could try experimenting with those elements or seek inspiration from social media and art communities.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 19698,
+      "episodic_chars": 4993,
+      "prompt_chars": 24739,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6926931249981862
+      }
+    },
+    {
+      "question_id": "06f04340",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer dinner suggestions that incorporate their homegrown cherry tomatoes and herbs like basil and mint, highlighting recipes that showcase their garden produce. They might not prefer suggestions that do not utilize these specific ingredients or do not emphasize the use of homegrown elements.",
+      "hypothesis": "You could serve dishes using your homegrown cherry tomatoes, pepper plants, fresh basil, and fresh mint.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 19472,
+      "episodic_chars": 5324,
+      "prompt_chars": 25011,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7366445829975419
+      }
+    },
+    {
+      "question_id": "d6233ab6",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that draw upon their personal experiences and memories, specifically their positive high school experiences such as being part of the debate team and taking advanced placement courses. They would prefer suggestions that highlight the potential benefits of attending the reunion, such as reconnecting with old friends and revisiting favorite subjects like history and economics. The user might not prefer generic or vague responses that do not take into account their individual experiences and interests.",
+      "hypothesis": "The provided records and excerpts do not contain information about a high school reunion or your feelings toward attending one.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 18554,
+      "episodic_chars": 5984,
+      "prompt_chars": 24609,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7452865410014056
+      }
+    },
+    {
+      "question_id": "4fd1909e",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Xfinity Center",
+      "hypothesis": "Xfinity Center",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 291,
+      "record_chars": 21609,
+      "episodic_chars": 5578,
+      "prompt_chars": 27358,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6991596250009025
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "500 Mbps",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 20346,
+      "episodic_chars": 5797,
+      "prompt_chars": 26342,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7522802910025348
+      }
+    },
+    {
+      "question_id": "c19f7a0b",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "6:30 pm",
+      "hypothesis": "Around 6:30 pm.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 288,
+      "record_chars": 20318,
+      "episodic_chars": 5488,
+      "prompt_chars": 26086,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7896077499972307
+      }
+    },
+    {
+      "question_id": "6f9b354f",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a lighter shade of gray",
+      "hypothesis": "A lighter shade of gray.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 20332,
+      "episodic_chars": 5888,
+      "prompt_chars": 26321,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7068228339994675
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred ratio is 3:1.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 22184,
+      "episodic_chars": 5501,
+      "prompt_chars": 27708,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.678644624997105
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "A yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 20079,
+      "episodic_chars": 5996,
+      "prompt_chars": 26388,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8774091250015772
+      }
+    },
+    {
+      "question_id": "95bcc1c8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "10",
+      "hypothesis": "10",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 295,
+      "record_chars": 20949,
+      "episodic_chars": 5808,
+      "prompt_chars": 26899,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6838260419972357
+      }
+    },
+    {
+      "question_id": "0862e8bf",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Luna",
+      "hypothesis": "Your cat's name is Luna.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 193,
+      "record_chars": 16152,
+      "episodic_chars": 5872,
+      "prompt_chars": 22281,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.77066454099986
+      }
+    },
+    {
+      "question_id": "75499fd8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Golden Retriever",
+      "hypothesis": "Max is a Golden Retriever.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 19117,
+      "episodic_chars": 5907,
+      "prompt_chars": 25153,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7916456660022959
+      }
+    },
+    {
+      "question_id": "bc8a6e93",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a lemon blueberry cake",
+      "hypothesis": "A lemon blueberry cake.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21490,
+      "episodic_chars": 5629,
+      "prompt_chars": 27301,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6986946669931058
+      }
+    },
+    {
+      "question_id": "3d86fd0a",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a coffee shop in the city",
+      "hypothesis": "At a coffee shop in the city.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 326,
+      "record_chars": 23238,
+      "episodic_chars": 5997,
+      "prompt_chars": 29129,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6483762089992524
+      }
+    },
+    {
+      "question_id": "86f00804",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "The Seven Husbands of Evelyn Hugo",
+      "hypothesis": "\"The Seven Husbands of Evelyn Hugo\"",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 17927,
+      "episodic_chars": 5893,
+      "prompt_chars": 23820,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7269192090025172
+      }
+    },
+    {
+      "question_id": "b86304ba",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "The painting is worth triple what I paid for it.",
+      "hypothesis": "The records do not mention a painting of a sunset, only a flea market find that is worth triple what was paid for it.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 244,
+      "record_chars": 18723,
+      "episodic_chars": 5489,
+      "prompt_chars": 24303,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1693812080047792
+      }
+    },
+    {
+      "question_id": "25e5aa4f",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "University of California, Los Angeles (UCLA)",
+      "hypothesis": "UCLA",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23180,
+      "episodic_chars": 5498,
+      "prompt_chars": 28859,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7332501670025522
+      }
+    },
+    {
+      "question_id": "caf9ead2",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "5 hours",
+      "hypothesis": "Approximately 5 hours.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 19049,
+      "episodic_chars": 5615,
+      "prompt_chars": 24844,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7220250829996075
+      }
+    },
+    {
+      "question_id": "58bf7951",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "The Glass Menagerie",
+      "hypothesis": "The Glass Menagerie",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 21729,
+      "episodic_chars": 5909,
+      "prompt_chars": 27348,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7156810830056202
+      }
+    },
+    {
+      "question_id": "4100d0a0",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "A mix of Irish and Italian",
+      "hypothesis": "You have mixed Irish and Italian ethnicity.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 233,
+      "record_chars": 16601,
+      "episodic_chars": 5840,
+      "prompt_chars": 22374,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.741994625001098
+      }
+    },
+    {
+      "question_id": "ccb36322",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Spotify",
+      "hypothesis": "Spotify",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 293,
+      "record_chars": 20628,
+      "episodic_chars": 5929,
+      "prompt_chars": 26860,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6708912909962237
+      }
+    },
+    {
+      "question_id": "c5e8278d",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Johnson",
+      "hypothesis": "Your last name was Johnson.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 276,
+      "record_chars": 21234,
+      "episodic_chars": 4583,
+      "prompt_chars": 26201,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7868248340018908
+      }
+    },
+    {
+      "question_id": "e47becba",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Business Administration",
+      "hypothesis": "Business Administration",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 335,
+      "record_chars": 23854,
+      "episodic_chars": 5591,
+      "prompt_chars": 29422,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8566236659971764
+      }
+    },
+    {
+      "question_id": "8e9d538c",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "17",
+      "hypothesis": "17 skeins",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 223,
+      "record_chars": 16730,
+      "episodic_chars": 4511,
+      "prompt_chars": 21469,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6362891250028042
+      }
+    },
+    {
+      "question_id": "6ade9755",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Serenity Yoga",
+      "hypothesis": "You take classes at Serenity Yoga studio and practice at home using the Down Dog app.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 245,
+      "record_chars": 18511,
+      "episodic_chars": 5677,
+      "prompt_chars": 24600,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6768864170007873
+      }
+    },
+    {
+      "question_id": "af8d2e46",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "7",
+      "hypothesis": "You packed 7 shirts for your trip to Costa Rica.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 248,
+      "record_chars": 19452,
+      "episodic_chars": 4415,
+      "prompt_chars": 24160,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7121465000018361
+      }
+    },
+    {
+      "question_id": "94f70d80",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "4 hours",
+      "hypothesis": "It took you 4 hours.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 234,
+      "record_chars": 18240,
+      "episodic_chars": 5810,
+      "prompt_chars": 24191,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8058708750031656
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "bronchitis",
+      "hypothesis": "Bronchitis",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 228,
+      "record_chars": 19719,
+      "episodic_chars": 5423,
+      "prompt_chars": 25410,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7253826249943813
+      }
+    },
+    {
+      "question_id": "dccbc061",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "A staunch atheist",
+      "hypothesis": "You were a staunch atheist.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 19597,
+      "episodic_chars": 5003,
+      "prompt_chars": 24778,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7090116670005955
+      }
+    },
+    {
+      "question_id": "311778f1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "10",
+      "hypothesis": "Approximately 10 hours.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 18380,
+      "episodic_chars": 5872,
+      "prompt_chars": 24614,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7549816250029835
+      }
+    },
+    {
+      "question_id": "d52b4f67",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "The Grand Ballroom",
+      "hypothesis": "At the Grand Ballroom.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 257,
+      "record_chars": 18908,
+      "episodic_chars": 5269,
+      "prompt_chars": 24534,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6532930419998593
+      }
+    },
+    {
+      "question_id": "76d63226",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "55-inch",
+      "hypothesis": "55-inch",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 19859,
+      "episodic_chars": 5759,
+      "prompt_chars": 25887,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6807259170018369
+      }
+    },
+    {
+      "question_id": "f4f1d8a4",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "my sister",
+      "hypothesis": "Your sister.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 20747,
+      "episodic_chars": 5938,
+      "prompt_chars": 26750,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7092895419991692
+      }
+    },
+    {
+      "question_id": "577d4d32",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "7 pm",
+      "hypothesis": "7 pm",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 282,
+      "record_chars": 22038,
+      "episodic_chars": 5707,
+      "prompt_chars": 27972,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4509136249980656
+      }
+    },
+    {
+      "question_id": "726462e0",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "10%",
+      "hypothesis": "10% discount",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 20566,
+      "episodic_chars": 5916,
+      "prompt_chars": 26581,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6848035840012017
+      }
+    },
+    {
+      "question_id": "gpt4_78cf46a3",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Receiving the new phone case",
+      "hypothesis": "The narrator received their new phone case first (acquired ~2023/04/26), whereas they lost their phone charger on 2023/05/12.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 261,
+      "record_chars": 18744,
+      "episodic_chars": 5607,
+      "prompt_chars": 24628,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.717451834003441
+      }
+    },
+    {
+      "question_id": "gpt4_4cd9eba1",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "one week",
+      "hypothesis": "Approximately 1 week (accepted March 20, orientations started March 27).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 20458,
+      "episodic_chars": 4462,
+      "prompt_chars": 25035,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.100291125003423
+      }
+    },
+    {
+      "question_id": "gpt4_76048e76",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "bike",
+      "hypothesis": "The bike (repaired in mid-February) was taken care of before the car (washed on February 27th).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 276,
+      "record_chars": 21129,
+      "episodic_chars": 5974,
+      "prompt_chars": 27201,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8124501249985769
+      }
+    },
+    {
+      "question_id": "gpt4_4edbafa2",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "June 3rd",
+      "hypothesis": "June 3, 2023",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 304,
+      "record_chars": 22560,
+      "episodic_chars": 5903,
+      "prompt_chars": 28516,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9134415829976206
+      }
+    },
+    {
+      "question_id": "gpt4_98f46fc6",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I participated in the charity bake sale first.",
+      "hypothesis": "You participated in the charity bake sale first (2023/03/15), before the charity gala (2023/03/28).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 22379,
+      "episodic_chars": 5187,
+      "prompt_chars": 27709,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0218710829940392
+      }
+    },
+    {
+      "question_id": "gpt4_7de946e7",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Persistent cough",
+      "hypothesis": "The persistent cough (diagnosed as bronchitis on 2023/02/10) came before the skin tag removal (2023/02/22).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 20169,
+      "episodic_chars": 5943,
+      "prompt_chars": 26318,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0750164589990163
+      }
+    },
+    {
+      "question_id": "gpt4_d6585ce8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The order of the concerts I attended is: 1. Billie Eilish concert at the Wells Fargo Center in Philly, 2. Free outdoor concert series in the park, 3. Music festival in Brooklyn, 4. Jazz night at a local bar, 5. Queen + Adam Lambert concert at the Prudential Center in Newark, NJ.",
+      "hypothesis": "1. Charity gala for the Children's Hospital (February 2023)\n2. Billie Eilish concert in Philly (2023/03/17)\n3. Free outdoor concert series in the park (2023/03/25)\n4. Music festival in Brooklyn (2023/04/01)\n5. Jazz night at a local bar (2023/04/08)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 323,
+      "record_chars": 22383,
+      "episodic_chars": 5877,
+      "prompt_chars": 28648,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1331465839975863
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Disney+",
+      "hypothesis": "HBO add-on for Amazon Prime Video (added 2023/05/26).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 18233,
+      "episodic_chars": 5244,
+      "prompt_chars": 23741,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6635359159990912
+      }
+    },
+    {
+      "question_id": "gpt4_7a0daae1",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "1 week",
+      "hypothesis": "One week.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 20416,
+      "episodic_chars": 4642,
+      "prompt_chars": 25361,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6979012499941746
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking lessons for about four weeks.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 240,
+      "record_chars": 17401,
+      "episodic_chars": 5530,
+      "prompt_chars": 23173,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0194641669950215
+      }
+    },
+    {
+      "question_id": "eac54add",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I signed a contract with my first client.",
+      "hypothesis": "You signed a contract with your first freelance client.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 289,
+      "record_chars": 20658,
+      "episodic_chars": 5718,
+      "prompt_chars": 26354,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7461902080030995
+      }
+    },
+    {
+      "question_id": "gpt4_1d4ab0c9",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "24 days. 25 days (including the last day) is also acceptable.",
+      "hypothesis": "24 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 237,
+      "record_chars": 18660,
+      "episodic_chars": 5183,
+      "prompt_chars": 23641,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.5922993329950259
+      }
+    },
+    {
+      "question_id": "gpt4_68e94287",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "You posted a recipe for vegan chili on Instagram using the hashtag #FoodieAdventures first.",
+      "hypothesis": "The post about the vegan chili recipe happened first (2023/03/09), before the #PlankChallenge (2023/03/15).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 20914,
+      "episodic_chars": 5521,
+      "prompt_chars": 26638,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8151049579973915
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "\"The Nightingale\" by Kristin Hannah",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 20651,
+      "episodic_chars": 5008,
+      "prompt_chars": 25479,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6936949580049259
+      }
+    },
+    {
+      "question_id": "c8090214",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The records do not provide the specific date the user attended the Holiday Market, only that it occurred in 2023-11.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 233,
+      "record_chars": 18355,
+      "episodic_chars": 5718,
+      "prompt_chars": 24342,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7061139590005041
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "The records state \"The Nightingale\" took three weeks, but they do not specify how long it took to finish \"The Seven Husbands of Evelyn Hugo.\"",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 19501,
+      "episodic_chars": 5838,
+      "prompt_chars": 25282,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8586725839995779
+      }
+    },
+    {
+      "question_id": "gpt4_2487a7cb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "'Data Analysis using Python' webinar",
+      "hypothesis": "The 'Data Analysis using Python' webinar (2023/03/24) was attended before the 'Effective Time Management' workshop (2023/05/18).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 318,
+      "record_chars": 23358,
+      "episodic_chars": 5885,
+      "prompt_chars": 29382,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1501540840035887
+      }
+    },
+    {
+      "question_id": "gpt4_ec93e27f",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "train",
+      "hypothesis": "A train.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 311,
+      "record_chars": 22467,
+      "episodic_chars": 5906,
+      "prompt_chars": 28727,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.905271832998551
+      }
+    },
+    {
+      "question_id": "gpt4_0b2f1d21",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The malfunction of the stand mixer",
+      "hypothesis": "The malfunction of the stand mixer happened first (April 2023), before the purchase of the coffee maker (approx. 2023/05/04).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 313,
+      "record_chars": 29456,
+      "episodic_chars": 5466,
+      "prompt_chars": 35145,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8500652500006254
+      }
+    },
+    {
+      "question_id": "gpt4_18c2b244",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "First, I used a Buy One Get One Free coupon on Luvs diapers at Walmart. Then, I redeemed $12 cashback for a $10 Amazon gift card from Ibotta. Finally, I signed up for the rewards program at ShopRite.",
+      "hypothesis": "1. Used BOGO coupon on Luvs diapers (2023/04/01)\n2. Redeemed $12 Ibotta cashback for $10 Amazon gift card (2023/04/10)\n3. Signed up for ShopRite rewards program (2023/04/15)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21259,
+      "episodic_chars": 4787,
+      "prompt_chars": 26495,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8349586250042194
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days (from 2023/04/15 to 2023/04/21).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21271,
+      "episodic_chars": 5544,
+      "prompt_chars": 27128,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8947978750002221
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "You had a meeting with Rachel regarding the data analysis section of your thesis.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 19651,
+      "episodic_chars": 5629,
+      "prompt_chars": 25268,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6755870830020285
+      }
+    },
+    {
+      "question_id": "gpt4_65aabe59",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Smart thermostat",
+      "hypothesis": "The mesh network system (2023/05/02) was set up before the smart thermostat (approx. 2023/04/25, but mentioned as being set up \"a month ago\" on 2023/05/25).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20229,
+      "episodic_chars": 5322,
+      "prompt_chars": 25830,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.048264333003317
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "7 days ago",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18908,
+      "episodic_chars": 5887,
+      "prompt_chars": 24992,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7079471249962808
+      }
+    },
+    {
+      "question_id": "gpt4_70e84552",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Fixing the fence",
+      "hypothesis": "You fixed the fence first (2023/05/02) before trimming the goats' hooves (2023/05/11).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 22192,
+      "episodic_chars": 5769,
+      "prompt_chars": 28097,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7709572090025176
+      }
+    },
+    {
+      "question_id": "gpt4_7ca326fa",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Emma graduated first, followed by Rachel and then Alex.",
+      "hypothesis": "First: Emma (2022/05/27), second: Rachel (2022/06/21), third: Alex (approximately 2022/07/01).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 258,
+      "record_chars": 19154,
+      "episodic_chars": 4686,
+      "prompt_chars": 24100,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8903821660060203
+      }
+    },
+    {
+      "question_id": "gpt4_b4a80587",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The arrival of the new prime lens",
+      "hypothesis": "The new prime lens arrived first (2023/04/23), before the road trip to the coast (2023/05/13 - 2023/05/15).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 244,
+      "record_chars": 19799,
+      "episodic_chars": 5953,
+      "prompt_chars": 26113,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7522755419995519
+      }
+    },
+    {
+      "question_id": "9a707b82",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "a chocolate cake",
+      "hypothesis": "A chocolate cake for a friend's birthday party.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 297,
+      "record_chars": 21778,
+      "episodic_chars": 5901,
+      "prompt_chars": 28004,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8333619999975781
+      }
+    },
+    {
+      "question_id": "gpt4_5438fa52",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Spanish classes",
+      "hypothesis": "The start of your Spanish classes (approx. 2023/02/27) happened before your attendance at the cultural festival (2023/05/26).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 242,
+      "record_chars": 17563,
+      "episodic_chars": 5992,
+      "prompt_chars": 23765,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7241028749995166
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first (2023/05/05), before your cousin's wedding (2023/06/15).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 234,
+      "record_chars": 17871,
+      "episodic_chars": 5916,
+      "prompt_chars": 23969,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8195802909976919
+      }
+    },
+    {
+      "question_id": "gpt4_61e13b3c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "3 weeks",
+      "hypothesis": "Approximately 3 weeks (from 2023/02/26 to 2023/03/20).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 299,
+      "record_chars": 21992,
+      "episodic_chars": 4980,
+      "prompt_chars": 27293,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8372014589986065
+      }
+    },
+    {
+      "question_id": "370a8ff4",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 15,
+      "hypothesis": "Approximately 12 weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 221,
+      "record_chars": 18782,
+      "episodic_chars": 4565,
+      "prompt_chars": 23671,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6535716250000405
+      }
+    },
+    {
+      "question_id": "8c18457d",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "7 days (March 8 to March 15).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 18656,
+      "episodic_chars": 5984,
+      "prompt_chars": 25054,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7272004999977071
+      }
+    },
+    {
+      "question_id": "2a1811e2",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "21 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 21906,
+      "episodic_chars": 5317,
+      "prompt_chars": 27197,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7960357080009999
+      }
+    },
+    {
+      "question_id": "4dfccbf7",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "24 days. 25 days (including the last day) is also acceptable.",
+      "hypothesis": "54 days (from 2023/02/01 to 2023/02/25).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 290,
+      "record_chars": 20777,
+      "episodic_chars": 5877,
+      "prompt_chars": 26920,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8333072919995175
+      }
+    },
+    {
+      "question_id": "0bb5a684",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "7 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 17631,
+      "episodic_chars": 5264,
+      "prompt_chars": 22787,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6154200829987531
+      }
+    },
+    {
+      "question_id": "gpt4_85da3956",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "3 weeks ago",
+      "hypothesis": "The records do not specify the exact date you attended the festival, only that it occurred in June 2023.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 241,
+      "record_chars": 18541,
+      "episodic_chars": 5596,
+      "prompt_chars": 24287,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1114235409986577
+      }
+    },
+    {
+      "question_id": "gpt4_483dd43c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "'Game of Thrones'",
+      "hypothesis": "You started watching 'Game of Thrones' first (started approximately 2023/04/29).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 303,
+      "record_chars": 22423,
+      "episodic_chars": 5018,
+      "prompt_chars": 27368,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1838475420008763
+      }
+    },
+    {
+      "question_id": "gpt4_9a159967",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "United Airlines",
+      "hypothesis": "United Airlines (4 flights in March).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20497,
+      "episodic_chars": 5631,
+      "prompt_chars": 26367,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8541708749980899
+      }
+    },
+    {
+      "question_id": "gpt4_1916e0ea",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "54 days. 55 days (including the last day) is also acceptable.",
+      "hypothesis": "54 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 284,
+      "record_chars": 20632,
+      "episodic_chars": 5492,
+      "prompt_chars": 26412,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7681797500044922
+      }
+    },
+    {
+      "question_id": "2c63a862",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days (from 2022/02/15 to 2022/03/01).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 261,
+      "record_chars": 18799,
+      "episodic_chars": 5404,
+      "prompt_chars": 24406,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7260600840018014
+      }
+    },
+    {
+      "question_id": "gpt4_2f584639",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "the photo album for my mom",
+      "hypothesis": "The photo album for your mom (2023/05/16) was bought before the necklace for your sister (2023/05/23).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20594,
+      "episodic_chars": 5836,
+      "prompt_chars": 26384,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8064821250009118
+      }
+    },
+    {
+      "question_id": "5e1b23de",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 3,
+      "hypothesis": "3 months ago",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 250,
+      "record_chars": 19697,
+      "episodic_chars": 4655,
+      "prompt_chars": 24538,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7206015839983593
+      }
+    },
+    {
+      "question_id": "cc6d1ec1",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Two months",
+      "hypothesis": "About two months.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 20716,
+      "episodic_chars": 5885,
+      "prompt_chars": 26933,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7627595829981146
+      }
+    },
+    {
+      "question_id": "gpt4_59149c77",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "7 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 19144,
+      "episodic_chars": 4516,
+      "prompt_chars": 23946,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.5831780419975985
+      }
+    },
+    {
+      "question_id": "gpt4_8279ba02",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "10 days ago. 11 days (including the last day) is also acceptable.",
+      "hypothesis": "10 days ago",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 230,
+      "record_chars": 17202,
+      "episodic_chars": 5944,
+      "prompt_chars": 23355,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6042266660006135
+      }
+    },
+    {
+      "question_id": "gpt4_e061b84g",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The company's annual charity soccer tournament.",
+      "hypothesis": "The company's annual charity soccer tournament.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 292,
+      "record_chars": 22564,
+      "episodic_chars": 5790,
+      "prompt_chars": 27699,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8334834999986924
+      }
+    },
+    {
+      "question_id": "gpt4_af6db32f",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "17 days ago. 18 days (including the last day) is also acceptable.",
+      "hypothesis": "17 days ago (watched on 2023/02/12).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 19115,
+      "episodic_chars": 5971,
+      "prompt_chars": 25402,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6660817090014461
+      }
+    },
+    {
+      "question_id": "gpt4_7bc6cf22",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "12 days ago. 13 days (including the last day) is also acceptable.",
+      "hypothesis": "12 days ago.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 227,
+      "record_chars": 17503,
+      "episodic_chars": 5813,
+      "prompt_chars": 23523,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 4.268998958999873
+      }
+    },
+    {
+      "question_id": "dcfa8644",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 294,
+      "record_chars": 21789,
+      "episodic_chars": 4808,
+      "prompt_chars": 26725,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7496866669971496
+      }
+    },
+    {
+      "question_id": "gpt4_fa19884c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "6 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 19559,
+      "episodic_chars": 5835,
+      "prompt_chars": 25771,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6625032090014429
+      }
+    },
+    {
+      "question_id": "gpt4_f420262c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "JetBlue, Delta, United, American Airlines",
+      "hypothesis": "JetBlue, Delta, United, American Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 274,
+      "record_chars": 20140,
+      "episodic_chars": 5786,
+      "prompt_chars": 26025,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6834442079998553
+      }
+    },
+    {
+      "question_id": "d01c6aa8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "27",
+      "hypothesis": "The records do not provide the user's age at the time they moved to the United States.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 314,
+      "record_chars": 22838,
+      "episodic_chars": 5496,
+      "prompt_chars": 28331,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0782023749998189
+      }
+    },
+    {
+      "question_id": "6e984301",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 3,
+      "hypothesis": "Approximately 7 weeks.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 21205,
+      "episodic_chars": 5888,
+      "prompt_chars": 27275,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.5798279160007951
+      }
+    },
+    {
+      "question_id": "f0853d11",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 18159,
+      "episodic_chars": 5563,
+      "prompt_chars": 23716,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6834538330003852
+      }
+    },
+    {
+      "question_id": "gpt4_e414231f",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "road bike",
+      "hypothesis": "The provided records and excerpts do not mention you fixing or servicing a bike this past weekend.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 18830,
+      "episodic_chars": 4487,
+      "prompt_chars": 23291,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7141542499957723
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "You participated in a social media challenge called #PlankChallenge.",
+      "hypothesis": "You participated in the #PlankChallenge.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 18258,
+      "episodic_chars": 5418,
+      "prompt_chars": 23807,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6380218330014031
+      }
+    },
+    {
+      "question_id": "gpt4_e061b84f",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I first completed the Spring Sprint Triathlon, then took part in the Midsummer 5K Run, and finally participated in the company's annual charity soccer tournament.",
+      "hypothesis": "1. Spring Sprint Triathlon (2023/06/02), 2. Midsummer 5K Run (2023/06/10), 3. company's annual charity soccer tournament (2023/06/17).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 19866,
+      "episodic_chars": 5488,
+      "prompt_chars": 25407,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.092256042000372
+      }
+    },
+    {
+      "question_id": "gpt4_468eb064",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Emma",
+      "hypothesis": "You met with Emma, a freelance writer.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 258,
+      "record_chars": 18271,
+      "episodic_chars": 5824,
+      "prompt_chars": 24109,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6864464589962154
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aec",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "planting 12 new tomato saplings",
+      "hypothesis": "You attended a gardening workshop in your neighborhood.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 329,
+      "record_chars": 23542,
+      "episodic_chars": 5504,
+      "prompt_chars": 29160,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8267084170001908
+      }
+    },
+    {
+      "question_id": "gpt4_8279ba03",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "a smoker",
+      "hypothesis": "A smoker.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 22133,
+      "episodic_chars": 5408,
+      "prompt_chars": 27578,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9728592920000665
+      }
+    },
+    {
+      "question_id": "gpt4_45189cb4",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "First, I attended a NBA game at the Staples Center, then I watched the College Football National Championship game, and finally, I watched the NFL playoffs.",
+      "hypothesis": "1. Lakers vs. Chicago Bulls (Jan 5)\n2. College Football National Championship (Jan 14)\n3. NFL Divisional Round: Kansas City Chiefs vs. Buffalo Bills (Jan 15)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 21047,
+      "episodic_chars": 5758,
+      "prompt_chars": 27199,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8370887920027599
+      }
+    },
+    {
+      "question_id": "gpt4_7abb270c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Science Museum, Museum of Contemporary Art, Metropolitan Museum of Art, Museum of History, Modern Art Museum, Natural History Museum",
+      "hypothesis": "1. Science Museum (2023/01/15)\n2. Museum of Contemporary Art (2023/01/22)\n3. Metropolitan Museum of Art (2023/02/10)\n4. Museum of History (2023/02/15)\n5. Modern Art Gallery/Museum (2023/02/17 & 2023/02/20)\n6. Natural History Museum (2023/03/04)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 291,
+      "record_chars": 22863,
+      "episodic_chars": 5726,
+      "prompt_chars": 28101,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2053929999965476
+      }
+    },
+    {
+      "question_id": "0bc8ad92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 5,
+      "hypothesis": "5 months (October 2022 to March 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 299,
+      "record_chars": 21500,
+      "episodic_chars": 5742,
+      "prompt_chars": 27463,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8103041670037783
+      }
+    }
+  ]
+}

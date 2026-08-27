@@ -46,6 +46,25 @@ from .records import Record
 RECORDS_HEADER = "Long-term memory records about the user:"
 EPISODIC_HEADER = "Relevant conversation excerpts:"
 
+# MEASURED HARMFUL (2026-08-27) -- do NOT wire this into the read path as written.
+#
+# Every composite number in v4-plan.md (429/500, the abstention breach, the 401) was
+# produced with `system_prompt=""`. This constant existed but was referenced nowhere, so
+# it had never been measured. Measured now, on the dev half (n=252, records frozen,
+# n_errors=0): sending it scores **207 against the empty prompt's 220 -- -13, McNemar
+# +3/-16, p=0.0044**. Extrapolated, roughly -26 at n=500.
+#
+# The cause is visible in the outputs, not inferred: median answer length collapses from
+# 172 characters to 49. The clause "Answer as concisely as possible -- a short phrase or
+# sentence, not a paragraph" truncates exactly the two types that need room --
+# single-session-preference -5 (its judge is a RUBRIC that rewards reflecting the user's
+# stated preferences, which a short phrase cannot do) and temporal-reasoning -4 (which
+# needs the arithmetic shown). Abstention, ss-user and ss-assistant are unchanged.
+#
+# Kept rather than deleted, with the measurement attached, because a production read path
+# will eventually want SOME system prompt and this records what a revised one must avoid.
+# Anyone wiring `compose_from_store()` into `loop.py` should treat this as a live trap:
+# the library ships a 26-question regression that only fires once someone sends it.
 COMPOSE_SYSTEM = (
     "You are answering a question using a long-term memory record about the user, plus "
     "excerpts of the original conversation. If the information genuinely is not there, say so "
