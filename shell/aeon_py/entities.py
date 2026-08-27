@@ -40,6 +40,28 @@ provenance link -- and that link is both the rehydration key and the right-to-er
 cascade index (`records_for_session()`). Grouping is a rendering concern; identity must
 not destroy lineage.
 
+MEASURED RESULT (2026-08-27), recorded here so the code carries its own verdict.
+On the dev half (n=252, records frozen, `n_errors=0`): **220 against v1's 219 -- +1, McNemar
++3/-2, p=1.000**, against a noise floor of ~2.7. Every question type flat but multi-session
++1. **All five identified overcount questions present in dev were wrong before and are wrong
+after.**
+
+The motivating evidence still holds -- 7 of 12 parseable overcounts contain a self-duplicate
+in the model's own enumeration, and the overcount cohort carries 1.8x the median duplicate
+load. **The causal step is what failed.** The duplicate was a co-occurring symptom, not the
+binding constraint: over-inclusion is driven by predicate-boundary judgement ("is a
+rearranged sofa something I *bought*?") and by supersession ("Three tops" then "Five tops"
+summed to 8 against a gold of 5), neither of which is a co-reference problem. `gpt4_59c863d7`
+is the clean demonstration -- the duplicate collapsed, the count moved 7->6, still wrong
+against a gold of 5.
+
+KEPT ANYWAY, WITH NO BENCHMARK CLAIM. The full n=500 confirmation was deliberately skipped
+(a recorded deviation from the pre-registered ladder, taken by the user, on the grounds that
+dev is a random half of the same instrument and already puts >=437 out of reach). This code
+stays because rendering one real entity once is more nearly correct than rendering it twice,
+and it costs a median 212 characters and 6 lines less prompt per question. Neither is worth
+claiming as an accuracy result, and neither should be cited as one.
+
 THE KEY IS FROZEN. Tuning `canonical_key` against which benchmark questions flip is
 fitting the test set, and this repo has a written precedent for refusing that (the ETC v3
 COMPUTE prompt, reverted on an exact tie rather than iterated). Any change here needs its

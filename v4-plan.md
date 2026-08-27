@@ -6706,3 +6706,37 @@ twice regardless of what the benchmark says. Neither is worth a benchmark claim.
 only half. But dev is a random half of the same instrument, and it reports +1 at p=1.000 with the target
 cohort untouched — so **>=437 is out of reach**, and a full run would buy a confirmed negative rather
 than an answer in doubt.
+
+**STAGE 2a CLOSED (2026-08-27) — recorded as a DEVIATION from its own pre-registered ladder.** The
+ladder said dev gate → full 500, and the full 500 was **not run**. The reason is that dev is a random
+half of the same instrument and reports +1 at p=1.000 with the target cohort untouched, so the remaining
+run would purchase a *confirmed* negative rather than an answer in doubt — roughly 1.4 h of cloud calls
+to move "almost certainly no effect" to "no effect". The user made that call; it is logged as a
+deviation rather than folded in silently, because a pre-registration that can be quietly shortened is
+not a pre-registration.
+
+**No accuracy claim is made or may be cited for the dedup.** The verdict is recorded in
+`entities.py`'s own module docstring alongside the code, following the `_PREMISE_GUARD` precedent, so a
+future reader meets the negative result before the rationale.
+
+**The change is kept**, on non-benchmark grounds only: rendering one real entity once is more nearly
+correct than rendering it twice, and it costs a median 212 characters and 6 lines less prompt. The
+measured instrument is therefore no longer byte-identical to the one that produced 429 — **future runs
+are "composite v1 + dedup", and any comparison to the committed 429 must say so.**
+
+**What the falsification actually bought, which is more than the dedup did.** It converted "counting is
+42 of 71 errors" into two *named, separable* causes, neither of which is a retrieval or a co-reference
+problem:
+
+1. **Predicate-boundary judgement** — the model includes members that do not satisfy the question's
+   qualifier ("rearranged" counted against "buy, assemble, sell, or fix"; "vegan" counted as a cuisine).
+   This is a reader-side set-membership decision, and no record-hygiene change can reach it.
+2. **Supersession** — `4b24c848` sums "Three tops" and "Five tops" to 8 against a gold of 5, and
+   `5831f84d` sums 10 + 12 + 15 = 37 against a gold of 15. Already known to be **absent end to end**
+   (`.supersedes` populated on 4 of 133,902 records, 0 of 72 knowledge-update corpora), and now shown to
+   be a *counting* failure as well as a knowledge-update one — which raises its size above the 4 errors
+   Stage 2c budgeted for it.
+
+**The cohort regex is also wrong and should be fixed before it is used as a guard again**: `370a8ff4`
+("how many days before…") was classified as counting when it is date arithmetic. `counting_cohort.json`
+overstates the counting class by an unknown amount, and the 42 figure inherits that error.
