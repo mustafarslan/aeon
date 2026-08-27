@@ -7118,3 +7118,24 @@ as 2-for-2.
 rewrites records, and losses outside the targeted types would mean it is destroying facts. That is a
 safety question, not an accuracy one, and it is the only reason the remaining ~230 questions are worth
 merging.
+
+**KNOWLEDGE-UPDATE COHORT, PRE-REGISTERED before running.** The rung above the n=1 gate, at the user's
+direction, in place of the 4-hour full sweep. All 36 dev knowledge-update questions were already merged
+by the stopped run, so this is **answer-and-judge only (~7 min)** — the merge cost is already paid.
+
+*Current state on the cohort*: **32 of 36 correct**. The 4 wrong are `01493427`, `4b24c848`,
+`5831f84d`, `852ce960` — the named targets among them.
+
+*What is measured, and it is mechanism, not worth*: at n=36 the extraction-floor sd is ~1.6, so 2x sd is
+**~3.1**. That is the whole reason no aggregate claim exists here: converting all four errors would be
+**+4 against a threshold of 3.1**, i.e. barely separable even in the perfect case, and converting two
+would be indistinguishable from noise.
+
+- **CONVERSION (the mechanism signal)**: how many of the 4 convert, read individually and by cause, not
+  as a score. `852ce960` already converted at the gate; `5831f84d` is expected to stay wrong because the
+  merge did not produce a marker for it (its records are `EVENT` kind) — recorded now so a 3-of-4 is not
+  read as a near-miss on 4-of-4.
+- **CORPUS-DAMAGE GUARD at cohort scale**: of the **32 currently correct**, no more than **3** may be
+  lost (2x sd). Losses above that mean the merge is destroying facts rather than reconciling them, and
+  that stops the direction regardless of how many targets convert. This is the safety question the full
+  sweep was going to answer, asked on the slice where the merge is most active.
