@@ -6215,3 +6215,52 @@ lost by stopping here, which is a property of the cache design rather than luck.
 - **Manual smoke test**: run the FastAPI server (`scripts/run_server.sh`) with two distinct
   `X-User-ID`/auth identities from Stage 0 onward at every subsequent stage, confirming isolation
   never regresses as scope/version/shared-tier features are added on top.
+
+**RESUMING (2026-08-27). Two things had to be recovered before the run could restart, and both are
+recorded here because neither was written down at pause time.**
+
+*(1) The dataset file was gone.* `longmemeval_s_cleaned.json` was on no mounted volume -- not in the
+repo, not in either HF cache, not anywhere Spotlight or a full-disk `find` could see it. It was
+re-downloaded from `xiaowu0162/longmemeval-cleaned` (277 MB) to
+`/Volumes/AI_SSD/hf-cache/longmemeval/longmemeval_s_cleaned.json`. **Drift risk was closed rather
+than assumed**: the HF repo was created and last modified 2025-09-19, months before the first run
+here, so any download is byte-equivalent to the original; and the copy was then fingerprinted
+against the committed `extract_then_compute_n500_datefix_results.json` on five points -- 500
+questions, identical question_id set, identical `reference_answer` per qid, all 135 cache keys
+present, and per-type counts matching the committed summary (abstention 30, knowledge-update 72,
+multi-session 121, ss-assistant 56, preference 30, ss-user 64, temporal 127). All five pass. **The
+dataset path is now written down**, which it was not before -- that omission is what made this an
+hour of recovery instead of a restart.
+
+*(2) The launch flags were not recorded, and `--consolidate` had to be established empirically
+rather than guessed.* Resuming with a different flag than the one that built entries 1-135 would
+make questions 136-500 silently different, so it was measured, not assumed:
+
+- Raw extraction (no merge) rerun for a cached question yields **129 category-runs over 257 lines**
+  -- per-session outputs concatenated, so categories interleave.
+- That same question's **cached** text is **4 category-runs over 236 lines**. Concatenating ~48
+  independent session extractions cannot produce that. A merge ran.
+- Therefore **`--consolidate` was ON**, and the cost model in the pre-registration corroborates it:
+  extraction ~20 s plus a consolidate call ~15 s is the "~36 s each" quoted at launch.
+
+*A real finding fell out of that check, which is why it is recorded rather than dropped.* Only
+**10 of 135** cached entries are actually category-grouped. Running `CONSOLIDATE_PROMPT` on two
+interleaved entries explains why: it returned **16991 -> 16906 chars, 69 -> 69 runs** and
+**17478 -> 17467 chars, 107 -> 106 runs**. On most inputs **the merge pass is a near-identity echo**
+-- it costs a full LLM call per question and changes almost nothing. That means the measured 72/85
+was produced with the merge essentially inert on ~93% of questions, so it is *not* evidence that
+merging works. It is deliberately **left ON for this run** -- the pre-registered instrument is the
+one that produced every comparable arm, and changing it now would confound the arm with a prompt
+change -- but "does the merge pass earn its call?" is now a named, cheap, post-hoc question.
+
+*Reconstructed launch command* (defaults for `--workers 4` / `--episodic-budget 6000` confirmed
+against the 85-run's recorded `episodic_chars` max of 5996):
+
+```
+python scripts/longmemeval/composite_arm_experiment.py \
+  --dataset /Volumes/AI_SSD/hf-cache/longmemeval/longmemeval_s_cleaned.json \
+  --model gemma4:31b-cloud --num-questions 500 --seed 42 \
+  --workers 4 --episodic-budget 6000 --consolidate \
+  --records-cache reproducibility_benchmarks/longmemeval/records_composite_partial.json \
+  --out reproducibility_benchmarks/longmemeval/composite_arm_n500.json
+```
