@@ -149,8 +149,14 @@ def create_erasure_case(
     return erasure_db.create_case(approval_request_id=request_id)
 
 
-def cascade_to_derived_records(record_store, session_ids) -> tuple[List[int], List[dict]]:
+def cascade_to_derived_records(store_for, session_ids) -> tuple[List[int], List[dict]]:
     """Tombstone every record derived from `session_ids`. Returns `(cascaded, failures)`.
+
+    `store_for` is a **resolver**, `tenant -> RecordStore | None`, not a single store, and
+    that shape is load-bearing: records live in per-tenant files, so the store holding a
+    subject's records is the SUBJECT's, never the admin actor's who executed the erasure.
+    Passing one store here would have cascaded against whoever pressed the button. A single
+    store is still accepted for tests and for callers with one tenant -- see below.
 
     Extracted from `execute_approved_erasure()` so it is testable without a live control
     plane -- the erasure workflow tests need Postgres and are opt-in locally, which is
@@ -163,9 +169,13 @@ def cascade_to_derived_records(record_store, session_ids) -> tuple[List[int], Li
     """
     cascaded: List[int] = []
     failures: List[dict] = []
-    if record_store is None or not session_ids:
+    if store_for is None or not session_ids:
         return cascaded, failures
+    resolve = store_for if callable(store_for) else (lambda _t, _s=store_for: _s)
     for session_id in session_ids:
+        record_store = resolve(session_id)
+        if record_store is None:
+            continue
         for rec in record_store.records_for_session(session_id):
             if rec.node_id is None:
                 continue
@@ -189,6 +199,7 @@ def execute_approved_erasure(
     governance_db: Optional["GovernanceDB"] = None,
     keystore: Optional["Keystore"] = None,
     record_store: Optional[object] = None,
+    store_for: Optional[object] = None,
 ) -> dict:
     """Executes an already-approved erasure case: tombstones every target
     node id it can, and records a completion receipt for all of them --
@@ -329,7 +340,8 @@ def execute_approved_erasure(
     # ordering the crypto-erase step above uses, and for the same reason. Best-effort per
     # record: one record that will not tombstone must not abort the rest of the cascade or
     # undo the node erasure, and it is reported rather than silently dropped.
-    cascaded, could_not_cascade = cascade_to_derived_records(record_store, session_ids)
+    cascaded, could_not_cascade = cascade_to_derived_records(
+        store_for if store_for is not None else record_store, session_ids)
 
     receipt = {"erased": erased, "could_not_erase": could_not_erase,
                "cascaded_records": cascaded,

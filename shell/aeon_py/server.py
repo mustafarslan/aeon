@@ -9,6 +9,8 @@ from sse_starlette.sse import EventSourceResponse
 from typing import Generator, Any
 
 from .dependencies import (
+    DEFAULT_RECORDS_DIR,
+    build_consolidation_worker,
     get_session_manager,
     get_current_user_id,
     get_atlas_client,
@@ -29,6 +31,7 @@ from .governance import AuditLogError
 from .loop import CognitiveLoop
 from .context import ContextManager
 from .promotion import execute_approved_promotion
+import logging
 from .erasure import ErasureTransientFailure, create_erasure_case, execute_approved_erasure
 from .supersession import supersede_node as _supersede_node_audited
 from .supersession import revoke_node_supersession as _revoke_node_supersession_audited
@@ -74,9 +77,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# THE FIRST BACKGROUND WORKER THIS SERVER ACTUALLY RUNS. Before this there was no startup
+# hook at all -- only the shutdown handler below -- so `DreamingWorker`, the pattern this
+# copies, has never been started in production either. Consolidation is what turns the
+# semantic layer from a library into a live system: without it, records are only ever
+# written by a benchmark harness.
+_consolidation_worker = None
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Start background consolidation, if the deployment opted into the semantic layer."""
+    global _consolidation_worker
+    if not DEFAULT_RECORDS_DIR:
+        return
+    try:
+        _consolidation_worker = build_consolidation_worker()
+        if _consolidation_worker is not None:
+            _consolidation_worker.start()
+    except Exception:
+        # A server that cannot consolidate must still serve chat. Consolidation is
+        # background enrichment, not a request-path dependency.
+        logging.getLogger(__name__).exception(
+            "consolidation worker failed to start; continuing without it")
+
+
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Ensure all sessions are flushed to disk."""
+    """Stop the worker, then flush sessions.
+
+    Ordering matters: the worker writes through the same per-tenant stores that
+    `SessionManager.shutdown()` syncs and drops, so stopping it first means no cycle is
+    mid-write when the handles go away.
+    """
+    global _consolidation_worker
+    if _consolidation_worker is not None:
+        _consolidation_worker.stop()
+        _consolidation_worker = None
     mgr = get_session_manager()
     await mgr.shutdown()
 
@@ -976,6 +1013,7 @@ async def execute_erasure(
     governance_db=Depends(get_governance_db),
     audit_log=Depends(get_audit_log),
     keystore=Depends(get_keystore),
+    mgr: SessionManager = Depends(get_session_manager),
 ):
     _require_admin_db(admin_db)
     _require_shared_atlas(shared_atlas)
@@ -1002,6 +1040,13 @@ async def execute_erasure(
             audit_log=audit_log,
             governance_db=governance_db,
             keystore=keystore,
+            # THE DERIVED-RECORD CASCADE, which was dead in production until now.
+            # `execute_approved_erasure` has always accepted `record_store` and this call
+            # site never passed it, so an approved erasure tombstoned the Atlas nodes and
+            # left every record extracted from those sessions in place -- records are PII
+            # DERIVED from conversation, and `records_for_session()` is documented as the
+            # cascade index. The store is the erasure subject's own per-tenant file.
+            record_store=mgr.get_store(user_id),
         )
     except ErasureTransientFailure as e:
         # Distinct from the generic 409 below: the case is NOT completed

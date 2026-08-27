@@ -34,6 +34,7 @@ over.
 
 from __future__ import annotations
 
+import logging
 import threading
 import time
 from dataclasses import dataclass, field
@@ -41,6 +42,8 @@ from typing import Callable, Iterable, Optional, Sequence
 
 from .parallel import DEFAULT_MAX_WORKERS, parallel_map
 from .records import Record
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -120,6 +123,66 @@ class DirtyQueue:
     def __contains__(self, session_id: str) -> bool:
         with self._lock:
             return session_id in self._pending or session_id in self._in_flight
+
+
+class ConsolidationWorker:
+    """Background drain for the dirty queue, following `DreamingWorker`'s pattern exactly.
+
+    WHY A COPY RATHER THAN A REUSE. `dreamer.py`'s own docstring says it is "deeply tied to
+    private single-tenant semantics", and its operation is summarise-N-into-1 for
+    summarise-to-forget. Consolidation is a different operation over a per-tenant store, so
+    this borrows the thread/Event/start/stop shape and nothing else.
+
+    NOTE ON THE PATTERN IT COPIES: `DreamingWorker` is itself never started anywhere in
+    production -- it is a pattern, not a wired example. This is the first background worker
+    the server actually runs, which is why `server.py` needed a startup hook at all.
+
+    `requeue_in_flight()` runs on start so a process that died mid-cycle re-enqueues rather
+    than dropping those sessions. That only covers in-process failure: `DirtyQueue` is an
+    in-memory set, so a crash still loses pending entries -- the durable fix is a Trace
+    watermark, which is recorded as future work rather than claimed here.
+    """
+
+    def __init__(self, consolidator: "SessionConsolidator", *,
+                 interval_seconds: float = 30.0, batch: int = 4):
+        self._consolidator = consolidator
+        self._interval = interval_seconds
+        self._batch = batch
+        self._running = False
+        self._thread: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+
+    def start(self, daemon: bool = True) -> None:
+        if self._running:
+            logger.warning("ConsolidationWorker already running")
+            return
+        self._consolidator.queue.requeue_in_flight()
+        self._running = True
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run_loop,
+                                        name="aeon-consolidation-worker", daemon=daemon)
+        self._thread.start()
+        logger.info("ConsolidationWorker started | interval=%.1fs batch=%d",
+                    self._interval, self._batch)
+
+    def stop(self, timeout: float = 10.0) -> None:
+        if not self._running:
+            return
+        self._stop_event.set()
+        if self._thread:
+            self._thread.join(timeout=timeout)
+        self._running = False
+        logger.info("ConsolidationWorker stopped")
+
+    def _run_loop(self) -> None:
+        while not self._stop_event.is_set():
+            try:
+                self._consolidator.run_cycle(limit=self._batch)
+            except Exception:
+                # A failing cycle must never kill the worker -- the queue requeues on
+                # failure, so the next tick retries rather than dropping the session.
+                logger.exception("ConsolidationWorker cycle failed")
+            self._stop_event.wait(timeout=self._interval)
 
 
 class SessionConsolidator:

@@ -5,17 +5,37 @@ from .context import ContextManager
 from .llm import LLMProvider
 from .prompt import PromptEngine
 
+def _question_block(user_input: str) -> str:
+    """Render the question with today's date, matching the benchmark harness's format.
+
+    The date line is not decoration: this project measured the reference date as worth ~19
+    questions when it was absent, and relative anchors ("last Saturday", "a week ago") are
+    unresolvable without it.
+    """
+    from datetime import datetime
+    now = datetime.now()
+    return (f"Today's date is {now.strftime('%Y/%m/%d')} ({now.strftime('%a')}).\n"
+            f"Question: {user_input}")
+
+
 class CognitiveLoop:
     """
     The Main Loop of the Cognitive OS.
     Orchestrates the flow between User Input -> Memory (Context) -> LLM -> Response.
     """
     
-    def __init__(self, context_manager: ContextManager, llm_provider: LLMProvider):
+    def __init__(self, context_manager: ContextManager, llm_provider: LLMProvider,
+                 record_store=None):
         self.ctx = context_manager
         self.llm = llm_provider
         self.prompt_engine = PromptEngine()
         self._encoder = None # Lazy load
+        # When present, the semantic layer becomes the authoritative context builder and
+        # PromptEngine is bypassed entirely -- the two produce mutually exclusive prompt
+        # formats (compose() emits its own headers and answer tail; PromptEngine emits a
+        # four-section template), so running both would give the model two competing layouts.
+        # None keeps the pre-existing path exactly, which is what every current test asserts.
+        self.record_store = record_store
 
     # 'all-mpnet-base-v2' is a native 768-dim model, matching Atlas's
     # EMBEDDING_DIM_DEFAULT (schema.hpp) exactly -- no padding/projection
@@ -26,11 +46,14 @@ class CognitiveLoop:
     _ENCODER_MODEL_NAME = "all-mpnet-base-v2"
 
     def _get_encoder(self):
-        """Lazy load SentenceTransformer to optimize startup time."""
+        """The process-wide encoder (v4.1). This used to build a SentenceTransformer PER
+        LOOP, i.e. per user -- at max_sessions=100 that is ~100 copies of a ~420 MB model.
+        `dependencies.get_encoder()` is an lru_cache singleton; the local attribute is kept
+        only as a per-instance memo of it."""
         if self._encoder is None:
             try:
-                from sentence_transformers import SentenceTransformer
-                self._encoder = SentenceTransformer(self._ENCODER_MODEL_NAME)
+                from .dependencies import get_encoder
+                self._encoder = get_encoder()
             except ImportError:
                 warnings.warn(
                     "sentence-transformers not installed -- semantic memory "
@@ -152,8 +175,16 @@ class CognitiveLoop:
                 "content": f"[Result ID {row['id']} Sim {row['similarity']:.2f}]"
             })
         
-        # 4. Build Prompt
-        final_prompt = self.prompt_engine.build(history_nodes, active_room, knowledge_list)
+        # 4. Build Prompt -- semantic layer if wired, PromptEngine otherwise.
+        if self.record_store is not None:
+            from .compose import compose_from_store
+            # The question block carries the reference date with the question, which this
+            # project measured as worth ~19 questions when it was missing.
+            question_block = _question_block(user_input)
+            final_prompt = compose_from_store(
+                self.record_store, self.ctx.trace, question_block)["prompt"]
+        else:
+            final_prompt = self.prompt_engine.build(history_nodes, active_room, knowledge_list)
         
         # 5. Generate Response
         full_response = ""

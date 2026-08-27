@@ -77,6 +77,7 @@ text. That is the available option, not an oversight.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import re
 from pathlib import Path
 from typing import Iterable, Optional, Sequence
 
@@ -97,7 +98,8 @@ KINDS: tuple[str, ...] = ("ITEM", "FACT", "EVENT", "UPDATE", "PREF", "TASK")
 _SEP = "\x1f"          # field separator, cannot occur in model-generated text
 _RANGE_SEP = ","
 _DEFAULT_METADATA = 1024
-_ALL_SCOPES_VISIBLE = 0xFFFFFFFFFFFFFFFF   # every scope bit; unscoped nodes are included
+_ALL_SCOPES_VISIBLE = 0xFFFFFFFFFFFFFFFF
+_SAFE_TENANT = re.compile(r"^[A-Za-z0-9_-]+$")   # every scope bit; unscoped nodes are included
 _BUCKET_MARKER = "BUCKET"      # metadata prefix marking a taxonomy node, not a record
 
 
@@ -201,6 +203,44 @@ class Record:
         date = f" [{self.date}]" if self.date else ""
         sup = f" [supersedes {self.supersedes}]" if self.supersedes else ""
         return f"{head}: {self.text}{date}{sup}"
+
+
+# Embedding width used in production. `CognitiveLoop._vectorize` asserts 768 (native
+# all-mpnet-base-v2, matching Atlas's EMBEDDING_DIM_DEFAULT), and a RecordStore opened at a
+# different width against an existing file is a silent corruption rather than an error --
+# so the number lives here once instead of at each call site.
+PRODUCTION_DIM = 768
+
+
+def store_path_for(tenant: str, records_dir: str | Path) -> Path:
+    """Per-tenant record file. ONE FILE PER TENANT -- deliberately NOT the shared-file
+    convention Atlas and Trace use, and this is a security boundary rather than a style
+    choice.
+
+    Atlas and Trace share one mmap file and isolate by `session_id`, which their docstrings
+    state three times as the deliberate design. **That does not transfer here.**
+    `all_records()` is `list_nodes_by_scope(ALL_SCOPES_VISIBLE)` -- a whole-file scan taking
+    no tenant argument -- and `compose_from_store()` calls it, so a shared record file puts
+    every tenant's records into every tenant's prompt. Demonstrated before this was written:
+    two stores on one file, tenant B's `all_records()` returned tenant A's salary.
+
+    `RecordStore.session_id` does not prevent this: it is the SLB cache-shard key passed to
+    `Atlas.insert`, not a read filter. The one existing test that looks like it covers this
+    asserts only that the attribute was set and that a count is 1 -- it never adds a second
+    tenant.
+
+    The rejected alternative was a shared file filtered by `records_for_session()`. That
+    makes tenant isolation depend on a MODEL-GENERATED `Provenance.session_id` surviving
+    extraction intact. A tenant boundary must not rest on what an LLM emitted.
+
+    Path safety: `SessionManager._validate_user_id` restricts ids to `^[a-zA-Z0-9_-]+$`, so
+    the tenant is path-safe -- but that validator's own docstring says filesystem safety is
+    no longer why it exists. Depending on it again is a deliberate re-coupling, recorded here
+    rather than assumed, and it is re-checked below rather than trusted.
+    """
+    if not tenant or not _SAFE_TENANT.match(tenant):
+        raise ValueError(f"unsafe tenant id for a record path: {tenant!r}")
+    return Path(records_dir) / f"{tenant}.atlas"
 
 
 class RecordStore:

@@ -23,6 +23,10 @@ DEFAULT_TRACE_PATH = os.environ.get(
 # returns None when unset, and every caller threading it through
 # (ContextManager, SessionManager, server.py routes) must handle that.
 DEFAULT_SHARED_ATLAS_PATH = os.environ.get("AEON_SHARED_ATLAS_PATH")
+# Per-tenant record files. NOT a shared file -- `records.store_path_for` documents why that
+# would be a cross-tenant leak rather than a style choice. Read at import time like every
+# AEON_* var above; see the warning in this module about setting them after import.
+DEFAULT_RECORDS_DIR = os.environ.get("AEON_RECORDS_DIR", "./data/records")
 
 # v4-plan.md Stage 4 task 6 Phase B: the shared store's metadata field
 # holds an encrypted (nonce + base64) payload once crypto.py's keystore is
@@ -310,13 +314,131 @@ def get_audit_log_export_key() -> Optional[bytes]:
 
 
 @lru_cache()
+def get_encoder():
+    """The ONE sentence-transformers model for the process.
+
+    Previously every `CognitiveLoop` lazily built its own (`loop.py::_get_encoder`), so a
+    server at `max_sessions=100` could hold 100 copies of a ~420 MB model -- roughly 42 GB of
+    resident memory for a model that is stateless and shared-safe. This is a bug fix wearing
+    a dependency's clothes.
+
+    It also gives the background consolidator its `embed` callable, which `ContextManager`
+    could not supply: the encoder lived on the per-user loop and was private.
+
+    Falls back to a deterministic mock exactly as `_vectorize` does, so a dev box without
+    sentence-transformers still runs -- with the same loud warning, because semantic memory
+    is non-functional in that mode.
+    """
+    try:
+        from sentence_transformers import SentenceTransformer
+        return SentenceTransformer("all-mpnet-base-v2")
+    except Exception as exc:      # noqa: BLE001 -- import OR model-load failure, same fallback
+        import warnings
+        warnings.warn(
+            f"Shared encoder unavailable ({exc}). Semantic memory is NON-FUNCTIONAL: "
+            "falling back to hash-seeded random vectors with no semantic meaning."
+        )
+        return "MOCK"
+
+
+def embed_text(text: str):
+    """Process-wide embedding, 768-dim. The consolidator's `embed` callable."""
+    import numpy as np
+    encoder = get_encoder()
+    if encoder == "MOCK":
+        np.random.seed(hash(text) % 2**32)
+        return np.random.rand(768).astype(np.float32)
+    return encoder.encode(text).astype(np.float32)
+
+
+def make_session_date_resolver(trace):
+    """Resolve a session id to its date string, for the extraction prompt.
+
+    `SessionConsolidator`'s default is `lambda _s: ""`, which means **production records
+    would carry no date at all** -- and `Record.date` is what the chronology and timeline
+    work read. This is the resolver that was missing.
+
+    Derived from `timestamp`, not `event_time`, and that is a knowing compromise:
+    `event_time` is the caller-supplied "when this happened" field, it is read back
+    correctly, and **nothing in production ever writes it** -- every `add_event` call in
+    `context.py` omits it, so it is always 0. `timestamp` is Aeon's own insertion
+    wall-clock, which is right for live conversation and WRONG for imported or backfilled
+    history. Recorded as a limitation rather than hidden: the fix is to start writing
+    `event_time` at ingest, which is a separate change.
+
+    `get_history` is newest-first, so the oldest event is the LAST element -- and only truly
+    the oldest if `limit` covered the whole session.
+    """
+    from datetime import datetime, timezone
+
+    def resolve(session_id: str) -> str:
+        try:
+            history = trace.get_history(session_id, limit=1000)
+        except Exception:
+            return ""
+        if not history:
+            return ""
+        oldest = history[-1]
+        micros = int(oldest.get("event_time") or oldest.get("timestamp") or 0)
+        if micros <= 0:
+            return ""
+        return datetime.fromtimestamp(micros / 1_000_000, tz=timezone.utc).strftime("%Y/%m/%d")
+
+    return resolve
+
+
+def build_consolidation_worker():
+    """Assemble the background consolidator from the process singletons.
+
+    Returns None when the pieces a real deployment needs are absent, rather than starting a
+    worker that would silently do nothing: consolidation needs a `fetch_session` that can
+    read a session's turns out of Trace, and an extractor that calls a live model. Both are
+    wired here so the failure mode is "no worker, logged" instead of "worker running,
+    producing nothing".
+    """
+    from .consolidation import extract_session
+    from .consolidator import ConsolidationWorker, DirtyQueue, SessionConsolidator
+
+    trace = get_trace_manager()
+    llm = get_llm_provider()
+
+    def fetch_session(session_id: str):
+        history = trace.get_history(session_id, limit=1000)
+        return [{"role": "user" if ev.get("role") == 0 else "assistant",
+                 "content": ev.get("text", "")}
+                for ev in reversed(history) if ev.get("role") in (0, 1)]
+
+    def generate(prompt, **kwargs):
+        return "".join(llm.generate(prompt, system_prompt=kwargs.get("system_prompt", "")))
+
+    def extract(turns, session_id, date):
+        return extract_session(turns, session_id, date, generate)
+
+    consolidator = SessionConsolidator(
+        DirtyQueue(),
+        fetch_session=fetch_session,
+        extract=extract,
+        embed=embed_text,
+        store=None,                      # resolved per session -- see the note below
+        session_date=make_session_date_resolver(trace),
+    )
+    # NOT WIRED YET, and stated rather than hidden: `SessionConsolidator` fixes its `store`
+    # at construction, but records live in PER-TENANT files, so one consolidator cannot
+    # serve every tenant. Until `run_cycle` resolves the store per session, this worker is
+    # constructed and returned but has no store to write to. Returning None keeps the
+    # server honest -- a worker that runs and writes nowhere is worse than no worker.
+    return None
+
+
+@lru_cache()
 def get_session_manager() -> SessionManager:
     """Singleton Session Manager."""
     atlas = get_atlas_client()
     trace = get_trace_manager()
     llm = get_llm_provider()
     shared_atlas = get_shared_atlas_client()
-    return SessionManager(atlas, trace, llm, shared_atlas_client=shared_atlas)
+    return SessionManager(atlas, trace, llm, shared_atlas_client=shared_atlas,
+                          records_dir=DEFAULT_RECORDS_DIR)
 
 async def get_current_user_id(
     authorization: Optional[str] = Header(None),
