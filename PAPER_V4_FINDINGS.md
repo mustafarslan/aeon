@@ -290,7 +290,7 @@ selection*, not of a memory system, and a system that derives answers from accum
 matches it from production-available inputs. 22 of 27 questions where retrieval had provably failed
 are answered, versus ETC's 2.
 
-Efficiency: **33.14 accuracy-points per 1k chars vs ETC's 8.19 — 4×** — at half the LLM calls and 2.6×
+Efficiency: **33.14 accuracy-points per 10k chars vs ETC's 8.19 — 4×** — at half the LLM calls and 2.6×
 faster generation, with consolidation paid once at write time (ingest enqueues in 163 ns).
 
 *Limits*: the 84.7% is not comparable to n=500 figures (this sample is enriched with hard cases; only

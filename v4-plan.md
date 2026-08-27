@@ -6058,7 +6058,7 @@ abstention -1.
 
 **Cost -- this is the product argument, and it improves on every axis at once:**
 
-| | accuracy | context | calls | generation | **accuracy-pts / 1k chars** |
+| | accuracy | context | calls | generation | **accuracy-pts / 10k chars** |
 |---|---|---|---|---|---|
 | single-shot | 77.6% | 100,889 | 1 | 1.51 s | 7.69 |
 | ETC | 82.6% | 100,889 | 2 | 2.46 s | 8.19 |
@@ -6066,7 +6066,9 @@ abstention -1.
 
 **4x more context-efficient than ETC, 2.6x faster generation, and half the LLM calls -- while more
 accurate.** (A first version of this table used raw correct-count per 1k chars, which is not
-comparable across different sample sizes; restated as accuracy-points per 1k chars.)
+comparable across different sample sizes; restated as accuracy-points per 10k chars. The
+column was first labelled "per 1k chars"; the values were always per 10k (77.6 / 10.0889 =
+7.69), so the label was corrected rather than the numbers, which are unchanged.)
 
 **Honest limits, which matter for how this number is used.** (1) *The 84.7% is NOT comparable to the
 n=500 figures* -- this sample is deliberately enriched with 27 known-hard questions, so the only
