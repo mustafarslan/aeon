@@ -6381,6 +6381,34 @@ itself by reinterpreting its own bar after seeing the result.** Recorded as a br
 is an abstention fix followed by a re-measure of the same 30-question slice, which costs minutes
 because the records are cached.
 
-**Still outstanding from this pre-registration**: the **100-question nested repeat** (the
-parallel-era answer-stage noise floor) has not been run. Every significance claim above therefore
-leans on McNemar and on the inherited sequential sd, not on a parallel-era repeat measurement.
+**NOISE SLICE (the pre-registered 100-question nested repeat). RUN, `n_errors=0`.** The same
+seed-42 stratified 100 the inherited sd was measured on -- verified identical qid sets, and all 100
+are inside the main pass, so it is nested by construction. Records held fixed from the cache, so this
+is answer-stage only, exactly as pre-registered.
+
+| | correct / 100 |
+|---|---|
+| main pass, these 100 | 85 |
+| repeat | 84 |
+
+**3 flips out of 100 (1 wrong->right, 2 right->wrong) -- a 3.0% answer-stage disagreement rate**,
+giving `sqrt(500 x 0.030)` = **3.9 questions of sd at n=500**.
+
+**This is not a drop-in replacement for the inherited ~6, and must not be quoted as one.** The
+inherited figure is a **6.7% flip rate over ETC's full pipeline, measured sequentially**; 3.0% is
+**composite's answer stage alone with records frozen**. The two differ in the pipeline stage covered
+*and* in sequential-vs-parallel execution at the same time, so neither is a correction of the other.
+What the measurement is *for* is the thing the pre-registration asked for: **the noise floor for
+comparing two composite runs that share a record cache.** Extraction nondeterminism adds on top of
+it, so 3.9 is a floor, not the total.
+
+*Two things it does establish.* (1) The bars were **conservative, not lenient**: at this sd the
+primary would have been 413 + 2(3.9) = **421**, and the run cleared **425**. (2) **All three flips
+were multi-session** -- the type carrying the -8 delta -- which is consistent with that delta being
+the noise McNemar already called it (p=0.229). The abstention slice inside the repeat was **4/6 in
+both runs**, i.e. stable under answer-stage noise, which is weak-but-real evidence that the
+abstention breach is not a resampling artifact -- weak because only 6 of the 100 are abstention
+questions.
+
+**The three verdicts are unchanged by this**, and could not have been: they are counts on the main
+pass. The repeat completes the pre-registered instrument, it does not adjudicate it.

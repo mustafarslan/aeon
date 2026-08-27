@@ -1,0 +1,1815 @@
+{
+  "model": "gemma4:31b-cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "summary": {
+    "n": 100,
+    "n_errors": 0,
+    "correct": 84,
+    "accuracy": 0.84,
+    "median_records": 263.5,
+    "median_prompt_chars": 25668.5,
+    "median_generation_seconds": 0.8769103125014226
+  },
+  "results": [
+    {
+      "question_id": "e4e14d04",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Two weeks",
+      "hypothesis": "You had been a member of \"Book Lovers Unite\" for approximately two weeks when you attended the meetup.\n\nAccording to the records, you joined the group on 2023/05/07, and you attended the meetup \"last week\" (relative to 2023/05/28), which would have been during the week of May 21st.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 21236,
+      "episodic_chars": 5862,
+      "prompt_chars": 27478,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0578463749989169
+      }
+    },
+    {
+      "question_id": "7024f17c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "0.5 hours",
+      "hypothesis": "Based on the records provided, here is the breakdown for last week (Monday, May 22 to Sunday, May 28):\n\n*   **Jogging:** 0 hours (The only recorded jog was on May 20).\n*   **Yoga:** 0 hours (While you planned a yoga schedule for Monday, Wednesday, and Friday at 7:00 am starting May 22, there are no records of completed sessions for those dates).\n\n**Total: 0 hours of jogging and 0 hours of yoga.**",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 281,
+      "record_chars": 21886,
+      "episodic_chars": 4961,
+      "prompt_chars": 27265,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3005154580023373
+      }
+    },
+    {
+      "question_id": "57f827a0",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that take into account their existing plans to replace the bedroom dresser and their interest in mid-century modern style, suggesting furniture layouts that accommodate the new dresser and incorporate elements of this design aesthetic. They might not prefer general furniture arrangement tips or suggestions that do not consider their specific design preferences.",
+      "hypothesis": "Since you are planning to rearrange your bedroom this weekend, here are a few tips based on your current setup and projects:\n\n*   **Plan for your new dresser:** You've been designing and building a mid-century modern walnut dresser to replace your current one. Since you prefer a low-profile design and tapered legs to create a sense of \"lightness and airiness,\" consider placing it in a spot where its clean lines can be highlighted without cluttering the space.\n*   **Optimize your Wi-Fi signal:** You previously experienced slow speeds and disconnections on your laptop and smart speaker in the bedroom (which is about 20 feet from the router with a couple of walls in between). When moving your furniture, ensure that your laptop and Amazon Echo Show are positioned to minimize interference and maximize the signal from your Asus RT-AC68U router.\n*   **Create a relaxing environment:** Since you use a self-help book to unwind before sleep and are trying to get your sleep schedule back on track, consider arranging your bedside area to be a dedicated \"wind-down\" zone, free from distractions.\n*   **Maintain your \"Do Not Disturb\" habit:** As you rearrange, keep in mind your goal of limiting evening screen time after 10 PM; positioning your tech (like the laptop) away from your immediate bedside might help support this habit.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 312,
+      "record_chars": 23832,
+      "episodic_chars": 5965,
+      "prompt_chars": 30094,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 3.7894380829966394
+      }
+    },
+    {
+      "question_id": "2ebe6c90",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "21 days. 22 days (including the last day) is also acceptable.",
+      "hypothesis": "Based on the records:\n- You started reading \"The Nightingale\" on 2023/01/10.\n- You finished reading \"The Nightingale\" on 2023/01/31.\n\nFrom January 10 to January 31 is 21 days.\n\nAnswer: 21 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 231,
+      "record_chars": 17553,
+      "episodic_chars": 5396,
+      "prompt_chars": 23222,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 2.2827257919998374
+      }
+    },
+    {
+      "question_id": "0ddfec37",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "15",
+      "hypothesis": "Based on the records and conversation excerpts, you added **15** autographed baseballs to your collection in the first three months of collecting.\n\n**Count:**\n1. ITEM(POSSESSION/autographed baseball): 15 autographed baseballs [2023/07/11]\n**Total: 15**",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 22141,
+      "episodic_chars": 5982,
+      "prompt_chars": 28180,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2129544169947621
+      }
+    },
+    {
+      "question_id": "a82c026e",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Dark Souls 3 DLC",
+      "hypothesis": "You finally beat the last boss in the Dark Souls 3 DLC last weekend.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 20362,
+      "episodic_chars": 5979,
+      "prompt_chars": 26709,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7088359160043183
+      }
+    },
+    {
+      "question_id": "b0479f84",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer documentary recommendations that are similar in style and theme to 'Our Planet', 'Free Solo', and 'Tiger King', which they have previously enjoyed. They might not prefer recommendations of documentaries that are vastly different in tone or subject matter from these titles. The preferred response utilizes the user's previously mentioned viewing history to suggest documentaries that cater to their tastes.",
+      "hypothesis": "Since you've recently finished \"Our Planet,\" \"Free Solo,\" and \"Tiger King,\" and expressed a specific interest in nature and wildlife, I recommend checking out **\"Dynasties\"** or **\"Chasing Coral\"** on Netflix. \n\nYou previously asked about these two specifically, and they would be great choices given your interest in eco-tourism and coral reef conservation. If you're in the mood for something different, you might also enjoy **\"Planet Earth\"** or **\"Blue Planet\"** for more stunning natural history.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 310,
+      "record_chars": 22474,
+      "episodic_chars": 5725,
+      "prompt_chars": 28635,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.4723029579981812
+      }
+    },
+    {
+      "question_id": "00ca467f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "Based on the records and excerpts provided, you went to **3** doctor's appointments in March:\n\n1.  **March 3rd**: Appointment with your primary care physician, Dr. Smith (diagnosed with bronchitis).\n2.  **March 20th**: Follow-up appointment with your orthopedic surgeon, Dr. Thompson (knee is healing well).\n3.  **March 25th**: Started physical therapy for leg muscles (which involves clinical appointments).\n\n(Note: Your EMG test with Dr. Johnson is scheduled for April 1st, so it is not counted for March.)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 19687,
+      "episodic_chars": 4456,
+      "prompt_chars": 24602,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9626876249967609
+      }
+    },
+    {
+      "question_id": "a06e4cfe",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "3:1",
+      "hypothesis": "Your preferred gin-to-vermouth ratio for a classic gin martini is 3:1, with a dash of citrus bitters.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 22184,
+      "episodic_chars": 5501,
+      "prompt_chars": 27976,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7033624169998802
+      }
+    },
+    {
+      "question_id": "ce6d2d27",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Friday",
+      "hypothesis": "You take a cocktail-making class on Fridays.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21210,
+      "episodic_chars": 5935,
+      "prompt_chars": 27547,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.700478333994397
+      }
+    },
+    {
+      "question_id": "118b2229",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "45 minutes each way",
+      "hypothesis": "Your daily commute takes 45 minutes each way.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 17309,
+      "episodic_chars": 5631,
+      "prompt_chars": 23202,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7282298749996698
+      }
+    },
+    {
+      "question_id": "d23cf73b",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 4,
+      "hypothesis": "Based on the records and excerpts, you have learned to cook or tried out **5** different cuisines:\n\n1.  **Indian**: Attended an Indian cuisine class and knows how to make chicken tikka masala.\n2.  **Ethiopian**: Visited an Ethiopian restaurant and intended to make misir wot and injera bread from scratch.\n3.  **Korean**: Tried a Korean bibimbap recipe and learned to make kimchi at a fermentation workshop.\n4.  **Vegan**: Attended a vegan cuisine class and made vegan lasagna with cashew-based ricotta.\n5.  **Thai**: Expressed strong interest in and discussed dishes from Pok Pok (Thai cuisine).\n\nCount: 5",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 292,
+      "record_chars": 20720,
+      "episodic_chars": 5827,
+      "prompt_chars": 26891,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1192957079983898
+      }
+    },
+    {
+      "question_id": "6b7dfb22",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that build upon their existing sources of inspiration, such as revisiting Instagram art accounts or exploring new techniques from online tutorials. They might also appreciate suggestions that revisit previous themes they found enjoyable, like painting flowers. The user would not prefer generic or vague suggestions for finding inspiration, and would likely appreciate responses that utilize their recent 30-day painting challenge experience.",
+      "hypothesis": "Since you're currently in the middle of your 30-day painting challenge and have expressed a specific interest in painting realistic flowers and incorporating more texture into your work, here are a few ideas to help you find new inspiration:\n\n*   **Utilize Your Environment:** You have a small herb garden on your balcony; this could be a great source of immediate, real-life inspiration for your interest in realistic flowers and botanical textures.\n*   **Leverage Social Media:** You mentioned previously that you've been getting inspiration from social media, so continuing to engage with art communities and content that excites you can help reignite your momentum.\n*   **Experiment with New Techniques:** Since you want to add more texture to your acrylic paintings, you might try experimenting with different brush types or adding mediums to your paint to create the physical depth you're looking for.\n*   **Connect Your Interests:** You have a deep love for literature and a diverse collection of collectibles (like your Spider-Man and Lord of the Rings items). You could try creating pieces inspired by your favorite scenes from the MCU or themes from the books you're reading.\n*   **Change Your Perspective:** Since you've been feeling a bit disconnected socially, perhaps visiting a local gallery or a cultural festival (like the one you attended recently) could provide a fresh spark of creativity.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 268,
+      "record_chars": 19698,
+      "episodic_chars": 4993,
+      "prompt_chars": 24876,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.7111385419993894
+      }
+    },
+    {
+      "question_id": "75499fd8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Golden Retriever",
+      "hypothesis": "Your dog, Max, is a Golden Retriever.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 235,
+      "record_chars": 19117,
+      "episodic_chars": 5907,
+      "prompt_chars": 25431,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6714050000009593
+      }
+    },
+    {
+      "question_id": "gpt4_468eb064",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Emma",
+      "hypothesis": "You met with Emma, a freelance writer, during lunch last Tuesday (2023/04/11).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 258,
+      "record_chars": 18271,
+      "episodic_chars": 5824,
+      "prompt_chars": 24544,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8168084579956485
+      }
+    },
+    {
+      "question_id": "gpt4_68e94287",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "You posted a recipe for vegan chili on Instagram using the hashtag #FoodieAdventures first.",
+      "hypothesis": "The post about the vegan chili recipe happened first. It occurred on 2023/03/09, while the participation in the #PlankChallenge happened on 2023/03/15.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 20914,
+      "episodic_chars": 5521,
+      "prompt_chars": 26967,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1020620410054107
+      }
+    },
+    {
+      "question_id": "f685340e",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Previously, you play tennis with your friends at the local park every week (on Sunday). Currently, you play tennis every other week (on Sunday).",
+      "hypothesis": "Previously, you played tennis with your friends weekly (as mentioned in the conversation excerpt from 2023/03/11). Now, you play every other week (as mentioned in the conversation excerpt and records from 2023/07/30).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 274,
+      "record_chars": 20005,
+      "episodic_chars": 5746,
+      "prompt_chars": 26206,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1996252500030096
+      }
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": 120,
+      "hypothesis": "You need 120 stars to reach the gold level on your Starbucks Rewards app.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 19966,
+      "episodic_chars": 5803,
+      "prompt_chars": 26042,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7436934159995872
+      }
+    },
+    {
+      "question_id": "80ec1f4f_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "0. You did not mention visitng any museum in December",
+      "hypothesis": "Based on the records provided, there are no mentions of any museums or galleries visited in December.\n\nAnswer: 0",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 21473,
+      "episodic_chars": 5701,
+      "prompt_chars": 27468,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.672110875006183
+      }
+    },
+    {
+      "question_id": "15745da0_abs",
+      "question_type": "single-session-user",
+      "report_type": "abstention",
+      "reference_answer": "You did not mention this information. You mentioned collecting vintage cameras but not vintage films.",
+      "hypothesis": "Based on the records provided, there is no mention of you collecting vintage films. However, there is a record stating that you have been collecting **vintage cameras** for three months as of 2023/05/28.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 246,
+      "record_chars": 19066,
+      "episodic_chars": 5800,
+      "prompt_chars": 25213,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8536807080017752
+      }
+    },
+    {
+      "question_id": "e56a43b9",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$5",
+      "hypothesis": "You will get a $5 discount on your next purchase at FreshMart, as you have accumulated 500 points and 100 points equals a $1 discount.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 287,
+      "record_chars": 21572,
+      "episodic_chars": 5642,
+      "prompt_chars": 27508,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7149951249957667
+      }
+    },
+    {
+      "question_id": "7a87bd0c",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "4 weeks",
+      "hypothesis": "You have been sticking to your daily tidying routine for 4 weeks as of September 30, 2023.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 279,
+      "record_chars": 22035,
+      "episodic_chars": 5931,
+      "prompt_chars": 28366,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1490928330022143
+      }
+    },
+    {
+      "question_id": "e8a79c70",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "2-3 eggs",
+      "hypothesis": "For the classic French omelette recipe, it was mentioned that you need 2-3 eggs.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 306,
+      "record_chars": 22535,
+      "episodic_chars": 5583,
+      "prompt_chars": 28471,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7255985000010696
+      }
+    },
+    {
+      "question_id": "75f70248",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that consider the potential impact of their cat, Luna, and her shedding on their sneezing, as well as the recent deep clean of the living room and its possible effect on stirring up dust. They might not prefer responses that fail to take into account these specific details previously mentioned, such as generic suggestions or unrelated factors.",
+      "hypothesis": "It is possible that your living room is contributing to your sneezing. Based on your records, you have a cat that sheds a lot, and you previously expressed concern about keeping your living room dust-free because of this. Pet dander and accumulated dust are common allergens that can cause sneezing.\n\nIf you haven't already, you might want to revisit the cleaning tips discussed on May 26th, such as vacuuming with a HEPA filter, using damp microfiber cloths for dusting, and regularly grooming your cat to reduce the amount of hair and dander in your space.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 242,
+      "record_chars": 19176,
+      "episodic_chars": 5792,
+      "prompt_chars": 25412,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9902435409967438
+      }
+    },
+    {
+      "question_id": "gpt4_4929293a",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Michael's engagement party",
+      "hypothesis": "Michael's engagement party happened first. It took place on 2023/05/05, while your cousin's wedding occurred on 2023/06/15.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 234,
+      "record_chars": 17871,
+      "episodic_chars": 5916,
+      "prompt_chars": 24164,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8771574170023086
+      }
+    },
+    {
+      "question_id": "gpt4_1e4a8aeb",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "6 days. 7 days (including the last day) is also acceptable.",
+      "hypothesis": "The user attended the gardening workshop on 2023/04/15 and planted the tomato saplings on 2023/04/21.\n\nFrom April 15 to April 21, 6 days passed.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21271,
+      "episodic_chars": 5544,
+      "prompt_chars": 27140,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9990653330023633
+      }
+    },
+    {
+      "question_id": "4388e9dd",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Andy was wearing an untidy, stained white shirt.",
+      "hypothesis": "In the script for the comedy movie scene, Andy was wearing an untidy, stained white shirt.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 197,
+      "record_chars": 15171,
+      "episodic_chars": 5722,
+      "prompt_chars": 21351,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6176476670007105
+      }
+    },
+    {
+      "question_id": "c14c00dd",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Trader Joe's",
+      "hypothesis": "You currently use a lavender scented shampoo from Trader Joe's.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 21927,
+      "episodic_chars": 4448,
+      "prompt_chars": 26777,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7023421249978128
+      }
+    },
+    {
+      "question_id": "001be529",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "over a year",
+      "hypothesis": "You waited over a year for the decision on your asylum application.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 18068,
+      "episodic_chars": 5233,
+      "prompt_chars": 23724,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6706346249993658
+      }
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "bronchitis",
+      "hypothesis": "You initially thought your case of bronchitis was just a cold.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 228,
+      "record_chars": 19719,
+      "episodic_chars": 5423,
+      "prompt_chars": 25557,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.5931117090003681
+      }
+    },
+    {
+      "question_id": "a346bb18",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "12",
+      "hypothesis": "You exceeded your target time by 12 minutes. Your target time was 4 hours and 10 minutes, and you completed your first full marathon with a time of 4 hours and 22 minutes.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 292,
+      "record_chars": 22090,
+      "episodic_chars": 5821,
+      "prompt_chars": 27991,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8487925000008545
+      }
+    },
+    {
+      "question_id": "a89d7624",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer responses that take into account their previous experience in Denver, specifically their interest in live music and memorable encounter with Brandon Flowers. They might appreciate suggestions that revisit or build upon this experience, such as revisiting the same bar or exploring similar music venues in the area. The user may not prefer general tourist recommendations or activities unrelated to their interest in live music.",
+      "hypothesis": "Since you love the Denver music scene and have previously enjoyed visiting Red Rocks Amphitheater (where you even met Brandon Flowers), here are some suggestions for your upcoming trip:\n\n**Music & Entertainment**\n*   **Red Rocks Amphitheater:** Since you're planning to go back for another concert, you might also want to fulfill your goal of eating dinner at **The Ship Rock Grille** before the show.\n*   **Music Venues:** Explore other local spots like The Ogden Theatre, The Bluebird Theater, The Fillmore Auditorium, or Larimer Lounge.\n*   **Vinyl Shopping:** Given your collection of rare vinyl records, you should visit **Twist & Shout Records**, a legendary store in the city.\n\n**Dining**\n*   **BBQ:** Since you like BBQ, consider visiting some of the spots near Red Rocks, such as **Wayne's Smoke Shack** (very close in Morrison) or **GQue BBQ** in Golden.\n\n**Other Interests**\n*   Since you enjoy discovering new bands and the local music culture, you might also look into the city's various music festivals depending on when you visit.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 20263,
+      "episodic_chars": 5764,
+      "prompt_chars": 25994,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.8598550840033568
+      }
+    },
+    {
+      "question_id": "cc5ded98",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "about two hours",
+      "hypothesis": "Based on the records and conversation excerpts, the amount of time you dedicate to coding exercises has increased:\n\n*   As of **2023/05/20**, you were dedicating approximately **one hour** each day.\n*   As of **2023/05/29**, you increased this to approximately **two hours** each day.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 249,
+      "record_chars": 18674,
+      "episodic_chars": 5377,
+      "prompt_chars": 24472,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9420642089971807
+      }
+    },
+    {
+      "question_id": "50635ada",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Premier Silver",
+      "hypothesis": "Based on the records, your current status is United Airlines MileagePlus Premier Gold. Before this, you were eligible for and held Premier Silver status (which you achieved after hitting 20,000 miles around September 16, 2022).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 297,
+      "record_chars": 21505,
+      "episodic_chars": 5632,
+      "prompt_chars": 27662,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8535784999985481
+      }
+    },
+    {
+      "question_id": "dfde3500",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "Wednesday",
+      "hypothesis": "You met with your previous language exchange tutor, Juan, every Wednesday evening.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 253,
+      "record_chars": 18087,
+      "episodic_chars": 4796,
+      "prompt_chars": 23338,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7293505420020665
+      }
+    },
+    {
+      "question_id": "0e4e4c46",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "132 points",
+      "hypothesis": "Your current highest score in Ticket to Ride is 132 points.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 276,
+      "record_chars": 20962,
+      "episodic_chars": 5441,
+      "prompt_chars": 26722,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6053597919963067
+      }
+    },
+    {
+      "question_id": "cf22b7bf",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "10 pounds",
+      "hypothesis": "You have lost 10 pounds since you started going to the gym consistently three months ago.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 18056,
+      "episodic_chars": 5957,
+      "prompt_chars": 24401,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6319547919993056
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you have purchased or downloaded 2 music albums/EPs:\n\n1. \"Happier Than Ever\" by Billie Eilish [2023/05/20]\n2. \"Midnight Sky\" by The Whiskey Wanderers [2023/05/13]\n\nCount: 2",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 17965,
+      "episodic_chars": 5582,
+      "prompt_chars": 23867,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9543204169967794
+      }
+    },
+    {
+      "question_id": "gpt4_b0863698",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "7 days ago. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "You participated in the 5K charity run on 2023/03/19. Since today's date is 2023/03/26, that was 7 days ago.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18908,
+      "episodic_chars": 5887,
+      "prompt_chars": 25217,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8766632080005365
+      }
+    },
+    {
+      "question_id": "gpt4_68e94288",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "You participated in a social media challenge called #PlankChallenge.",
+      "hypothesis": "Five days ago (2023/03/15), you participated in a social media challenge called #PlankChallenge.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 18258,
+      "episodic_chars": 5418,
+      "prompt_chars": 24003,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0715407920069993
+      }
+    },
+    {
+      "question_id": "81507db6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "You have attended 3 graduation ceremonies in the past three months:\n\n1. Emma's preschool graduation [2023/05]\n2. Alex's graduation from a leadership development program [2023/07]\n3. Rachel's master's degree graduation ceremony [2023/07]\n\nCount: 3",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 20415,
+      "episodic_chars": 5890,
+      "prompt_chars": 26724,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8613031670029159
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Disney+",
+      "hypothesis": "Based on the records, you started using the **HBO add-on for Amazon Prime Video** most recently, as you decided to add it on 2023/05/26.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 18233,
+      "episodic_chars": 5244,
+      "prompt_chars": 23947,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0352947499995935
+      }
+    },
+    {
+      "question_id": "4dfccbf8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I started taking ukulele lessons with Rachel.",
+      "hypothesis": "On Wednesday, February 1st (two months ago), you started taking ukulele lessons with Rachel.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 19651,
+      "episodic_chars": 5629,
+      "prompt_chars": 25462,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7573270840002806
+      }
+    },
+    {
+      "question_id": "6ae235be",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Atmospheric distillation, fluid catalytic cracking (FCC), alkylation, and hydrotreating.",
+      "hypothesis": "At the Lake Charles Refinery, the following refining processes are used:\n\n*   **Atmospheric distillation:** The first step where crude oil is heated and separated into different fractions based on boiling points.\n*   **Fluid catalytic cracking (FCC):** Breaks down heavier fractions of crude oil into lighter, more valuable products like gasoline and diesel fuel.\n*   **Alkylation:** Combines smaller molecules to form larger ones to create high-octane gasoline components.\n*   **Hydrotreating:** Removes impurities from gasoline and diesel fractions to improve quality.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 231,
+      "record_chars": 18383,
+      "episodic_chars": 5057,
+      "prompt_chars": 23850,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.0504243750037858
+      }
+    },
+    {
+      "question_id": "853b0a1d",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "18",
+      "hypothesis": "You were 18 years old when your grandma gave you the silver necklace.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 259,
+      "record_chars": 20270,
+      "episodic_chars": 5672,
+      "prompt_chars": 26316,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7796950000047218
+      }
+    },
+    {
+      "question_id": "edced276_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned traveling for 10 days in Hawaii but did not mention abything about the trip to Seattle.",
+      "hypothesis": "Based on the records provided:\n\n*   **Hawaii:** You spent **10 days** on an island-hopping trip to Hawaii (recorded as \"returned from a 10-day island-hopping trip to Hawaii with family\").\n*   **Seattle:** There are **no records** of a trip to Seattle.\n\n**Total: 10 days**",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 207,
+      "record_chars": 16966,
+      "episodic_chars": 5731,
+      "prompt_chars": 22886,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7773145829996793
+      }
+    },
+    {
+      "question_id": "gpt4_93f6379c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Page Turners",
+      "hypothesis": "You joined 'Page Turners' first. You joined 'Page Turners' on 2023/05/18 and 'Marketing Professionals' on 2023/05/24.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 21694,
+      "episodic_chars": 5898,
+      "prompt_chars": 27948,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7598209160059923
+      }
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "30 days. 31 days (including the last day) is also acceptable.",
+      "hypothesis": "To determine the number of days between the two events:\n\n1.  **Sunday mass at St. Mary's Church**: 2023/01/02\n2.  **Ash Wednesday service at the cathedral**: 2023/02/01\n\nCalculation:\n- Days remaining in January: 31 - 2 = 29 days\n- Days in February: 1 day\n- Total: 29 + 1 = 30 days\n\nAnswer: 30 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 237,
+      "record_chars": 18306,
+      "episodic_chars": 5437,
+      "prompt_chars": 24233,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2625695419992553
+      }
+    },
+    {
+      "question_id": "c6853660",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "You increased the limit (from one cup to two cups)",
+      "hypothesis": "You most recently increased the limit on the number of cups of coffee in the morning. According to the conversation excerpts from 2023/05/26, you mentioned that you had increased your limit to two cups.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 19261,
+      "episodic_chars": 5987,
+      "prompt_chars": 25616,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3464942919963505
+      }
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I suggested 'sexual fixations', 'problematic sexual behaviors', 'sexual impulsivity', and 'compulsive sexuality'.",
+      "hypothesis": "The other four options suggested were:\n\n1. Sexual fixations\n2. Problematic sexual behaviors\n3. Sexual impulsivity\n4. Compulsive sexuality",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 283,
+      "record_chars": 21915,
+      "episodic_chars": 5923,
+      "prompt_chars": 28404,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8687782080014586
+      }
+    },
+    {
+      "question_id": "ba358f49_abs",
+      "question_type": "multi-session",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You did not mention how old Rachel is right now, nor when will you get married.",
+      "hypothesis": "Based on the provided records and excerpts, there is no information regarding Rachel's age or when you plan to get married. Therefore, it is impossible to determine how old Rachel will be.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 247,
+      "record_chars": 18402,
+      "episodic_chars": 4855,
+      "prompt_chars": 23623,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.9563867920005578
+      }
+    },
+    {
+      "question_id": "gpt4_74aed68e",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "29 days. 30 days (including the last day) is also acceptable.",
+      "hypothesis": "To determine the number of days between these two events:\n\n1.  **Date spark plugs were replaced:** 2023/02/14 (from the record `EVENT: User replaced spark plugs with NGK brand on 2023/02/14`).\n2.  **Date of Turbocharged Tuesdays event:** 2023/03/15 (from the record `EVENT: User completed 10 laps at Speed Demon Racing Track during Turbocharged Tuesdays with an average speed of 85mph. [2023/03/15 (Wed) 08:37]`).\n\n**Calculation:**\n*   Days remaining in February: 28 - 14 = 14 days\n*   Days in March: 15 days\n*   Total: 14 + 15 = 29 days\n\nAnswer: 29 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 300,
+      "record_chars": 22346,
+      "episodic_chars": 4894,
+      "prompt_chars": 27689,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.672275292003178
+      }
+    },
+    {
+      "question_id": "0ddfec37_abs",
+      "question_type": "knowledge-update",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. You mentioned collecting autographed baseball but not football.",
+      "hypothesis": "Based on the records provided, there is no mention of you collecting autographed footballs. You have records of collecting autographed baseballs, but 0 autographed footballs.",
+      "judge_raw": "Yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 16983,
+      "episodic_chars": 5251,
+      "prompt_chars": 22713,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.9367828749964247
+      }
+    },
+    {
+      "question_id": "8464fc84",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Roscioli",
+      "hypothesis": "The famous deli near the Vatican that serves the best cured meats, cheeses, and traditional Roman cuisine is Roscioli.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19974,
+      "episodic_chars": 5569,
+      "prompt_chars": 25992,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.725716500004637
+      }
+    },
+    {
+      "question_id": "f0853d11",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 8 days (including the last day) is also acceptable.",
+      "hypothesis": "The 'Walk for Hunger' 5K walk took place on 2023/02/21 and the Coastal Cleanup event took place on 2023/03/07.\n\nTo calculate the days passed:\n- Days remaining in February: 28 - 21 = 7 days\n- Days in March: 7 days\n- Total: 7 + 7 = 14 days\n\n14 days had passed between the two events.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 239,
+      "record_chars": 18159,
+      "episodic_chars": 5563,
+      "prompt_chars": 23998,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2482784169988008
+      }
+    },
+    {
+      "question_id": "f0e564bc",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$1,300",
+      "hypothesis": "The total amount spent is $1,300. This consists of $800 for the Coach handbag and $500 spent on skincare products during the Nordstrom anniversary sale.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 269,
+      "record_chars": 21319,
+      "episodic_chars": 5553,
+      "prompt_chars": 27322,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8739616660022875
+      }
+    },
+    {
+      "question_id": "46a3abf7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "You currently have 2 tanks:\n1. A 20-gallon freshwater community tank named \"Amazonia\".\n2. A 1-gallon tank that you set up for a friend's kid.\n\nCount: 2",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21914,
+      "episodic_chars": 4438,
+      "prompt_chars": 26896,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9004719580043457
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "Based on the records and excerpts, you viewed the following properties before making an offer on the Brookside townhouse on February 25th:\n\n1.  **Cedar Creek property**: Viewed on 2023/02/01 (mentioned as being over budget).\n2.  **1-bedroom condo**: Viewed on 2023/02/10 (rejected due to highway noise).\n3.  **2-bedroom condo**: Viewed on 2023/02/15 (offer was rejected due to a higher bid).\n4.  **3-bedroom townhouse in Brookside**: Viewed on 2023/02/22.\n\nCount: 4",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 20835,
+      "episodic_chars": 5528,
+      "prompt_chars": 26829,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.7424560419967747
+      }
+    },
+    {
+      "question_id": "2ebe6c92",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "'The Nightingale' by Kristin Hannah",
+      "hypothesis": "You finished reading \"The Nightingale\" by Kristin Hannah a week ago (on 2023/01/31).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 20651,
+      "episodic_chars": 5008,
+      "prompt_chars": 25895,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6652244580036495
+      }
+    },
+    {
+      "question_id": "66f24dbb",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a yellow dress",
+      "hypothesis": "For your sister's birthday, you bought her a yellow dress and a pair of matching earrings.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 20079,
+      "episodic_chars": 5996,
+      "prompt_chars": 26469,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8911527500022203
+      }
+    },
+    {
+      "question_id": "b29f3365",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Four weeks",
+      "hypothesis": "You had been taking guitar lessons for approximately four weeks when you bought the new guitar amp.\n\nAccording to the records, you bought the guitar amp on 2023/05/11 and had been taking weekly lessons with Alex for six weeks as of 2023/05/25. Since there are two weeks between the purchase date and May 25th, you had been taking lessons for four weeks at the time of the acquisition.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 240,
+      "record_chars": 17401,
+      "episodic_chars": 5530,
+      "prompt_chars": 23374,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3259697079993202
+      }
+    },
+    {
+      "question_id": "ac031881",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "The designation on your jumpsuit was 'LIV'.",
+      "hypothesis": "The designation on your jumpsuit was \"LIV\", which you realized was the Roman numeral for 54, leading you to search for file number 54 (and subsequently file 53 for the previous iteration) in the records room.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 298,
+      "record_chars": 23079,
+      "episodic_chars": 5854,
+      "prompt_chars": 29466,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8679607089943602
+      }
+    },
+    {
+      "question_id": "a08a253f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "4 days.",
+      "hypothesis": "You attend fitness classes 3 days a week:\n1. Tuesday (Zumba)\n2. Thursday (Zumba)\n3. Saturday (Weightlifting)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 21505,
+      "episodic_chars": 4892,
+      "prompt_chars": 26748,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.23611016599898
+      }
+    },
+    {
+      "question_id": "b5ef892d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "8 days.",
+      "hypothesis": "To determine the total number of days spent on camping trips in the United States this year (2023), I have identified the following records:\n\n1.  **Big Sur solo camping trip**: 3 days (ITEM(TRAVEL/camping trip): 3-day solo camping trip to Big Sur [2023-04])\n2.  **Yellowstone National Park camping trip**: 5 days (EVENT: Completed a 5-day camping trip to Yellowstone National Park. [2023/03/xx])\n\nTotal: 3 + 5 = 8 days.\n\nAnswer: 8",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 250,
+      "record_chars": 19051,
+      "episodic_chars": 4333,
+      "prompt_chars": 23778,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.886648707994027
+      }
+    },
+    {
+      "question_id": "157a136e",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "43",
+      "hypothesis": "Based on the records:\n*   Your grandma celebrated her 75th birthday in January 2024.\n*   You are 32 years old.\n\n75 - 32 = 43\n\nYour grandma is 43 years older than you.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 309,
+      "record_chars": 22783,
+      "episodic_chars": 4357,
+      "prompt_chars": 27506,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.768083499999193
+      }
+    },
+    {
+      "question_id": "5e1b23de",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you attended the 3-day photography workshop on 2023/11/01.\n\nToday's date is 2024/02/01.\n\nCounting the months from November 1, 2023, to February 1, 2024:\n1. November to December (1 month)\n2. December to January (2 months)\n3. January to February (3 months)\n\nAnswer: 3 months ago",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 250,
+      "record_chars": 19697,
+      "episodic_chars": 4655,
+      "prompt_chars": 24735,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3785830409979098
+      }
+    },
+    {
+      "question_id": "gpt4_8c8961ae",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The solo trip to Thailand",
+      "hypothesis": "You took the solo trip to Thailand first (in 2022), followed by the trip to Europe with your family (in April 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 292,
+      "record_chars": 20615,
+      "episodic_chars": 4908,
+      "prompt_chars": 26050,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7408114580030087
+      }
+    },
+    {
+      "question_id": "gpt4_59149c78",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The Metropolitan Museum of Art.",
+      "hypothesis": "The art-related event you participated in two weeks ago (around January 15, 2023) was the \"Ancient Civilizations\" exhibit held at the Metropolitan Museum of Art.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 19069,
+      "episodic_chars": 5818,
+      "prompt_chars": 25187,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7277003340059309
+      }
+    },
+    {
+      "question_id": "gpt4_8e165409",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "14 days. 15 days (including the last day) is also acceptable.",
+      "hypothesis": "To determine the number of days between these two events:\n\n1.  **Repotted the previous spider plant**: This occurred on 2023/03/04 (from the EVENT record and conversation excerpt).\n2.  **Gave Mrs. Johnson spider plant cuttings**: This occurred on 2023/03/18 (from the EVENT record and conversation excerpt).\n\nCalculating the difference:\nMarch 18 - March 4 = 14 days.\n\nAnswer: 14 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 263,
+      "record_chars": 19051,
+      "episodic_chars": 5906,
+      "prompt_chars": 25518,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.6993009169964353
+      }
+    },
+    {
+      "question_id": "gpt4_e05b82a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "10 times",
+      "hypothesis": "Based on the records and excerpts provided, here is the count of the rollercoasters you rode from July to October:\n\n*   **July:** 3 rides (Mako, Kraken, and Manta at SeaWorld San Diego)\n*   **October 8:** 1 ride (Xcelerator at Knott's Berry Farm)\n*   **October 15:** 3 rides (Revenge of the Mummy at Universal Studios Hollywood)\n*   **September 24:** 3 rides (Space Mountain: Ghost Galaxy at Disneyland)\n\n**Total: 10 rides**",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 260,
+      "record_chars": 19993,
+      "episodic_chars": 5363,
+      "prompt_chars": 25738,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2906158749974566
+      }
+    },
+    {
+      "question_id": "a40e080f",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Patagonia and Southwest Airlines.",
+      "hypothesis": "The two companies mentioned that prioritize employee safety and well-being like Triumvirate are Patagonia and Southwest Airlines.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 244,
+      "record_chars": 17959,
+      "episodic_chars": 5834,
+      "prompt_chars": 24201,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.65856241700385
+      }
+    },
+    {
+      "question_id": "0e5e2d1a",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "38 subjects",
+      "hypothesis": "The study published in the journal *Music and Medicine* involved 38 subjects.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 19790,
+      "episodic_chars": 5326,
+      "prompt_chars": 25616,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.812511916999938
+      }
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "3.83",
+      "hypothesis": "The average GPA of your undergraduate and graduate studies is 3.83.\n\nThis is calculated from:\n*   **Undergraduate (University of Mumbai):** 3.86\n*   **Graduate (University of Illinois at Urbana-Champaign):** 3.8",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 253,
+      "record_chars": 18989,
+      "episodic_chars": 5445,
+      "prompt_chars": 24793,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7003669170007925
+      }
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$720",
+      "hypothesis": "Based on the records provided, here is the breakdown of the money spent on workshops in the last four months (from November 2022 to February 2023):\n\n*   **Writing workshop** (November 2022): $200\n*   **Mindfulness workshop** (2022/12/12): $20\n*   **Digital marketing workshop** (2023/03/15-16): $500 (Note: While the date is in March, the user mentions attending it as part of their recent activity in the February 26th conversation).\n\nTotal spent: **$720**",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 322,
+      "record_chars": 23996,
+      "episodic_chars": 5950,
+      "prompt_chars": 30439,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.2470376250057598
+      }
+    },
+    {
+      "question_id": "bc8a6e93",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a lemon blueberry cake",
+      "hypothesis": "You baked a lemon blueberry cake for your niece's birthday party.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 280,
+      "record_chars": 21490,
+      "episodic_chars": 5629,
+      "prompt_chars": 27536,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7043174580030609
+      }
+    },
+    {
+      "question_id": "67e0d0f2",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "20",
+      "hypothesis": "Based on the records provided, you have completed a total of 20 online courses:\n\n*   **8** edX courses in data analysis\n*   **12** courses on Coursera\n\n**Total: 20**",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 21308,
+      "episodic_chars": 5909,
+      "prompt_chars": 27597,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.9210289999973611
+      }
+    },
+    {
+      "question_id": "cc539528",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "I recommended learning Ruby, Python, or PHP as a back-end programming language.",
+      "hypothesis": "In our previous conversation, I recommended that you learn a back-end programming language such as Ruby, Python, or PHP.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18650,
+      "episodic_chars": 5453,
+      "prompt_chars": 24683,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7581877919947146
+      }
+    },
+    {
+      "question_id": "gpt4_2ba83207",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "Thrive Market",
+      "hypothesis": "Based on the records provided, here is the breakdown of your spending at grocery stores in the past month (since 2023/04/30):\n\n*   **Walmart:** $120 (on 2023/05/19)\n*   **Thrive Market:** $150 (on 2023/04/26 \u2014 *Note: This is slightly over a month ago, but if considering only the most recent month of activity, Walmart is the highest.*)\n*   **Trader Joe's:** Approximately $80 (on 2023/05/15)\n*   **Publix (via Instacart):** Approximately $60 (on 2023/05/23)\n\nExcluding the Thrive Market purchase from April 26, you spent the most money at **Walmart**, where you spent $120.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23049,
+      "episodic_chars": 5814,
+      "prompt_chars": 29264,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3702668749974691
+      }
+    },
+    {
+      "question_id": "eaca4986",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "C D E F G A B A G F E D C",
+      "hypothesis": "In the second song provided in our previous conversation, the chorus did not have a chord progression; instead, it was provided as a sequence of musical notes: **C D E F G A B A G F E D C**.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 243,
+      "record_chars": 18992,
+      "episodic_chars": 5983,
+      "prompt_chars": 25424,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8943609580019256
+      }
+    },
+    {
+      "question_id": "9d25d4e0",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you acquired 5 pieces of jewelry in the last two months (from 2023/03/30 to 2023/05/30):\n\n1. **Silver necklace with a small pendant** [2023/04/15]\n2. **Engagement ring** [2023/04/28]\n3. **Emerald earrings** [2023/05/13-2023/05/19]\n4. **Diamond earrings from grandma** (Inherited as part of grandmother's estate in 2023/04)\n5. **Great-grandmother's antique locket** (Inherited as part of grandmother's estate in 2023/04)\n\nCount: 5",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 290,
+      "record_chars": 21619,
+      "episodic_chars": 5894,
+      "prompt_chars": 27804,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3088924580006278
+      }
+    },
+    {
+      "question_id": "60d45044",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "Japanese short-grain rice",
+      "hypothesis": "Your favorite type of rice is Japanese short-grain rice.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 251,
+      "record_chars": 19334,
+      "episodic_chars": 4714,
+      "prompt_chars": 24429,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6529532080021454
+      }
+    },
+    {
+      "question_id": "gpt4_5501fe77",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "TikTok",
+      "hypothesis": "Based on the records and excerpts, you gained the most followers on **TikTok**.\n\nHere is the breakdown of your growth over the past month:\n*   **TikTok:** Approximately 200 followers (over the past three weeks).\n*   **Twitter:** 120 followers (increasing from 420 to 540 over the past month).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 18856,
+      "episodic_chars": 5924,
+      "prompt_chars": 25091,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8646950830006972
+      }
+    },
+    {
+      "question_id": "6071bd76",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "You switched to less water (5 ounces) per tablespoon of coffee.",
+      "hypothesis": "You switched to **less** water per tablespoon of coffee.\n\nIn February 2023, your ratio was 1 tablespoon of coffee for every **6 ounces** of water, and by June 30, 2023, you updated your ratio to 1 tablespoon of coffee for every **5 ounces** of water.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 18938,
+      "episodic_chars": 5745,
+      "prompt_chars": 24909,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7688248750055209
+      }
+    },
+    {
+      "question_id": "gpt4_194be4b3",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I currently own 4 musical instruments. I've had the Fender Stratocaster electric guitar for 5 years, the Yamaha FG800 acoustic guitar for 8 years, the 5-piece Pearl Export drum set for an unspecified amount of time, and the Korg B1 piano for 3 years.",
+      "hypothesis": "Based on the records, you currently own the following 5 musical instruments:\n\n1.  **Acoustic guitar** (Yamaha FG800)\n2.  **Electric guitar** (Black Fender Stratocaster)\n3.  **Digital piano** (Korg B1)\n4.  **Drum set** (5-piece Pearl Export)\n5.  **Ukulele** (Acquired 2023/05/29)\n\nCount: 5",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 271,
+      "record_chars": 20326,
+      "episodic_chars": 5252,
+      "prompt_chars": 26002,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8688583749972167
+      }
+    },
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Based on the records, you attended a private viewing of a contemporary art exhibit at the city gallery on 2022/12/08 (approximately two months prior to the current date of 2023/03/11). There is no mention of a friend accompanying you to that specific event.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 223,
+      "record_chars": 17076,
+      "episodic_chars": 5222,
+      "prompt_chars": 22734,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8212864580054884
+      }
+    },
+    {
+      "question_id": "gpt4_59c863d7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I have worked on or bought five model kits. The scales of the models are: Revell F-15 Eagle (scale not mentioned), Tamiya 1/48 scale Spitfire Mk.V, 1/16 scale German Tiger I tank, 1/72 scale B-29 bomber, and 1/24 scale '69 Camaro.",
+      "hypothesis": "Based on the records, you have worked on or bought 7 model kits:\n\n1.  **1/24 scale '69 Camaro** (Acquired 2023/05/13)\n2.  **1/72 scale B-29 bomber** (Acquired 2023/05/13)\n3.  **Revell F-15 Eagle** (Acquired 2023-04)\n4.  **Tamiya 1/48 scale Spitfire Mk.V** (Completed 2023/05/30)\n5.  **1/16 scale German Tiger I tank** (Possession/Diorama project)\n6.  **1/72 scale B-29 bomber** (Listed as a project/kit)\n7.  **Revell F-15 Eagle** (Mentioned as finished in conversation)\n\nCount: 7",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 262,
+      "record_chars": 19100,
+      "episodic_chars": 4467,
+      "prompt_chars": 23792,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.7156325830001151
+      }
+    },
+    {
+      "question_id": "b46e15ed",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": 2,
+      "hypothesis": "To determine how many months have passed since you participated in two charity events on consecutive days, we first identify the events:\n\n1.  **24-Hour Bike Ride** (charity event): 2023/02/14\n2.  **\"Books for Kids\" charity book drive**: 2023/02/15\n\nThese two events occurred on consecutive days.\n\nToday's date is 2023/04/18.\nFrom February 15, 2023, to April 15, 2023, is exactly 2 months.\n\nAnswer: 2",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 246,
+      "record_chars": 18894,
+      "episodic_chars": 5990,
+      "prompt_chars": 25342,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.090643290997832
+      }
+    },
+    {
+      "question_id": "9bbe84a2",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "level 100",
+      "hypothesis": "Your previous goal for your Apex Legends level was to reach level 100 by the end of the year.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 304,
+      "record_chars": 23298,
+      "episodic_chars": 5052,
+      "prompt_chars": 28788,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1623504160015727
+      }
+    },
+    {
+      "question_id": "gpt4_93159ced_abs",
+      "question_type": "temporal-reasoning",
+      "report_type": "abstention",
+      "reference_answer": "The information provided is not enough. From the information provided, You haven't started working at Google yet.",
+      "hypothesis": "Based on the records provided, you do not work at Google; you are a Backend Developer at NovaTech, where you have been working for approximately 4 years and 3 months as of May 30, 2023. Regarding your total experience, you have 9 years of professional work experience.",
+      "judge_raw": "No",
+      "correct": false,
+      "is_error": false,
+      "n_records": 215,
+      "record_chars": 18033,
+      "episodic_chars": 5653,
+      "prompt_chars": 24007,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7843824160008808
+      }
+    },
+    {
+      "question_id": "f523d9fe",
+      "question_type": "single-session-assistant",
+      "report_type": "single-session-assistant",
+      "reference_answer": "Doc Martin",
+      "hypothesis": "Yes, I remember. The show you used as an example was \"Doc Martin,\" which you mentioned went down after a while, leaving only the last season available.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 234,
+      "record_chars": 17624,
+      "episodic_chars": 5727,
+      "prompt_chars": 23843,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 3.81231754199689
+      }
+    },
+    {
+      "question_id": "cc06de0d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "$6",
+      "hypothesis": "The taxi ride cost $12, and your daily train fare is $6. Therefore, the taxi ride was $6 more expensive than the train fare.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 19616,
+      "episodic_chars": 5973,
+      "prompt_chars": 26003,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8785021250005229
+      }
+    },
+    {
+      "question_id": "b9cfe692",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "5.5 weeks",
+      "hypothesis": "Based on the records provided:\n\n*   **The Nightingale**: It took you three weeks to finish.\n*   **The Seven Husbands of Evelyn Hugo**: The records indicate you finished this book by 2023/05/24, but they do not specify the amount of time it took to complete.\n\nBecause the duration for \"The Seven Husbands of Evelyn Hugo\" is not recorded, it is not possible to calculate the combined total time for both books.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 19501,
+      "episodic_chars": 5838,
+      "prompt_chars": 25509,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.1685526250003022
+      }
+    },
+    {
+      "question_id": "bbf86515",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "4 days.",
+      "hypothesis": "To determine the number of days between the two events:\n\n1.  **Turbocharged Tuesdays event date:** June 14, 2023 (from ITEM(EVENT_ATTENDED/racing event) and conversation excerpts).\n2.  **Rack Fest event date:** June 18, 2023 (from ITEM(EVENT_ATTENDED/festival) and conversation excerpts).\n\nCalculation: June 18 - June 14 = 4 days.\n\nAnswer: 4 days",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 19049,
+      "episodic_chars": 5823,
+      "prompt_chars": 25185,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.074150832995656
+      }
+    },
+    {
+      "question_id": "b320f3f8",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "a blue Snaggletooth",
+      "hypothesis": "You bought a rare blue Snaggletooth action figure from a thrift store.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 246,
+      "record_chars": 18921,
+      "episodic_chars": 5493,
+      "prompt_chars": 24795,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7250258330022916
+      }
+    },
+    {
+      "question_id": "ad7109d1",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "500 Mbps",
+      "hypothesis": "Your new internet plan is 500 Mbps.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 266,
+      "record_chars": 20346,
+      "episodic_chars": 5797,
+      "prompt_chars": 26474,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8221027499967022
+      }
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "32",
+      "hypothesis": "You have seen 32 different species of birds in your local park.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 267,
+      "record_chars": 19532,
+      "episodic_chars": 5071,
+      "prompt_chars": 25043,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6200594999972964
+      }
+    },
+    {
+      "question_id": "07b6f563",
+      "question_type": "single-session-preference",
+      "report_type": "single-session-preference",
+      "reference_answer": "The user would prefer suggestions of accessories that are compatible with an iPhone 13 Pro, such as high-quality screen protectors, durable cases, portable power banks, or phone wallet cases. They may not prefer suggestions of accessories that are not compatible with Apple products or do not enhance the functionality or protection of their phone.",
+      "hypothesis": "Based on your records and recent interests, here are some useful accessories for your iPhone 13 Pro:\n\n*   **Screen Protector:** Since your current one is cracked, you are looking for a high-quality, durable replacement.\n*   **Phone Wallet Case:** You are interested in a high-quality wallet case; you've specifically asked about the OtterBox wallet case and value features like wireless charging compatibility.\n*   **Wireless Charging Power Bank:** You are looking for a portable power bank to charge your phone on-the-go and specifically prefer wireless charging capabilities.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 270,
+      "record_chars": 20522,
+      "episodic_chars": 4335,
+      "prompt_chars": 25276,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 1.3198300000003655
+      }
+    },
+    {
+      "question_id": "gpt4_5dcc0aab",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "white Adidas sneakers",
+      "hypothesis": "You cleaned your white Adidas sneakers last month (April 2023).",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 314,
+      "record_chars": 23990,
+      "episodic_chars": 4794,
+      "prompt_chars": 28988,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.8869302919993061
+      }
+    },
+    {
+      "question_id": "26bdc477",
+      "question_type": "knowledge-update",
+      "report_type": "knowledge-update",
+      "reference_answer": "five",
+      "hypothesis": "You have taken your Canon EOS 80D camera on 5 trips.",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 254,
+      "record_chars": 20942,
+      "episodic_chars": 4909,
+      "prompt_chars": 26277,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.6468422079997254
+      }
+    },
+    {
+      "question_id": "3a704032",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you acquired the following plants in the last month (since 2023/04/30):\n\n1. Peace lily [2023/05/06]\n2. Succulent [2023/05/06]\n\nCount: 2",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 278,
+      "record_chars": 19768,
+      "episodic_chars": 5520,
+      "prompt_chars": 25721,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 0.7318754169973545
+      }
+    }
+  ]
+}
