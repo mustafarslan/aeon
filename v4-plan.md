@@ -6663,3 +6663,46 @@ right one.
 right-number-wrong-enumeration errors. It does nothing for the 13 undercounts, 13 temporal, 8 abstention,
 or 13 lookup errors. **A result above ~449 would be evidence something other than dedup moved**, and
 should be treated as suspicious rather than celebrated.
+
+**STAGE 2a DEV GATE (2026-08-27). `n_errors=0`. Gate PASSES and the mechanism is FALSIFIED on the
+questions it was built for — those are two different things, and the second one matters more.**
+
+| | dedup | v1 | delta |
+|---|---|---|---|
+| dev overall (n=252) | **220** | 219 | **+1**, McNemar **+3/-2, p=1.000** |
+| counting cohort (n=100 in dev) | 83 | 82 | +1 (+2/-1) |
+| every question type | | | **0**, except multi-session +1 |
+
+Gate bar was >=214; 220 clears it. But the gate was a *don't-be-catastrophic* stop, not a success
+signal, and by every measure that matters this is **exactly nothing**: five flips in 252 questions,
+three up and two down, against a measured noise floor of ~2.7.
+
+**The decisive check is not the aggregate — it is whether the target questions moved. They did not.**
+Five of the nine identified overcount questions fall in dev. **All five were wrong before and are wrong
+now**, and reading them shows why the collapse could not have helped:
+
+| question | gold | now | why dedup cannot fix it |
+|---|---|---|---|
+| `4b24c848` | 5 | `Three tops + Five tops = 8` | **supersession** — the count was revised 3→5; the two lines are different text, so no key can merge them |
+| `88432d0a` | 4 | counts 5 baked goods | **predicate boundary** — it includes an item that does not satisfy the question's qualifier |
+| `60472f9c` | 2 | 6→4 | still over-includes distinct-but-related projects |
+| `gpt4_59c863d7` | 5 | 7→6 | one duplicate collapsed; the residual over-inclusion is not duplication |
+| `370a8ff4` | 15 | date arithmetic | **misclassified by the cohort regex** — it is a temporal question, not a counting one |
+
+**The honest correction to this stage's own reasoning.** The evidence that motivated it was real and
+reproducible: 7 of 12 parseable overcounts contain a self-duplicate in the model's own enumeration, and
+the overcount cohort carries 1.8× the corpus-median duplicate load. Both still hold. **What does not
+hold is the causal step.** The duplicate in the model's list was a *co-occurring symptom*, not the
+binding constraint — remove it and the count is still wrong, because the over-inclusion is driven by
+**predicate-boundary judgement** ("is a rearranged sofa something I *bought*?") and by **supersession**,
+neither of which is a co-reference problem. `gpt4_59c863d7` is the clean demonstration: the duplicate
+collapsed, the count moved 7→6, and the answer is still wrong against a gold of 5.
+
+**Two things this does buy, and they should not be oversold.** The prompt is a median 212 characters
+and 6 lines smaller for free, and rendering one entity once is more nearly correct than rendering it
+twice regardless of what the benchmark says. Neither is worth a benchmark claim.
+
+**What it costs to know for certain**: the pre-registered ladder says the full 500 decides, and dev is
+only half. But dev is a random half of the same instrument, and it reports +1 at p=1.000 with the target
+cohort untouched — so **>=437 is out of reach**, and a full run would buy a confirmed negative rather
+than an answer in doubt.
