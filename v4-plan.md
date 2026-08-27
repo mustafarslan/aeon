@@ -6951,3 +6951,50 @@ say so.
 2. **`5831f84d` is a weak target.** The ablation answered it correctly in all three cells including the
    unmodified one, so its dev failure was variance. Converting it is not evidence; failing to convert it
    is not disconfirming either.
+
+**PATH A RESULT (2026-08-27). `n_errors=0`. 220 against the 221 baseline — −1, McNemar +6/−7, p=1.000.
+Primary bar was >=227; not met. The fourth null in a row, and the flagship target is unchanged for the
+third intervention running.**
+
+| type | reconcile | baseline | delta |
+|---|---|---|---|
+| knowledge-update | **34** | 32 | **+2** |
+| multi-session | 45 | 45 | 0 |
+| single-session-user | 32 | 32 | 0 |
+| single-session-assistant | 27 | 27 | 0 |
+| temporal-reasoning | 55 | 56 | −1 |
+| single-session-preference | 14 | 15 | −1 |
+| abstention | 13 | 14 | −1 |
+
+**A BAR-DESIGN ERROR OF MINE, recorded rather than quietly reinterpreted.** Two named guards report
+BREACH — preference 14 against a bar of 15, abstention 13 against 14 — and **both are breaches only
+because I set those guards at the baseline value with no noise band.** A one-question move sits well
+inside the measured 2.7-question sd. The repo's own standing rule is bars at **>= 2x the sd**, and
+v4-plan.md already records "no acceptance bar written in this stage had a noise model; that is the
+methodological defect behind both reverts". I repeated it. Correctly specified, those guards should have
+been **preference >= 10** and **abstention >= 9**, and neither would have fired. **The breaches are
+reported as recorded, and simultaneously as not meaningful** — the pre-registration is honoured and its
+defect is named, rather than the result being re-read to suit.
+
+**The one movement worth noting is knowledge-update +2 (32 -> 34)**, the type the hint targets. At n=36
+its own sd is ~1.0, so 2x sd is ~2.1 — **+2 is at the edge and does not clear it.** Suggestive, not
+significant, and explicitly not claimed.
+
+**The target check fails for the third time, and identically.** `4b24c848` under the reconciliation
+directive: *"You have bought a total of 8 tops from H&M (three tops on 2023/08/11 and five tops on
+2023/09/30)."* Byte-for-byte the same failure shape as under the original hint and under chronological
+ordering. **The directive is present, read, and loses** — the model classifies the two records as
+distinct additions rather than a revised total, which is exactly the judgement the directive asks it to
+make. `5831f84d` is correct, and was flagged before the run as a weak target because the ablation
+answered it correctly in the *unmodified* cell too; it is not counted as evidence.
+
+**Where four nulls leave the reader-side hypothesis.** Co-referent collapse, chronological ordering, the
+shipped system prompt, and now a reconciliation directive: **nothing applied to the record layer or to
+the instruction tail moves these errors.** The consistent signal across all four is that the reader makes
+a *semantic classification* — "is this a revised total or a second purchase?" — and instructions do not
+change how it classifies. That is the same lesson the `_PREMISE_GUARD` post-mortem recorded ("must
+separate those two, not phrase the same check more carefully") arriving from a fourth direction.
+
+**Reverted to `--counting-hint current`** as the default; `_RECONCILE_HINT` is kept in `compose.py` with
+this measurement beside it, following the `_PREMISE_GUARD` and `entities.py` precedent, so the negative
+is discoverable at the point of temptation.
