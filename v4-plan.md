@@ -6438,3 +6438,47 @@ questions.
 
 **The three verdicts are unchanged by this**, and could not have been: they are counts on the main
 pass. The repeat completes the pre-registered instrument, it does not adjudicate it.
+
+**ABSTENTION FIX + REMEASURE. PRE-REGISTERED 2026-08-27, before running.** The user granted the
+scoped exception to the stop-clause after the corrected diagnosis; this is the one attempt.
+
+*The change*, one edit to `compose()`'s instruction tail, designed from the six observed failures and
+not iterated against them:
+
+```
+First check whether the records and excerpts actually mention the specific thing the question
+asks about. If they do not, say that the information is not available and stop -- do not answer
+with a count of zero, do not total up the parts that are present, and do not substitute a
+related fact.
+```
+
+It names the **three override forms actually measured** (zero-count, total-over-present-parts,
+related-fact substitution), not any specific question. It is placed **before** `_COUNTING_HINT`, which
+is thereby conditional on the premise holding -- and that ordering is the point: three of the six
+losses are count/total questions, and "COUNT the matching records" over *zero* matching records is
+what produced the confident `Answer: 0`. **The prior instruction was actively causing part of this
+regression**, which is why the fix is a reordering plus a guard rather than an added clause.
+Pinned by `test_premise_guard_precedes_the_counting_hint`.
+
+*Not the fix that was first proposed*: porting ETC's abstention wording. Both system prompts already
+carry near-identical "say so plainly instead of guessing" clauses, so there was nothing to port --
+recorded because it was the obvious move and it was wrong.
+
+*Bars*:
+- **ABSTENTION RECOVERY: >= 26 of 30.** ETC is 28; the measured answer-stage flip rate of 3.0% is
+  ~1 question of noise on 30, so >= 26 is within noise of ETC while 22 (the breach) is not.
+- **NO NEW COLLATERAL**: no question type below its existing floor, and specifically the
+  **known-miss cohort must hold >= 20 of 27** (it was 22). This is the symmetric failure mode and the
+  real risk of this fix: a guard that suppresses commitment can suppress it on questions where the
+  fact *is* present, which is exactly what the 22/27 depends on.
+- **PRIMARY HOLDS: >= 425** on the full re-answer.
+
+*Protocol*: **one attempt, no wording iteration.** Tuning the sentence against the 30 abstention
+questions would be fitting the test set, and this project already has a recorded precedent for
+honouring a one-attempt protocol (the ETC v3 COMPUTE prompt, reverted on an exact tie).
+
+*Ladder*: the 30-question abstention slice first (~5 min, all cache hits). It is a **gate, not the
+result** -- if it recovers, the full 500 is re-answered (~1.4 h, records unchanged from the validated
+corpus, so extraction is untouched) and re-scored by the same gate script. **The full re-answer is
+required, not optional**: the prompt change makes a new instrument, so composite-v2 needs its own
+n=500 count, and only the full run can show whether the guard induces over-abstention elsewhere.

@@ -55,6 +55,23 @@ _COUNTING_HINT = (
     "If the question asks how many, COUNT the matching records and show the count."
 )
 
+# Measured at n=500 (v4-plan.md): the composite lost 6 abstention questions to ETC, 0 won,
+# p=0.031. Reading all six, five identify the unsupported premise and then override themselves
+# with a committed answer -- "Answer: 0", "Total: 10 days", "Total: 10 years", a computed
+# "4 years and 9 months", "you completed fixing the fence first". The cause is structural, not
+# formatting: ETC abstains because its extract stage found nothing to compute with, while the
+# composite always has ~270 records in context and so always has SOMETHING to compute over.
+# _COUNTING_HINT makes it worse on exactly this class -- three of the six are count/total
+# questions, and "COUNT the matching records" over zero matching records yields a confident 0.
+# So the guard is stated BEFORE the counting hint, which is thereby conditional on the premise
+# holding. It names the three override forms actually observed rather than any specific question.
+_PREMISE_GUARD = (
+    "First check whether the records and excerpts actually mention the specific thing the "
+    "question asks about. If they do not, say that the information is not available and stop -- "
+    "do not answer with a count of zero, do not total up the parts that are present, and do not "
+    "substitute a related fact."
+)
+
 
 def order_records(records: Iterable[Record]) -> list[Record]:
     """Group records so countable members of one category are adjacent.
@@ -100,7 +117,7 @@ def render_records(records: Iterable[Record]) -> str:
 
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
-            *, counting_hint: bool = True) -> str:
+            *, counting_hint: bool = True, premise_guard: bool = True) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""
@@ -110,6 +127,8 @@ def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_b
     parts.append(question_block)
     parts.append("")
     tail = "Answer using the records and excerpts above."
+    if premise_guard:
+        tail += " " + _PREMISE_GUARD
     if counting_hint:
         tail += " " + _COUNTING_HINT
     parts.append(tail)

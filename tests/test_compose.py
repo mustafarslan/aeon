@@ -95,3 +95,15 @@ def test_records_render_with_their_category_and_supersession():
     p = render_records([Record(kind="ITEM", text="$400,000", bucket="FINANCE",
                                subtype="pre-approval", supersedes="$350,000")])
     assert "FINANCE/pre-approval" in p and "supersedes $350,000" in p
+
+
+def test_premise_guard_is_present_by_default_and_suppressible():
+    assert "not available" in compose([item("x")], [], "Q")
+    assert "not available" not in compose([item("x")], [], "Q", premise_guard=False)
+
+
+def test_premise_guard_precedes_the_counting_hint():
+    """The guard must be read before "COUNT the matching records" -- with zero matching
+    records that hint is what produced the measured "Answer: 0" on an unanswerable question."""
+    p = compose([item("x")], [], "Q")
+    assert p.index("not available") < p.index("COUNT")
