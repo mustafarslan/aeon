@@ -38,6 +38,7 @@ retrieval. `select_records()` implements that filter; it is not yet needed at be
 from __future__ import annotations
 
 import re
+from datetime import date as _date
 from typing import Iterable, Optional, Sequence
 
 from .entities import EntityGroup, group_entities
@@ -297,7 +298,44 @@ def _group_sort_key(group: EntityGroup) -> tuple:
     return (group.primary_bucket, rep.subtype.lower(), rep.text.lower())
 
 
-def render_records(records: Iterable[Record]) -> str:
+# Bare ISO dates only. A date that already carries a weekday, a time, or any other trailing
+# text does not match -- the `\]` is required immediately after the day -- so this never
+# doubles up on the 27% of dated records whose `(Sat)` survived extraction.
+_BARE_ISO = re.compile(r"\[(\d{4})/(\d{2})/(\d{2})\]")
+
+
+def _add_weekdays(block: str) -> str:
+    """Annotate bare `[2023/05/20]` as `[2023/05/20 (Sat)]` at render time.
+
+    WHY THIS IS FREE AND WHY IT IS NOT A DATA FIX. LongMemEval's source dates are
+    `"2023/05/20 (Sat) 02:21"`, and extraction strips the weekday from **73% of dated
+    records** -- but that is not data loss, because the weekday is a pure function of the ISO
+    date. Deriving it costs a `date().strftime()` and needs no re-extraction, no schema
+    change, and no second pass over the corpus.
+
+    WHAT IT IS FOR, AND THE LIMIT MEASURED BEFORE BUILDING IT. Relative anchors ("last
+    Saturday", "the past weekend") are the single largest temporal failure shape: 11 of the 20
+    temporal errors, and questions containing a relative expression fail at **26% against a
+    14% base rate**. But the prompt ALREADY carries this information -- a sampled failing
+    prompt held **74 ISO dates and 30 weekday tokens**, and the question block already reads
+    "Today's date is 2023/04/22 (Sat)". So this makes weekday grounding *uniform* rather than
+    *available*; it does not supply something absent. Expect little, and no accuracy claim is
+    attached.
+
+    An invalid date (2023/02/30, which the model can emit) is left exactly as written rather
+    than raising -- a renderer must never fail on bad data it did not create.
+    """
+    def _sub(m):
+        y, mo, d = (int(x) for x in m.groups())
+        try:
+            weekday = _date(y, mo, d).strftime("%a")
+        except ValueError:
+            return m.group(0)
+        return f"[{m.group(1)}/{m.group(2)}/{m.group(3)} ({weekday})]"
+    return _BARE_ISO.sub(_sub, block)
+
+
+def render_records(records: Iterable[Record], *, weekdays: bool = True) -> str:
     """Renders the record block, collapsing co-referent ITEMs to one line each.
 
     Cross-bucket duplication is a FEATURE of the taxonomy -- an album the user downloaded
@@ -314,7 +352,8 @@ def render_records(records: Iterable[Record]) -> str:
     groups.sort(key=_group_sort_key)
     lines = [_render_group(g) for g in groups]
     lines += [r.display() for r in others]
-    return "\n".join(lines)
+    block = "\n".join(lines)
+    return _add_weekdays(block) if weekdays else block
 
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,

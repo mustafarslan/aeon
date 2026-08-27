@@ -171,7 +171,9 @@ def test_collapse_preserves_date_and_supersession_markers():
     recs = [item("salary", "FINANCE", "pay", date="2023/05/18", supersedes="$350,000"),
             item("salary", "EDUCATION_WORK", "pay")]
     out = render_records(recs)
-    assert "[2023/05/18]" in out and "[supersedes $350,000]" in out
+    # The date now carries a derived weekday; the supersession marker is untouched.
+    assert "[2023/05/18 (Thu)]" in out and "[supersedes $350,000]" in out
+    assert "[2023/05/18]" in render_records(recs, weekdays=False)
 
 
 def test_prose_records_keep_their_order_after_collapse():
@@ -250,3 +252,47 @@ def test_reconcile_hint_covers_all_three_measured_failure_shapes():
     assert "latest figure rather than summing" in out      # 4b24c848: 3+5=8
     assert "distinct additions or events, sum them" in out  # the undercount risk
     assert "rather than answering zero" in out              # the abstention Answer: 0
+
+
+# --- derived weekdays (v4.1 temporal) ------------------------------------------------
+
+def test_bare_iso_dates_gain_a_derived_weekday():
+    """Extraction strips the weekday from 73% of dated records, but it is a pure function of
+    the ISO date -- derived at render for free, no re-extraction."""
+    out = render_records([item("Dune", "MEDIA", "film", date="2023/05/20")])
+    assert "[2023/05/20 (Sat)]" in out
+
+
+def test_a_date_that_already_has_a_weekday_is_not_doubled():
+    """27% of dated records kept their `(Sat)` through extraction."""
+    out = render_records([item("Dune", "MEDIA", "film", date="2023/05/20 (Sat) 02:21")])
+    assert out.count("(Sat)") == 1
+
+
+def test_coarse_dates_get_no_weekday():
+    """A month- or year-precision date has no weekday, and inventing one would fabricate
+    exactly the precision the write path refuses to invent."""
+    for coarse in ("2023/05", "2023", "spring 2023"):
+        out = render_records([item("x", "MEDIA", "film", date=coarse)])
+        assert "(" not in out.split(": ")[-1] or "Mon" not in out
+
+
+def test_an_impossible_date_is_left_exactly_as_written():
+    """A renderer must never fail on bad data it did not create."""
+    out = render_records([item("x", "MEDIA", "film", date="2023/02/30")])
+    assert "[2023/02/30]" in out
+
+
+def test_weekday_annotation_is_suppressible():
+    recs = [item("Dune", "MEDIA", "film", date="2023/05/20")]
+    assert "(Sat)" not in render_records(recs, weekdays=False)
+
+
+def test_weekday_derivation_changes_the_instrument_for_dated_records():
+    """STATED, NOT HIDDEN. The two byte-equality guards use UNDATED fixtures, so neither
+    catches this -- which is precisely why it is asserted here. Any run using weekdays is a
+    different instrument from the runs that produced 429 and the dev baselines."""
+    recs = [item("Dune", "MEDIA", "film", date="2023/05/20")]
+    assert render_records(recs) != render_records(recs, weekdays=False)
+    undated = [item("Dune", "MEDIA", "film")]
+    assert render_records(undated) == render_records(undated, weekdays=False)

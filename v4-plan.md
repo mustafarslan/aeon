@@ -7183,3 +7183,43 @@ final validation.
 **Verdict for the gate: PASSES on mechanism, with no accuracy claim.** Proceeding to the TPG overlay is
 justified as product architecture — durable supersession links, timeline projection, and a queryable
 "what replaced this?" — and explicitly **not** as an accuracy play.
+
+**DERIVED WEEKDAYS AT RENDER (2026-08-27). Built at the user's direction, and its expected value is
+stated as small before it is measured.**
+
+Bare `[2023/05/20]` renders as `[2023/05/20 (Sat)]`. Extraction strips the weekday from **73% of dated
+records** (LongMemEval's source dates are `"2023/05/20 (Sat) 02:21"`) — but that is **not data loss**,
+because the weekday is a pure function of the ISO date. Deriving it needs no re-extraction, no schema
+change, and no second corpus pass. A date that already carries a weekday is not doubled; a coarse date
+(`2023/05`, `spring 2023`) gets nothing, since inventing a weekday there would fabricate exactly the
+precision the write path refuses to invent; an impossible date (`2023/02/30`, which a model can emit) is
+left exactly as written.
+
+*Offline diff over 120 questions, before any run*: **median 56 weekdays added, 333 characters, 1.28% of
+a 26k prompt**; all 120 renders change.
+
+**Why the expectation is low, measured before building rather than after.** Relative anchors are the
+largest temporal failure shape — 11 of 20 temporal errors, and questions containing a relative
+expression fail at **26% against a 14% base rate**, the first discriminative signal found since the
+counting work. But a sampled failing prompt (`gpt4_d6585ce9`, *"Who did I go with to the music event last
+Saturday?"*) already contained **74 ISO dates and 30 weekday tokens**, and its question block already
+read *"Today's date is 2023/04/22 (Sat) 08:01."* **The information was already there and the reader
+still failed.** This makes weekday grounding *uniform* rather than *available*; it does not supply
+something absent. That is the same shape as chronological ordering, which was a null.
+
+**INSTRUMENT CHANGE, STATED PLAINLY AND NOT HIDDEN BY THE GUARDS.** Dated records now render
+differently, so any run using weekdays is a different instrument from the ones that produced 429 and the
+dev baselines. **Both byte-equality guards use UNDATED fixtures and therefore do not catch this** —
+`test_weekday_derivation_changes_the_instrument_for_dated_records` asserts it explicitly so the gap in
+those guards is on the record rather than discovered later.
+
+**The in-flight sweep is unaffected.** It loaded `compose` at process start, so editing the module on
+disk cannot change a running process — its result is the baseline for *merge without weekdays*, and any
+weekday run needs its own comparison against it.
+
+*Date-delta arithmetic is deliberately NOT built.* Only ~8 of 500 errors are arithmetic-shaped (5
+arithmetic-only temporal, 3 relative-plus-arithmetic) against a detection threshold of 11.6 — the same
+unwinnable shape as supersession. It is agreed as a narrow product feature, not an aggregate play, and
+carries a specific trap if it is ever built: `c8090214`'s gold is *"7 days. 8 days (including the last
+day) is also acceptable"*, so **fencepost tolerance is baked into the grading** and an
+inclusive/exclusive mismatch could create errors on the ~81 currently-correct relative-anchor questions.
