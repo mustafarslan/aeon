@@ -4,6 +4,10 @@ from .architect import Architect
 from .client import ALL_SCOPES_VISIBLE, AeonClient, decode_store_id, encode_store_id
 from .trace import EdgeType, TraceGraph
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # TraceEvent role used for "this event represents a retrieved Atlas concept,
 # adjacent in the episodic log to the user query that surfaced it" -- see
 # process_turn()'s docstring for why this replaces an explicit graph edge.
@@ -30,7 +34,8 @@ class ContextManager:
     """
 
     def __init__(self, atlas_client: AeonClient, trace: TraceGraph,
-                 shared_atlas_client: Optional[AeonClient] = None) -> None:
+                 shared_atlas_client: Optional[AeonClient] = None,
+                 dirty_queue=None) -> None:
         self.atlas = atlas_client
         self.trace = trace
         self.shared_atlas = shared_atlas_client
@@ -44,6 +49,9 @@ class ContextManager:
         # sanctioned path content reaches the shared tier through; nothing
         # is ever admitted there directly.
         self.architect = Architect(atlas_client)
+        # The write-side hook for background consolidation. Optional: a deployment without
+        # the semantic layer passes None and this class behaves exactly as before.
+        self._dirty_queue = dirty_queue
 
     def process_turn(
         self,
@@ -267,13 +275,34 @@ class ContextManager:
         merged = sorted(best.values(), key=lambda r: -r["similarity"])
         return merged[:top_k]
 
+    def _mark_dirty(self, session_id: Optional[str]) -> None:
+        """Enqueue this session for background consolidation. O(1), no I/O.
+
+        Marked on `add_response`, not `process_turn`: a session becomes worth extracting once
+        the turn is COMPLETE (user question plus assistant answer), which is what
+        `extract_session` expects to read. Marking on the user turn alone would enqueue a
+        half-written conversation.
+
+        The queue is a set, so a session written to ten times before the worker wakes costs
+        one consolidation.
+        """
+        if self._dirty_queue is None:
+            return
+        try:
+            self._dirty_queue.mark_dirty(session_id or "default")
+        except Exception:
+            # Enqueueing is background enrichment. It must never fail a live turn.
+            logger.exception("failed to mark session dirty")
+
     def add_response(self, text: str, session_id: Optional[str] = None) -> int:
         """
         Record the system's textual response to close the turn loop.
 
         Returns the new event's ID.
         """
-        return self.trace.add_event(session_id or "default", "system", text)
+        event_id = self.trace.add_event(session_id or "default", "system", text)
+        self._mark_dirty(session_id)
+        return event_id
 
     def recall_episodic(
         self, query_vector: Union[List[float], np.ndarray], unit: str = "window_5",

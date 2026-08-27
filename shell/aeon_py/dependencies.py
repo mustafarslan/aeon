@@ -27,6 +27,8 @@ DEFAULT_SHARED_ATLAS_PATH = os.environ.get("AEON_SHARED_ATLAS_PATH")
 # would be a cross-tenant leak rather than a style choice. Read at import time like every
 # AEON_* var above; see the warning in this module about setting them after import.
 DEFAULT_RECORDS_DIR = os.environ.get("AEON_RECORDS_DIR", "./data/records")
+CONSOLIDATION_INTERVAL_SECONDS = float(
+    os.environ.get("AEON_CONSOLIDATION_INTERVAL_SECONDS", "30"))
 
 # v4-plan.md Stage 4 task 6 Phase B: the shared store's metadata field
 # holds an encrypted (nonce + base64) payload once crypto.py's keystore is
@@ -414,20 +416,23 @@ def build_consolidation_worker():
     def extract(turns, session_id, date):
         return extract_session(turns, session_id, date, generate)
 
+    # The queue lives on the manager so the ingest path and the worker share one instance --
+    # `ContextManager` marks a session dirty, this drains it.
+    mgr = get_session_manager()
     consolidator = SessionConsolidator(
-        DirtyQueue(),
+        mgr.dirty_queue,
         fetch_session=fetch_session,
         extract=extract,
         embed=embed_text,
-        store=None,                      # resolved per session -- see the note below
+        # PER-TENANT: session_id is the tenant (get_current_user_id's value is threaded
+        # verbatim as the session id everywhere downstream), so resolving per session
+        # resolves per tenant -- which is what makes one worker safe across tenants whose
+        # records are in separate files.
+        store_resolver=mgr.get_store,
         session_date=make_session_date_resolver(trace),
+        trace=trace,
     )
-    # NOT WIRED YET, and stated rather than hidden: `SessionConsolidator` fixes its `store`
-    # at construction, but records live in PER-TENANT files, so one consolidator cannot
-    # serve every tenant. Until `run_cycle` resolves the store per session, this worker is
-    # constructed and returned but has no store to write to. Returning None keeps the
-    # server honest -- a worker that runs and writes nowhere is worse than no worker.
-    return None
+    return ConsolidationWorker(consolidator, interval_seconds=CONSOLIDATION_INTERVAL_SECONDS)
 
 
 @lru_cache()

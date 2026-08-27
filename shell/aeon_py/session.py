@@ -59,6 +59,11 @@ class SessionManager:
         # A stores dict added WITHOUT that would leak a handle per user, forever.
         self._stores: Dict[str, "RecordStore"] = {}
         self._records_dir = records_dir
+        # ONE queue shared by the ingest path and the background worker. It lives here
+        # rather than in dependencies because the manager is what both sides already reach:
+        # ContextManager marks a session dirty on a turn, ConsolidationWorker drains it.
+        from .consolidator import DirtyQueue
+        self.dirty_queue = DirtyQueue()
 
         self.max_sessions = max_sessions
         self._lock = asyncio.Lock()
@@ -96,7 +101,8 @@ class SessionManager:
             # 3. Create wrapper over the shared Atlas/Trace, then warm the
             # SLB cache if this user has prior history in the shared trace.
             ctx = ContextManager(self.atlas, self.trace,
-                                 shared_atlas_client=self.shared_atlas)
+                                 shared_atlas_client=self.shared_atlas,
+                                 dirty_queue=self.dirty_queue)
             if self.trace.has_session(user_id):
                 ctx.warm_start(user_id)
                 logger.info(f"Resumed session for user {user_id}")

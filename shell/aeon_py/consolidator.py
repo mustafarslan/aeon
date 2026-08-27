@@ -200,7 +200,8 @@ class SessionConsolidator:
         fetch_session: Callable[[str], Sequence[dict]],
         extract: Callable[[Sequence[dict], str, str], list[Record]],
         embed: Callable[[str], Sequence[float]],
-        store,
+        store=None,
+        store_resolver: Optional[Callable[[str], object]] = None,
         session_date: Callable[[str], str] = lambda _s: "",
         merge: Optional[Callable[[Sequence[Record]], list[Record]]] = None,
         max_workers: int = DEFAULT_MAX_WORKERS,
@@ -211,7 +212,13 @@ class SessionConsolidator:
         self._fetch_session = fetch_session
         self._extract = extract
         self._embed = embed
+        # `store` is the single-tenant form; `store_resolver` is the multi-tenant one and
+        # takes precedence. Records live in PER-TENANT FILES (see records.store_path_for --
+        # a shared file leaks every tenant's records into every tenant's prompt), so one
+        # consolidator fixed to one store cannot serve a real server. Both are kept: every
+        # existing caller and test passes `store`, and their behaviour is unchanged.
         self._store = store
+        self._store_resolver = store_resolver
         self._session_date = session_date
         self._merge = merge
         self._max_workers = max_workers
@@ -253,8 +260,15 @@ class SessionConsolidator:
                 self.stats.sessions_failed += 1
                 continue
             try:
+                store = self._store_for(session_id)
+                if store is None:
+                    # No store for this tenant is a FAILURE, not a silent success: releasing
+                    # it as succeeded would drop the session's records with no trace.
+                    self.queue.release(session_id, succeeded=False)
+                    self.stats.sessions_failed += 1
+                    continue
                 for rec in records:
-                    self._store.add(rec, self._embed(rec.text))
+                    store.add(rec, self._embed(rec.text))
                 self.stats.records_written += len(records)
                 self.stats.sessions_consolidated += 1
                 self.queue.release(session_id, succeeded=True)
@@ -264,6 +278,17 @@ class SessionConsolidator:
 
         self.stats.seconds_spent += time.perf_counter() - t0
         return self.stats
+
+    def _store_for(self, session_id: str):
+        """The store this session's records belong in.
+
+        The resolver wins when both are supplied. In a server, session_id IS the tenant --
+        `get_current_user_id()`'s return value is threaded verbatim as the session id
+        everywhere downstream -- so resolving per session is resolving per tenant.
+        """
+        if self._store_resolver is not None:
+            return self._store_resolver(session_id)
+        return self._store
 
     def run_merge(self) -> int:
         """Global normalisation across accumulated records -- the operation per-session
