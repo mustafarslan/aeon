@@ -39,6 +39,7 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Sequence
 
+from .entities import EntityGroup, group_entities
 from .records import Record
 
 RECORDS_HEADER = "Long-term memory records about the user:"
@@ -134,9 +135,53 @@ def select_records(records: Iterable[Record], *, buckets: Optional[Sequence[str]
     return out
 
 
+def _render_group(group: EntityGroup) -> str:
+    """One real entity, one line, listing every category it is filed under.
+
+    For a group of one this is byte-identical to `Record.display()` -- deliberately, so
+    that a corpus with no co-referents renders exactly as it did before this change
+    existed (pinned by `test_tree_refactor_does_not_change_rendered_context`).
+    """
+    rep = group.representative
+    cats = group.categories
+    head = f"ITEM({' | '.join(cats)})" if cats else "ITEM"
+    date = f" [{group.date}]" if group.date else ""
+    sup = f" [supersedes {group.supersedes}]" if group.supersedes else ""
+    return f"{head}: {rep.text}{date}{sup}"
+
+
+def _group_sort_key(group: EntityGroup) -> tuple:
+    """Deliberately the SAME shape as `order_records()`'s ITEM key, and deliberately a
+    string comparison on the bucket rather than a taxonomy rank.
+
+    That is what makes the equivalence exact rather than lucky: for an entity filed under
+    a single bucket, `primary_bucket` IS its bucket and `representative` IS its record, so
+    the key is byte-for-byte the old one and the ordering cannot move. The rank in
+    `entities._PRIMARY_RANK` only chooses WHICH bucket represents a multi-bucket entity --
+    it never reorders anything that was not duplicated in the first place.
+    """
+    rep = group.representative
+    return (group.primary_bucket, rep.subtype.lower(), rep.text.lower())
+
+
 def render_records(records: Iterable[Record]) -> str:
+    """Renders the record block, collapsing co-referent ITEMs to one line each.
+
+    Cross-bucket duplication is a FEATURE of the taxonomy -- an album the user downloaded
+    is genuinely both an ACQUISITION and a MEDIA item, and that is how both questions find
+    it. It is only a defect at COUNT time, where the reader sees one object twice. So the
+    collapse happens here, at render, and nowhere else: `select_records()` and
+    `compose_from_store()`'s rehydration still see every individual record, so filtering
+    and provenance are untouched.
+    """
     recs = order_records(records)
-    return "\n".join(r.display() for r in recs) if recs else "(no records)"
+    groups, others = group_entities(recs)
+    if not groups and not others:
+        return "(no records)"
+    groups.sort(key=_group_sort_key)
+    lines = [_render_group(g) for g in groups]
+    lines += [r.display() for r in others]
+    return "\n".join(lines)
 
 
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,

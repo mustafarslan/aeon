@@ -6606,3 +6606,60 @@ split leaves too little on both sides. Stage 4 therefore keeps the repo's existi
 prove mechanism, only aggregates decide worth* — mechanism on the full 30-question cohort, and the
 full-500 run decides. Held-out gating still does its job for Stage 2, where the counting class has 42
 errors spread across both halves.
+
+**STAGE 2a PRE-REGISTERED 2026-08-27, before running: the canonical-entity pass.** Read-time collapse of
+co-referent ITEM records, in `compose.render_records()`. `shell/aeon_py/entities.py` is new;
+`canonical_key()` is **frozen** (NFKC → strip bracketed spans → casefold → non-alphanumeric runs to
+spaces → drop leading articles only → collapse), and word order is preserved deliberately: an
+order-insensitive token-set key catches 594 more lines and would make "Alice called Bob" and "Bob called
+Alice" the same entity.
+
+*Why this and not a prompt clause.* The multi-bucket filing is a feature — it is how "media I consumed"
+and "things I acquired" both find the album — so the fix collapses at **render**, leaving
+`select_records()` and provenance rehydration operating on the full raw record list. Nothing is added to
+the instruction tail. That matters because the last read-path change that *was* instruction-mediated (the
+premise guard) cost 28 questions.
+
+*The equivalence guarantee is exact, not lucky.* `_group_sort_key()` is deliberately a **string**
+comparison on the bucket, the same shape as `order_records()`'s existing ITEM key. For an entity filed
+under one bucket, `primary_bucket` **is** its bucket and `representative` **is** its record, so the key is
+byte-for-byte the old one. The ACQUISITION/EVENT_ATTENDED/MEDIA rank only chooses *which* bucket
+represents a multi-bucket entity; it can never reorder anything that was not duplicated. Pinned by
+`test_render_is_byte_identical_when_there_are_no_coreferents` and by the pre-existing
+`test_tree_refactor_does_not_change_rendered_context`.
+
+*Offline render diff over all 500 corpora, run before spending any LLM budget* — the plan predicted "~5
+lines and a small char reduction; a wildly larger delta means the key is wrong":
+
+| | value |
+|---|---|
+| questions whose render changed | 495 / 500 |
+| lines collapsed | median **6**, mean 6.3, max 24 |
+| chars removed | median **212**, mean 235, max 1067 |
+| prompt shrink | median **1.07%**, max 4.69% |
+
+Within prediction, no outliers. On the six identified overcount questions: 2–15 lines collapse each.
+
+*Bars*:
+- **PRIMARY: >= 437** on the full 500, i.e. v1's 429 plus 2x the measured frozen-records sd of 3.9.
+  **430–436 is reported as within-noise, not claimed.**
+- **COUNTING COHORT GUARD (the symmetric risk, and the reason this bar exists at all)**: the 212
+  count/quantity questions are at **171 correct**; they must not fall below **165** (2x the cohort's own
+  sd of 2.5). Over-collapse converts an overcount into an *undercount* — there are already 13 undercounts
+  against 16 overcounts, so a change that trades one for the other nets zero while looking good on the
+  overcount cases alone. Cohort ids committed to `counting_cohort.json`.
+- **COLLATERAL GUARD**: no question type more than 2x its own sd below ETC, as before — with
+  `single-session-preference` (28) and `abstention` (22) named explicitly, each having been broken once.
+- **KNOWN-MISS FLOOR: >= 20 of 27.**
+- **Protocol: one attempt, no key tuning.** Adjusting `canonical_key` against which questions flip is
+  fitting the test set.
+
+*Ladder*: **dev (n=252) as a cheap gate** — v1 scores 219 there, and a dev result below **214** (2x sd)
+stops this before the full run — then the full 500, which is what the bars above decide on. Records are
+unchanged from the validated corpus, so extraction is untouched and the frozen-records noise floor is the
+right one.
+
+*Honest ceiling, stated before the result*: this targets the 16 overcounts and possibly the 4
+right-number-wrong-enumeration errors. It does nothing for the 13 undercounts, 13 temporal, 8 abstention,
+or 13 lookup errors. **A result above ~449 would be evidence something other than dedup moved**, and
+should be treated as suspicious rather than celebrated.
