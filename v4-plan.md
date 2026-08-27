@@ -6255,14 +6255,49 @@ merging works. It is deliberately **left ON for this run** -- the pre-registered
 one that produced every comparable arm, and changing it now would confound the arm with a prompt
 change -- but "does the merge pass earn its call?" is now a named, cheap, post-hoc question.
 
-*Reconstructed launch command* (defaults for `--workers 4` / `--episodic-budget 6000` confirmed
+**CORRECTION, same morning, before the run passed its cached prefix: `--consolidate` was ON for the
+paused run and OFF for the measured 85 -- the two are not the same instrument, and the pre-registration
+says they must be.** The reasoning above was right that a merge ran, and wrong about which run ran it.
+
+The hole was that the decisive example (`bf659f65`) is one of **eight tier2 entries with
+`extract == 0.0`** -- entries that predate the 85-run and were seeded by the consolidation *probe*,
+which runs `CONSOLIDATE_PROMPT` unconditionally. "This entry was merged" proved the probe merged it,
+not that either composite run passed the flag. Two checks separated authorship:
+
+- **All 4 grouped entries inside the 85 are probe-era.** Of the 77 entries the 85-run itself authored,
+  **zero** carry a merge signature. Under ON the merge regroups ~12% of questions, so 0 of 77 is
+  ~5e-5 likely. The 85-run was **OFF** -- and its recorded 18.5 s median extract, against a
+  measured ~20 s extraction plus ~15 s merge, says the same thing.
+- **The paused n=500 run authored 6 grouped entries out of 50** -- 12%, exactly the ON rate. Raw
+  re-extraction of two of them confirms it: `370a8ff4` raw **106 category-runs** vs cached **4**,
+  `982b5123` raw **134** vs cached **4**. Concatenating ~48 independent session extractions cannot
+  produce 4 runs across 4 categories. The paused run was **ON**.
+
+So the paused run silently departed from its own pre-registered configuration ("the same path as the
+measured 85"), which is the exact confound the pre-registration was written to prevent -- an arm
+change and a prompt change moving together.
+
+**Correction applied, and it is the cheaper option as well as the correct one.** The run was stopped
+inside its cached prefix, before it could append a single flag-built entry. The 50 ON-built record
+sets are quarantined to `records_composite_dropped_consolidate_on.json` rather than deleted; the cache
+is restored to exactly the 85 that produced the measured 72/85 -- **including the 8 probe-era merged
+entries, deliberately kept**, because those bytes *are* the measured instrument and swapping them
+would break comparability in the other direction. Questions 86-500 are then extracted OFF, so the
+n=500 corpus is the as-measured 85 plus 415 built the same way the 85-run built its own 77.
+Cost falls too: ~20 s/question OFF against ~35 s ON, i.e. **~3.5 h rather than ~5 h**.
+
+*Also inherited and now stated rather than discovered later*: the measured 85 was itself never
+homogeneous -- 8 of its 85 record sets are probe-merged. That is a limit on the 72/85, not a defect
+introduced here, and it is carried forward unchanged rather than quietly repaired.
+
+*Launch command actually used* (defaults for `--workers 4` / `--episodic-budget 6000` confirmed
 against the 85-run's recorded `episodic_chars` max of 5996):
 
 ```
 python scripts/longmemeval/composite_arm_experiment.py \
   --dataset /Volumes/AI_SSD/hf-cache/longmemeval/longmemeval_s_cleaned.json \
   --model gemma4:31b-cloud --num-questions 500 --seed 42 \
-  --workers 4 --episodic-budget 6000 --consolidate \
+  --workers 4 --episodic-budget 6000 \
   --records-cache reproducibility_benchmarks/longmemeval/records_composite_partial.json \
   --out reproducibility_benchmarks/longmemeval/composite_arm_n500.json
 ```

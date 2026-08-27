@@ -1,20 +1,4 @@
-composite arm: 500 questions | cached records for 135 | workers=4
-Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 7424.27it/s]
+composite arm: 500 questions | cached records for 85 | workers=4
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 77737.40it/s]
 warm-up: 'OK'
-[1/500] 45dc21b6 (knowledge-update) -> OK (295 records, 26528 chars)
-[2/500] e3038f8c (multi-session) -> OK (257 records, 25184 chars)
-[3/500] 07741c45 (knowledge-update) -> WRONG (247 records, 24228 chars)
-[4/500] 60d45044 (single-session-user) -> OK (251 records, 24429 chars)
-[5/500] 3249768e (single-session-assistant) -> OK (328 records, 29880 chars)
-[6/500] f685340e_abs (knowledge-update) -> OK (243 records, 24066 chars)
-[7/500] 0e5e2d1a (single-session-assistant) -> OK (250 records, 24344 chars)
-[8/500] 07b6f563 (single-session-preference) -> OK (270 records, 25276 chars)
-[9/500] gpt4_ab202e7f (multi-session) -> WRONG (294 records, 27151 chars)
-[10/500] 3ba21379 (knowledge-update) -> OK (289 records, 26172 chars)
-[11/500] gpt4_1a1dc16d (temporal-reasoning) -> OK (233 records, 26257 chars)
-[12/500] e48988bc (single-session-assistant) -> OK (221 records, 23486 chars)
-[13/500] gpt4_483dd43c (temporal-reasoning) -> OK (321 records, 29140 chars)
-[14/500] 561fabcd (single-session-assistant) -> OK (263 records, 25212 chars)
-[15/500] b6025781 (single-session-preference) -> OK (250 records, 24745 chars)
-[16/500] 71a3fd6b (single-session-assistant) -> OK (259 records, 25251 chars)
-[17/500] f9e8c073 (knowledge-update) -> OK (284 records, 28314 chars)
+[1/500] 45dc21b6 (knowledge-update) -> OK (296 records, 26539 chars)
