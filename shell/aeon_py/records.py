@@ -51,9 +51,17 @@ instead of Python equivalents:
 
   * **Atlas is a tree**, not a flat list (`insert(parent_id, ...)` / `get_children(parent_id)`).
     The closed bucket taxonomy IS a tree, so each bucket is a node and its records are its
-    children. A category scan -- which counting requires, since a subset turns a complete
-    answer into a plausible wrong one -- is therefore `get_children()`, a kernel subtree walk,
-    not a Python filter over every record.
+    children, and that parent link is what the beam-search hierarchy descends.
+
+    **CORRECTED (v4.1).** This bullet used to continue: "A category scan ... is therefore
+    `get_children()`, a kernel subtree walk, not a Python filter over every record." That was
+    false in production and `records_in_bucket()` is now a filter. Atlas registers a child only
+    when its byte offset is the next slot after the parent's existing children, and `insert()`
+    appends at the tail -- so a bucket's child block can only grow while that bucket is the
+    last thing written, and every later child is invisible to `get_children()` forever.
+    Extraction emits records across many buckets per session, so interleaving is the normal
+    case: insert MEDIA, POSSESSION, MEDIA and the walk returns one of the two MEDIA records.
+    The subset failure this layer must never have is exactly the one the walk produced.
   * **`session_id` scoping** on `insert()`, with `drop_session()` for teardown. The first
     version passed neither, which is invisible in a benchmark (one store per question) and
     fatal in a multi-tenant product.
@@ -89,6 +97,7 @@ KINDS: tuple[str, ...] = ("ITEM", "FACT", "EVENT", "UPDATE", "PREF", "TASK")
 _SEP = "\x1f"          # field separator, cannot occur in model-generated text
 _RANGE_SEP = ","
 _DEFAULT_METADATA = 1024
+_ALL_SCOPES_VISIBLE = 0xFFFFFFFFFFFFFFFF   # every scope bit; unscoped nodes are included
 _BUCKET_MARKER = "BUCKET"      # metadata prefix marking a taxonomy node, not a record
 
 
@@ -203,10 +212,47 @@ class RecordStore:
         self.atlas = core.Atlas(str(self.path), dim=dim, metadata_size=metadata_size)
         self.dim = dim
         self.session_id = session_id
+        # Rebuilt from disk, not started empty. This index was in-memory only until v4.1,
+        # which made the taxonomy silently wrong across a process restart -- see
+        # `_load_bucket_nodes()`.
         self._bucket_nodes: dict[str, int] = {}
         # insert() truncates silently rather than raising (documented in core.pyi), so every
         # write is length-checked here instead. -1 leaves room for the null terminator.
         self.capacity = _as_int(self.atlas.metadata_size) - 1
+        self._load_bucket_nodes()
+
+    def _load_bucket_nodes(self) -> None:
+        """Rebuild the bucket index by scanning for `BUCKET\x1f<name>` markers.
+
+        BUG FIX (v4.1). `_bucket_nodes` was populated only by `_bucket_node()` during a
+        write, so a `RecordStore` opened over an existing file started with an empty index.
+        Two consequences, neither of which any test caught -- every existing test scanned the
+        same instance that had written:
+
+          * `records_in_bucket()` returned `[]` on a re-opened store. The bucket nodes and
+            their children were intact on disk; the dict naming them was gone. The only real
+            subtree walk in the record layer was dead in production.
+          * The first `add()` after a re-open minted a SECOND `BUCKET\x1f<name>` node under
+            ROOT, so `records_in_bucket()` then returned only the records written since the
+            re-open -- a SILENT SUBSET. That is exactly the failure `compose.py`'s docstring
+            says the structured category scan exists to prevent ("Vector top-k would silently
+            return a subset and turn a complete answer into a plausible wrong one"), and it is
+            the worst available failure for a layer whose flagship capability is counting.
+
+        Reproduced before fixing: write "Dune" to MEDIA, re-open, scan -> `[]`; one further
+        add grows the store by two nodes and the scan then returns only `["Arrival"]`.
+
+        The scan is O(n) once per open, against `all_records()` being O(n) per call, so this
+        costs nothing that was not already being paid. First marker wins, so a store that
+        already contains duplicate bucket nodes from before this fix keeps using the original
+        and degrades to the old behaviour for the stragglers rather than picking arbitrarily.
+        """
+        for nid in range(_as_int(self.atlas.size)):
+            meta = self._read_metadata(nid)
+            if not meta or not meta.startswith(_BUCKET_MARKER + _SEP):
+                continue
+            name = meta.split(_SEP, 1)[1]
+            self._bucket_nodes.setdefault(name, nid)
 
     def _bucket_node(self, bucket: str, embedding: Sequence[float]) -> int:
         """The Atlas node standing for a bucket. Created on first use, so the taxonomy
@@ -231,20 +277,29 @@ class RecordStore:
         return node_id
 
     def records_in_bucket(self, bucket: str) -> list[Record]:
-        """Every record in a bucket, via the kernel's subtree walk.
+        """Every record in a bucket.
 
-        This is the structured category scan the counting failures need. It returns ALL
-        members by construction -- unlike a vector top-k, which would return a subset and
-        turn a complete answer into a plausible wrong one.
+        REIMPLEMENTED AS A FILTER (v4.1), and the docstrings that claimed otherwise are
+        corrected with it. `records.py` used to say a category scan "is therefore
+        `get_children()`, a kernel subtree walk, not a Python filter over every record."
+        **That is false in production.** `atlas.cpp` registers a child only when its byte
+        offset equals `first_child_offset + child_count * stride`; `insert()` appends at the
+        tail, so a bucket's child block can only grow while that bucket is the last thing
+        written, and any other child is invisible to `get_children()` forever.
+
+        Extraction emits records across many buckets per session, so interleaving is the
+        normal case. Measured: insert MEDIA, POSSESSION, MEDIA and the subtree walk returns
+        ONE of the two MEDIA records while `all_records()` returns all three.
+
+        A silent subset is the one failure this layer must never have -- counting is what it
+        exists for, and `compose.py` says so in as many words about vector top-k. So the O(n)
+        filter is correct and the subtree walk is not, at a record-store scale (a few hundred
+        records per user) where `all_records()` was already being paid on every read.
+
+        The bucket nodes stay on disk: they are the physical parent link the beam-search
+        hierarchy uses. Only the enumeration claim is withdrawn.
         """
-        node = self._bucket_nodes.get(bucket)
-        if node is None:
-            return []
-        try:
-            raw = self.atlas.get_children_raw(node)
-        except Exception:
-            return []
-        return self._decode(np.frombuffer(bytes(raw), dtype=np.uint64))
+        return [r for r in self.all_records() if r.bucket == bucket]
 
     def supersede(self, record: Record) -> bool:
         """Reversibly exclude a superseded record from retrieval, using the kernel's own
@@ -261,13 +316,20 @@ class RecordStore:
         except Exception:
             return False
 
-    def records_for_session(self, session_id: str) -> list[Record]:
+    def records_for_session(self, session_id: str,
+                            include_superseded: bool = True) -> list[Record]:
         """Records derived from one session -- the erasure cascade index.
 
         `erasure.py` tombstones Atlas nodes but nothing cascaded to records derived from an
         erased conversation. Provenance makes that a filter rather than a new mechanism.
         """
-        return [r for r in self.all_records()
+        # DEFAULTS TO include_superseded=True, unlike every other read path, and that
+        # difference is the point: this is the right-to-erasure index, not the
+        # prompt-assembly path. A superseded record is excluded from PROMPTS, not from
+        # EXISTENCE -- it is still PII derived from the session -- so a cascade using the
+        # read-path default would tombstone the live records and silently leave the
+        # retired ones on disk. Caught in review before it shipped.
+        return [r for r in self.all_records(include_superseded=include_superseded)
                 if r.provenance.session_id == session_id]
 
     def _fit(self, record: Record) -> Record:
@@ -333,9 +395,24 @@ class RecordStore:
         return self._decode(_node_ids_from_raw(raw, top_k))
 
     def all_records(self, include_superseded: bool = False) -> list[Record]:
-        """Every live record. `include_superseded=True` is for audit and admin paths that
-        must see what was retired, not for the read path."""
-        return self._decode(range(_as_int(self.atlas.size)), include_superseded)
+        """Every LIVE record. `include_superseded=True` is for audit and admin paths that
+        must see what was retired, not for the read path.
+
+        Enumerates via `list_nodes_by_scope()` rather than `range(atlas.size)`, and that is a
+        BUG FIX, not a refactor. `tombstone_node()` sets `NODE_FLAG_TOMBSTONE` and there is no
+        Python-visible per-node tombstone predicate -- only `tombstone_count()` (an aggregate)
+        and this call, whose contract is "live (non-tombstoned) node ids". Walking the raw id
+        range therefore could not distinguish an erased node from a live one, so **records
+        tombstoned by the right-to-erasure workflow still rendered into every prompt.** That
+        is the supersession bug's twin, and worse: an erased record reaching the model is a
+        compliance failure, not an accuracy one.
+
+        `ALL_SCOPES_VISIBLE` is the correct mask here and was verified rather than assumed:
+        records are inserted unscoped (`scope_bitmap == 0`), and an all-ones mask returns them
+        while still excluding tombstones.
+        """
+        live = self.atlas.list_nodes_by_scope(_ALL_SCOPES_VISIBLE)
+        return self._decode(live, include_superseded)
 
     def _read_metadata(self, node_id: int) -> str:
         """Reads defensively. A store may outlive the code that wrote it, and one bad row --

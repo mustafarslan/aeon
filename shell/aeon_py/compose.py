@@ -339,7 +339,7 @@ def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_b
     return "\n".join(parts)
 
 
-def compose_from_store(store, trace, query_embedding, question_block: str, *,
+def compose_from_store(store, trace, question_block: str, *,
                        neighbours: int = 1, max_turns: int = 12,
                        buckets: Optional[Sequence[str]] = None) -> dict:
     """Production-shaped assembly: all records (optionally category-filtered), with the
@@ -348,7 +348,24 @@ def compose_from_store(store, trace, query_embedding, question_block: str, *,
     Sourcing episodic context from provenance rather than from an independent retrieval pass
     means the excerpts are guaranteed to be about the records in play, and it reuses the link
     the write path already stored instead of paying for a second search.
+
+    `query_embedding` was a parameter of this function and was never read -- removed rather
+    than left as a signature that implies a vector search this path does not do.
     """
+    # The bucket filter stays a Python scan, and that is now a DELIBERATE choice rather than
+    # an oversight. `records.py`'s docstring calls the category scan "a kernel subtree walk,
+    # not a Python filter" and names it the scaling path -- but the walk is unsound for any
+    # realistic write order. Atlas requires a node's children to be PHYSICALLY ADJACENT in
+    # the file, and `insert()` appends at the tail, so a bucket's child block can only grow
+    # while that bucket is the last thing written. Measured: write MEDIA, POSSESSION, MEDIA
+    # and `records_in_bucket("MEDIA")` returns ONE of the two -- while `all_records()`
+    # returns all three. Extraction emits records across many buckets per session, so
+    # interleaving is the normal case, not the exception.
+    #
+    # A silent subset is the one failure this layer must never have: counting is what it
+    # exists for, and a partial category scan turns a complete answer into a plausible wrong
+    # one. So the O(n) filter is CORRECT and the O(subtree) walk is BROKEN, and correctness
+    # wins until the kernel can hold a non-contiguous child set.
     records = store.all_records()
     if buckets:
         records = select_records(records, buckets=buckets)

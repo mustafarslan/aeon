@@ -209,7 +209,7 @@ class TraceManager:
     def delta_event_count(self) -> int:
         """Event count in delta buffer"""
 
-    def append_event(self, session_id: str, role: int, text: str, atlas_id: int = 0, embedding: Sequence[float] = [], edge_type: int = 0, supersedes_id: int = 0, reason_code: int = 0) -> int:
+    def append_event(self, session_id: str, role: int, text: str, atlas_id: int = 0, embedding: Sequence[float] = [], edge_type: int = 0, supersedes_id: int = 0, reason_code: int = 0, event_time: int = 0) -> int:
         """
         Append an episodic event. Returns the new event ID. embedding (v4-plan.md Stage 2 task 3): optional, empty by default = not embedded (excluded from semantic_search()). The FIRST non-empty embedding ever appended to this trace file fixes its embedding_dim; a later mismatched size raises ValueError. edge_type/supersedes_id/reason_code (v4-plan.md Stage 1/2 task 4): EdgeType/ReasonCode enum values (see schema.hpp) for a version/admission edge this event carries -- 0/None (default) means no edge. supersedes_id is in practice always a store-encoded Atlas node id, not a TraceEvent id -- see schema.hpp's TraceEvent doc comment (V4 STAGE 4 note).
         """

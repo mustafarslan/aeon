@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 
 from aeon_py.records import (
-    BUCKETS, Provenance, Record, RecordStore, _compress_indices, _expand_indices,
+    BUCKETS, Provenance, Record, RecordStore, _as_int, _compress_indices, _expand_indices,
     _utf8_truncate,
 )
 from aeon_py.trace import TraceGraph
@@ -298,3 +298,231 @@ def test_superseded_records_do_not_reach_the_rendered_context(tmp_root, unit_vec
                      provenance=Provenance("s1", (1,))), unit_vec)
     store.supersede(stale)
     assert "old salary" not in render_records(store.all_records())
+
+
+# --- bucket index persistence (v4.1 correctness) ------------------------------------
+
+def test_bucket_scan_survives_a_reopen(tmp_root, unit_vec):
+    """BUG FIX. `_bucket_nodes` was in-memory only, so a store opened over an existing file
+    started with an empty index and the subtree walk returned nothing. The bucket node and
+    its children were on disk the whole time."""
+    path = tmp_root / "r.atlas"
+    s1 = RecordStore(path, dim=DIM)
+    s1.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s1", (0,))), unit_vec)
+    del s1
+    s2 = RecordStore(path, dim=DIM)
+    assert [r.text for r in s2.records_in_bucket("MEDIA")] == ["Dune"]
+
+
+def test_reopen_does_not_mint_a_duplicate_bucket_node(tmp_root, unit_vec):
+    """The second-order failure, and the dangerous one: a duplicate bucket node made the
+    category scan return only what was written since the re-open -- a SILENT SUBSET, which
+    is the exact failure the structured scan exists to prevent."""
+    path = tmp_root / "r.atlas"
+    s1 = RecordStore(path, dim=DIM)
+    s1.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s1", (0,))), unit_vec)
+    del s1
+    s2 = RecordStore(path, dim=DIM)
+    before = _as_int(s2.atlas.size)
+    s2.add(Record(kind="ITEM", text="Arrival", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s2", (0,))), unit_vec)
+    assert _as_int(s2.atlas.size) - before == 1        # the record only, no second bucket
+    markers = sum(1 for i in range(_as_int(s2.atlas.size))
+                  if (s2._read_metadata(i) or "").startswith("BUCKET"))
+    assert markers == 1
+
+
+def test_category_scan_is_complete_across_a_reopen(tmp_root, unit_vec):
+    """Counting is what this layer exists for, so a partial scan is worse than no scan."""
+    path = tmp_root / "r.atlas"
+    s1 = RecordStore(path, dim=DIM)
+    s1.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s1", (0,))), unit_vec)
+    del s1
+    s2 = RecordStore(path, dim=DIM)
+    s2.add(Record(kind="ITEM", text="Arrival", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s2", (0,))), unit_vec)
+    assert sorted(r.text for r in s2.records_in_bucket("MEDIA")) == ["Arrival", "Dune"]
+
+
+def test_bucket_index_rebuild_ignores_ordinary_records(tmp_root, unit_vec):
+    path = tmp_root / "r.atlas"
+    s1 = RecordStore(path, dim=DIM)
+    s1.add(Record(kind="FACT", text="BUCKET-ish text that is not a marker",
+                  provenance=Provenance("s1", (0,))), unit_vec)
+    del s1
+    assert RecordStore(path, dim=DIM)._bucket_nodes == {}
+
+
+# --- erasure cascade to derived records (v4.1 correctness) --------------------------
+
+def test_erasure_cascades_to_records_derived_from_a_session(tmp_root, unit_vec):
+    """Records are PII DERIVED from conversation. `records_for_session()` is documented as
+    the right-to-erasure cascade index and had zero non-test callers, so erasing a node left
+    every record extracted from that session in place."""
+    from aeon_py.erasure import cascade_to_derived_records
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    keep = Record(kind="FACT", text="from another session", provenance=Provenance("keep", (0,)))
+    store.add(Record(kind="FACT", text="derived A", provenance=Provenance("erase", (0,))), unit_vec)
+    store.add(Record(kind="FACT", text="derived B", provenance=Provenance("erase", (1,))), unit_vec)
+    store.add(keep, unit_vec)
+
+    cascaded, failures = cascade_to_derived_records(store, ["erase"])
+    assert len(cascaded) == 2 and failures == []
+    assert [r.text for r in store.all_records()] == ["from another session"]
+
+
+def test_cascade_is_a_no_op_without_a_store_or_sessions(tmp_root, unit_vec):
+    from aeon_py.erasure import cascade_to_derived_records
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    store.add(Record(kind="FACT", text="x", provenance=Provenance("s1", (0,))), unit_vec)
+    assert cascade_to_derived_records(None, ["s1"]) == ([], [])
+    assert cascade_to_derived_records(store, []) == ([], [])
+    assert [r.text for r in store.all_records()] == ["x"]
+
+
+def test_cascade_reports_failures_rather_than_aborting(tmp_root, unit_vec):
+    """One record that will not tombstone must not abort the rest of the cascade.
+
+    The Atlas binding is read-only, so the flaky store is a stand-in rather than a patch --
+    which also keeps this test on `cascade_to_derived_records`'s contract instead of on
+    nanobind's attribute semantics."""
+    from aeon_py.erasure import cascade_to_derived_records
+
+    class _FlakyAtlas:
+        def __init__(self):
+            self.calls = 0
+            self.tombstoned = []
+
+        def tombstone_node(self, node_id):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("transient")
+            self.tombstoned.append(node_id)
+
+    class _FlakyStore:
+        def __init__(self):
+            self.atlas = _FlakyAtlas()
+
+        def records_for_session(self, session_id):
+            return [Record(kind="FACT", text="a", node_id=11),
+                    Record(kind="FACT", text="b", node_id=12)]
+
+    store = _FlakyStore()
+    cascaded, failures = cascade_to_derived_records(store, ["s"])
+    assert cascaded == [12] and len(failures) == 1
+    assert "transient" in failures[0]["reason"]
+    assert store.atlas.tombstoned == [12]        # the second record still went through
+
+
+def test_tombstoned_records_do_not_reach_the_rendered_context(tmp_root, unit_vec):
+    """The compliance twin of the supersession bug. `tombstone_node()` has no Python-visible
+    per-node predicate, so `range(atlas.size)` enumeration could not tell an erased node from
+    a live one -- an erased record still rendered into every prompt."""
+    from aeon_py.compose import render_records
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    gone = Record(kind="ITEM", text="erased fact", bucket="HEALTH", subtype="note",
+                  provenance=Provenance("s1", (0,)))
+    store.add(gone, unit_vec)
+    store.add(Record(kind="ITEM", text="kept fact", bucket="HEALTH", subtype="note",
+                     provenance=Provenance("s2", (0,))), unit_vec)
+    store.atlas.tombstone_node(gone.node_id)
+    assert "erased fact" not in render_records(store.all_records())
+    assert "kept fact" in render_records(store.all_records())
+
+
+def test_audit_view_does_not_resurrect_tombstoned_records(tmp_root, unit_vec):
+    """`include_superseded` is for audit paths, but a TOMBSTONE is terminal and a
+    right-to-erasure guarantee -- it must not be re-openable by an audit flag."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    gone = Record(kind="FACT", text="erased", provenance=Provenance("s1", (0,)))
+    store.add(gone, unit_vec)
+    store.atlas.tombstone_node(gone.node_id)
+    assert store.all_records(include_superseded=True) == []
+
+
+def test_compose_from_store_bucket_filter_uses_the_subtree_after_a_reopen(tmp_root, unit_vec):
+    """Ties the two fixes together: the bucket filter now goes through the kernel subtree
+    walk, which is only trustworthy because the bucket index is rebuilt on open. Before both
+    fixes this returned a silent subset across a restart."""
+    from aeon_py.compose import compose_from_store
+    path = tmp_root / "r.atlas"
+    s1 = RecordStore(path, dim=DIM)
+    s1.add(Record(kind="ITEM", text="Dune", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s1", (0,))), unit_vec)
+    s1.add(Record(kind="ITEM", text="a hammer", bucket="POSSESSION", subtype="tool",
+                  provenance=Provenance("s1", (1,))), unit_vec)
+    del s1
+    s2 = RecordStore(path, dim=DIM)
+    s2.add(Record(kind="ITEM", text="Arrival", bucket="MEDIA", subtype="film",
+                  provenance=Provenance("s2", (0,))), unit_vec)
+
+    class _NoTrace:
+        def get_history(self, session_id, limit):
+            return []
+
+    out = compose_from_store(s2, _NoTrace(), "Question: how many films?", buckets=["MEDIA"])
+    assert out["record_count"] == 2
+    assert "Dune" in out["prompt"] and "Arrival" in out["prompt"]
+    assert "a hammer" not in out["prompt"]
+
+
+def test_kernel_subtree_walk_is_unsound_for_interleaved_writes(tmp_root, unit_vec):
+    """PINS THE KERNEL LIMITATION that forced `records_in_bucket()` to become a filter, so it
+    cannot be rediscovered as a mystery -- and so nobody "optimises" the filter back into a
+    subtree walk.
+
+    Atlas registers a child only when its byte offset is exactly the next slot after the
+    parent's existing children, and `insert()` appends at the tail. Interleave two buckets and
+    the later children are invisible to `get_children()` forever. This asserts the KERNEL's
+    behaviour directly; if it ever starts failing, the kernel gained non-contiguous children
+    and the filter can go back to being a walk."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for text, bucket in (("A", "MEDIA"), ("H", "POSSESSION"), ("C", "MEDIA")):
+        store.add(Record(kind="ITEM", text=text, bucket=bucket, subtype="x",
+                         provenance=Provenance("s", (0,))), unit_vec)
+    walked = store._decode(np.frombuffer(
+        bytes(store.atlas.get_children_raw(store._bucket_nodes["MEDIA"])), dtype=np.uint64))
+    assert [r.text for r in walked] == ["A"]                                  # kernel: subset
+    assert sorted(r.text for r in store.records_in_bucket("MEDIA")) == ["A", "C"]   # filter: complete
+
+
+def test_category_scan_is_complete_under_interleaved_writes(tmp_root, unit_vec):
+    """The property the layer actually needs. Counting is what it exists for, so a partial
+    category scan turns a complete answer into a plausible wrong one."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    for text, bucket in (("Dune", "MEDIA"), ("album", "ACQUISITION"), ("Arrival", "MEDIA"),
+                         ("Alien", "MEDIA"), ("vinyl", "ACQUISITION")):
+        store.add(Record(kind="ITEM", text=text, bucket=bucket, subtype="x",
+                         provenance=Provenance("s", (0,))), unit_vec)
+    assert len(store.records_in_bucket("MEDIA")) == 3
+    assert len(store.records_in_bucket("ACQUISITION")) == 2
+
+
+def test_erasure_cascade_index_includes_superseded_records(tmp_root, unit_vec):
+    """A superseded record is excluded from PROMPTS, not from EXISTENCE. It is still PII
+    derived from the session, so an erasure cascade using the read-path default would
+    tombstone the live records and silently leave the retired ones on disk."""
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    old = Record(kind="ITEM", text="three tops", bucket="ACQUISITION", subtype="clothing",
+                 provenance=Provenance("erase", (0,)))
+    store.add(old, unit_vec)
+    store.add(Record(kind="ITEM", text="five tops", bucket="ACQUISITION", subtype="clothing",
+                     provenance=Provenance("erase", (1,))), unit_vec)
+    store.supersede(old)
+    assert [r.text for r in store.all_records()] == ["five tops"]          # prompt view
+    assert sorted(r.text for r in store.records_for_session("erase")) == [
+        "five tops", "three tops"]                                          # erasure view
+
+
+def test_erasure_cascade_reaches_superseded_records(tmp_root, unit_vec):
+    from aeon_py.erasure import cascade_to_derived_records
+    store = RecordStore(tmp_root / "r.atlas", dim=DIM)
+    old = Record(kind="FACT", text="retired but still PII", provenance=Provenance("erase", (0,)))
+    store.add(old, unit_vec)
+    store.supersede(old)
+    cascaded, failures = cascade_to_derived_records(store, ["erase"])
+    assert len(cascaded) == 1 and failures == []
+    assert store.all_records(include_superseded=True) == []

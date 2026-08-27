@@ -99,6 +99,7 @@ def create_erasure_case(
     requested_by: str,
     expires_at: datetime,
     required_approvals: int = 2,
+    session_ids: Optional[List[str]] = None,
 ) -> int:
     """Creates a four-eyes approval request for erasing `node_ids` from
     `shared_atlas`, plus the erasure_cases row tracking its completion.
@@ -123,7 +124,20 @@ def create_erasure_case(
     for node_id in node_ids:
         scope_mask |= shared_atlas.atlas.get_node_scope(node_id)
 
-    target = json.dumps({"node_ids": node_ids, "scope_mask": scope_mask})
+    # v4.1: the DERIVED-RECORD CASCADE, locked into the approval request alongside the
+    # node ids. Records are PII derived from conversation -- `records.py` names
+    # `provenance.session_id` as the right-to-erasure cascade index -- and until now
+    # nothing cascaded: `records_for_session()` had zero non-test callers, so erasing a
+    # node left every record extracted from that session in place.
+    #
+    # Sessions are named EXPLICITLY rather than derived from the node ids, because they
+    # cannot be derived: `Atlas.insert(..., session_id)` routes the SLB cache lookup and
+    # is not stored on the node, and `drop_session()` drops a cache entry, not data. There
+    # is no node -> session getter. Naming them here is also the auditable choice -- a
+    # four-eyes request should state everything it will destroy, and the cascade is
+    # therefore approved rather than inferred at execution time.
+    target = json.dumps({"node_ids": node_ids, "scope_mask": scope_mask,
+                         "session_ids": list(session_ids or [])})
     request_id = admin_db.create_approval_request(
         action=_APPROVAL_ACTION_ERASURE,
         target=target,
@@ -133,6 +147,35 @@ def create_erasure_case(
         required_approvals=required_approvals,
     )
     return erasure_db.create_case(approval_request_id=request_id)
+
+
+def cascade_to_derived_records(record_store, session_ids) -> tuple[List[int], List[dict]]:
+    """Tombstone every record derived from `session_ids`. Returns `(cascaded, failures)`.
+
+    Extracted from `execute_approved_erasure()` so it is testable without a live control
+    plane -- the erasure workflow tests need Postgres and are opt-in locally, which is
+    exactly how a cascade could ship unverified.
+
+    Best-effort per record: one record that will not tombstone must not abort the rest of
+    the cascade, nor undo the node erasure that has already happened. Failures are returned
+    and land in the receipt rather than being silently dropped -- the same discipline the
+    node loop above uses for `could_not_erase`.
+    """
+    cascaded: List[int] = []
+    failures: List[dict] = []
+    if record_store is None or not session_ids:
+        return cascaded, failures
+    for session_id in session_ids:
+        for rec in record_store.records_for_session(session_id):
+            if rec.node_id is None:
+                continue
+            try:
+                record_store.atlas.tombstone_node(rec.node_id)
+                cascaded.append(rec.node_id)
+            except Exception as exc:
+                failures.append({"node_id": rec.node_id, "session_id": session_id,
+                                 "reason": f"{type(exc).__name__}: {exc}"})
+    return cascaded, failures
 
 
 def execute_approved_erasure(
@@ -145,6 +188,7 @@ def execute_approved_erasure(
     audit_log: AuditLog,
     governance_db: Optional["GovernanceDB"] = None,
     keystore: Optional["Keystore"] = None,
+    record_store: Optional[object] = None,
 ) -> dict:
     """Executes an already-approved erasure case: tombstones every target
     node id it can, and records a completion receipt for all of them --
@@ -215,6 +259,7 @@ def execute_approved_erasure(
     params = json.loads(req["target"])
     node_ids = params["node_ids"]
     scope_mask = int(params["scope_mask"])
+    session_ids = params.get("session_ids", [])
 
     erased: List[int] = []
     could_not_erase: List[dict] = []
@@ -279,7 +324,17 @@ def execute_approved_erasure(
         except ValueError as e:
             could_not_erase.append({"node_id": node_id, "reason": str(e)})
 
-    receipt = {"erased": erased, "could_not_erase": could_not_erase}
+    # THE DERIVED-RECORD CASCADE. Runs after the node tombstones because the logical
+    # delete of the named nodes is the primary, always-attempted guarantee -- the same
+    # ordering the crypto-erase step above uses, and for the same reason. Best-effort per
+    # record: one record that will not tombstone must not abort the rest of the cascade or
+    # undo the node erasure, and it is reported rather than silently dropped.
+    cascaded, could_not_cascade = cascade_to_derived_records(record_store, session_ids)
+
+    receipt = {"erased": erased, "could_not_erase": could_not_erase,
+               "cascaded_records": cascaded,
+               "could_not_cascade_records": could_not_cascade,
+               "cascade_session_ids": list(session_ids)}
 
     seq = audit_log.append(
         action=_ACTION_ERASURE,
