@@ -6348,11 +6348,37 @@ questions the composite **correctly identifies the missing information and then 
 | `gpt4_93159ced_abs` | not enough info -- hasn't started at Google | "you do not work at Google; you are a Backend Developer at NovaTech..." |
 | `gpt4_70e84552_abs` | not enough info -- no cow purchase | "There is no record of you purchasing three cows from Peter; in fact..." |
 
-ETC answers these with "Not enough information" / "I don't know" and scores. **This is not
-hallucination -- the composite's content is correct on every one.** It is an *abstention-behaviour*
-failure: a record-dense context makes the model substantive and helpful where the judge requires an
-explicit refusal. The guard's clause was written for "consolidated records actively cost accuracy on
-ordinary questions"; what was measured is narrower and specific to answer form.
+ETC answers these with "Not enough information" / "I don't know" and scores.
+
+**CORRECTION to this section's own first draft, made after reading the six responses in full rather
+than in excerpt.** The first draft called this "an answer-form failure, not hallucination -- the
+content is correct on every one," and cited the correct-preamble half of each response. **That was
+wrong, and it was wrong in the flattering direction.** Read whole, five of the six identify the
+missing premise **and then override themselves with a committed final answer**:
+
+| question | composite's preamble | composite's final answer |
+|---|---|---|
+| `88432d0a_abs` | "there is no mention of you baking egg tarts" | **"Answer: 0"** |
+| `edced276_abs` | "there are **no records** of a trip to Seattle" | **"Total: 10 days"** |
+| `gpt4_372c3eed_abs` | "no record of [a Master's] being completed" | **"Total: 10 years"** |
+| `gpt4_93159ced_abs` | "you do not work at Google" | computes **"4 years and 9 months"** |
+| `gpt4_70e84552_abs` | "There is no record of you purchasing three cows" | **"you completed fixing the fence first"** |
+| `031748ae_abs` | -- does not identify the gap at all -- | "either 4 or 5" |
+
+So the preamble is right and **the answer is wrong**. It is not a formatting problem, and the
+composite is not merely failing to say the magic words: it already emits `Answer:` lines (`Answer: 0`
+is one of them). **It recognises the unsupported premise and computes over the rest of the context
+anyway.** The judge is not the artifact either -- its abstention rubric explicitly accepts "some
+other information is given but the asked information is not," which is generous enough to have passed
+the preamble alone, and it still scored these `no`. It scored them correctly.
+
+**The real mechanism, and it is the uncomfortable one: this regression is a direct consequence of the
+thing that wins the run.** ETC abstains here because its extract stage found nothing to compute with.
+The composite has ~270 records in context and therefore always has *something* to compute with, so it
+computes. **The same density that recovers 22 of 27 known retrieval misses is what induces
+over-answering on unsupported premises.** That is a genuine tension in this design, not a missing
+prompt clause -- and any fix must be measured against **both** slices, because suppressing commitment
+is exactly the behaviour the 22/27 depends on.
 
 **BAR 3 -- KNOWN-MISS FLOOR (>= 15 of 27): PASS, 22/27 against ETC's 2/27** -- the 85-run's central
 result reproduces at full scale.
