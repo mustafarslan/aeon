@@ -460,10 +460,17 @@ effect rather than inflating it.
 | **reader swap, composite arms** (clean) | **+20** | +32/−12 | **0.0037** |
 | **reader swap, oracle arms** | **+38** | +49/−11 | **7.6 × 10⁻⁷** |
 
-**The consolidated layer holds statistical parity with perfect gold-evidence selection on both reader
-tiers** — nominally ahead on the 31B open-weights reader, nominally behind on the frontier reader,
-neither significant — while using **no gold annotations**. The dev split predicted this: it put the
-composite 8 behind its own ceiling and the full run put it 9 behind.
+**The consolidated layer reaches gold-evidence accuracy from production-available inputs on both
+reader tiers, and no significant difference is detectable at n=500** — nominally ahead on the 31B
+open-weights reader, nominally behind on the frontier reader, neither significant, using **no gold
+annotations**. The dev split predicted this: it put the composite 8 behind its own ceiling and the
+full run put it 9 behind.
+
+⚠️ **That is a failure to reject, not a demonstration of equivalence.** With discordant pairs in the
+80s the interval comfortably admits a real difference of several questions, and an equivalence test
+would be required to claim parity. The sentence above is the defensible one and "establishes parity"
+is not — a distinction §8c.8 makes moot in any case, since the per-stratum result below is a strictly
+stronger claim than parity.
 
 **The stronger reader helps gold evidence roughly twice as much as it helps consolidated records**
 (+38 vs +20). Both effects are significant and the ratio's confidence interval is wide, so this is
@@ -612,9 +619,11 @@ at best, and this project has already paid four hours to learn that.
 | 2 | 229 | **93.0%** | 91.7% | 89.5% |
 | **3+** | **68** | **75.0%** | **89.7%** | **55.9%** |
 
-**The composite beats gold-evidence selection at one and two answer turns, on both readers.** Its
-entire deficit is the 68 questions requiring three or more: 51/68 against the oracle's 61/68 — a gap of
-10, which is the whole −9 net difference between the arms. *Consolidation is not losing evidence; it is
+**The composite beats gold-evidence selection at one and two answer turns, on both readers.** Those
+two strata are **411 of 500 questions — 82.2% of the benchmark** — and the composite leads on both of
+them under each reader while holding no gold annotations at all. Its entire deficit is the 68
+questions requiring three or more: 51/68 against the oracle's 61/68 — a gap of 10, which is the whole
+−9 net difference between the arms. *Consolidation is not losing evidence; it is
 losing multi-fact aggregation over evidence it holds.*
 
 That is also where the reader swap lands: the 3+ bucket moves **55.9% → 75.0%** on the reader change
@@ -628,6 +637,74 @@ for them. It is not: the harness falls back to ordinary top-8 retrieval (`ABSTEN
 `unit="none"`), landing at a median 6,164 chars. **The oracle's abstention advantage is earned, not
 free** — and the mechanism is the one §8b named: it abstains on ~6k chars of retrieved text where the
 composite holds ~270 records and 26k chars, and therefore always has something to compute with.
+
+### 8c.8 What the 3+ deficit is made of — and why write-time clustering cannot reach it
+
+*§8c.7 localises the entire residual to 68 questions and names it "aggregation". That name is too
+coarse to design against, so the 17 losses were read individually before any fix was built.*
+Zero LLM calls; reproduced by `scripts/longmemeval/aggregation_failure_read.py`, which re-derives the
+stratum and **aborts unless it reproduces n=68 / composite 51 / oracle 61** before reporting anything.
+
+The obvious fix — and the one an external design note proposed — is a pre-aggregated cluster record
+written at consolidation time, whose cheap deterministic form is a per-category roster header
+(`ITEM(ACQUISITION/music album) — 3 items:`) computed over `EntityGroup`s at render time. It is worth
+building only if the header would print the **gold** number, because a header that prints a wrong one
+is worse than none: it hands the reader a computed value to be confident about, and §6.4/§6.7 already
+measure what confident-and-wrong costs here.
+
+**The losses are not enumerations.**
+
+| shape | n | what the question actually asks |
+|---|---|---|
+| **windowed** | 5 | count a category *inside a date window* — "in the past two weeks", "in March", "before I made an offer" |
+| **order** | 3 | rank by date — "what is the order of the three trips" |
+| **predicate** | 3 | count members satisfying a property the taxonomy does not encode — "projects I *led*", "kitchen items I *replaced or fixed*" |
+| **argmax** | 2 | extremum of a per-entity quantity — "which store did I spend the most at" |
+| **enumerate** | 3 | plain category count — the roster's design target |
+| **arithmetic** | 1 | sum quantities stated inside records |
+
+**13 of 17 apply a filter the question supplies at read time**, and that is the finding: *you cannot
+pre-aggregate over a predicate you do not know at write time.* Write-time clustering can only produce
+the unfiltered total — which is the number the reader is already getting wrong, in the other direction.
+
+**What the header would print:** gold on 1 of 17; gold only if entities are merged across buckets on 1;
+a wrong number on 2; and **no defined value at all on 7** (6 where the target category fragments into
+runs of differing sizes, 1 with no matching run). At most 2 conversions from a 51/68 baseline reaches
+53 against a bar of 58 — **the intervention cannot clear a gate set at the oracle's own level even at
+zero losses**, so it was not built. Two cases are active harm rather than nulls: on `gpt4_a56e767c` the
+header prints 3, the model answered 3, gold is 4; on `9d25d4e0` it prints 4, the model answered 4, gold
+is 3. In both the header would have *confirmed* the wrong answer.
+
+**Two flattering readings were removed from the check itself, both moving the number the unfavourable
+way.** Scoring convertibility as "some run in the corpus has exactly the gold size" gave **7 of 17**
+and was coincidence matching — on `88432d0a`, a baking question with gold 4, it matched `TRAVEL/trip=4`,
+and on `6d550036` fifteen distinct runs had size 2 in a corpus of 121 groups. Replaced by a table that
+names the target category per question, so the judgement is explicit and the arithmetic over it
+mechanical. Then scoring the largest matching run as "printed" turned `6d550036` into a conversion when
+its target fragments into `PROJECT/=2, PROJECT/event=2, PROJECT/academic=1, PROJECT/art series=1` and
+no single number would be printed at all. That moved the headline from 2 conversions to 1.
+
+**One real signal, recorded as a footnote rather than a track.** `bf659f65` is the canonical case
+`records.py` is built on ("how many albums have I purchased?", gold 3, every arm answers 2). All three
+albums *are* present — split `ACQUISITION/music album` ×2 and `POSSESSION/music album` ×1. Counting
+entities by **subtype across buckets** yields 3; counting the primary-bucket run yields 2. The keying
+question therefore resolves against the shipped axis, and it is worth ~2 questions.
+
+**The successor problem, named precisely.** The open direction is not "aggregation" but **dynamic
+read-time filtered aggregation**: computing a count, an order or an extremum over a subset selected by
+a predicate — most often a relative date window — that exists only in the question. Every mechanism
+this project has tried lives on the wrong side of that boundary. Write-time consolidation cannot see
+the predicate; render-time totals cannot condition on it; and reader-side instruction has now returned
+five nulls at asking the model to do it unaided (§6.7). A sixth prompt is not the answer, and neither
+is more context — §8c.7 shows more context is what makes this stratum worse.
+
+*One structural observation, offered as a hypothesis and explicitly not as a result.* 8 of the 17
+losses are windowed or ordering questions requiring date arithmetic over ITEM records, and
+`order_records()` deliberately does **not** sort ITEMs chronologically — it groups them by
+bucket/subtype, and the measured chronology intervention (§6.7) left ITEM ordering untouched by
+design, because that grouping is what counting depends on. So the interaction between category
+grouping and date order has never been measured, and the losses sit precisely on it. That is a
+pre-registration waiting to be written, not a finding.
 
 ## 9. The write path: cross-session supersession
 
@@ -748,6 +825,31 @@ each was reproduced before being fixed.
       is its narrower claim: those errors are not reachable *by record hygiene or by instruction*.
       §8c.6 sharpens it — the write-side residual is ~10 of 500 on both readers and is an upper bound
       twice over, so extraction is near-saturated and the remainder is reader-bound.
+- [x] **"Aggregation" is now named precisely, and one proposed fix is closed out before being built.**
+      §8c.8 reads all 17 losses in the 3+ stratum: **13 of 17 apply a filter the question supplies at
+      read time** (5 windowed, 3 ordering, 3 ad-hoc predicates, 2 argmax) and only 3 are the plain
+      category enumerations a pre-aggregated cluster record could serve. A deterministic roster header
+      would print gold on 1 of 17, a wrong number on 2, and nothing defined on 7 — reaching at most 53
+      from a 51/68 baseline, so it cannot clear a bar set at the oracle's own 61 even at zero losses.
+      **Not built.** The successor problem is **dynamic read-time filtered aggregation**, and it is
+      genuinely open: write-time consolidation cannot see the predicate, render-time totals cannot
+      condition on it, and reader-side instruction has now returned five nulls.
+- [ ] **Chronological ordering of ITEM records has never been measured**, and 8 of the 17 losses are
+      windowed or ordering questions needing date arithmetic over exactly those records. §6.7's
+      chronology null covered EVENT and UPDATE and left ITEM ordering untouched by design, since
+      bucket grouping is what counting depends on. The interaction is unmeasured and the losses sit on
+      it. This is a hypothesis awaiting its own one-shot pre-registration, not a finding — and it
+      belongs to the same reader-side family that has returned five nulls, so it inherits that
+      protocol.
+- [x] **Point-in-time (`as_of`) traversal ships as a product capability with no accuracy claim.**
+      Derived from provenance rather than stored: there is no per-record timestamp and there cannot be
+      one (`NodeHeader` is full at 64 bytes; `Record.decode()` folds an eighth field into `text`), so a
+      record's validity is the latest `event_time` among the turns it came from — valid time, not
+      transaction time, which is what "as of March" means. Both halves of the assembly are cut, since
+      a record block filtered to March beside excerpts quoting September is a leak that reads as a
+      historical view. LongMemEval asks every question at T_now, so this cannot move a benchmark number
+      and is not gated on one. Fidelity bound: `run_merge()` *removes* a stale record rather than
+      superseding it, so `as_of` reconstructs what supersession retired, not what the merge dropped.
 - [ ] (superseded framing) 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
       wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
       oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.
