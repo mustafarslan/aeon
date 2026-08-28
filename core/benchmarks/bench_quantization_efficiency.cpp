@@ -170,6 +170,50 @@ BENCHMARK_REGISTER_F(QuantizationFixture, BM_Navigate)
     ->ReportAggregatesOnly(true);
 
 // ---------------------------------------------------------------------------
+// BM_Navigate_SLBWarm — search latency ON THE SLB HIT PATH
+// ---------------------------------------------------------------------------
+//
+// BM_Navigate above deliberately defeats the Semantic Lookaside Buffer, cycling
+// a pool of distinct queries so it measures COLD tree traversal. That is the
+// right instrument for the question "how fast is a traversal", and the wrong
+// one for "how fast is Aeon", because the SLB is part of the system and its hit
+// path is a real production path: navigate() consults
+// slb_cache_->find_nearest(session_id, query, SLB_HIT_THRESHOLD) before
+// descending, and that is a SIMILARITY threshold, not bit-equality -- it serves
+// the near-duplicate queries conversational locality actually produces.
+//
+// Reporting only the cold number understates the system; reporting only the
+// warm number (as versions 1-3 did, by accident) overstates it AND misattributes
+// the result, since on a cache hit the storage format is nearly irrelevant and
+// the apparent INT8 advantage is not quantization doing the work. Both are
+// measured here so the paper can report both, each labelled for what it is.
+//
+// A repeated query is the CEILING of the locality spectrum, not a typical
+// workload: it pins the hit path's cost, and the achieved latency in production
+// is an interpolation between these two bounds at the deployment's real hit rate.
+BENCHMARK_DEFINE_F(QuantizationFixture, BM_Navigate_SLBWarm)
+(benchmark::State &state) {
+  // One query, reused: every iteration after the first is served by the SLB.
+  const auto &warm_query = query_pool[0];
+  auto warm_up = atlas->navigate(std::span<const float>{warm_query});
+  benchmark::DoNotOptimize(warm_up);
+
+  for (auto _ : state) {
+    auto results = atlas->navigate(std::span<const float>{warm_query});
+    benchmark::DoNotOptimize(results);
+  }
+  state.SetItemsProcessed(state.iterations());
+}
+
+BENCHMARK_REGISTER_F(QuantizationFixture, BM_Navigate_SLBWarm)
+    ->Args({100'000, aeon::QUANT_FP32})
+    ->Args({100'000, aeon::QUANT_INT8_SYMMETRIC})
+    ->Unit(benchmark::kMicrosecond)
+    ->Iterations(QUERY_POOL_SIZE)
+    ->Repetitions(5)
+    ->ReportAggregatesOnly(true);
+
+// ---------------------------------------------------------------------------
 // BM_Insert — Write throughput with quantize-on-write overhead
 // ---------------------------------------------------------------------------
 BENCHMARK_DEFINE_F(QuantizationFixture, BM_Insert)
