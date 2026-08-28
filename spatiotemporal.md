@@ -71,12 +71,23 @@ before they appear in a paper**; they are recorded here as claims, not as verifi
 | Mastra | 94.87% — **collapsing to 84.23% on `gpt-4o`** | `gpt-5-mini` |
 | Mem0 | 94.4–94.8% | frontier |
 
-Mastra's own 10.6-point collapse under a reader swap is the cleanest external evidence that these
-numbers are reader-bound. This project measures the same thing directly and internally: swapping
-`gemma4:31b` → `glm-5.2` moves the composite **+20** and the gold-evidence ceiling **+38**, and the
-gold ceiling at `glm-5.2` is 91.4%. **Consolidation caps the headroom a stronger reader can
-exploit** — a record is a lossy summary fixed at write time, while raw turns retain everything a
-better reader might newly extract.
+Mastra's own 10.6-point collapse under a reader swap is external evidence that these numbers are
+reader-sensitive. This project measures the same thing internally: swapping `gemma4:31b` → `glm-5.2`
+moves the composite **+20** and the gold-evidence ceiling **+38**, and the gold ceiling at `glm-5.2`
+is 91.4%. **Consolidation caps the headroom a stronger reader can exploit** — a record is a lossy
+summary fixed at write time, while raw turns retain everything a better reader might newly extract.
+
+**But the reader lever saturates, and this was tested rather than assumed (§8c.9).** A second
+frontier-class reader, `deepseek-v4-pro:cloud`, run on the dev split at **byte-identical prompts**
+with the judge held fixed and recorded, lands at **223/252 against `glm-5.2`'s 224 — net −1,
+p=1.000**, with only 13 of 252 pairs discordant. One rung of the ladder does not predict the next.
+
+So *"the gap to the 94–96% systems is reader capability"* is **too coarse as stated**, and this
+document previously overstated it. What is established is that a **weak** reader binds — the
+gemma→glm swap is the largest effect measured anywhere in this project. What is **not** established
+is that further reader capability is a lever at all, and one measurement now says it is not. The
+remaining candidates for the difference are the memory pipeline, the benchmark's answer conventions,
+and the judge: the published results use GPT-4o as judge and these do not.
 
 ## 3. The residual, localised
 
@@ -163,15 +174,21 @@ Abstention is also the smallest bucket (+11 maximum). If revisited it needs a qu
 ## 7. Honest ceiling arithmetic
 
 From 448 on `glm-5.2`: aggregation ~+10 (now known not to be reachable by write-time clustering),
-abstention +11 maximum with the naive fix already measured at −28, empty-generation repair ≤+4 and
-declared-repair-only. **The ceiling of the memory layer's own tracks is roughly 458–462
-(91.6–92.4%).** Crossing 470 requires a stronger reader, which is the honest answer to the 94–96%
-leaderboard question and the thing §3 demonstrates directly rather than infers.
+abstention +11 maximum with the naive fix already measured at −28, empty-generation repair **closed
+at +1**. **The ceiling of the memory layer's own tracks is roughly 458–462 (91.6–92.4%).**
+
+The earlier version of this section said crossing 470 "requires a stronger reader". **That no longer
+survives §8c.9**: a second frontier-class reader at identical prompts moved the result by −1. The
+honest statement is that **no currently identified lever reaches 470** — not the memory layer's own
+tracks, and not, on the one datum available, a further reader upgrade. Closing that gap is an open
+research question, and dynamic read-time filtered aggregation (§4) is this project's candidate for
+where it lives.
 
 ## 8. Reproducing anything here
 
 ```bash
 python3 scripts/longmemeval/cross_model_table.py              # §1 arms and contrasts
+#   composite_deepseek_dev.json  vs  composite_glm52_n500.json  # §2, the reader-saturation probe
 python3 scripts/longmemeval/residual_error_profile.py         # residual partition
 .venv/bin/python scripts/longmemeval/aggregation_failure_read.py   # §4, aborts unless 68/51/61
 .venv/bin/python -m pytest tests/test_time_travel.py -q            # §5

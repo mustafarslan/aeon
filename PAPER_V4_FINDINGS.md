@@ -724,6 +724,58 @@ design, because that grouping is what counting depends on. So the interaction be
 grouping and date order has never been measured, and the losses sit precisely on it. That is a
 pre-registration waiting to be written, not a finding.
 
+### 8c.9 A second frontier reader: the reader lever saturates
+
+*§8c.2's largest effect is the reader swap (+20 composite, +38 oracle), and §8c.6 concludes the
+residual is reader-bound. That invites an obvious extrapolation — keep going up the reader ladder.
+It was tested, and it does not extrapolate.*
+
+`deepseek-v4-pro:cloud` was run on the dev split at **byte-identical prompts**, with
+`--assert-prompt-parity` enforced against the committed `glm-5.2` arm and **`judge_model` recorded**
+as `gemma4:31b-cloud` — so the reader is the only variable, and this time that is an enforced
+property of the artefact rather than an intent in a log.
+
+| composite arm, dev n=252, judge fixed at `gemma4:31b-cloud` | correct | acc | median gen s |
+|---|---|---|---|
+| reader `glm-5.2:cloud` | 224 | 88.9% | 4.07 |
+| reader `deepseek-v4-pro:cloud` | **223** | **88.5%** | **1.70** |
+
+**Net −1, McNemar +8/−9, p = 1.000.** All 252 prompt-length deltas are exactly 0.
+
+| reader swap | net | p |
+|---|---|---|
+| `gemma4:31b` → `glm-5.2` (composite, n=500) | **+20** | **0.0037** |
+| `glm-5.2` → `deepseek-v4-pro` (composite, n=252) | **−1** | 1.000 |
+
+**The ladder is not monotone in reader capability, and one rung does not predict the next.** Two
+readers of comparable class, given the same prompt and scored by the same judge, land within one
+question of each other while an earlier swap moved twenty. Only 13 of 252 pairs are discordant at
+all — the two readers are largely making the same decisions, not trading errors.
+
+*A judge-provenance check, since the comparator predates the metadata fix.* `composite_glm52_dev.json`
+records no `judge_model` (§8c.1's defect: `--judge-model` defaults to `--model`, so a held-fixed judge
+was indistinguishable from a self-judge in the artefact). The comparison was therefore repeated against
+the dev subset of `composite_glm52_n500.json`, whose judge parity was verified by re-judging. **Both
+comparators give net −1 at p=1.000**, and the two `glm` artefacts agree with each other on these 252
+questions (net 0, +5/−5) — so the conclusion does not rest on the unverified one.
+
+**What this changes.** "The gap to the 94–96% systems is reader capability" (§8c.6, and this project's
+standing reading) is now **too coarse as stated**. It is established that a *weak* reader is a binding
+constraint — the `gemma4:31b` → `glm-5.2` swap is the largest effect measured anywhere here. It is
+**not** established that further reader capability is a lever at all, and one datum now says it is
+not. Whatever separates this stack from the published 94–96% results is therefore not "use a frontier
+reader"; the remaining candidates are the memory pipeline itself, the benchmark's answer conventions,
+and the judge — the official results use GPT-4o as judge, this one does not.
+
+*Recorded but not claimed:* the −1 decomposes as abstention +3 (9→12) and temporal-reasoning −4
+(58→54), which is essentially the whole discordance. At 13 discordant pairs those are directions, not
+effects, and no per-type claim is attached.
+
+*One free observation with no accuracy content:* at identical prompts `deepseek-v4-pro` is **2.4×
+faster at the median** (1.70 s vs 4.07 s). §8c.4 established that generation latency is a reader
+property rather than contention; this is a second instance, and the cheaper reader is the faster one
+here.
+
 ## 9. The write path: cross-session supersession
 
 **The operation per-session extraction structurally cannot perform.** Extraction runs per session and
