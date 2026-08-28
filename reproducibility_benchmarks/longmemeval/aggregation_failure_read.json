@@ -1,0 +1,178 @@
+{
+ "stratum": {
+  "n": 68,
+  "composite": 51,
+  "oracle": 61
+ },
+ "shapes": {
+  "argmax": 2,
+  "arithmetic": 1,
+  "enumerate": 3,
+  "order": 3,
+  "predicate": 3,
+  "windowed": 5
+ },
+ "verdicts": {
+  "NOT-A-COUNT": 6,
+  "WOULD-PRINT-GOLD": 1,
+  "GOLD-ONLY-IF-MERGED-ACROSS-BUCKETS": 1,
+  "WOULD-PRINT-WRONG": 2,
+  "AMBIGUOUS-FRAGMENTED-RUNS": 6,
+  "NO-SINGLE-RUN": 1
+ },
+ "losses": [
+  {
+   "question_id": "gpt4_2ba83207",
+   "shape": "argmax",
+   "gold_n": null,
+   "roster_would_print": null,
+   "merged_across_buckets": null,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_2f56ae70",
+   "shape": "argmax",
+   "gold_n": null,
+   "roster_would_print": null,
+   "merged_across_buckets": null,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "aae3761f",
+   "shape": "arithmetic",
+   "gold_n": null,
+   "roster_would_print": 4,
+   "merged_across_buckets": 4,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "1a8a66a6",
+   "shape": "enumerate",
+   "gold_n": 2,
+   "roster_would_print": 2,
+   "merged_across_buckets": 4,
+   "verdict": "WOULD-PRINT-GOLD",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "bf659f65",
+   "shape": "enumerate",
+   "gold_n": 3,
+   "roster_would_print": 2,
+   "merged_across_buckets": 3,
+   "verdict": "GOLD-ONLY-IF-MERGED-ACROSS-BUCKETS",
+   "oracle_correct": false
+  },
+  {
+   "question_id": "gpt4_a56e767c",
+   "shape": "enumerate",
+   "gold_n": 4,
+   "roster_would_print": 3,
+   "merged_across_buckets": 3,
+   "verdict": "WOULD-PRINT-WRONG",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_7f6b06db",
+   "shape": "order",
+   "gold_n": null,
+   "roster_would_print": 8,
+   "merged_across_buckets": 8,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_d6585ce8",
+   "shape": "order",
+   "gold_n": null,
+   "roster_would_print": null,
+   "merged_across_buckets": null,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_f420262c",
+   "shape": "order",
+   "gold_n": null,
+   "roster_would_print": 5,
+   "merged_across_buckets": 5,
+   "verdict": "NOT-A-COUNT",
+   "oracle_correct": false
+  },
+  {
+   "question_id": "46a3abf7",
+   "shape": "predicate",
+   "gold_n": 3,
+   "roster_would_print": 5,
+   "merged_across_buckets": 5,
+   "verdict": "WOULD-PRINT-WRONG",
+   "oracle_correct": false
+  },
+  {
+   "question_id": "6d550036",
+   "shape": "predicate",
+   "gold_n": 2,
+   "roster_would_print": 2,
+   "merged_across_buckets": 19,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_ab202e7f",
+   "shape": "predicate",
+   "gold_n": 5,
+   "roster_would_print": null,
+   "merged_across_buckets": null,
+   "verdict": "NO-SINGLE-RUN",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "88432d0a",
+   "shape": "windowed",
+   "gold_n": 4,
+   "roster_would_print": 10,
+   "merged_across_buckets": 12,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "9d25d4e0",
+   "shape": "windowed",
+   "gold_n": 3,
+   "roster_would_print": 4,
+   "merged_across_buckets": 6,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "a9f6b44c",
+   "shape": "windowed",
+   "gold_n": 2,
+   "roster_would_print": 3,
+   "merged_across_buckets": 9,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": true
+  },
+  {
+   "question_id": "gpt4_2f8be40d",
+   "shape": "windowed",
+   "gold_n": 3,
+   "roster_would_print": 6,
+   "merged_across_buckets": 15,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": false
+  },
+  {
+   "question_id": "gpt4_7fce9456",
+   "shape": "windowed",
+   "gold_n": 4,
+   "roster_would_print": 2,
+   "merged_across_buckets": 10,
+   "verdict": "AMBIGUOUS-FRAGMENTED-RUNS",
+   "oracle_correct": true
+  }
+ ]
+}
