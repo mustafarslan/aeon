@@ -60,30 +60,55 @@ composite uses no gold annotations at all.
 
 ## 2. The competitor claims, checked against their sources
 
-*Every figure below was verified against the publishing source on 2026-08-28. The table in the
-previous draft of this document was wrong in three separate ways, and all three flattered the
-competitors.*
+*Every figure below was verified on **2026-08-28** against the publishing source, and every quote was
+then re-checked against the raw page rather than a summariser's paraphrase. The table in the first
+draft of this document was wrong in three ways, and all three flattered the comparison.*
 
-| system | claimed | what the number actually is | reader | judge |
-|---|---|---|---|---|
-| MemPalace | 96.6% | **retrieval recall @5, not QA accuracy** — "whether the correct session appears in top-5" | n/a | n/a |
-| Exabase M-1 | 96.4% | QA at top-50 retrieval, all 500 | Gemini 3 Flash | **Gemini 3 Flash — self-judged** |
-| OMEGA | 95.4% | **task-averaged over 5 categories**; raw is **466/500 = 93.2%** | GPT-4.1 | **GPT-4.1 — self-judged** |
-| Mastra | 94.87% | **unweighted average over 6 categories**, `longmemeval_s` | `gpt-5-mini` | `gpt-4o` |
-| Mem0 | 94.4% | reported as overall accuracy | not stated | GPT-4o |
-| **Aeon** | **89.6%** | **raw micro over all 500, abstention included** | `glm-5.2` | `gemma4:31b` |
+| system | headline | what the number is | reader | judge | source (accessed 2026-08-28) |
+|---|---|---|---|---|---|
+| MemPalace | 96.6% | **R@5 retrieval recall** — explicitly *not* QA accuracy | n/a | n/a | [BENCHMARKS.md](https://github.com/MemPalace/mempalace/blob/main/benchmarks/BENCHMARKS.md), Mar 2026 |
+| Exabase M-1 | 96.4% | QA at top-50 retrieval | Gemini 3 Flash | **Gemini 3 Flash — self-judged** | [exabase.io](https://exabase.io/research/exabase-achieves-state-of-the-art-on-longmemeval-benchmark), Aug 7 2026 |
+| OMEGA | 95.4% | **task-averaged**; raw **466/500 = 93.2%** | GPT-4.1 | **GPT-4.1 — self-judged** | [omegamax.co](https://omegamax.co/benchmarks), Feb 2026 |
+| Mastra | 94.87% | **unweighted mean over 6 categories**, `longmemeval_s` | `gpt-5-mini` | `gpt-4o` | [mastra.ai](https://mastra.ai/research/observational-memory), Feb 9 2026 |
+| Mem0 | 94.4% | overall accuracy | not disclosed | GPT-4o *(per their blog, not a methods section)* | [mem0.ai/research](https://mem0.ai/research), Aug 27 2026 |
+| **Aeon** | **89.6%** | **raw micro over 500, abstention included** | `glm-5.2` | `gemma4:31b` | `composite_glm52_n500.json` |
 
-**Three defects, and this document previously repeated all of them.**
+### The three defects, with the receipts
 
-1. **MemPalace's 96.6% is not a QA score.** It is R@5 retrieval recall. Placing it in a column of
-   end-to-end accuracies is a category error — and it is the same error §6.11 records an external
-   evaluation making about *this* work, in the opposite direction.
-2. **Two of the three leaders are self-judged.** Exabase M-1 and OMEGA use one model to both answer
-   and grade. §8c.1 of the findings spends a full section on why that is disqualifying — a self-judged
-   arm is comparable to nothing — and this project re-judged 80 hypotheses under an explicit external
-   judge to prove its own arms were not. Neither of those two did the equivalent.
-3. **"95.4%" and "94.87%" are macro averages; 89.6% is a micro average.** They are different metrics.
-   OMEGA states its own raw score: **466/500**.
+**1. A retrieval metric was being read as a QA score — and that error is entirely ours.**
+MemPalace's own document flags it in bold, above the table:
+
+> "**Important caveat — read before quoting this table.** MemPal's `R@5` in this table is **retrieval
+> recall**: is the labelled session for this question inside the top-5 retrieved candidates? Several
+> of the other systems below publish **end-to-end QA accuracy** — a different metric that scores
+> whether the system's generated answer is correct. **Retrieval recall and QA accuracy are not
+> comparable; a system can have 100% retrieval recall and 40% QA accuracy, and vice versa.**"
+
+**MemPalace reported honestly and warned against precisely the misuse this document committed.** No
+criticism attaches to them; the defect was in the first draft of §1 here, which lifted 96.6% into a
+column of QA accuracies. Recorded as our error, not theirs — and it is the same error §6.11 records
+an external evaluation making about *this* work, in the opposite direction.
+
+**2. Two of the three leaders are self-judged.** Verbatim:
+
+> Exabase M-1: "We used a smaller model: Gemini 3 Flash, **for both answering questions and judging
+> correctness**." — and "M-1 achieves state-of-the-art results across all recall depths, reaching
+> 96.4% at top-50 using Gemini 3 Flash as the answering model."
+
+> OMEGA: "The test environment: OMEGA v1.0.0, **GPT-4.1 as the generation and grading LLM**,
+> bge-small-en-v1.5 ONNX embeddings, running on an M1 MacBook Pro with 16GB RAM."
+
+§8c.1 of the findings spends a full section on why that is disqualifying — a self-judged arm is
+comparable to nothing — and this project re-judged 80 hypotheses under an explicit external judge to
+establish that its own arms were not self-judged. Neither of those two reports an equivalent check.
+Mastra and Mem0 both use an external `gpt-4o` judge and are not implicated.
+
+**3. Two headline figures are macro averages; 89.6% is a micro average.** Verbatim:
+
+> Mastra: "gpt-4o is used as the judge model. Each question is evaluated as correct/incorrect
+> (binary). **Overall accuracy is the unweighted average across all 6 categories.**"
+
+> OMEGA: "OMEGA scores 95.4% **(466/500)**" — its own raw count, which is **93.2%**.
 
 ### The comparison at matched metrics
 
@@ -92,26 +117,26 @@ Aeon's composite @ `glm-5.2`, recomputed on each competitor's own metric from th
 
 | metric | Aeon | comparator |
 |---|---|---|
-| raw micro, all 500 *(Aeon's headline — the most conservative available)* | **89.6%** (448/500) | OMEGA raw **93.2%** (466/500) |
+| raw micro, all 500 *(Aeon's headline — the strictest available)* | **89.6%** (448/500) | OMEGA raw **93.2%** (466/500) |
 | macro over OMEGA's 5 categories | **90.9%** | OMEGA **95.4%** |
 | macro over 6 categories, abstention excluded (Mastra's metric) | **92.1%** | Mastra **94.87%** |
 | raw micro, abstention excluded | **91.3%** (429/470) | — |
 
-**The gap is real but roughly half what the original table implied**: against Mastra at Mastra's own
+**The gap is real but roughly half what the original table implied**: against Mastra on Mastra's own
 metric it is **2.8 points**, not 5.3; against OMEGA on raw counts it is **18 questions**, not the 29
 that 89.6 vs 95.4 suggests.
 
-**None of this is a new headline.** 89.6% stays the number this project reports, because micro
-accuracy over all 500 with abstention included is the strictest of the available definitions and
-switching metrics after seeing them is precisely the manoeuvre the table above criticises. The
-recomputation exists to size the gap honestly, not to shrink it by choosing.
+**None of this is a new headline.** 89.6% stays the number this project reports. Micro accuracy over
+all 500 with abstention included is the strictest of the available definitions, and switching metrics
+after seeing them is precisely the manoeuvre this section criticises. The recomputation exists to
+size the gap honestly, not to shrink it by choosing.
 
-**One asymmetry that is not resolved and should be stated as an open confound.** Every competitor is
-graded by a frontier judge — GPT-4o, GPT-4.1, Gemini 3 Flash — and LongMemEval specifies GPT-4o.
-Aeon is graded by `gemma4:31b`. Whether a 31B judge is systematically stricter than GPT-4o on this
-task is **unmeasured here**, and until it is, some unknown part of the residual gap is judge severity
-rather than system quality. That is a cheap experiment (re-judge a committed arm under a second
-judge and measure disagreement) and it has not been run.
+**One confound that is NOT resolved.** Every competitor is graded by a frontier judge — `gpt-4o`,
+GPT-4.1, Gemini 3 Flash — and LongMemEval specifies GPT-4o. Aeon is graded by `gemma4:31b`. Whether a
+31B judge is systematically stricter than GPT-4o on this task is **unmeasured**, so an unknown part
+of the residual gap is judge severity rather than system quality. Every *internal* contrast in this
+project is judge-invariant (the same judge scores both sides of every paired test), so the confound
+lives only in this external comparison — but it lives here undismissed, and it is cheap to test.
 
 ### On reader capability
 
@@ -129,8 +154,8 @@ p=1.000**, with only 13 of 252 pairs discordant. One rung of the ladder does not
 So *"the gap to the 94–96% systems is reader capability"* is **too coarse as stated**, and this
 document previously overstated it. What is established is that a **weak** reader binds. What is
 **not** established is that further reader capability is a lever, and one measurement says it is not.
-Combined with §2's findings, the remaining candidates for the difference are the memory pipeline, the
-metric definition, and the judge.
+With §2's findings alongside it, the remaining candidates for the difference are the memory pipeline,
+the metric definition, and the judge.
 
 ## 3. The residual, localised
 
@@ -235,6 +260,7 @@ substantive open research question remains dynamic read-time filtered aggregatio
 
 ```bash
 python3 scripts/longmemeval/cross_model_table.py              # §1 arms and contrasts
+python3 scripts/longmemeval/metric_variants.py                # §2, Aeon on each competitor's metric
 #   composite_deepseek_dev.json  vs  composite_glm52_n500.json  # §2, the reader-saturation probe
 python3 scripts/longmemeval/residual_error_profile.py         # residual partition
 .venv/bin/python scripts/longmemeval/aggregation_failure_read.py   # §4, aborts unless 68/51/61
