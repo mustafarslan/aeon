@@ -296,3 +296,65 @@ def test_weekday_derivation_changes_the_instrument_for_dated_records():
     assert render_records(recs) != render_records(recs, weekdays=False)
     undated = [item("Dune", "MEDIA", "film")]
     assert render_records(undated) == render_records(undated, weekdays=False)
+
+
+# --- chronological ordering within a category (v4.2, opt-in, under test) -------------
+
+def _chrono_recs():
+    """One category with dates out of text order, plus a second category and an undated
+    member -- the three things the ordering has to get right at once."""
+    from aeon_py.records import Provenance, Record
+    mk = lambda t, d="", sub="album": Record(
+        kind="ITEM", text=t, bucket="MEDIA", subtype=sub, date=d,
+        provenance=Provenance("s1", (0,)))
+    return [
+        mk("Zephyr", "2023/01/10"),      # last alphabetically, first chronologically
+        mk("Apple", "2023/09/02"),       # first alphabetically, last chronologically
+        mk("Mango", "2023/05/20"),
+        mk("Undated"),                   # no date at all
+        mk("Rowboat", "2023/03/01", sub="film"),   # a different category
+    ]
+
+
+def test_chrono_items_off_is_byte_identical():
+    """The measured renderer must not move because an opt-in flag now exists. Same
+    contract as `test_timeline_flag_off_is_byte_identical`."""
+    recs = _chrono_recs()
+    assert render_records(recs) == render_records(recs, chrono_items=False)
+    assert compose(recs, [], "Q?") == compose(recs, [], "Q?", chrono_items=False)
+
+
+def test_chrono_items_orders_within_a_category_by_date():
+    lines = render_records(_chrono_recs(), chrono_items=True, weekdays=False).splitlines()
+    albums = [l for l in lines if "album" in l]
+    assert [l.split(": ")[1].split(" [")[0] for l in albums[:3]] == \
+        ["Zephyr", "Mango", "Apple"], albums
+
+
+def test_undated_records_sort_last_within_their_category():
+    """`_date_key` returns a (1, ...) sentinel for unparseable dates, so an undated record
+    must not silently sort as 'the beginning of time' and lead its category."""
+    lines = render_records(_chrono_recs(), chrono_items=True, weekdays=False).splitlines()
+    albums = [l for l in lines if "album" in l]
+    assert "Undated" in albums[-1], albums
+
+
+def test_category_runs_stay_contiguous_under_chrono():
+    """THE GUARD THAT MATTERS. Bucket/subtype grouping is what counting depends on -- a
+    date-first sort would scatter it and trade a measured win for an unmeasured one. The
+    date is inserted INSIDE the category key, so every run stays in one block."""
+    lines = render_records(_chrono_recs(), chrono_items=True, weekdays=False).splitlines()
+    cats = [l.split(":")[0] for l in lines]
+    assert cats == sorted(cats, key=cats.index), "a category was split into two blocks"
+    for c in set(cats):
+        idx = [i for i, x in enumerate(cats) if x == c]
+        assert idx == list(range(idx[0], idx[-1] + 1)), f"{c} is not contiguous"
+
+
+def test_chrono_does_not_change_which_records_are_rendered():
+    """Ordering only. A reorder that drops or duplicates a record is a data bug wearing a
+    rendering bug's clothes."""
+    recs = _chrono_recs()
+    a = sorted(render_records(recs, weekdays=False).splitlines())
+    b = sorted(render_records(recs, chrono_items=True, weekdays=False).splitlines())
+    assert a == b

@@ -218,10 +218,14 @@ question. Every mechanism tried so far sits on the wrong side of that boundary. 
 consolidation cannot see the predicate; render-time totals cannot condition on it; reader-side
 instruction has returned five nulls at asking the model to do it unaided.
 
-One unmeasured interaction is recorded as a hypothesis, not a plan: 8 of the 17 losses need date
-arithmetic over ITEM records, and `order_records()` deliberately does not sort ITEMs
-chronologically — it groups them for counting, and the measured chronology null left ITEM ordering
-untouched by design. That interaction has never been tested and the losses sit on it.
+**That interaction has now been tested, and it is the sixth null (§8c.11).** Chronological ordering
+*within* each category run — with a control arm, on the 16 real losses — converts **0**, while the
+control converts 1 by pure nondeterminism at temperature 0. Both gates pass: the control prompts are
+byte-identical to the committed arm, and the intervention genuinely fired (281 record lines changed
+position). The reason is visible in the corpus rather than inferred: of **1,483 category runs across
+these corpora, 1,310 (88%) hold one or two entities**, and only 10% have more than one dated member.
+The taxonomy is fine-grained enough that its categories are mostly singletons, so there is almost
+nothing for a within-category sort to sort.
 
 ## 5. Track A — shipped, as a product capability with no accuracy claim
 

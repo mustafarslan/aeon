@@ -1,0 +1,312 @@
+{
+  "model": "glm-5.2:cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "judge_model": "gemma4:31b-cloud",
+  "split": "all",
+  "split_seed": 42,
+  "counting_hint": "current",
+  "weekdays": "off",
+  "chrono_items": false,
+  "prompt_parity_ref": null,
+  "merge_records": false,
+  "system_prompt": "",
+  "summary": {
+    "n": 16,
+    "n_errors": 0,
+    "correct": 1,
+    "accuracy": 0.0625,
+    "median_records": 274.5,
+    "median_prompt_chars": 26323.5,
+    "median_generation_seconds": 9.265854041499551
+  },
+  "results": [
+    {
+      "question_id": "gpt4_2ba83207",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "Thrive Market",
+      "hypothesis": "Based on the records from the past month, you spent the most money at **Walmart**, spending approximately $120 on a grocery haul on May 19, 2023. \n\nHere is a breakdown of your grocery spending in the past month:\n* **Walmart:** $120 (May 19, 2023)\n* **Trader Joe's:** ~$80 (May 15, 2023)\n* **Publix (via Instacart):** ~$60 plus a $10 delivery fee (May 23, 2023)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 296,
+      "record_chars": 23049,
+      "episodic_chars": 5814,
+      "prompt_chars": 28817,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 5.636630916997092
+      }
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "Disney+",
+      "hypothesis": "Based on the records, the streaming service you started using most recently is the **HBO add-on for Amazon Prime Video**, which you decided to add on May 26, 2023.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 18233,
+      "episodic_chars": 5244,
+      "prompt_chars": 23741,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 4.424563042004593
+      }
+    },
+    {
+      "question_id": "aae3761f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "15 hours for getting to the three destinations (or 30 hours for the round trip)",
+      "hypothesis": "Based on the records and excerpts provided, you have three recent road trip destinations: Washington D.C., the Outer Banks in North Carolina, and the Mountains in Tennessee. \n\nHowever, driving times are only recorded for two of these trips:\n- **Washington D.C.**: 6 hours (mentioned in the conversation excerpt)\n- **Outer Banks, North Carolina**: 4 hours (mentioned in the facts)\n\nThere is no driving time recorded for your recent camping trip to the Mountains in Tennessee. \n\nBased on the available information, the total known driving time is **10 hours**.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 275,
+      "record_chars": 20206,
+      "episodic_chars": 5612,
+      "prompt_chars": 25964,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 16.82780162501149
+      }
+    },
+    {
+      "question_id": "1a8a66a6",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "Based on the records provided, you currently have **1** magazine subscription. \n\nHere is the breakdown:\n- **The New Yorker**: Subscribed in early February 2023 (currently active).\n- **Forbes**: Canceled in early March 2023 (no longer active).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 255,
+      "record_chars": 18931,
+      "episodic_chars": 5913,
+      "prompt_chars": 24888,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 2.8470792080042884
+      }
+    },
+    {
+      "question_id": "bf659f65",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the long-term memory records, you have purchased or downloaded **2** music albums or EPs:\n\n1. \"Happier Than Ever\" by Billie Eilish\n2. \"Midnight Sky\" by The Whiskey Wanderers (EP)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 236,
+      "record_chars": 17965,
+      "episodic_chars": 5582,
+      "prompt_chars": 23696,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 10.502659374993527
+      }
+    },
+    {
+      "question_id": "gpt4_a56e767c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I attended four movie festivals.",
+      "hypothesis": "Based on the records and conversation excerpts, you have attended **4** movie festivals:\n\n1. **Portland Film Festival** (where you volunteered and assisted with a masterclass)\n2. **AFI Fest** (where you saw \"Joker\" and attended a Q&A)\n3. **Seattle International Film Festival** (where you attended a Q&A for \"The Weight of Water\")\n4. **Austin Film Festival** (where you participated in the 48-hour film challenge)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 18882,
+      "episodic_chars": 5248,
+      "prompt_chars": 24303,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 8.168930582993198
+      }
+    },
+    {
+      "question_id": "gpt4_d6585ce8",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "The order of the concerts I attended is: 1. Billie Eilish concert at the Wells Fargo Center in Philly, 2. Free outdoor concert series in the park, 3. Music festival in Brooklyn, 4. Jazz night at a local bar, 5. Queen + Adam Lambert concert at the Prudential Center in Newark, NJ.",
+      "hypothesis": "Based on the records, here is the chronological order of the concerts and musical events you attended in the past two months, starting from the earliest:\n\n1. **Billie Eilish concert at the Wells Fargo Center in Philly** - March 17, 2023\n2. **Free outdoor concert series in the park** - March 25, 2023\n3. **Music festival in Brooklyn** - April 1, 2023\n4. **Jazz night at a local bar** - April 8, 2023",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 323,
+      "record_chars": 22383,
+      "episodic_chars": 5877,
+      "prompt_chars": 28648,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 6.1462545419926755
+      }
+    },
+    {
+      "question_id": "gpt4_f420262c",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "JetBlue, Delta, United, American Airlines",
+      "hypothesis": "Based on the records provided, here is the chronological order of the airlines you flew with from earliest to latest before today (2023/03/02):\n\n1. **JetBlue** (San Francisco to Boston red-eye flight, completed before 2022/11/17)\n2. **Delta** (Boston to Atlanta round-trip, 2023/01/15)\n3. **United Airlines** (Boston to Chicago, 2023/01/28)\n4. **American Airlines** (New York to Los Angeles, 2023/02/10)\n5. **American Airlines** (LAX to JFK, before 2023/02/14)\n6. **JetBlue** (BOS to FLL, 2023/02/14)\n7. **Delta** (FLL to BOS, 2023/02/14)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 274,
+      "record_chars": 20140,
+      "episodic_chars": 5786,
+      "prompt_chars": 26032,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 12.312374000001
+      }
+    },
+    {
+      "question_id": "46a3abf7",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you currently have **2** tanks:\n\n1. A 20-gallon freshwater community tank named \"Amazonia\" (set up on 2023/05/27).\n2. A 1-gallon tank (set up for a friend's kid on 2023/05/21). \n\n*(Note: Your previous 5-gallon tank with Finley the betta fish is listed as a past possession, so it is not counted.)*",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 285,
+      "record_chars": 21914,
+      "episodic_chars": 4438,
+      "prompt_chars": 26752,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 2.929479957994772
+      }
+    },
+    {
+      "question_id": "6d550036",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "Based on the records provided, you have led or are currently leading the following projects:\n\n1. **Marketing Research class project** (led the data analysis team)\n2. **Data Mining class project** (solo project)\n3. **Investigation project** (assembling a team of experts to investigate UFOs, aliens, and missing persons)\n4. **Water infrastructure project** (connecting 100 rural villages in Nigeria to running water)\n5. **Product feature launch** (planning the project timeline for a June 2023 launch)\n6. **Ethereum Mexico event** (applying for a grant and hosting a large-scale IRL event)\n7. **The Merge community events** (hosted three events in three different cities)\n8. **Web design company** (inquired about starting and setting up)\n9. **Book: \"The Mirror's Reflection\"** (currently writing)\n10. **Python for banking course** (developing a training course)\n11. **Social media marketing plan** (creating a plan for a cleaning company)\n12. **Wood carving project** (finished a wooden carving of a bird)\n13. **Watercolor art series** (planning pieces inspired by a hot air balloon ride)\n14. **Game night** (planning a social event for friends)\n15. **Article about pregnancy** (writing an article about pregnancy with a third child)\n16. **Blog about antique collection** (planning a blog)\n17. **Workplace communication strategy** (implementing a new strategy)\n18. **Customer data analysis** (analyzing customer data to identify trends and patterns)\n19. **Project combining wood base with stone inlays** (planned for a sculpting class)\n\n**Total: 19 projects**",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 248,
+      "record_chars": 19596,
+      "episodic_chars": 5827,
+      "prompt_chars": 25613,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 22.97436162500526
+      }
+    },
+    {
+      "question_id": "gpt4_ab202e7f",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I replaced or fixed five items: the kitchen faucet, the kitchen mat, the toaster, the coffee maker, and the kitchen shelves.",
+      "hypothesis": "Based on the records and conversation excerpts, you replaced or fixed **4** kitchen items:\n\n1. **Kitchen shelves** (fixed on May 13-14, 2023)\n2. **Kitchen faucet** (replaced with a new Moen touchless sensor faucet on May 21, 2023)\n3. **Toaster** (replaced with a new toaster oven on May 26, 2023)\n4. **Coffee maker** (donated to Goodwill and replaced with a fancy espresso machine on May 30, 2023)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 294,
+      "record_chars": 21050,
+      "episodic_chars": 5267,
+      "prompt_chars": 26265,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 6.255227749992628
+      }
+    },
+    {
+      "question_id": "88432d0a",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 4,
+      "hypothesis": "Based on the records, you baked something 7 times in the past two weeks (between May 17 and May 30, 2023). Here are the instances:\n\n1. **May 17 (Sat):** Baked a whole wheat baguette.\n2. **May 18 (Thu):** Baked a batch of cookies using the oven's convection setting.\n3. **May 20 (Sat):** Baked a chocolate cake for your sister's birthday party.\n4. **May 21 (Sun):** Baked a chocolate cake for your sister's birthday party using a new online recipe (which was successful).\n5. **May 23 (Tue):** Tried a new bread recipe using sourdough starter (which turned out dense and heavy).\n6. **May 23 (Thu):** Used the oven's convection setting for the first time to bake cookies.\n7. **May 27 (Sat):** Baked a whole wheat baguette.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 273,
+      "record_chars": 21824,
+      "episodic_chars": 4956,
+      "prompt_chars": 26581,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 14.509536124998704
+      }
+    },
+    {
+      "question_id": "9d25d4e0",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 3,
+      "hypothesis": "Based on the records, you acquired **4** pieces of jewelry in the last two months (between March 30, 2023, and May 30, 2023):\n\n1. **Diamond earrings** (from your grandmother's estate, acquired in April 2023)\n2. **Emerald earrings** (acquired between May 13-19, 2023)\n3. **Engagement ring** (acquired on April 28, 2023)\n4. **Silver necklace with a small pendant** (acquired on April 15, 2023)",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 290,
+      "record_chars": 21619,
+      "episodic_chars": 5894,
+      "prompt_chars": 27420,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 9.133593125006882
+      }
+    },
+    {
+      "question_id": "a9f6b44c",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": 2,
+      "hypothesis": "Based on the records provided, you serviced or planned to service **1** bike in March (your road bike, which had its chain cleaned/lubricated and was serviced at Pedal Power for new brake pads and cables).",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 309,
+      "record_chars": 22961,
+      "episodic_chars": 5853,
+      "prompt_chars": 29108,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 9.39811495799222
+      }
+    },
+    {
+      "question_id": "gpt4_2f8be40d",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I attended three weddings. The couples were Rachel and Mike, Emily and Sarah, and Jen and Tom.",
+      "hypothesis": "Based on the records and conversation excerpts, you have attended **4** weddings this year (2023):\n\n1. **Your cousin Rachel's wedding** at a vineyard in August/September 2023.\n2. **Your sister's wedding** in 2023 (where you were the maid of honor).\n3. **Jen and Tom's wedding** on October 8, 2023, at a rustic barn in the countryside.\n4. **Emily and Sarah's wedding** (Emily's wedding in the city) on or before October 15, 2023.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 303,
+      "record_chars": 21985,
+      "episodic_chars": 5397,
+      "prompt_chars": 27440,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 13.338225832994794
+      }
+    },
+    {
+      "question_id": "gpt4_7fce9456",
+      "question_type": "multi-session",
+      "report_type": "multi-session",
+      "reference_answer": "I viewed four properties before making an offer on the townhouse in the Brookside neighborhood. The reasons I didn't make an offer on them were: the kitchen of the bungalow needed serious renovation, the property in Cedar Creek was out of my budget, the noise from the highway was a deal-breaker for the 1-bedroom condo, and my offer on the 2-bedroom condo was rejected due to a higher bid.",
+      "hypothesis": "Based on the records provided, you viewed **4** other properties before viewing and making an offer on the Brookside townhouse:\n\n1. A 3-bedroom bungalow in the Oakwood neighborhood (viewed on January 22, 2023)\n2. A property in Cedar Creek (viewed on February 1, 2023, but was over your budget)\n3. A 1-bedroom condo (viewed on February 10, 2023, but rejected due to highway noise)\n4. A 2-bedroom condo with modern appliances and a community pool (viewed on February 15, 2023, but your offer was rejected due to a higher bid)\n\nYou then viewed the 3-bedroom townhouse in the Brookside neighborhood on February 22, 2023, and put in an offer on February 25, 2023. So, you viewed a total of 5 properties before making the offer on the Brookside townhouse.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 265,
+      "record_chars": 20835,
+      "episodic_chars": 5528,
+      "prompt_chars": 26382,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 10.478547500009881
+      }
+    }
+  ]
+}

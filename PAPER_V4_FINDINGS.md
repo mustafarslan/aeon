@@ -831,6 +831,62 @@ figure. The pre-commitment made before running this was that a friendlier judge 
 proposed *after* seeing the gap would not be adopted; in the event the third-party judge is
 *harsher*, so the question never arose.
 
+### 8c.11 Chronological ordering within a category: the sixth reader-side null
+
+*§8c.8 left one concrete hypothesis: 8 of the 17 losses are windowed or ordering questions needing
+date arithmetic over ITEM records, and `order_records()` deliberately does not sort ITEMs
+chronologically — the measured chronology intervention (§6.7) covered EVENT and UPDATE and left ITEM
+ordering untouched, because bucket grouping is what counting depends on. That interaction had never
+been measured. It has now.*
+
+**Implementation note that matters for anyone repeating this.** Changing `order_records()` alone is a
+**silent no-op**. `render_records()` calls `groups.sort(key=_group_sort_key)` afterwards, re-keying
+every ITEM line by `(bucket, subtype, text)` and discarding the item ordering established upstream.
+The date is inserted *inside* the category key — `(bucket, subtype, date, text)` — never before it, so
+every category run stays contiguous and the counting mechanism is untouched; only order **within** a
+run changes. Pinned by `test_category_runs_stay_contiguous_under_chrono`.
+
+**The result, with a control arm, on the 16 real losses** (`gpt4_7f6b06db` excluded — §8c.5 records it
+as an empty-generation artefact, and on re-run it hung the harness rather than answering):
+
+| arm | correct / 16 |
+|---|---|
+| control (`chrono_items=False`, re-run) | **1** |
+| treatment (`chrono_items=True`) | **0** |
+| paired | **+0 / −1** |
+
+**The control is the finding's spine.** Its single conversion — `gpt4_a56e767c` — came from an
+identical config and a byte-identical prompt, so it is pure run-to-run nondeterminism at temperature
+0. Without the control, reporting "the treatment converted one" would have been available and wrong.
+The treatment converted **zero**, by every shape: ordering 0/2, windowed 0/5, predicate 0/3,
+enumerate 0/3, argmax 0/2, arithmetic 0/1.
+
+**Two gates confirm the null is informative rather than vacuous.**
+
+1. *The instrument was faithful.* All 16 control prompts are **byte-length identical to the committed
+   arm** — which also verifies the new flag is byte-identical when off on real 250–320-record corpora,
+   not merely on a unit-test fixture.
+2. *The intervention actually fired.* **281 record lines changed position** across the 16 corpora
+   (0.8%–14.7% per corpus), with the rendered line multiset unchanged — a pure reorder. *A gate that
+   never fires proves nothing*, and this one fired.
+
+**Why it could not have worked, visible in the corpus rather than inferred.** Across these 17 corpora
+there are **1,483 category runs**, and **1,310 of them (88%) hold one or two entities**. Ordering
+within a run of one is a no-op; within a run of two it is a coin flip. Only **149 runs (10%)** have
+more than one member *and* more than one dated member — the sole configuration where chronological
+ordering can express anything at all. The taxonomy is fine-grained enough that its categories are
+mostly singletons, so **there is almost nothing for a within-category sort to sort.**
+
+**This is the sixth reader-side rendering intervention and the sixth null** — after co-referent
+collapse, chronological EVENT/UPDATE ordering, the shipped system prompt, the reconciliation hint, and
+the roster header that §8c.8 killed before it was built. The standing conclusion holds and now covers
+ordering as well as instruction: *presentation changes do not change how the reader classifies or
+aggregates.* Dynamic read-time filtered aggregation needs a mechanism that conditions on the
+question's predicate, and no arrangement of a question-blind record block is such a mechanism.
+
+*Kept, opt-in and defaulted off, with the measurement attached* — the `_RECONCILE_HINT` precedent. It
+costs nothing when off and records what a future attempt must beat.
+
 ## 9. The write path: cross-session supersession
 
 **The operation per-session extraction structurally cannot perform.** Extraction runs per session and

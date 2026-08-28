@@ -75,6 +75,12 @@ def main() -> None:
     ap.add_argument("--split-seed", type=int, default=42)
     ap.add_argument("--attribution",
                     default="reproducibility_benchmarks/longmemeval/answer_turn_attribution.json")
+    ap.add_argument("--chrono-items", action="store_true",
+                    help="v4.2, UNDER TEST: order ITEMs by date WITHIN each bucket/subtype "
+                         "run instead of by text. Category runs stay contiguous -- the date "
+                         "is inserted inside the category key, not before it -- so the "
+                         "counting mechanism is untouched. Changes prompt bytes by design, "
+                         "so --assert-prompt-parity will and must fail against a prior arm.")
     ap.add_argument("--weekdays", choices=("on", "off"), default="on",
                     help="Derived weekday annotation. 'off' reproduces the instrument the "
                          "221-on-dev baseline was measured on, so a reader swap can be "
@@ -191,7 +197,8 @@ def main() -> None:
                          format_question_with_date(q),
                          counting_hint=args.counting_hint != "none",
                          reconcile_hint=args.counting_hint == "reconcile",
-                         weekdays=args.weekdays == "on")
+                         weekdays=args.weekdays == "on",
+                         chrono_items=args.chrono_items)
         if parity is not None and qid in parity and len(prompt) != parity[qid]:
             raise SystemExit(
                 f"PROMPT PARITY FAILED on {qid}: rebuilt {len(prompt)} chars, reference "
@@ -240,6 +247,7 @@ def main() -> None:
                "judge_model": judge_llm.model,
                "split": args.split, "split_seed": args.split_seed,
                "counting_hint": args.counting_hint, "weekdays": args.weekdays,
+               "chrono_items": args.chrono_items,
                "prompt_parity_ref": args.assert_prompt_parity,
                "merge_records": bool(args.merge_records),
                "system_prompt": args.system_prompt,

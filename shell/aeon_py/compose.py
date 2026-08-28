@@ -224,17 +224,28 @@ def _date_key(date: str) -> tuple:
     return (1, 0, 0, 0)
 
 
-def order_records(records: Iterable[Record]) -> list[Record]:
+def order_records(records: Iterable[Record],
+                  *, chrono_items: bool = False) -> list[Record]:
     """Group records so countable members of one category are adjacent.
 
     Counting is the failure mode this layer targets, and a model counting `ITEM` lines
     scattered through 250 unordered lines is doing the same multi-hop scan over a smaller
     haystack. Grouping by bucket/subtype turns it into reading one contiguous list.
+
+    `chrono_items` (v4.2, OPT-IN, under test) orders WITHIN each category run by date
+    instead of by text. It does not change which records are adjacent -- the
+    bucket/subtype grouping that counting depends on is the outer key either way, and the
+    contiguous category runs are preserved exactly. See `_group_sort_key()` for why this
+    function alone cannot deliver the change.
     """
     recs = list(records)
     items = [r for r in recs if r.kind == "ITEM"]
     others = [r for r in recs if r.kind != "ITEM"]
-    items.sort(key=lambda r: (r.bucket, r.subtype.lower(), r.text.lower()))
+    if chrono_items:
+        items.sort(key=lambda r: (r.bucket, r.subtype.lower(), _date_key(r.date),
+                                  r.text.lower()))
+    else:
+        items.sort(key=lambda r: (r.bucket, r.subtype.lower(), r.text.lower()))
     # UPDATE records carry supersession and are cheap; keep them where the model will read
     # them before falling back to the raw episodic text.
     updates = [r for r in others if r.kind == "UPDATE"]
@@ -284,7 +295,23 @@ def _render_group(group: EntityGroup) -> str:
     return f"{head}: {rep.text}{date}{sup}"
 
 
-def _group_sort_key(group: EntityGroup) -> tuple:
+def _group_date_key(group: EntityGroup) -> tuple:
+    """EARLIEST parseable date across the group's records.
+
+    Earliest, not `EntityGroup.date` (which is "first non-empty date in group order"),
+    because a co-referent group is one entity mentioned several times and the question
+    "when does this belong in the sequence?" is answered by when it first appeared. Using
+    the group's incidental first-listed date would make the ordering depend on input order,
+    which is the thing sorting exists to remove.
+
+    Undated groups return `_date_key`'s (1, ...) sentinel and therefore sort LAST within
+    their category, keeping their existing relative order among themselves because every
+    sort here is stable.
+    """
+    return min((_date_key(r.date) for r in group.records), default=(1, 0, 0, 0))
+
+
+def _group_sort_key(group: EntityGroup, chrono: bool = False) -> tuple:
     """Deliberately the SAME shape as `order_records()`'s ITEM key, and deliberately a
     string comparison on the bucket rather than a taxonomy rank.
 
@@ -295,6 +322,14 @@ def _group_sort_key(group: EntityGroup) -> tuple:
     it never reorders anything that was not duplicated in the first place.
     """
     rep = group.representative
+    if chrono:
+        # v4.2, OPT-IN. THE DATE IS INSERTED INSIDE THE CATEGORY KEY, NEVER BEFORE IT.
+        # `(bucket, subtype)` stays the outer key, so every category run remains contiguous
+        # and the counting mechanism this layer exists for is untouched -- only the order
+        # WITHIN a run changes. A date-first key would scatter the categories and trade the
+        # measured win for an unmeasured one.
+        return (group.primary_bucket, rep.subtype.lower(), _group_date_key(group),
+                rep.text.lower())
     return (group.primary_bucket, rep.subtype.lower(), rep.text.lower())
 
 
@@ -335,7 +370,8 @@ def _add_weekdays(block: str) -> str:
     return _BARE_ISO.sub(_sub, block)
 
 
-def render_records(records: Iterable[Record], *, weekdays: bool = True) -> str:
+def render_records(records: Iterable[Record], *, weekdays: bool = True,
+                   chrono_items: bool = False) -> str:
     """Renders the record block, collapsing co-referent ITEMs to one line each.
 
     Cross-bucket duplication is a FEATURE of the taxonomy -- an album the user downloaded
@@ -345,11 +381,15 @@ def render_records(records: Iterable[Record], *, weekdays: bool = True) -> str:
     `compose_from_store()`'s rehydration still see every individual record, so filtering
     and provenance are untouched.
     """
-    recs = order_records(records)
+    recs = order_records(records, chrono_items=chrono_items)
     groups, others = group_entities(recs)
     if not groups and not others:
         return "(no records)"
-    groups.sort(key=_group_sort_key)
+    # THIS SORT IS WHY `order_records()` ALONE CANNOT DELIVER CHRONOLOGY. It runs after
+    # grouping and re-keys every ITEM line, so the item ordering established above is
+    # discarded for grouped records. Any change to rendered ITEM order has to be made
+    # here as well, and a change made only in `order_records()` is a silent no-op.
+    groups.sort(key=lambda g: _group_sort_key(g, chrono_items))
     lines = [_render_group(g) for g in groups]
     lines += [r.display() for r in others]
     block = "\n".join(lines)
@@ -359,12 +399,14 @@ def render_records(records: Iterable[Record], *, weekdays: bool = True) -> str:
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
             *, counting_hint: bool = True, premise_guard: bool = False,
             reconcile_hint: bool = False, timeline: bool = False,
-            retired: Sequence[Record] = (), weekdays: bool = True) -> str:
+            retired: Sequence[Record] = (), weekdays: bool = True,
+            chrono_items: bool = False) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""
     recs = list(records)
-    parts = [RECORDS_HEADER, render_records(recs, weekdays=weekdays), ""]
+    parts = [RECORDS_HEADER,
+             render_records(recs, weekdays=weekdays, chrono_items=chrono_items), ""]
     # ACTIVE STATE IS THE DEFAULT AND STAYS THE DEFAULT. `timeline=False` must produce output
     # byte-identical to the measured renderer -- pinned by
     # `test_timeline_flag_off_is_byte_identical`. A factual or counting question therefore
