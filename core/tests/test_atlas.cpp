@@ -1160,3 +1160,37 @@ TEST_F(AtlasCompactionTest, CompactionEpochIncrementsAndPersists) {
            "reference that outlives the process";
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// release_pages — the C-ABI stub that reported success and did nothing
+// ═══════════════════════════════════════════════════════════════════════════
+
+// aeon_atlas_release_pages() discarded both arguments and returned AEON_OK.
+// MemoryFile::release_pages() had been implemented all along; Atlas simply
+// had no public forwarder. A C-ABI caller asking for its resident-set size
+// back therefore observed success and no effect -- the same silent-success
+// shape aeon_atlas_drop_session() carried before it was connected.
+//
+// advise_dontneed() is advisory, so the observable contract is that the data
+// survives and stays correct. That is what is asserted: releasing a range
+// must not lose or corrupt it.
+TEST_F(AtlasTest, ReleasePagesIsAdvisoryAndPreservesData) {
+  aeon::Atlas atlas(test_path.string(), 8);
+  std::vector<float> v(8, 0.35355339f);
+
+  uint64_t root = atlas.insert(0, v, "ROOT");
+  std::vector<uint64_t> ids;
+  for (int i = 0; i < 16; ++i)
+    ids.push_back(atlas.insert(root, v, "node" + std::to_string(i)));
+
+  EXPECT_NO_THROW(atlas.release_pages(0, atlas.size()));
+
+  // Advisory: every node must still read back correctly after the advice.
+  for (size_t i = 0; i < ids.size(); ++i)
+    EXPECT_EQ(atlas.get_node_metadata(ids[i]), "node" + std::to_string(i))
+        << "release_pages() lost data; it must be advisory, not destructive";
+
+  // Out-of-range input is clamped by MemoryFile, not a crash or a throw.
+  EXPECT_NO_THROW(atlas.release_pages(atlas.size() + 1000, 50));
+  EXPECT_NO_THROW(atlas.release_pages(0, 0));
+}

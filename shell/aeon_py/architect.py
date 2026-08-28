@@ -62,9 +62,21 @@ class Architect:
         return new_id, False
 
     def persist(self):
+        """Not implemented, and it says so rather than returning silently.
+
+        This was a `pass`-only body whose docstring promised to "trigger a
+        background Merge to write the in-memory Delta Buffer to the immutable
+        mmap file". A caller who read that and called this got silence and no
+        durability, which is the same silent-success shape that
+        `aeon_atlas_drop_session()` and `aeon_atlas_release_pages()` carried
+        before they were connected.
+
+        Delta persistence is real, but it belongs to the kernel and is reached
+        through `Atlas.compact_mmap()`, which promotes frozen delta nodes into
+        the mmap generation. There is no separate Python-side merge to perform,
+        so this raises rather than pretending to do one.
         """
-        [Phase 7 Stub]
-        In the future, this will trigger a background 'Merge'
-        to write the in-memory Delta Buffer to the immutable mmap file.
-        """
-        pass
+        raise NotImplementedError(
+            "Architect.persist() is not implemented. Delta nodes are promoted "
+            "to the mmap generation by Atlas.compact_mmap(); call that instead."
+        )

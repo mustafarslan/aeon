@@ -9,7 +9,6 @@ Provides:
 
 import collections
 import logging
-import math
 import numpy as np
 from contextlib import contextmanager
 from pathlib import Path

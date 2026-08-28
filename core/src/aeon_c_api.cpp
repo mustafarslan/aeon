@@ -379,14 +379,13 @@ AEON_API aeon_error_t aeon_atlas_release_pages(aeon_atlas_t *atlas,
     return AEON_ERR_NULL_PTR;
 
   try {
-    // Access the internal storage file's release_pages through a helper.
-    // Since release_pages is on MemoryFile (private member), we need to
-    // expose it. For now, this is a no-op stub that will be connected
-    // once we add a public Atlas::release_pages() forwarder.
-    // The platform::advise_dontneed call is already implemented in storage.hpp.
-    (void)start_node;
-    (void)count;
-    // TODO: Add Atlas::release_pages() public forwarder
+    // WAS A NO-OP RETURNING AEON_OK. MemoryFile::release_pages() had been
+    // implemented all along; Atlas simply had no public forwarder, so this
+    // discarded both arguments and reported success. A C-ABI caller asking
+    // for its resident-set size back observed success and no effect, which
+    // is the same silent-success failure aeon_atlas_drop_session() carried
+    // before it was connected.
+    to_atlas(atlas)->release_pages(start_node, count);
     return AEON_OK;
   } catch (...) {
     return AEON_ERR_UNKNOWN;

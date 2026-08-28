@@ -988,6 +988,25 @@ void Atlas::sync() { file_->sync(); }
 // set_node_scope / get_node_scope — V4 Stage 1/2 scope mutation primitive
 // ═══════════════════════════════════════════════════════════════════════════
 
+void Atlas::release_pages(size_t start_node, size_t count) {
+  // Advisory madvise against a generation compact_mmap() is mid-way through
+  // replacing would target memory about to be unmapped. Refuse rather than
+  // race, same posture as set_node_scope().
+  if (compact_in_progress_.load(std::memory_order_acquire)) {
+    throw std::runtime_error(
+        "release_pages: cannot advise while compaction is in progress");
+  }
+
+  // A shared lock suffices: advise_dontneed() does not mutate node bytes and
+  // MemoryFile::release_pages() bounds-checks start_node/count against the
+  // header itself. The epoch guard keeps the mapping alive for the call.
+  auto guard = epoch_mgr_.enter_guard();
+  std::shared_lock<std::shared_mutex> read_lock(write_mutex_);
+  if (file_) {
+    file_->release_pages(start_node, count);
+  }
+}
+
 void Atlas::set_node_scope(uint64_t node_id, uint64_t scope_bitmap) {
   if (node_id & NODE_ID_DELTA_MASK) {
     throw std::invalid_argument(

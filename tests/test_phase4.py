@@ -105,3 +105,25 @@ def test_delta_isolation(atlas_env):
 
 if __name__ == "__main__":
     test_delta_ingestion_and_search(Path("/tmp/aeon_phase4_check"))
+
+
+def test_persist_reports_not_implemented_rather_than_returning_silently():
+    """`Architect.persist()` was a `pass`-only body whose docstring promised to
+    "trigger a background Merge to write the in-memory Delta Buffer to the immutable mmap
+    file". A caller who believed it got silence and no durability.
+
+    That is the same silent-success shape `aeon_atlas_drop_session()` and
+    `aeon_atlas_release_pages()` carried before they were connected: the API reports success
+    while doing nothing, so the caller cannot retry, alert, or fall back. Delta persistence is
+    real but belongs to `Atlas.compact_mmap()`, so this raises instead of pretending.
+    """
+    import inspect
+    import pytest
+    from aeon_py.architect import Architect
+
+    src = inspect.getsource(Architect.persist)
+    assert "NotImplementedError" in src
+    assert "compact_mmap" in src, "the error must name the call that actually persists"
+
+    with pytest.raises(NotImplementedError, match="compact_mmap"):
+        Architect.persist(object())

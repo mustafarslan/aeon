@@ -278,6 +278,25 @@ public:
    */
   void set_node_scope(uint64_t node_id, uint64_t scope_bitmap);
 
+  /**
+   * @brief Advise the OS that a node range is not needed soon.
+   *
+   * Forwards to MemoryFile::release_pages(), which issues
+   * platform::advise_dontneed() over the byte range those nodes occupy.
+   * Advisory only: the data stays valid and is faulted back in on next
+   * access. Intended for a caller that has finished with a cold region
+   * and wants its resident-set size back.
+   *
+   * Added because aeon_atlas_release_pages() previously returned AEON_OK
+   * while doing nothing at all: MemoryFile had the implementation, Atlas
+   * had no public forwarder, and the C-ABI stub swallowed both arguments.
+   * A C-ABI caller therefore observed success and no effect.
+   *
+   * Refuses during compaction rather than acting on a generation that is
+   * about to be replaced, matching set_node_scope()'s guard.
+   */
+  void release_pages(size_t start_node, size_t count);
+
   /// Reads a node's current scope_bitmap. Mmap nodes only -- see
   /// set_node_scope()'s doc comment for the delta-id restriction.
   uint64_t get_node_scope(uint64_t node_id) const;
