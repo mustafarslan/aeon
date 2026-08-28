@@ -170,6 +170,22 @@ def _generate_with_retry(
         last = "".join(
             llm.generate(prompt, system_prompt=system_prompt, temperature=temperature)
         ).strip()
+        # AN EMPTY GENERATION IS A MISSING MEASUREMENT, NOT A WRONG ANSWER. Before this,
+        # "" carried no error marker and so returned on the first pass, went to the judge,
+        # came back 'no', and was recorded with `is_error=False` -- indistinguishable from a
+        # substantive but incorrect answer. `composite_glm52_n500.json` reports `n_errors=0`
+        # while containing 4 such questions, so its 448 is a LOWER bound by up to 4.
+        #
+        # Only reasoning-style readers produced these (0 in either gemma4 arm, 0 in the glm
+        # oracle whose prompts are 4x shorter), which is consistent with the visible answer
+        # being crowded out at long context. Retried like any other transient failure, and
+        # marked if it persists so it is counted rather than scored.
+        if not last:
+            attempt += 1
+            if attempt >= retries:
+                return f"[System Error: empty response after {attempt} attempts]"
+            time.sleep(5 * attempt)
+            continue
         if _TRANSIENT_ERROR_MARKER not in last:
             return last
         if any(marker in last for marker in _NON_RETRYABLE_MARKERS):
