@@ -50,6 +50,17 @@ def main() -> None:
     # AND a different judge scores them differently, and the two cannot be separated
     # after the fact.
     ap.add_argument("--judge-model", default=None)
+    # PROVE THE PROMPT IS UNCHANGED, DON'T ASSERT IT. Point this at a prior result file and
+    # every rebuilt prompt must match that file's `prompt_chars` exactly, or the run aborts
+    # on the first mismatch -- before spending a single LLM call on it.
+    #
+    # This exists because a cross-model comparison silently lost its parity: both composite
+    # arms logged identical flags, but `render_records()` had gained an UNCONDITIONAL
+    # `group_entities()` call in between, so 495 of 500 prompts differed by a median -212
+    # chars and the "reader is the only variable" claim was false. Flags cannot catch a
+    # library moving underneath them; the rendered prompt can.
+    ap.add_argument("--assert-prompt-parity", default=None,
+                    help="path to a prior results JSON whose prompt_chars must match exactly")
     ap.add_argument("--out", required=True)
     ap.add_argument("--records-cache", required=True)
     ap.add_argument("--num-questions", type=int, default=60)
@@ -109,6 +120,9 @@ def main() -> None:
                    if args.merge_records and Path(args.merge_records).exists() else {})
     cache_path = Path(args.records_cache)
     cache = json.load(open(cache_path)) if cache_path.exists() else {}
+    parity = ({r["question_id"]: r["prompt_chars"]
+               for r in json.load(open(args.assert_prompt_parity))["results"]}
+              if args.assert_prompt_parity else None)
     print(f"composite arm: {len(sample)} questions (split={args.split}) | "
           f"cached records for {len(cache)} | workers={args.workers} | "
           f"system_prompt={'set' if args.system_prompt else 'empty'} | "
@@ -178,6 +192,11 @@ def main() -> None:
                          counting_hint=args.counting_hint != "none",
                          reconcile_hint=args.counting_hint == "reconcile",
                          weekdays=args.weekdays == "on")
+        if parity is not None and qid in parity and len(prompt) != parity[qid]:
+            raise SystemExit(
+                f"PROMPT PARITY FAILED on {qid}: rebuilt {len(prompt)} chars, reference "
+                f"{parity[qid]}. A config or library delta remains; not spending the run.")
+
         t0 = time.perf_counter()
         hyp = _generate_with_retry(llm, prompt, system_prompt=args.system_prompt,
                                    temperature=0.0)
@@ -221,6 +240,7 @@ def main() -> None:
                "judge_model": judge_llm.model,
                "split": args.split, "split_seed": args.split_seed,
                "counting_hint": args.counting_hint, "weekdays": args.weekdays,
+               "prompt_parity_ref": args.assert_prompt_parity,
                "merge_records": bool(args.merge_records),
                "system_prompt": args.system_prompt,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)
