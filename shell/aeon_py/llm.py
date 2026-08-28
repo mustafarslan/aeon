@@ -3,6 +3,7 @@ from typing import Generator, Optional
 import os
 import requests
 import json
+import time
 import warnings
 
 class LLMProvider(ABC):
@@ -96,6 +97,18 @@ class OllamaProvider(LLMProvider):
         self.model = os.getenv("AEON_LLM_MODEL", "llama3")
         self._num_ctx_override = os.getenv("AEON_LLM_NUM_CTX")
         self.timeout_seconds = float(os.getenv("AEON_LLM_TIMEOUT_SECONDS", "120"))
+        # TOTAL wall-clock budget for one streamed generation, distinct from the above.
+        #
+        # `requests`' `timeout` is a CONNECT and PER-READ timeout, never a total one: a
+        # server that trickles one byte inside every window, or half-closes without
+        # signalling end-of-stream, keeps `iter_lines()` blocked indefinitely and the
+        # per-read timeout never fires. A caller then has no way to bound a single call,
+        # and a benchmark harness looks hung when it is merely waiting.
+        #
+        # Generous by default because a large model on a long prompt legitimately takes
+        # minutes -- this is a runaway guard, not a latency target.
+        self.total_timeout_seconds = float(
+            os.getenv("AEON_LLM_TOTAL_TIMEOUT_SECONDS", "600"))
         self.api_url = f"{self.host}/api/generate"
         self._model_max_context: Optional[int] = None
         self._model_max_context_queried = False
@@ -164,13 +177,23 @@ class OllamaProvider(LLMProvider):
         }
 
         try:
+            deadline = time.monotonic() + self.total_timeout_seconds
             with requests.post(
                 self.api_url, json=payload, stream=True,
                 timeout=self.timeout_seconds,
             ) as r:
                 r.raise_for_status()
-                
+
                 for line in r.iter_lines():
+                    # AN OVERRUN IS AN ERROR, NOT A SHORT ANSWER. Yielding the marker
+                    # rather than simply returning is what makes the caller COUNT this
+                    # instead of scoring it -- the same distinction v4-plan/section 8c.5
+                    # drew for empty generations, where a silent "" was indistinguishable
+                    # from a substantive wrong answer and cost 4 questions of a n=500 arm.
+                    if time.monotonic() > deadline:
+                        yield (f"\n[System Error: generation exceeded "
+                               f"{self.total_timeout_seconds:.0f}s total budget]")
+                        return
                     if not line:
                         continue
                         

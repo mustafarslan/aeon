@@ -159,6 +159,20 @@ def format_question_with_date(question: dict) -> str:
     )
 
 
+def _log_retry(reason: str, attempt: int, backoff_seconds: int) -> None:
+    """Announce a retry and the sleep about to follow it.
+
+    RETRIES WERE PREVIOUSLY SILENT, AND THAT IS A REAL DEFECT RATHER THAN A COSMETIC ONE.
+    The rate-limit path alone can legitimately consume `6 x (120s read timeout + 15s*n
+    backoff)` = about 17 minutes on ONE question while printing nothing, which is
+    indistinguishable from a hung process -- and was diagnosed as one during the v4.2
+    chronology cohort, costing an operator 18 minutes and a killed run before `lsof`
+    showed the socket state. A run that is waiting should say that it is waiting.
+    """
+    print(f"    [retry] {reason}; attempt {attempt}, sleeping {backoff_seconds}s",
+          flush=True)
+
+
 def _generate_with_retry(
     llm: OllamaProvider, prompt: str, system_prompt: str = "",
     temperature: float | None = None, retries: int = 3,
@@ -184,6 +198,7 @@ def _generate_with_retry(
             attempt += 1
             if attempt >= retries:
                 return f"[System Error: empty response after {attempt} attempts]"
+            _log_retry("empty response", attempt, 5 * attempt)
             time.sleep(5 * attempt)
             continue
         if _TRANSIENT_ERROR_MARKER not in last:
@@ -194,11 +209,14 @@ def _generate_with_retry(
             if rate_limit_attempt >= _MAX_RATE_LIMIT_RETRIES:
                 return last
             rate_limit_attempt += 1
+            _log_retry("rate limited (429)", rate_limit_attempt,
+                       _RATE_LIMIT_BACKOFF_SECONDS * rate_limit_attempt)
             time.sleep(_RATE_LIMIT_BACKOFF_SECONDS * rate_limit_attempt)
             continue
         attempt += 1
         if attempt >= retries:
             return last
+        _log_retry("transient error", attempt, 5 * attempt)
         time.sleep(5 * attempt)
 
 
