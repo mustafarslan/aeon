@@ -359,12 +359,12 @@ def render_records(records: Iterable[Record], *, weekdays: bool = True) -> str:
 def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_block: str,
             *, counting_hint: bool = True, premise_guard: bool = False,
             reconcile_hint: bool = False, timeline: bool = False,
-            retired: Sequence[Record] = ()) -> str:
+            retired: Sequence[Record] = (), weekdays: bool = True) -> str:
     """Assemble the single-call prompt. `question_block` is pre-rendered by the caller so the
     reference date travels with the question -- a field this project measured as worth ~19
     questions when it was missing."""
     recs = list(records)
-    parts = [RECORDS_HEADER, render_records(recs), ""]
+    parts = [RECORDS_HEADER, render_records(recs, weekdays=weekdays), ""]
     # ACTIVE STATE IS THE DEFAULT AND STAYS THE DEFAULT. `timeline=False` must produce output
     # byte-identical to the measured renderer -- pinned by
     # `test_timeline_flag_off_is_byte_identical`. A factual or counting question therefore

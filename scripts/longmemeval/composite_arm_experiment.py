@@ -64,6 +64,10 @@ def main() -> None:
     ap.add_argument("--split-seed", type=int, default=42)
     ap.add_argument("--attribution",
                     default="reproducibility_benchmarks/longmemeval/answer_turn_attribution.json")
+    ap.add_argument("--weekdays", choices=("on", "off"), default="on",
+                    help="Derived weekday annotation. 'off' reproduces the instrument the "
+                         "221-on-dev baseline was measured on, so a reader swap can be "
+                         "isolated from it.")
     ap.add_argument("--merge-records", default=None,
                     help="Path B: run consolidate() over the cached records with the "
                          "reconciliation-aware CONSOLIDATE_PROMPT, caching merged sets to "
@@ -172,7 +176,8 @@ def main() -> None:
         prompt = compose(records, epi["context"].splitlines(),
                          format_question_with_date(q),
                          counting_hint=args.counting_hint != "none",
-                         reconcile_hint=args.counting_hint == "reconcile")
+                         reconcile_hint=args.counting_hint == "reconcile",
+                         weekdays=args.weekdays == "on")
         t0 = time.perf_counter()
         hyp = _generate_with_retry(llm, prompt, system_prompt=args.system_prompt,
                                    temperature=0.0)
@@ -209,7 +214,7 @@ def main() -> None:
     }
     json.dump({"model": args.model, "mode": "composite (records + episodic, 1 call)",
                "split": args.split, "split_seed": args.split_seed,
-               "counting_hint": args.counting_hint,
+               "counting_hint": args.counting_hint, "weekdays": args.weekdays,
                "merge_records": bool(args.merge_records),
                "system_prompt": args.system_prompt,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)

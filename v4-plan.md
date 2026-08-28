@@ -7347,3 +7347,35 @@ gain, and one model swap produced +38 on the ceiling. **The highest-value next s
 in the memory system.** That is an uncomfortable result for a memory-systems paper and it is the one
 the evidence supports — with the compensating finding that Aeon's *efficiency* case (one call, 26k
 context, retrieval that is not the constraint) is orthogonal to reader choice and survives it intact.
+
+**COMPOSITE UNDER glm-5.2, PRE-REGISTERED 2026-08-28 before running.** The follow-up the reader-ceiling
+probe demands: the oracle ceiling moved +38, and the open question is whether **Aeon's own layer tracks
+the new ceiling the way it tracked the old one**, or whether its gains were specific to a weaker reader.
+
+*Configuration*: composite arm, dev split (n=252), generator `glm-5.2:cloud`, **judge held fixed at
+`gemma4:31b-cloud`**, records unchanged from the validated corpus, and **`--weekdays off`**. That last
+flag matters: weekday derivation was added after the 221 baseline was measured, so leaving it on would
+change the reader *and* the renderer at once and make the delta unattributable. The flag defaults to
+`on`, so nothing else changes.
+
+*The three numbers this is measured against, all on the same 252 questions*:
+
+| | correct | |
+|---|---|---|
+| composite @ `gemma4` | **221** (87.7%) | the reader-only baseline |
+| oracle @ `gemma4` | 216 (85.7%) | the old ceiling — composite was **+5 above it** |
+| oracle @ `glm-5.2` | **232** (92.1%) | **the new ceiling** |
+
+*Committed readings, written before the run*:
+- **>= 232** — the layer generalises across reader tiers: it reaches perfect-evidence selection on a
+  frontier reader as it did on the local one, and the "+5 above the oracle" relationship survives.
+- **222–231** — it improves with the reader but **no longer reaches the ceiling**. That gap would be a
+  new finding and the most useful outcome for knowing what to build next, since it would mean a
+  stronger reader extracts more from gold evidence than from Aeon's records.
+- **<= 221** — the layer is **reader-specific**, and the composite's gains do not transfer. That would
+  be the most important negative result of the whole direction.
+
+*Limits stated before the result.* `glm-5.2`'s own noise floor is unmeasured, so there is no calibrated
+bar; the oracle probe's +38 at p=7.6e-07 was far outside any plausible noise, but a small delta here
+could not be read the same way. And **absolute numbers remain non-comparable to published leaderboards**
+— a deliberately weaker judge is held fixed to isolate the reader.
