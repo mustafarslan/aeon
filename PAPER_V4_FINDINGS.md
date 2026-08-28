@@ -32,10 +32,22 @@ Supporting measurements, all n=500, same model/judge/seed (§2):
 | extract-then-compute (ETC) | 82.6% | 100,889 | 2 | 2.46 s | 4.09 |
 | ETC, deep retrieval (`top_k`=200, `max_sessions`=20) | 83.2% | 270,972 | 2 | 4.47 s | 1.54 |
 | **oracle-precision (answer turns ±1)** | **83.8%** | **5,654** | **1** | **0.51 s** | **74.10** |
+| **composite — records + episodic (this work)** | **85.8%** | **26,056** | **1** | **0.85 s** | **32.93** |
 
-The last row is an oracle (§6.1). Its significance is not the accuracy — which is statistically tied
-with ETC — but that the same accuracy is reachable at **1/18th the context, half the LLM calls, and
-1/5th the generation latency**.
+The oracle row (§6.1) is not a system: it is handed the gold `has_answer` turns. Its significance is
+that the same accuracy is reachable at **1/18th the context, half the LLM calls, and 1/5th the
+generation latency** — 1/18th being 5,654 against the 100,889 of the two full-context arms.
+
+**The composite is the first arm to reach that accuracy without gold annotations** (§8b, §10). Paired
+on all 500: **+16 vs ETC (McNemar +59/−43, p=0.137)**, **+41 vs single-shot (+77/−36, p<0.001)**, and
+**+10 vs the oracle (+54/−44, p=0.363) — statistically tied with the ceiling, nominally above it.**
+
+*Two attributions to keep straight, because an external summary of this work conflated them.* The
+1/18th-context and 1/5th-latency figures belong to the **oracle**, measured against the 100,889-char
+arms. The composite's own efficiency claim is **against ETC: 3.9× less context and 2.9× faster
+generation**. Measured against the *oracle* the composite uses **4.6× more** context (26,056 vs 5,654)
+and is **1.7× slower** (0.85 s vs 0.51 s) — it buys its independence from gold annotations with
+context, and that is the honest trade.
 
 ---
 
@@ -236,6 +248,79 @@ unpassable independent of whether the change worked. Recorded rather than silent
 
 ---
 
+### 6.7 Four reader-side interventions, four nulls — and the sequence is the result
+
+Each was pre-registered with bars before running, on a held-out-gated dev split (n=252, frozen records,
+measured answer-stage noise 3.0% → sd 2.7).
+
+| intervention | Δ | McNemar | verdict |
+|---|---|---|---|
+| co-referent collapse (dedup entities across buckets) | +1 | +3/−2, p=1.000 | null |
+| chronological ordering of dated records | +1 | +3/−2, p=1.000 | null |
+| reconciliation-aware counting directive | −1 | +6/−7, p=1.000 | null |
+| the library's own (never-sent) system prompt | **−13** | +3/−16, **p=0.0044** | harmful |
+
+**No single row is the finding; the sequence is.** After chronological ordering the model *cites both
+dates in its own answer and sums them anyway* — `"Three tops (bought 2023/08/11), Five tops (bought
+2023/09/30) — Total: 8"` against a gold of 5. Under the reconciliation directive it answers `"a total
+of 8 tops (three tops on 2023/08/11 and five tops on 2023/09/30)"`. The directive is present, read, and
+loses. **The reader makes a semantic judgement — "revised total or second purchase?" — that
+instruction, ordering and deduplication do not change.** Only removing the stale record from the
+context does (§10). That is what justified moving the work from the read path to the write path, and it
+is a transferable result about prompt-level intervention rather than about this benchmark.
+
+Each null also falsified its own motivating mechanism, which is why they were worth running:
+co-referent duplicates *are* 1.8× denser on overcount errors than the corpus median, and collapsing
+them still fixed nothing — `gpt4_59c863d7`'s duplicate collapsed, its count moved 7→6, and it stayed
+wrong against a gold of 5. **The duplicate was a co-occurring symptom, not the binding constraint.**
+
+### 6.8 A latent regression shipped in the library and never fired
+
+`COMPOSE_SYSTEM` was defined in the read path and **referenced nowhere** — not in the package, not in
+the harness, not in tests — so every number in this document was produced with an empty system prompt.
+Measured for the first time: sending it scores **207 against 220 (n=252, p=0.0044)**. The cause is
+visible in the outputs rather than inferred — **median answer length collapses from 172 characters to
+49**, because *"Answer as concisely as possible — a short phrase or sentence"* truncates exactly the two
+types that need room: single-session-preference (−5), whose judge is a **rubric** rewarding a response
+that reflects the user's stated preferences, and temporal-reasoning (−4), which needs the arithmetic
+shown. It is retained, annotated with this measurement, rather than deleted — a production read path
+will want *some* system prompt, and this records what a revised one must avoid.
+
+### 6.9 An acceptance bar that was unpassable by construction — the third instance
+
+The supersession work was pre-registered with a primary bar of ≥229 on a 252-question split. That bar
+could not be cleared by a *perfect* fix: **knowledge-update carries 4 errors on the entire
+500-question benchmark**, against a detection threshold of 11.6. The bar was withdrawn mid-flight,
+before any result existed.
+
+This is the third occurrence in this project's record — after the ETC-v3 floors (§6.6) and a set of
+collateral guards placed at the baseline value with no noise band — **and the first written by the
+author of this document.** The standing rule was "bars at ≥2× the measured noise sd"; ≥2σ alone did not
+prevent any of the three. **The rule is amended to "≥2σ *and* checked against the available headroom
+for the mechanism under test."**
+
+### 6.10 A measurement that got worse with more data, and the worse number is the one recorded
+
+The derived resolver that links a supersession marker back to the record it retires was first measured
+at **4 of 9 (44%)** on 20 questions. Across all 55 available: **12 of 39 (31%)**, with 5 dangling and 22
+unresolved. The failure modes are bare-date markers, paraphrases, and assertions the merge did not
+execute. The larger, less flattering figure supersedes the first and is the one carried in the code.
+31% is also the argument for the durable edge log in §10: it is not an enhancement layered on the
+resolver, it is the answer to the resolver being weak.
+
+### 6.11 External claims about this work, checked and rejected
+
+An external summary of these results circulated with figures that do not survive checking. Recorded
+because the corrections are more instructive than the claims:
+
+| claim | what the repo actually measures |
+|---|---|
+| "matches the oracle at **1/18th the context, 2.9× faster**" | 1/18th and the latency ratio are the **oracle's** properties vs the 100,889-char arms. The composite uses **4.6× more** context than the oracle and is **1.7× slower**. Its true efficiency claim is vs ETC (3.9×, 2.9×). |
+| "ingest enqueues in **163 ns into mmap C++ WAL**" | 163 ns is a **Python `set.add` under a lock** (`DirtyQueue.mark_dirty`), explicitly *not* crash-safe — its own docstring says process death loses every pending entry. The C++ insert path is 2.23 µs. No committed benchmark reproduces the 163 ns. |
+| "`TraceRole::Action`, SIMD linear scans (RAT), architected for action-observation-reward trajectories" | `TraceRole` is exactly `{User, System, Concept, Summary}`. Nothing named **RAT** exists. `TraceBlockIndex` is SIMD but **block-pruned, not linear**. The design is an mmap episodic conversation log with session isolation and supersession. |
+| "**MemPalace 96.6%** beats this work" | That figure is **retrieval recall @ top-5, not QA accuracy** — its own benchmark document warns the two are not comparable. The comparable figure here is **94.6%** (evidence reached the model on 473 of 500). |
+| "V2: even gold oracles average ~37.5%" | One **n=40** bypass-oracle run on a single model with `MAX_ORACLE_STATES=10` — not a field average. The V2 paper reports a coding-agent memory at **72.5%**. |
+
 ## 7. Latency: where the time actually goes
 
 | configuration | Aeon retrieval | LLM generation | Aeon's share |
@@ -296,9 +381,90 @@ faster generation, with consolidation paid once at write time (ingest enqueues i
 *Limits*: the 84.7% is not comparable to n=500 figures (this sample is enriched with hard cases; only
 the paired comparison is valid); on the normal 58-question slice the composite is 50 vs ETC's 52 —
 inside noise but not an improvement, so **the gain is concentrated on hard retrieval and temporal
-questions, not uniform**; abstention −1; and the composite has not yet been run at n=500.
+questions, not uniform**; and abstention −1.
 
-## 9. Open items before publication
+**CONFIRMED AT n=500 (2026-08-27). `n_errors=0`. 429/500 = 85.8%**, and the reading is deliberately
+two-sided:
+
+| bar, pre-registered before the run | result |
+|---|---|
+| PRIMARY ≥ 425 | **PASS — 429** |
+| COLLATERAL GUARD (no type > 2× its own sd below ETC) | **BREACH — abstention 22 vs floor 22.4** |
+| KNOWN-MISS FLOOR ≥ 15 of 27 | **PASS — 22/27**, against ETC's 2 |
+
+**The primary bar passes and the paired test does not confirm it.** +16 over ETC carries **p=0.137**:
+the bar was set against a repeat-run sd, McNemar tests discordant pairs, and here the two instruments
+disagree. Both are reported rather than whichever is more flattering. Only two per-type effects are
+real: **single-session-preference +15** (15 wins, 0 losses, p<0.001) and **abstention −6** (0 wins, 6
+losses, p=0.031). Excluding abstention the composite is +22 at p=0.032 — post-hoc, and labelled as
+such, but it means one 30-question slice is what keeps the headline from being significant.
+
+*The abstention breach is a design tension, not a bug.* Read in full, five of the six lost questions
+**identify the unsupported premise and then override themselves with a committed answer** — `Answer: 0`,
+`Total: 10 days`, a computed "4 years and 9 months". ETC abstains there because its extract stage found
+nothing to compute with; the composite holds ~270 records and therefore always has *something* to
+compute with. **The same density that recovers 22 of 27 known retrieval misses is what induces
+over-answering on unsupported premises.** The obvious fix was measured and rejected (§6.9).
+
+## 9. The write path: cross-session supersession
+
+**The operation per-session extraction structurally cannot perform.** Extraction runs per session and
+in parallel, so the worker reading a September session has never seen the August one and cannot know
+that "five tops from H&M" revises "three tops from H&M". That — not a weak prompt — is why the
+`supersedes` field was populated on **4 of 133,902 records** and on **0 of 72** knowledge-update
+corpora. Accumulation is global; extraction is local.
+
+A **global merge pass** sees all of a user's records at once and can. With a reconciliation step added
+to the merge prompt, it produced **39 supersession markers across 55 questions**, where the entire
+prior 500-question corpus held 4. The records go from two live lines to one:
+
+> `ITEM(FINANCE/loan pre-approval): $400,000 from Wells Fargo [2023/11/30] [supersedes $350,000 from Wells Fargo]`
+
+**Two named target conversions**, on the merged instrument: `852ce960` stopped answering the stale
+$350,000 against a gold of $400,000, and `4b24c848` went from `3 + 5 = 8` to 5. A third apparent
+conversion (`5831f84d`) is **discounted**: it answered correctly in all three cells of an earlier
+ablation including the unmodified one, so it is a variance case and counting it would inflate two
+into three.
+
+**The mechanism works and no aggregate claim is available — those are separate statements, and the
+second was established before the run.** Per §6.9, knowledge-update carries 4 errors on the whole
+benchmark against a threshold of 11.6.
+
+| dev split, n=252 | result |
+|---|---|
+| aggregate | 223 vs 221 baseline — **+2, p=0.754** |
+| knowledge-update *(the targeted type)* | **35/36, +3** — clears that type's own 2σ of ~2.1 |
+| corpus-damage guard *(losses among 221 previously correct)* | **4**, against a threshold of 8.2 |
+
+**35/36 is not a benchmark win.** It clears the *type* threshold while contributing nothing detectable
+to the aggregate — the shape of this project's standing rule that cohorts prove mechanism and only
+aggregates decide worth. The corpus-damage guard is the result that licenses shipping the merge: it
+rewrites 2.4% of records and does not destroy facts.
+
+**Supersession is made traversable rather than merely applied.** It had been expressed in three places
+that never met — a free-text `supersedes` marker with no id, an Atlas flag recording *no target*, and a
+durable `TraceEvent` edge with five writers and **zero readers**. A derived overlay joins them, giving
+edges their own tenant-namespaced session so `get_history()` — the only exposed reader, requiring a
+session id and offering no filter — becomes one bounded call. Active-state projection is the default
+and byte-identical to the measured renderer; timeline projection is opt-in. No kernel change, no WAL
+record type, no schema change.
+
+## 10. Production defects found while wiring the layer into a server
+
+Not paper results. They are recorded because the contribution claims a *production* memory system, and
+each was reproduced before being fixed.
+
+| defect | reproduction |
+|---|---|
+| **Cross-tenant record leak** | Two stores on one file: tenant B's `all_records()` returned `['tenant A salary is $400,000', 'tenant B salary is $90,000']`. Atlas and Trace share one file and isolate by `session_id`; that convention does **not** transfer, because the record read path is a whole-file scan with no tenant argument. Fixed with per-tenant files. |
+| **Category scan returned a silent subset** | Insert MEDIA, POSSESSION, MEDIA — the kernel subtree walk returns **1 of 2**. Atlas requires children to be physically adjacent and inserts append at the tail, so interleaved writes (the normal case) make later children invisible. The module docstring claiming "a kernel subtree walk, not a Python filter" was false in production and is corrected. |
+| **Erased and superseded records still reached the prompt** | `supersede_node()`/`tombstone_node()` set flags that exclude a node from **beam search and nothing else**; enumeration never consulted them. With the flag confirmed set, the old path returned `['current', 'stale']`. |
+| **Erasure cascade aimed at the wrong party** | The endpoint's `user_id` is the **admin executing the request**, not the data subject — the cascade would have deleted the operator's records and left the subject's intact. Now resolved per tenant. The same fix revived the cascade at all: the parameter existed and was never passed. |
+| **A 26-question regression waiting in the library** | §6.8. |
+| **Unbounded mmap handle leak** | Per-tenant stores mean one live handle per tenant; the session evictor popped only two dictionaries. |
+| **~42 GB of duplicated model weights** | Each session built its own SentenceTransformer — at 100 sessions, ~100 copies of a ~420 MB model. Replaced with a process singleton, which also supplies the background consolidator's embedding function. |
+
+## 11. Open items before publication
 
 - [x] **Real reranker vs the 74.10 correct-per-1k-chars ceiling** — FIRST ANSWER (tier 2, n=85):
       a sub-turn selector reaches **5.52 correct/1k chars = 7.4% of the oracle ceiling**, which is
@@ -332,6 +498,29 @@ questions, not uniform**; abstention −1; and the composite has not yet been ru
       inside the n=18 noise floor. Schema locked on mechanism grounds; aggregate claim deferred to
       the composite n=500. A negative-result reminder that mechanism fixes verified on diagnosed
       cases do not automatically show at cohort scale.
+- [x] **Does consolidation cost accuracy on already-passing questions? (composite n=500)** — ANSWERED
+      (§8b): no. 429/500, primary bar passed, and the one collateral breach is abstention, whose cause
+      is now understood (§8b) and whose obvious fix was measured and rejected (§6.9).
+- [ ] **Confirm findings hold on ≥1 additional model — now the highest-value open item, and no longer
+      hygiene.** Published LongMemEval QA-accuracy results sit at 94–96% on stacks with frontier
+      readers and the benchmark's official GPT-4o judge; every number here is single-model, with one
+      31B model serving as **both generator and judge**, and §2 already states this makes absolute
+      numbers non-comparable. The diagnosis that transfers is **reader-bound**: with the gold
+      answer-bearing turns handed to it, this generator reaches only 83.8%, and the composite is
+      statistically tied with that ceiling. A generator-swap probe (oracle arm, judge held fixed) is
+      the direct test and is pre-registered in `v4-plan.md`.
+- [ ] **`event_time` is never written in production**, so session dates fall back to insertion
+      wall-clock — correct for live chat, wrong for imported or backfilled history, and `Record.date`
+      ultimately reads it.
+- [ ] **The consolidation dirty-queue is not durable**: an in-memory set, so process death loses every
+      pending session. The kernel-aligned fix is to make dirty state derivable from a Trace watermark
+      rather than adding a second write-ahead structure.
+- [ ] **429 may be this instrument's ceiling, and that is a finding rather than a gap.** Six
+      interventions produced no net aggregate gain. The residual 71 errors are **33 multi-session and
+      20 temporal-reasoning** — dominated by predicate-boundary judgement ("is a rearranged sofa
+      something I *bought*?") and multi-fact arithmetic. §6.7 establishes that neither is reachable by
+      record hygiene or by instruction; §9 establishes that the write path reaches only the
+      supersession subset, which is too small to measure.
 - [ ] (superseded framing) 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
       wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
       oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.
