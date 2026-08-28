@@ -555,6 +555,80 @@ saturated; the residual is overwhelmingly reader-bound.**
 not transferable*: the oracle's advantage comes entirely from gold `has_answer` annotations that do not
 exist in production. It bounds what any downstream work could reach; it is not itself a result.
 
+### 8c.7 Localising the residual: it is aggregation, not retrieval — and §5.2 already tested the fix
+
+*The obvious reading of §8c.6 is that the oracle's 36 wins are a retrieval gap, and the obvious fix is
+a bigger episodic budget. Both were tested. The reading is wrong and the fix has already failed once.*
+
+**Coverage confirms a retrieval gap exists.** On the 36 questions the oracle wins and the composite
+loses, answer-turn coverage of the composite's own episodic slice is far below that of questions it
+answers correctly. The control group is what makes this readable — a low number on the losses alone
+would not distinguish signal from a too-crude containment test:
+
+| | losses (n=30) | control, both correct (n=59) | Fisher, two-sided |
+|---|---|---|---|
+| mean answer-turn coverage | 51.6% | 79.9% | — |
+| all answer turns present | 30% | 63% | **p = 0.0066** |
+| **no answer turn present** | **20%** | **3%** | **p = 0.016** |
+
+**The missing turns are reachable, but only deep in the ranking.** Re-selecting the *same* index at
+larger budgets (one encoder pass per question, no LLM calls):
+
+| episodic budget | losses: mean cov | losses: none present | control: mean cov |
+|---|---|---|---|
+| 6,000 *(shipped)* | 51.6% | 20% | 86.3% |
+| 12,000 | 64.3% | 17% | 93.6% |
+| 24,000 | 76.1% | 7% | 98.0% |
+| 48,000 | 86.0% | 3% | 99.3% |
+
+Coverage climbs steeply and has not plateaued at 8× the budget, while the control saturates by 24,000.
+So the answer-bearing turns *are* ranked by the existing selector — there is simply no room for them at
+6,000 chars.
+
+**And this is the free rung of a ladder §5.2 already climbed to the top, where it returned a null.**
+That experiment raised retrieval depth, measured coverage of the known misses rising **56.9% → 94.4%**
+(the same shape as the curve above), confirmed a **17/25 cohort gain**, and then found the aggregate
+effect was **+3 questions of 500 at 2.69× context and 1.8× latency** — because deep retrieval improves
+findability and *degrades aggregation*.
+
+**The loss profile predicts the same outcome here.** §5.2 decomposed the effect by how many answer
+turns a question requires: deep retrieval helped 1-turn questions (+9) and hurt 2-turn (−5) and 3+-turn
+(−2) questions. The composite's losses are concentrated in exactly the shapes it hurts:
+
+| answer turns required | losses | of 500 | loss rate | §5.2 verdict |
+|---|---|---|---|---|
+| 1 | 8 | 182 | 4.4% | deep helps |
+| 2 | 9 | 229 | 3.9% | deep hurts |
+| **3+** | **13** | **68** | **19.1%** | deep hurts |
+
+**61% of the losses need 2+ answer turns.** Raising the budget is therefore predicted to be net-neutral
+at best, and this project has already paid four hours to learn that.
+
+**The decisive number is the accuracy gradient, which localises the entire gap to one bucket:**
+
+| answer turns | n | composite @ `glm-5.2` | oracle @ `glm-5.2` | composite @ `gemma4` |
+|---|---|---|---|---|
+| 1 | 182 | **92.9%** | 90.7% | 91.2% |
+| 2 | 229 | **93.0%** | 91.7% | 89.5% |
+| **3+** | **68** | **75.0%** | **89.7%** | **55.9%** |
+
+**The composite beats gold-evidence selection at one and two answer turns, on both readers.** Its
+entire deficit is the 68 questions requiring three or more: 51/68 against the oracle's 61/68 — a gap of
+10, which is the whole −9 net difference between the arms. *Consolidation is not losing evidence; it is
+losing multi-fact aggregation over evidence it holds.*
+
+That is also where the reader swap lands: the 3+ bucket moves **55.9% → 75.0%** on the reader change
+alone, against 89.7% for the same reader given gold turns. It is the same conclusion §8c.6 reached from
+the residual partition, reached independently from the evidence side: **the remaining work is
+aggregation capability, not memory capacity, and retrieval volume is not a lever on it.**
+
+*One check on the abstention comparison, since it would otherwise be an artefact.* 21 of the 30
+abstention questions have no `has_answer` turn at all, so the oracle cannot be receiving gold evidence
+for them. It is not: the harness falls back to ordinary top-8 retrieval (`ABSTENTION_EVENTS = 8`,
+`unit="none"`), landing at a median 6,164 chars. **The oracle's abstention advantage is earned, not
+free** — and the mechanism is the one §8b named: it abstains on ~6k chars of retrieved text where the
+composite holds ~270 records and 26k chars, and therefore always has something to compute with.
+
 ## 9. The write path: cross-session supersession
 
 **The operation per-session extraction structurally cannot perform.** Extraction runs per session and
