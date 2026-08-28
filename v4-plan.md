@@ -7296,3 +7296,54 @@ instrument and used only as a rough guide.
 - **Ceiling does not move** → the more interesting result, and it would refute the reader-bound
   diagnosis: it would mean the residual errors are not reader-capability-bound either, and the
   remaining explanation would be the judge, the benchmark's own answer conventions, or both.
+
+**READER-CEILING PROBE RESULT (2026-08-28). `n_errors=0`. The ceiling moves, decisively.**
+
+| oracle arm, n=500, judge held fixed at `gemma4:31b-cloud` | correct |
+|---|---|
+| generator `gemma4:31b-cloud` (the committed baseline) | 419 / 500 = **83.8%** |
+| generator `glm-5.2:cloud` | **457 / 500 = 91.4%** |
+
+**+38, McNemar +49/−11, p = 7.6 × 10⁻⁷.** The judge was the same model in both arms, so **the reader
+is the only variable**, and this is the largest and most significant effect measured anywhere in this
+project — larger than every read-path intervention combined, and in the opposite direction to all of
+them.
+
+**Where it lands is the diagnosis restated.** The two types the whole sprint failed to move are exactly
+the two that move here:
+
+| type | glm-5.2 | gemma4 | Δ |
+|---|---|---|---|
+| temporal-reasoning | 119 | 100 | **+19** |
+| multi-session | 110 | 95 | **+15** |
+| single-session-preference | 18 | 15 | +3 |
+| everything else | | | ±1 |
+
+Multi-session and temporal are the **33 and 20 remaining errors** that six interventions left untouched,
+and that §6.7 concluded were "predicate-boundary judgement and multi-fact arithmetic — neither reachable
+by record hygiene or by instruction". **They were reader-capability errors.** Swapping the reader
+recovers 34 of them with the evidence held identical.
+
+**What this settles, and what it does not.**
+
+*Settles*: the gap between this project's 85.8% and the published 94–96% QA-accuracy results is a
+**reader gap**, not a memory-architecture gap. Aeon's retrieval already delivers the evidence on 94.6%
+of questions, 93% of its residual errors are not retrieval failures, and the composite is statistically
+tied with the *old* reader's perfect-evidence ceiling. The committed reading written before the run —
+"a moving ceiling confirms reader-bound as a property of this stack" — is the one that occurred.
+
+*Does not settle*: **what the composite scores under the new reader.** The oracle is handed gold
+`has_answer` turns; the composite must find its own evidence. **429 vs 457 is not a valid comparison** —
+different readers, different arms. The new ceiling is 457, and where the composite lands beneath it is
+unmeasured. **No claim is made about it here**, and pairing the old composite against the new oracle
+would be exactly the instrument-conflation this project has corrected twice.
+
+*Also unchanged*: absolute numbers remain non-comparable to published leaderboards, which use the
+benchmark's official GPT-4o judge. This probe deliberately held a weaker judge fixed to isolate the
+reader; it does not license a leaderboard claim.
+
+**The honest consequence for the sprint.** Six interventions on a 31B reader produced no net aggregate
+gain, and one model swap produced +38 on the ceiling. **The highest-value next step for accuracy is not
+in the memory system.** That is an uncomfortable result for a memory-systems paper and it is the one
+the evidence supports — with the compensating finding that Aeon's *efficiency* case (one call, 26k
+context, retrieval that is not the constraint) is orthogonal to reader choice and survives it intact.

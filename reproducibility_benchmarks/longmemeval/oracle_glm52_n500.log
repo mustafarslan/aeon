@@ -329,3 +329,229 @@ Model: glm-5.2:cloud
 [325/500] gpt4_65aabe59 (temporal-reasoning) -> OK (14153 chars, oracle)
 [326/500] 982b5123 (temporal-reasoning) -> OK (5038 chars, oracle)
 [327/500] b9cfe692 (temporal-reasoning) -> OK (5625 chars, oracle)
+[328/500] gpt4_4edbafa2 (temporal-reasoning) -> OK (3920 chars, oracle)
+[329/500] c8090214 (temporal-reasoning) -> OK (4870 chars, oracle)
+[330/500] gpt4_483dd43c (temporal-reasoning) -> OK (5014 chars, oracle)
+[331/500] e4e14d04 (temporal-reasoning) -> OK (4457 chars, oracle)
+[332/500] c9f37c46 (temporal-reasoning) -> OK (5728 chars, oracle)
+[333/500] gpt4_2c50253f (temporal-reasoning) -> OK (5076 chars, oracle)
+[334/500] dcfa8644 (temporal-reasoning) -> OK (5517 chars, oracle)
+[335/500] gpt4_b4a80587 (temporal-reasoning) -> OK (9759 chars, oracle)
+[336/500] gpt4_9a159967 (temporal-reasoning) -> OK (9087 chars, oracle)
+[337/500] cc6d1ec1 (temporal-reasoning) -> OK (5040 chars, oracle)
+[338/500] gpt4_8c8961ae (temporal-reasoning) -> WRONG (8841 chars, oracle)
+[339/500] gpt4_d9af6064 (temporal-reasoning) -> OK (5247 chars, oracle)
+[340/500] gpt4_7de946e7 (temporal-reasoning) -> OK (4598 chars, oracle)
+[341/500] d01c6aa8 (temporal-reasoning) -> OK (10239 chars, oracle)
+[342/500] 993da5e2 (temporal-reasoning) -> OK (3978 chars, oracle)
+[343/500] a3045048 (temporal-reasoning) -> OK (5833 chars, oracle)
+[344/500] gpt4_d31cdae3 (temporal-reasoning) -> OK (8107 chars, oracle)
+[345/500] gpt4_cd90e484 (temporal-reasoning) -> OK (8099 chars, oracle)
+[346/500] gpt4_88806d6e (temporal-reasoning) -> OK (2979 chars, oracle)
+[347/500] gpt4_4cd9eba1 (temporal-reasoning) -> OK (7166 chars, oracle)
+[348/500] gpt4_93f6379c (temporal-reasoning) -> OK (5559 chars, oracle)
+[349/500] b29f3365 (temporal-reasoning) -> OK (5859 chars, oracle)
+[350/500] gpt4_2f56ae70 (temporal-reasoning) -> OK (7075 chars, oracle)
+[351/500] 6613b389 (temporal-reasoning) -> OK (4758 chars, oracle)
+[352/500] gpt4_78cf46a3 (temporal-reasoning) -> OK (7916 chars, oracle)
+[353/500] gpt4_0a05b494 (temporal-reasoning) -> OK (10745 chars, oracle)
+[354/500] gpt4_1a1dc16d (temporal-reasoning) -> OK (8486 chars, oracle)
+[355/500] gpt4_2f584639 (temporal-reasoning) -> OK (7477 chars, oracle)
+[356/500] gpt4_213fd887 (temporal-reasoning) -> OK (9313 chars, oracle)
+[357/500] gpt4_5438fa52 (temporal-reasoning) -> OK (6710 chars, oracle)
+[358/500] gpt4_c27434e8 (temporal-reasoning) -> OK (7195 chars, oracle)
+[359/500] gpt4_fe651585 (temporal-reasoning) -> WRONG (7270 chars, oracle)
+[360/500] 8c18457d (temporal-reasoning) -> OK (10392 chars, oracle)
+[361/500] gpt4_70e84552_abs (temporal-reasoning) -> OK (3556 chars, oracle)
+[362/500] gpt4_93159ced_abs (temporal-reasoning) -> OK (1937 chars, retrieved-abstention)
+[363/500] 982b5123_abs (temporal-reasoning) -> OK (2803 chars, oracle)
+[364/500] c8090214_abs (temporal-reasoning) -> OK (6940 chars, oracle)
+[365/500] gpt4_c27434e8_abs (temporal-reasoning) -> OK (3373 chars, oracle)
+[366/500] gpt4_fe651585_abs (temporal-reasoning) -> OK (2842 chars, oracle)
+[367/500] 6a1eabeb (knowledge-update) -> OK (9321 chars, oracle)
+[368/500] 6aeb4375 (knowledge-update) -> OK (6805 chars, oracle)
+[369/500] 830ce83f (knowledge-update) -> OK (10854 chars, oracle)
+[370/500] 852ce960 (knowledge-update) -> WRONG (5892 chars, oracle)
+[371/500] 945e3d21 (knowledge-update) -> OK (8767 chars, oracle)
+[372/500] d7c942c3 (knowledge-update) -> OK (6411 chars, oracle)
+[373/500] 71315a70 (knowledge-update) -> OK (9386 chars, oracle)
+[374/500] 89941a93 (knowledge-update) -> OK (12303 chars, oracle)
+[375/500] ce6d2d27 (knowledge-update) -> WRONG (6236 chars, oracle)
+[376/500] 9ea5eabc (knowledge-update) -> OK (10174 chars, oracle)
+[377/500] 07741c44 (knowledge-update) -> OK (7509 chars, oracle)
+[378/500] a1eacc2a (knowledge-update) -> OK (9045 chars, oracle)
+[379/500] 184da446 (knowledge-update) -> OK (6333 chars, oracle)
+[380/500] 031748ae (knowledge-update) -> OK (5439 chars, oracle)
+[381/500] 4d6b87c8 (knowledge-update) -> OK (9705 chars, oracle)
+[382/500] 0f05491a (knowledge-update) -> OK (4368 chars, oracle)
+[383/500] 08e075c7 (knowledge-update) -> OK (9792 chars, oracle)
+[384/500] f9e8c073 (knowledge-update) -> OK (12667 chars, oracle)
+[385/500] 41698283 (knowledge-update) -> OK (9228 chars, oracle)
+[386/500] 2698e78f (knowledge-update) -> OK (10972 chars, oracle)
+[387/500] b6019101 (knowledge-update) -> OK (7120 chars, oracle)
+[388/500] 45dc21b6 (knowledge-update) -> OK (8628 chars, oracle)
+[389/500] 5a4f22c0 (knowledge-update) -> OK (7539 chars, oracle)
+[390/500] 6071bd76 (knowledge-update) -> OK (4418 chars, oracle)
+[391/500] e493bb7c (knowledge-update) -> OK (9596 chars, oracle)
+[392/500] 618f13b2 (knowledge-update) -> WRONG (6309 chars, oracle)
+[393/500] 72e3ee87 (knowledge-update) -> OK (6268 chars, oracle)
+[394/500] c4ea545c (knowledge-update) -> OK (5917 chars, oracle)
+[395/500] 01493427 (knowledge-update) -> OK (10155 chars, oracle)
+[396/500] 6a27ffc2 (knowledge-update) -> OK (9862 chars, oracle)
+[397/500] 2133c1b5 (knowledge-update) -> OK (7699 chars, oracle)
+[398/500] 18bc8abd (knowledge-update) -> OK (8890 chars, oracle)
+[399/500] db467c8c (knowledge-update) -> OK (11009 chars, oracle)
+[400/500] 7a87bd0c (knowledge-update) -> OK (6055 chars, oracle)
+[401/500] e61a7584 (knowledge-update) -> OK (8347 chars, oracle)
+[402/500] 1cea1afa (knowledge-update) -> OK (7527 chars, oracle)
+[403/500] ed4ddc30 (knowledge-update) -> OK (8937 chars, oracle)
+[404/500] 8fb83627 (knowledge-update) -> OK (10907 chars, oracle)
+[405/500] b01defab (knowledge-update) -> OK (7222 chars, oracle)
+[406/500] 22d2cb42 (knowledge-update) -> OK (3494 chars, oracle)
+[407/500] 0e4e4c46 (knowledge-update) -> OK (10143 chars, oracle)
+[408/500] 4b24c848 (knowledge-update) -> OK (5061 chars, oracle)
+[409/500] 7e974930 (knowledge-update) -> OK (6258 chars, oracle)
+[410/500] 603deb26 (knowledge-update) -> OK (7806 chars, oracle)
+[411/500] 59524333 (knowledge-update) -> OK (8183 chars, oracle)
+[412/500] 5831f84d (knowledge-update) -> OK (5601 chars, oracle)
+[413/500] eace081b (knowledge-update) -> OK (5100 chars, oracle)
+[414/500] affe2881 (knowledge-update) -> OK (9128 chars, oracle)
+[415/500] 50635ada (knowledge-update) -> OK (7916 chars, oracle)
+[416/500] e66b632c (knowledge-update) -> WRONG (9320 chars, oracle)
+[417/500] 0ddfec37 (knowledge-update) -> OK (3793 chars, oracle)
+[418/500] f685340e (knowledge-update) -> OK (2929 chars, oracle)
+[419/500] cc5ded98 (knowledge-update) -> OK (9307 chars, oracle)
+[420/500] dfde3500 (knowledge-update) -> OK (6695 chars, oracle)
+[421/500] 69fee5aa (knowledge-update) -> WRONG (8662 chars, oracle)
+[422/500] 7401057b (knowledge-update) -> OK (5695 chars, oracle)
+[423/500] cf22b7bf (knowledge-update) -> OK (10638 chars, oracle)
+[424/500] a2f3aa27 (knowledge-update) -> WRONG (8255 chars, oracle)
+[425/500] c7dc5443 (knowledge-update) -> OK (5242 chars, oracle)
+[426/500] 06db6396 (knowledge-update) -> OK (8246 chars, oracle)
+[427/500] 3ba21379 (knowledge-update) -> OK (10301 chars, oracle)
+[428/500] 9bbe84a2 (knowledge-update) -> OK (9006 chars, oracle)
+[429/500] 10e09553 (knowledge-update) -> OK (9049 chars, oracle)
+[430/500] dad224aa (knowledge-update) -> OK (7910 chars, oracle)
+[431/500] ba61f0b9 (knowledge-update) -> OK (8906 chars, oracle)
+[432/500] 42ec0761 (knowledge-update) -> OK (7761 chars, oracle)
+[433/500] 5c40ec5b (knowledge-update) -> OK (6520 chars, oracle)
+[434/500] c6853660 (knowledge-update) -> WRONG (5742 chars, oracle)
+[435/500] 26bdc477 (knowledge-update) -> OK (7156 chars, oracle)
+[436/500] 0977f2af (knowledge-update) -> OK (10353 chars, oracle)
+[437/500] 6aeb4375_abs (knowledge-update) -> OK (6463 chars, retrieved-abstention)
+[438/500] 031748ae_abs (knowledge-update) -> OK (6369 chars, retrieved-abstention)
+[439/500] 2698e78f_abs (knowledge-update) -> OK (9730 chars, retrieved-abstention)
+[440/500] 2133c1b5_abs (knowledge-update) -> OK (3735 chars, retrieved-abstention)
+[441/500] 0ddfec37_abs (knowledge-update) -> OK (8566 chars, retrieved-abstention)
+[442/500] f685340e_abs (knowledge-update) -> OK (4783 chars, retrieved-abstention)
+[443/500] 89941a94 (knowledge-update) -> OK (12303 chars, oracle)
+[444/500] 07741c45 (knowledge-update) -> OK (7509 chars, oracle)
+[445/500] 7161e7e2 (single-session-assistant) -> OK (1269 chars, oracle)
+[446/500] c4f10528 (single-session-assistant) -> OK (1506 chars, oracle)
+[447/500] 89527b6b (single-session-assistant) -> OK (2851 chars, oracle)
+[448/500] e9327a54 (single-session-assistant) -> OK (1978 chars, oracle)
+[449/500] 4c36ccef (single-session-assistant) -> OK (621 chars, oracle)
+[450/500] 6ae235be (single-session-assistant) -> OK (2548 chars, oracle)
+[451/500] 7e00a6cb (single-session-assistant) -> OK (1363 chars, oracle)
+[452/500] 1903aded (single-session-assistant) -> OK (584 chars, oracle)
+[453/500] ceb54acb (single-session-assistant) -> OK (896 chars, oracle)
+[454/500] f523d9fe (single-session-assistant) -> OK (759 chars, oracle)
+[455/500] 0e5e2d1a (single-session-assistant) -> OK (1642 chars, oracle)
+[456/500] fea54f57 (single-session-assistant) -> OK (1808 chars, oracle)
+[457/500] cc539528 (single-session-assistant) -> OK (1676 chars, oracle)
+[458/500] dc439ea3 (single-session-assistant) -> WRONG (2483 chars, oracle)
+[459/500] 18dcd5a5 (single-session-assistant) -> OK (3494 chars, oracle)
+[460/500] 488d3006 (single-session-assistant) -> OK (1244 chars, oracle)
+[461/500] 58470ed2 (single-session-assistant) -> OK (4072 chars, oracle)
+[462/500] 8cf51dda (single-session-assistant) -> OK (2329 chars, oracle)
+[463/500] 1d4da289 (single-session-assistant) -> OK (1787 chars, oracle)
+[464/500] 8464fc84 (single-session-assistant) -> OK (922 chars, oracle)
+[465/500] 8aef76bc (single-session-assistant) -> OK (1548 chars, oracle)
+[466/500] 71a3fd6b (single-session-assistant) -> OK (582 chars, oracle)
+[467/500] 2bf43736 (single-session-assistant) -> OK (889 chars, oracle)
+[468/500] 70b3e69b (single-session-assistant) -> OK (2235 chars, oracle)
+[469/500] 8752c811 (single-session-assistant) -> OK (2824 chars, oracle)
+[470/500] 3249768e (single-session-assistant) -> OK (1513 chars, oracle)
+[471/500] 1b9b7252 (single-session-assistant) -> OK (1280 chars, oracle)
+[472/500] 1568498a (single-session-assistant) -> OK (515 chars, oracle)
+[473/500] 6222b6eb (single-session-assistant) -> OK (1762 chars, oracle)
+[474/500] e8a79c70 (single-session-assistant) -> OK (1435 chars, oracle)
+[475/500] d596882b (single-session-assistant) -> OK (1543 chars, oracle)
+[476/500] e3fc4d6e (single-session-assistant) -> OK (4510 chars, oracle)
+[477/500] 51b23612 (single-session-assistant) -> OK (2322 chars, oracle)
+[478/500] 3e321797 (single-session-assistant) -> OK (1540 chars, oracle)
+[479/500] e982271f (single-session-assistant) -> OK (881 chars, oracle)
+[480/500] 352ab8bd (single-session-assistant) -> OK (1790 chars, oracle)
+[481/500] fca762bc (single-session-assistant) -> OK (1121 chars, oracle)
+[482/500] 7a8d0b71 (single-session-assistant) -> OK (3071 chars, oracle)
+[483/500] a40e080f (single-session-assistant) -> OK (1497 chars, oracle)
+[484/500] 8b9d4367 (single-session-assistant) -> OK (2171 chars, oracle)
+[485/500] 5809eb10 (single-session-assistant) -> OK (5661 chars, oracle)
+[486/500] 41275add (single-session-assistant) -> OK (1077 chars, oracle)
+[487/500] 4388e9dd (single-session-assistant) -> OK (3103 chars, oracle)
+[488/500] 4baee567 (single-session-assistant) -> OK (687 chars, oracle)
+[489/500] 561fabcd (single-session-assistant) -> OK (1461 chars, oracle)
+[490/500] b759caee (single-session-assistant) -> OK (2841 chars, oracle)
+[491/500] ac031881 (single-session-assistant) -> OK (925 chars, oracle)
+[492/500] 28bcfaac (single-session-assistant) -> OK (1524 chars, oracle)
+[493/500] 16c90bf4 (single-session-assistant) -> OK (878 chars, oracle)
+[494/500] c8f1aeed (single-session-assistant) -> OK (2120 chars, oracle)
+[495/500] eaca4986 (single-session-assistant) -> WRONG (2017 chars, oracle)
+[496/500] c7cf7dfd (single-session-assistant) -> OK (1859 chars, oracle)
+[497/500] e48988bc (single-session-assistant) -> OK (1957 chars, oracle)
+[498/500] 1de5cff2 (single-session-assistant) -> OK (1856 chars, oracle)
+[499/500] 65240037 (single-session-assistant) -> OK (1580 chars, oracle)
+[500/500] 778164c6 (single-session-assistant) -> OK (1095 chars, oracle)
+
+=== summary ===
+{
+  "n": 500,
+  "n_errors": 0,
+  "accuracy": 0.914,
+  "neighbours": 1,
+  "median_context_chars": 5654.5,
+  "median_oracle_context_chars": 5645,
+  "median_generation_seconds": 0.778869437504909,
+  "answer_bearing_subset": {
+    "n": 479,
+    "correct": 436
+  },
+  "per_question_type": {
+    "abstention": {
+      "n": 30,
+      "correct": 29,
+      "accuracy": 0.9666666666666667
+    },
+    "knowledge-update": {
+      "n": 72,
+      "correct": 65,
+      "accuracy": 0.9027777777777778
+    },
+    "multi-session": {
+      "n": 121,
+      "correct": 110,
+      "accuracy": 0.9090909090909091
+    },
+    "single-session-assistant": {
+      "n": 56,
+      "correct": 54,
+      "accuracy": 0.9642857142857143
+    },
+    "single-session-preference": {
+      "n": 30,
+      "correct": 18,
+      "accuracy": 0.6
+    },
+    "single-session-user": {
+      "n": 64,
+      "correct": 62,
+      "accuracy": 0.96875
+    },
+    "temporal-reasoning": {
+      "n": 127,
+      "correct": 119,
+      "accuracy": 0.937007874015748
+    }
+  }
+}
+Wrote reproducibility_benchmarks/longmemeval/oracle_glm52_n500.json
