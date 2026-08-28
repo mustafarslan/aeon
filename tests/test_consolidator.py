@@ -389,3 +389,111 @@ def test_dangling_marker_does_not_write_an_edge(tmp_path):
     sc.run_merge()
     assert read_supersession_edges(trace, tenant="acme") == []
     assert sc.stats.edges_dangling == 1
+
+
+# --- durable dirty state via a Trace watermark (v4.1) --------------------------------
+
+def _trace(tmp_path):
+    from aeon_py.trace import TraceGraph
+    return TraceGraph(tmp_path / "t.trace")
+
+
+def test_dirty_state_survives_losing_the_queue_object(tmp_path):
+    """THE POINT OF THE CHANGE. `requeue_in_flight()` only ever covered in-process failure;
+    a crash lost the whole set. Dirty state is now DERIVED from Trace, so a brand-new queue
+    rebuilds it -- which is what process death actually looks like."""
+    from aeon_py.timeline import write_watermark
+    trace = _trace(tmp_path)
+    trace.add_event("alice", "user", "hello")
+    trace.add_event("bob", "user", "hello")
+
+    q = DirtyQueue(trace=trace, tenant="t1")
+    assert q.recover(["alice", "bob"]) == 2        # never consolidated -> both dirty
+    del q
+
+    fresh = DirtyQueue(trace=trace, tenant="t1")   # the crash
+    assert fresh.recover(["alice", "bob"]) == 2    # rebuilt from Trace, not from memory
+    assert "alice" in fresh and "bob" in fresh
+
+
+def test_a_consolidated_session_is_not_re_enqueued(tmp_path):
+    from aeon_py.timeline import session_tail, write_watermark
+    trace = _trace(tmp_path)
+    trace.add_event("alice", "user", "hello")
+    write_watermark(trace, tenant="t1", session_id="alice",
+                    event_id=session_tail(trace, "alice"))
+    q = DirtyQueue(trace=trace, tenant="t1")
+    assert q.recover(["alice"]) == 0
+
+
+def test_a_session_that_moved_since_consolidation_is_dirty_again(tmp_path):
+    from aeon_py.timeline import session_tail, write_watermark
+    trace = _trace(tmp_path)
+    trace.add_event("alice", "user", "first")
+    write_watermark(trace, tenant="t1", session_id="alice",
+                    event_id=session_tail(trace, "alice"))
+    trace.add_event("alice", "user", "second")     # a new turn after consolidation
+    q = DirtyQueue(trace=trace, tenant="t1")
+    assert q.recover(["alice"]) == 1
+
+
+def test_release_advances_the_watermark_to_the_claim_time_tail(tmp_path):
+    """Captured at CLAIM time, not release time. Extraction is a multi-second LLM call, and a
+    turn arriving during it must leave the session dirty rather than being silently marked
+    consolidated."""
+    from aeon_py.timeline import read_watermarks
+    trace = _trace(tmp_path)
+    trace.add_event("alice", "user", "first")
+    q = DirtyQueue(trace=trace, tenant="t1")
+    q.mark_dirty("alice")
+    q.claim()                                       # tail captured here
+    trace.add_event("alice", "user", "arrived mid-extraction")
+    q.release("alice", succeeded=True)
+
+    fresh = DirtyQueue(trace=trace, tenant="t1")
+    assert fresh.recover(["alice"]) == 1            # the later turn is still unconsolidated
+    assert read_watermarks(trace, tenant="t1")["alice"] > 0
+
+
+def test_a_failed_release_writes_no_watermark(tmp_path):
+    from aeon_py.timeline import read_watermarks
+    trace = _trace(tmp_path)
+    trace.add_event("alice", "user", "hello")
+    q = DirtyQueue(trace=trace, tenant="t1")
+    q.mark_dirty("alice"); q.claim()
+    q.release("alice", succeeded=False)
+    assert read_watermarks(trace, tenant="t1") == {}
+
+
+def test_bookkeeping_sessions_are_never_consolidated(tmp_path):
+    """The watermark and edge sessions live in the same Trace file. Consolidating them would
+    extract records from the bookkeeping log itself."""
+    trace = _trace(tmp_path)
+    q = DirtyQueue(trace=trace, tenant="t1")
+    assert q.recover(["__wm__:t1", "__tpg__:t1"]) == 0
+
+
+def test_watermarks_are_isolated_between_tenants(tmp_path):
+    from aeon_py.timeline import read_watermarks, write_watermark
+    trace = _trace(tmp_path)
+    write_watermark(trace, tenant="a", session_id="s", event_id=7)
+    assert read_watermarks(trace, tenant="b") == {}
+    assert read_watermarks(trace, tenant="a") == {"s": 7}
+
+
+def test_the_latest_watermark_wins(tmp_path):
+    from aeon_py.timeline import read_watermarks, write_watermark
+    trace = _trace(tmp_path)
+    write_watermark(trace, tenant="t", session_id="s", event_id=3)
+    write_watermark(trace, tenant="t", session_id="s", event_id=9)
+    assert read_watermarks(trace, tenant="t") == {"s": 9}
+
+
+def test_a_queue_without_a_trace_behaves_exactly_as_before(tmp_path):
+    """EQUIVALENCE GUARD -- every existing caller and test constructs DirtyQueue()."""
+    q = DirtyQueue()
+    q.mark_dirty("s1")
+    assert q.claim() == ["s1"]
+    q.release("s1", succeeded=True)
+    assert q.pending_count == 0 and q.in_flight_count == 0
+    assert q.recover(["s1"]) == 0

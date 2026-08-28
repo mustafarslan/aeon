@@ -212,6 +212,73 @@ def render_timeline(chains: Sequence[Chain]) -> str:
 
 # --- the durable edge log -----------------------------------------------------------
 
+# --- consolidation watermarks (durable dirty state) ---------------------------------
+
+WATERMARK_SESSION_PREFIX = "__wm__:"
+_WATERMARK_MARKER = "consolidated-through"
+
+
+def watermark_session(tenant: str) -> str:
+    """The session id holding one tenant's consolidation watermarks.
+
+    Same namespacing trick as `edge_session()`, for the same reason and with one extra: a
+    watermark written into the SESSION'S OWN id would advance that session's tail and leave
+    it permanently dirty. It must live somewhere else, and a namespaced session is the only
+    durable store here that is dropped with its tenant.
+    """
+    return f"{WATERMARK_SESSION_PREFIX}{tenant}"
+
+
+def write_watermark(trace, *, tenant: str, session_id: str, event_id: int) -> int:
+    """Record that `session_id` is consolidated through Trace event `event_id`.
+
+    `atlas_id` carries the event id and the text carries the session id -- no new field, the
+    same "an id in an existing slot" convention `write_supersession_edge` already uses.
+
+    The event id is the right watermark and this was checked rather than assumed: ids are
+    monotonic (`next_event_id_++`), persisted in the file header, and **survive compaction**
+    -- `trace.cpp` copies events verbatim and carries the counter forward, so ids go sparse
+    but are never reassigned. Atlas node ids, by contrast, shift after `compact_mmap()`,
+    which is why this is keyed on Trace and not on the record store.
+    """
+    return trace.add_event(watermark_session(tenant), "system",
+                           f"{_WATERMARK_MARKER} {session_id}", atlas_id=int(event_id))
+
+
+def read_watermarks(trace, *, tenant: str, limit: int = 5000) -> dict[str, int]:
+    """`{session_id: last_consolidated_event_id}` for a tenant.
+
+    `get_history` is newest-first, so the FIRST entry seen for a session is the latest
+    watermark and later ones are superseded history -- hence `setdefault`. The session is
+    append-only, so `limit` bounds how far back this sees; a tenant with more than `limit`
+    watermarks would lose the oldest, which costs a redundant re-consolidation rather than
+    lost data.
+    """
+    out: dict[str, int] = {}
+    try:
+        history = trace.get_history(watermark_session(tenant), limit)
+    except Exception:
+        return out
+    for ev in history:
+        text = ev.get("text") or ev.get("text_preview") or ""
+        if not text.startswith(_WATERMARK_MARKER):
+            continue
+        session_id = text[len(_WATERMARK_MARKER):].strip()
+        if session_id:
+            out.setdefault(session_id, int(ev.get("atlas_id", 0)))
+    return out
+
+
+def session_tail(trace, session_id: str) -> int:
+    """The id of the newest event in a session, or 0. One bounded call, not a scan --
+    `get_history` is newest-first, so `limit=1` is the tail."""
+    try:
+        history = trace.get_history(session_id, 1)
+    except Exception:
+        return 0
+    return int(history[0]["id"]) if history else 0
+
+
 def write_supersession_edge(trace, *, tenant: str, survivor_node_id: int,
                             retired_node_id: int, text: str, event_time: int = 0,
                             reason_code: ReasonCode = ReasonCode.CONSOLIDATED_BY_DREAMING

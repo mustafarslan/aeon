@@ -99,7 +99,8 @@ class CognitiveLoop:
         )
         return vec.astype(np.float32)
 
-    def chat(self, user_input: str, session_id: str = None) -> Generator[str, None, None]:
+    def chat(self, user_input: str, session_id: str = None,
+             event_time: int = 0) -> Generator[str, None, None]:
         """
         Process a full conversation turn.
 
@@ -121,7 +122,8 @@ class CognitiveLoop:
 
         # 2. Update Memory & Retrieve Knowledge
         # context_manager.process_turn writes to Trace and searches Atlas
-        knowledge_results = self.ctx.process_turn(user_input, vec, session_id=session_id)
+        knowledge_results = self.ctx.process_turn(user_input, vec, session_id=session_id,
+                                                  event_time=event_time)
         
         # 3. Gather Context State for Prompt
         # Get recent history from the shared Trace, scoped to this session.
@@ -199,4 +201,4 @@ class CognitiveLoop:
             yield token
             
         # 6. Record Response (Close Loop)
-        self.ctx.add_response(full_response, session_id=session_id)
+        self.ctx.add_response(full_response, session_id=session_id, event_time=event_time)

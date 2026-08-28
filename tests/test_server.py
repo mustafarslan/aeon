@@ -62,7 +62,7 @@ _mock_ctx = MagicMock()
 _mock_ctx.trace.get_history.return_value = _MOCK_HISTORY
 
 
-def _mock_chat(text, session_id=None):
+def _mock_chat(text, session_id=None, event_time=0):
     yield "Hello"
     yield " "
     yield "World"

@@ -165,3 +165,41 @@ def test_trace_history_is_scoped_per_user(isolated_server):
         bob_text = " ".join(ev.get("text", "") for ev in trace.get_history("bob", limit=50))
         assert "bob-only-marker" in bob_text
         assert "alice-only-marker" not in bob_text
+
+
+def test_a_supplied_event_time_reaches_the_trace(isolated_server):
+    """`event_time` is the caller's "when this happened" in epoch microseconds. It was read
+    back correctly by two consumers all along and written by NOTHING in production, so
+    session dates fell back to insertion wall-clock -- correct for live chat, wrong for
+    imported history, and `Record.date` ultimately reads it."""
+    app, current, records_dir, deps = isolated_server
+    when = 1_684_000_000_000_000          # 2023-05-13, well before "now"
+    with TestClient(app) as client:
+        current["user"] = "alice"
+        r = client.post("/chat", json={"text": "imported turn", "event_time": when})
+        assert r.status_code == 200, r.text
+
+        history = deps.get_trace_manager().get_history("alice", limit=20)
+        assert any(int(ev.get("event_time", 0)) == when for ev in history)
+
+
+def test_omitting_event_time_leaves_live_chat_unchanged(isolated_server):
+    """0 is the documented 'unset' sentinel, not a real epoch value."""
+    app, current, records_dir, deps = isolated_server
+    with TestClient(app) as client:
+        current["user"] = "bob"
+        assert client.post("/chat", json={"text": "live turn"}).status_code == 200
+        history = deps.get_trace_manager().get_history("bob", limit=20)
+        assert history and all(int(ev.get("event_time", 0)) == 0 for ev in history)
+        assert all(int(ev.get("timestamp", 0)) > 0 for ev in history)
+
+
+def test_the_session_date_resolver_prefers_a_supplied_event_time(isolated_server):
+    """The payoff: the resolver already preferred `event_time` and only ever saw 0."""
+    app, current, records_dir, deps = isolated_server
+    when = 1_684_000_000_000_000
+    with TestClient(app) as client:
+        current["user"] = "carol"
+        client.post("/chat", json={"text": "imported", "event_time": when})
+        resolve = deps.make_session_date_resolver(deps.get_trace_manager())
+        assert resolve("carol") == "2023/05/13"

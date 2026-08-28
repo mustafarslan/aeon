@@ -3,6 +3,11 @@ from typing import List, Dict, Any, Optional
 
 class ChatRequest(BaseModel):
     text: str
+    # Epoch MICROSECONDS for when the turn actually happened. Omit for live chat -- the
+    # kernel treats 0 as "unset" and falls back to its own insertion timestamp. Supplied by
+    # a client backfilling history (a chat import, a replayed session), so record dates
+    # reflect the conversation rather than the import run.
+    event_time: int = 0
 
 # --- Trace / Graph Visualization Models ---
 

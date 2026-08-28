@@ -70,10 +70,22 @@ class DirtyQueue:
     with write volume rather than with distinct sessions.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, trace=None, tenant: str = "") -> None:
         self._pending: set[str] = set()
         self._in_flight: set[str] = set()
         self._lock = threading.Lock()
+        # DURABILITY (v4.1). The in-memory set stays exactly as it was -- it is the O(1)
+        # fast path `mark_dirty` promises and runs on every turn -- and durability is added
+        # as RECOVERY rather than as a write on the hot path. On start, `recover()` derives
+        # dirty state from data Trace already holds; on success, `release()` advances a
+        # watermark. Nothing about ingest gets slower.
+        self._trace = trace
+        self._tenant = tenant
+        # Tail captured AT CLAIM TIME, per session. Extraction is a multi-second LLM call,
+        # and events arriving during it must leave the session dirty -- so the watermark
+        # written on success is the tail as it was when work started, never the tail at
+        # release time.
+        self._claimed_tail: dict[str, int] = {}
 
     def mark_dirty(self, session_id: str) -> None:
         """Called on the ingest path. Must stay O(1) with no I/O."""
@@ -81,6 +93,30 @@ class DirtyQueue:
             return
         with self._lock:
             self._pending.add(session_id)
+
+    def recover(self, session_ids) -> int:
+        """Rebuild dirty state from Trace. Returns how many sessions were re-enqueued.
+
+        This is what makes the queue survive process death. `requeue_in_flight()` only ever
+        covered in-process failure: a crash loses the whole set, and an earlier version of
+        this class's docstring overstated that as crash safety.
+
+        Dirty is DERIVED, not stored: a session whose Trace tail is ahead of its watermark
+        has unconsolidated turns. That needs no second write-ahead structure beside the one
+        Trace already is -- which is the point, and why a sidecar file was not used.
+        """
+        if self._trace is None:
+            return 0
+        from . import timeline as _timeline
+        marks = _timeline.read_watermarks(self._trace, tenant=self._tenant)
+        recovered = 0
+        for session_id in session_ids:
+            if not session_id or session_id.startswith(("__wm__:", "__tpg__:")):
+                continue          # never consolidate the bookkeeping sessions themselves
+            if _timeline.session_tail(self._trace, session_id) > marks.get(session_id, 0):
+                self.mark_dirty(session_id)
+                recovered += 1
+        return recovered
 
     def claim(self, limit: Optional[int] = None) -> list[str]:
         """Take up to `limit` sessions for processing. Claimed sessions move to in-flight so
@@ -93,13 +129,28 @@ class DirtyQueue:
             for s in take:
                 self._pending.discard(s)
                 self._in_flight.add(s)
+            if self._trace is not None:
+                from . import timeline as _timeline
+                for s in take:
+                    self._claimed_tail[s] = _timeline.session_tail(self._trace, s)
             return take
 
     def release(self, session_id: str, *, succeeded: bool) -> None:
         with self._lock:
             self._in_flight.discard(session_id)
+            tail = self._claimed_tail.pop(session_id, None)
             if not succeeded:
-                self._pending.add(session_id)          # retry rather than lose it
+                self._pending.add(session_id)
+        if succeeded and self._trace is not None and tail:
+            # Outside the lock: this is an I/O write and the lock guards an O(1) set.
+            from . import timeline as _timeline
+            try:
+                _timeline.write_watermark(self._trace, tenant=self._tenant,
+                                          session_id=session_id, event_id=tail)
+            except Exception:
+                # A failed watermark costs a redundant re-consolidation on the next
+                # recovery, never lost records. It must not fail the cycle.
+                logger.exception("failed to write consolidation watermark for %s", session_id)          # retry rather than lose it
 
     def requeue_in_flight(self) -> int:
         """Recover after a crash or shutdown mid-cycle: anything still in flight was never

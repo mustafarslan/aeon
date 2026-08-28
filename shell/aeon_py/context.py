@@ -59,6 +59,7 @@ class ContextManager:
         query_vector: Union[List[float], np.ndarray],
         access_level: str = "public",
         session_id: Optional[str] = None,
+        event_time: int = 0,
     ) -> np.ndarray:
         """
         Process a single user interaction turn.
@@ -117,7 +118,14 @@ class ContextManager:
         # no extra embedding-model call, and it's what makes this event
         # (and the Architect.ingest() admission a few lines down) findable
         # via TraceGraph.semantic_search().
-        self.trace.add_event(sid, "user", user_query, embedding=q_vec.tolist())
+        # `event_time` is the caller's "when this happened", in epoch MICROSECONDS, and is
+        # distinct from the event's `timestamp` (Aeon's own insertion wall-clock). 0 means
+        # unset, so live chat is unchanged; a chat import or a replayed game session can now
+        # record when something ACTUALLY happened. Until this was wired, nothing in
+        # production ever wrote it, so `make_session_date_resolver` had to fall back to
+        # insertion time -- correct for live chat and wrong for backfilled history.
+        self.trace.add_event(sid, "user", user_query, embedding=q_vec.tolist(),
+                             event_time=event_time)
 
         # 2. Atlas: Navigate
         # returns structured array ['id', 'similarity', 'preview']
@@ -141,6 +149,7 @@ class ContextManager:
                 _CONCEPT_ROLE,
                 f"[Concept {int(row['id'])}] similarity={float(row['similarity']):.3f}",
                 atlas_id=encode_store_id(int(row['id']), is_shared=False),
+                event_time=event_time,
             )
 
         # 4. Architect: admit this turn's own query as a new delta concept --
@@ -165,6 +174,7 @@ class ContextManager:
                 atlas_id=encoded_id,
                 edge_type=EdgeType.REFINES,
                 supersedes_id=encoded_id,
+                event_time=event_time,
             )
         else:
             self.trace.add_event(
@@ -172,6 +182,7 @@ class ContextManager:
                 _CONCEPT_ROLE,
                 f"[Ingested {node_id}] {user_query[:80]}",
                 atlas_id=encoded_id,
+                event_time=event_time,
             )
 
         return results
@@ -294,13 +305,15 @@ class ContextManager:
             # Enqueueing is background enrichment. It must never fail a live turn.
             logger.exception("failed to mark session dirty")
 
-    def add_response(self, text: str, session_id: Optional[str] = None) -> int:
+    def add_response(self, text: str, session_id: Optional[str] = None,
+                     event_time: int = 0) -> int:
         """
         Record the system's textual response to close the turn loop.
 
         Returns the new event's ID.
         """
-        event_id = self.trace.add_event(session_id or "default", "system", text)
+        event_id = self.trace.add_event(session_id or "default", "system", text,
+                                        event_time=event_time)
         self._mark_dirty(session_id)
         return event_id
 

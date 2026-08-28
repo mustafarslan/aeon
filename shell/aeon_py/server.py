@@ -95,11 +95,21 @@ async def startup_event():
         _consolidation_worker = build_consolidation_worker()
         if _consolidation_worker is not None:
             _consolidation_worker.start()
+            # Logged through uvicorn's own logger, not this module's. uvicorn configures
+            # only the `uvicorn.*` loggers, so a plain `logger.info` from aeon_py is
+            # emitted and then dropped -- which is how a background worker could start,
+            # or fail to, with nothing in the server log either way. A worker's lifecycle
+            # is an operational event and belongs where an operator actually looks.
+            logging.getLogger("uvicorn.error").info(
+                "Aeon consolidation worker started (records dir: %s)", DEFAULT_RECORDS_DIR)
+        else:
+            logging.getLogger("uvicorn.error").warning(
+                "Aeon consolidation worker NOT started -- records will not be consolidated")
     except Exception:
         # A server that cannot consolidate must still serve chat. Consolidation is
         # background enrichment, not a request-path dependency.
-        logging.getLogger(__name__).exception(
-            "consolidation worker failed to start; continuing without it")
+        logging.getLogger("uvicorn.error").exception(
+            "Aeon consolidation worker failed to start; continuing without it")
 
 
 @app.on_event("shutdown")
@@ -114,6 +124,7 @@ async def shutdown_event():
     if _consolidation_worker is not None:
         _consolidation_worker.stop()
         _consolidation_worker = None
+        logging.getLogger("uvicorn.error").info("Aeon consolidation worker stopped")
     mgr = get_session_manager()
     await mgr.shutdown()
 
@@ -157,7 +168,8 @@ async def chat_endpoint(
     loop = await mgr.get_loop(user_id)
 
     # Create the synchronous generator
-    sync_gen = loop.chat(request.text, session_id=user_id)
+    sync_gen = loop.chat(request.text, session_id=user_id,
+                         event_time=request.event_time)
     
     # Wrap in async generator for non-blocking stream
     return EventSourceResponse(make_async_generator(sync_gen))
