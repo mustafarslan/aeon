@@ -85,6 +85,12 @@ NB_MODULE(core, m) {
           "for the shared Atlas store to absorb encrypted-payload "
           "overhead.")
       .def("size", &aeon::Atlas::size)
+      .def_prop_ro("compaction_epoch", &aeon::Atlas::compaction_epoch,
+                   "Completed compactions (0 = never). compact_mmap() "
+                   "REASSIGNS node ids, so a raw id held outside the file "
+                   "silently begins addressing a DIFFERENT LIVE NODE once it "
+                   "runs. Stamp this alongside any durably stored node id and "
+                   "refuse to mutate by that id when the epoch has moved.")
       .def_prop_ro("metadata_size", &aeon::Atlas::metadata_size,
                    "Metadata field size (bytes) of this Atlas instance -- "
                    "callers writing an encoded payload into the metadata "

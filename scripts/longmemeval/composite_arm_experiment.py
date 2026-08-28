@@ -96,7 +96,8 @@ def main() -> None:
                          "date). reconcile: the reconciliation-aware variant under test.")
     ap.add_argument("--system-prompt", default="",
                     help="System prompt for the ANSWER call. Every composite number to date "
-                         "was measured with this empty -- compose.COMPOSE_SYSTEM was never sent.")
+                         "was measured with this empty -- the prompt now named "
+                         "compose.MEASURED_HARMFUL_COMPOSE_SYSTEM was never sent.")
     args = ap.parse_args()
 
     import os

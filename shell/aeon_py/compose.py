@@ -67,12 +67,44 @@ TIMELINE_HEADER = "How these changed over time:"
 # will eventually want SOME system prompt and this records what a revised one must avoid.
 # Anyone wiring `compose_from_store()` into `loop.py` should treat this as a live trap:
 # the library ships a 26-question regression that only fires once someone sends it.
-COMPOSE_SYSTEM = (
+MEASURED_HARMFUL_COMPOSE_SYSTEM = (
     "You are answering a question using a long-term memory record about the user, plus "
     "excerpts of the original conversation. If the information genuinely is not there, say so "
     "plainly instead of guessing. Answer as concisely as possible -- a short phrase or "
     "sentence, not a paragraph."
 )
+
+# DISARMED (v4.2). The constant above kept its measurement but not its inviting name: it was
+# called `COMPOSE_SYSTEM`, which reads like the system prompt this module intends you to send,
+# and sending it costs 26 questions at n=500. A comment is not a guard when the name argues
+# the other way -- so the name now states the finding, and `compose_from_store()` refuses the
+# string outright rather than trusting the next reader to have scrolled up.
+#
+# Kept rather than deleted, because a production read path will eventually want SOME system
+# prompt and this records what a revised one must avoid.
+COMPOSE_SYSTEM = None   # there is deliberately no safe default; choose one and measure it.
+
+
+def assert_system_prompt_is_safe(system_prompt: str) -> None:
+    """Raise if the caller is about to send the prompt measured at -26 questions.
+
+    Checked on the clause that caused the damage rather than on string equality, so a
+    lightly-edited copy does not slip through. The cause is visible in the outputs rather
+    than inferred: median answer length collapses from 172 characters to 49, and the two
+    types needing room lose most -- single-session-preference, whose judge is a RUBRIC that
+    rewards reflecting the user's stated preferences, and temporal-reasoning, which needs the
+    arithmetic shown.
+    """
+    if not system_prompt:
+        return
+    normalised = " ".join(system_prompt.split()).lower()
+    if "as concisely as possible" in normalised and "not a paragraph" in normalised:
+        raise ValueError(
+            "refusing to send the brevity clause measured at -13 questions on the dev half "
+            "(n=252, p=0.0044; roughly -26 at n=500). It truncates exactly the two types "
+            "that need room. See MEASURED_HARMFUL_COMPOSE_SYSTEM in compose.py. If you are "
+            "deliberately re-measuring it, call compose()/the harness directly."
+        )
 
 # Reconciliation-aware alternative to _COUNTING_HINT. Under test, not the default.
 #
@@ -442,7 +474,8 @@ def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_b
 def compose_from_store(store, trace, question_block: str, *,
                        neighbours: int = 1, max_turns: int = 12,
                        buckets: Optional[Sequence[str]] = None,
-                       as_of: Optional[int] = None, tenant: str = "") -> dict:
+                       as_of: Optional[int] = None, tenant: str = "",
+                       system_prompt: str = "") -> dict:
     """Production-shaped assembly: all records (optionally category-filtered), with the
     episodic component rehydrated from those records' own provenance.
 
@@ -475,6 +508,7 @@ def compose_from_store(store, trace, question_block: str, *,
     # `parent_offset` and is complete under interleaving -- so the correctness argument for
     # the filter has been retired. It stays because the fixed call is also O(nodes) at this
     # scale, so switching buys nothing and costs a second enumeration path.
+    assert_system_prompt_is_safe(system_prompt)
     records = store.all_records(include_superseded=as_of is not None)
     if buckets:
         records = select_records(records, buckets=buckets)

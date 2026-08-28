@@ -126,7 +126,11 @@ public:
       header->metadata_size = metadata_size;
       header->node_byte_stride = stride_;
       header->quantization_type = quantization_type;
-      std::fill(std::begin(header->reserved), std::end(header->reserved), 0);
+      // V4.2: the former reserved[12] is now _pad_epoch + compaction_epoch.
+      // A freshly created file has never been compacted, so every node id it
+      // hands out is valid at epoch 0.
+      header->_pad_epoch = 0;
+      header->compaction_epoch = 0;
 
     } else {
       // ── Existing file: read stride from header ──

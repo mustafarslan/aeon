@@ -75,15 +75,34 @@ class ContextManager:
            near-duplicate of already-admitted content (Stage 2 task 4), in
            which case a Refines edge is recorded instead of a redundant row.
 
-        access_level is accepted but not yet enforced -- metadata-based
-        filtering needs Atlas to return metadata with results, which it
-        doesn't yet; this parameter is a placeholder for that, not a live
-        security boundary today.
+        access_level IS NOT A SECURITY BOUNDARY AND NO LONGER PRETENDS TO BE.
+        It was accepted and silently ignored, so a caller passing "admin" and
+        one passing "public" received identical results -- an API shape that
+        implies an enforcement that does not happen, which is worse than
+        having no parameter at all. Anything other than the default now
+        RAISES (v4.2).
+
+        The original plan -- filter returned rows against a per-row metadata
+        clearance field -- was superseded rather than blocked: Atlas can
+        return metadata now,
+        but per-row clearance strings are not how this codebase enforces
+        access. `scope_bitmap` is, via `navigate()`'s `(node.scope_bitmap &
+        scope_mask) != 0` check, reached through `query_stores(
+        shared_scope_mask=...)`. Mapping clearance strings onto scope bits
+        here would invent an authority that does not exist: schema.hpp states
+        plainly that there is no scope-assignment authority yet, and that
+        populating scope must come from authenticated session/org context
+        once the control plane provides it.
+
+        The live tenant boundary on THIS path is `session_id`.
 
         Args:
             user_query: Raw text of the user's input.
             query_vector: 768-dim float vector (list or ndarray).
-            access_level: Security clearance ("public", "admin", etc).
+            access_level: DEPRECATED and unenforced. Only "public" (the
+                default) is accepted; any other value raises ValueError
+                rather than being silently ignored. Use
+                `query_stores(shared_scope_mask=...)` for real scoping.
             session_id: Caller's authenticated identity (pass the verified
                 user_id from server.py's get_current_user_id). Required to
                 actually isolate one user's trace history from another's --
@@ -105,6 +124,14 @@ class ContextManager:
         A richer typed-edge model (supersedes/refines/contradicts/...) is
         exactly what v4-plan.md Stage 1/2 add on top of this.
         """
+        if access_level != "public":
+            raise ValueError(
+                f"access_level={access_level!r} is not enforced on this path and is "
+                "refused rather than silently ignored -- a caller passing 'admin' "
+                "previously received exactly the same rows as one passing 'public'. "
+                "Real scoping is `scope_bitmap`, reached via "
+                "query_stores(shared_scope_mask=...); tenant isolation here is session_id."
+            )
         # Ensure vector is in correct format
         if isinstance(query_vector, list):
             q_vec = np.array(query_vector, dtype=np.float32)
@@ -131,9 +158,12 @@ class ContextManager:
         # returns structured array ['id', 'similarity', 'preview']
         results = self.atlas.query(q_vec, session_id=session_id)
 
-        # TODO: Implement metadata-based filtering once Atlas supports returning metadata
-        # For now, we simulate filter by ID range or assume all are public
-        # allowed_results = [r for r in results if r['level'] <= access_level]
+        # The metadata-filtering TODO that stood here is RESOLVED BY DELETION, not by
+        # implementation. It proposed filtering rows against a per-row clearance field
+        # that no longer exists in this schema and never became the access mechanism --
+        # `scope_bitmap` did. Leaving it in place kept a
+        # security-shaped promise alive in the code long after the design behind it was
+        # replaced. The parameter now fails closed at the top of this method instead.
 
         # 3. Trace: Record top concepts, chained after the user event
         # We limit to top 3 to keep the session history readable ("High

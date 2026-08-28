@@ -279,10 +279,61 @@ def session_tail(trace, session_id: str) -> int:
     return int(history[0]["id"]) if history else 0
 
 
+# Node ids are only meaningful within one compaction epoch. `compact_mmap()` sets
+# `dst_hdr->id = new_idx`, so after a compaction a stored id addresses a DIFFERENT LIVE
+# NODE rather than dangling -- it resolves cleanly to the wrong thing, which is the
+# failure that cannot be caught by checking for absence. The epoch is stamped into the
+# edge's own text, which is free-form, so this needs no schema change and no new field:
+# the same "carry it in a slot that already exists" convention `atlas_id` already uses.
+_EPOCH_MARKER = "@epoch:"
+
+
+def _stamp_epoch(text: str, epoch: Optional[int]) -> str:
+    return text if epoch is None else f"{text} {_EPOCH_MARKER}{int(epoch)}"
+
+
+def edge_epoch(event: dict) -> Optional[int]:
+    """The compaction epoch an edge's node ids were valid at, or None if unstamped.
+
+    None means "written before this was recorded", NOT "epoch 0" -- an unstamped edge
+    cannot be validated, and saying so is the point. Callers treat it as unverifiable
+    rather than assuming it is current.
+    """
+    text = event.get("text") or event.get("text_preview") or ""
+    _, sep, tail = text.rpartition(_EPOCH_MARKER)
+    if not sep:
+        return None
+    try:
+        return int(tail.strip().split()[0])
+    except (ValueError, IndexError):
+        return None
+
+
+def stale_edges(trace, atlas, *, tenant: str, limit: int = 1000) -> list[dict]:
+    """Edges whose node ids predate the Atlas's current compaction epoch.
+
+    These are the edges whose `atlas_id`/`supersedes_id` now point at whatever node
+    inherited their slot. Surfaced rather than auto-repaired: the remap table exists only
+    inside `compact_mmap()` and is gone by the time anyone asks, so there is nothing left
+    to rewrite them WITH. Returning them lets an admin path refuse to act on a lineage it
+    cannot trust, which is the whole gain over acting on it silently.
+    """
+    try:
+        current = int(atlas.compaction_epoch)
+    except Exception:
+        return []
+    out = []
+    for e in read_supersession_edges(trace, tenant=tenant, limit=limit):
+        stamped = edge_epoch(e)
+        if stamped is None or stamped != current:
+            out.append(e)
+    return out
+
+
 def write_supersession_edge(trace, *, tenant: str, survivor_node_id: int,
                             retired_node_id: int, text: str, event_time: int = 0,
-                            reason_code: ReasonCode = ReasonCode.CONSOLIDATED_BY_DREAMING
-                            ) -> int:
+                            reason_code: ReasonCode = ReasonCode.CONSOLIDATED_BY_DREAMING,
+                            compaction_epoch: Optional[int] = None) -> int:
     """Record `survivor SUPERSEDES retired` durably, using fields that already exist.
 
     `atlas_id` = the survivor, `supersedes_id` = the retired node. That is an Atlas node id
@@ -290,12 +341,18 @@ def write_supersession_edge(trace, *, tenant: str, survivor_node_id: int,
     (`supersession.py`, `promotion.py`) and which `schema.hpp` documents as opaque to the
     kernel -- so this adds no new convention, it reads one that was already write-only.
 
-    Inherited limitations, stated rather than solved (same as `supersession.py`/`erasure.py`):
-    node ids shift after `compact_mmap()`, and `get_history`'s `limit` bounds how far back a
-    reader sees.
+    `compaction_epoch` (v4.2) stamps the epoch these ids were read at. Pass
+    `atlas.compaction_epoch` and a later reader can tell, via `stale_edges()`, whether the
+    ids still mean what they meant -- because `compact_mmap()` reassigns them, so a stale
+    id resolves to a different LIVE node rather than failing. Omitting it preserves the old
+    behaviour and marks the edge permanently unverifiable, which is the honest default for
+    a caller that does not know its epoch.
+
+    Inherited limitation, still stated rather than solved: `get_history`'s `limit` bounds
+    how far back a reader sees.
     """
     return trace.add_event(
-        edge_session(tenant), "system", text,
+        edge_session(tenant), "system", _stamp_epoch(text, compaction_epoch),
         atlas_id=survivor_node_id,
         edge_type=EdgeType.SUPERSEDES,
         supersedes_id=retired_node_id,

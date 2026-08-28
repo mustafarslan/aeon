@@ -108,11 +108,27 @@ struct alignas(64) AtlasHeader {
   uint32_t metadata_size;     // 0x24: Metadata block size in bytes
   uint64_t node_byte_stride;  // 0x28: Byte stride per node (64-byte aligned)
   uint32_t quantization_type; // 0x30: 0=FP32, 1=INT8_SYMMETRIC
-  uint8_t reserved[12];       // 0x34: Future use — zeroed on creation
+  // V4.2: monotonically increasing count of completed compactions.
+  //
+  // compact_mmap() REASSIGNS node ids (dst_hdr->id = new_idx), so every raw
+  // node id held outside the file — a supersession edge, an erasure receipt,
+  // an audit record — silently begins addressing a DIFFERENT LIVE NODE the
+  // moment a compaction runs. Not a dangling reference that errors: a valid
+  // one that is wrong, which is the worse failure and the one this field
+  // exists to make detectable. A durable reference should be stamped with the
+  // epoch it was taken at and re-validated before it is used to mutate.
+  //
+  // Carved from the former reserved[12], so the struct layout and the 64-byte
+  // assertion are unchanged and existing files read epoch 0 — the correct
+  // answer for a file whose compaction history predates this field.
+  uint32_t _pad_epoch;        // 0x34: explicit padding, 8-align the epoch
+  uint64_t compaction_epoch;  // 0x38: completed compactions (0 = never)
 };
 
 static_assert(sizeof(AtlasHeader) == 64,
               "AtlasHeader must be exactly 64 bytes");
+static_assert(offsetof(AtlasHeader, compaction_epoch) == 0x38,
+              "compaction_epoch must occupy the tail of the former reserved[12]");
 static_assert(std::is_standard_layout_v<AtlasHeader>);
 static_assert(std::is_trivially_copyable_v<AtlasHeader>);
 

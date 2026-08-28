@@ -187,3 +187,53 @@ def test_what_superseded_this_answers_both_directions(trace):
     assert superseded_by(trace, 17, tenant="acme") == [42]
     assert supersedes(trace, 42, tenant="acme") == [17]
     assert superseded_by(trace, 999, tenant="acme") == []
+
+
+# --- compaction-epoch stamping (v4.2) -----------------------------------------------
+
+def _atlas_and_trace(tmp_path):
+    import numpy as np
+    from aeon_py import core
+    from aeon_py.trace import TraceGraph
+    atlas = core.Atlas(str(tmp_path / "a.atlas"), dim=8, metadata_size=128)
+    return atlas, TraceGraph(path=str(tmp_path / "t.trace"))
+
+
+def test_an_unstamped_edge_reads_as_unverifiable_not_as_epoch_zero(tmp_path):
+    """None and 0 mean different things. An edge written before stamping existed cannot be
+    validated at all; calling that "epoch 0" would assert it was current on a fresh file."""
+    from aeon_py.timeline import edge_epoch
+    assert edge_epoch({"text": "five supersedes three"}) is None
+    assert edge_epoch({"text": "five supersedes three @epoch:0"}) == 0
+
+
+def test_edges_are_stale_once_the_atlas_compacts(tmp_path):
+    """The failure this guards is NOT a dangling id -- compact_mmap() reassigns ids, so a
+    stale reference resolves cleanly to a DIFFERENT LIVE NODE. Detection is the whole gain."""
+    import numpy as np
+    from aeon_py.timeline import stale_edges, write_supersession_edge
+    atlas, trace = _atlas_and_trace(tmp_path)
+    v = (np.ones(8, dtype=np.float32) / np.sqrt(8)).tolist()
+    root = atlas.insert(0, v, "ROOT", None)
+    doomed = atlas.insert(root, v, "doomed", None)
+    survivor = atlas.insert(root, v, "survivor", None)
+
+    write_supersession_edge(trace, tenant="t", survivor_node_id=survivor,
+                            retired_node_id=doomed, text="survivor supersedes doomed",
+                            compaction_epoch=atlas.compaction_epoch)
+    assert stale_edges(trace, atlas, tenant="t") == [], "current edge must not read stale"
+
+    atlas.tombstone_node(doomed)
+    atlas.compact_mmap()
+    stale = stale_edges(trace, atlas, tenant="t")
+    assert len(stale) == 1, "compaction reassigned ids; the edge must now read stale"
+
+
+def test_an_unstamped_edge_is_always_reported_stale(tmp_path):
+    """Unverifiable must fail closed. An edge with no epoch is reported so a caller can
+    refuse to act on lineage it cannot trust, rather than assuming it is current."""
+    from aeon_py.timeline import stale_edges, write_supersession_edge
+    atlas, trace = _atlas_and_trace(tmp_path)
+    write_supersession_edge(trace, tenant="t", survivor_node_id=1, retired_node_id=2,
+                            text="unstamped")          # no compaction_epoch passed
+    assert len(stale_edges(trace, atlas, tenant="t")) == 1

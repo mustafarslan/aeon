@@ -444,6 +444,19 @@ public:
   /// truncates at metadata_size() - 1 rather than raising.
   uint32_t metadata_size() const noexcept { return metadata_size_; }
 
+  /**
+   * @brief Completed compactions on this file (0 = never compacted).
+   *
+   * compact_mmap() REASSIGNS node ids, so a raw id held outside this file
+   * silently begins addressing a different LIVE node once it runs. Anything
+   * that durably stores a node id -- a supersession edge, an erasure receipt,
+   * an audit row -- should record this value alongside it and refuse to
+   * mutate by that id when the epoch has moved. Reads epoch 0 for files
+   * written before the field existed, which is the correct answer: their
+   * compaction history is unknown, so no stamped reference exists to trust.
+   */
+  uint64_t compaction_epoch() const noexcept;
+
   /// Returns the node byte stride of this Atlas instance.
   size_t node_byte_stride() const noexcept { return node_byte_stride_; }
 

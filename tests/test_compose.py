@@ -358,3 +358,39 @@ def test_chrono_does_not_change_which_records_are_rendered():
     a = sorted(render_records(recs, weekdays=False).splitlines())
     b = sorted(render_records(recs, chrono_items=True, weekdays=False).splitlines())
     assert a == b
+
+
+# --- the disarmed system-prompt trap (v4.2) -----------------------------------------
+
+def test_the_harmful_system_prompt_is_refused_at_the_production_entry_point():
+    """The library shipped a 26-question regression armed for whoever sent it: a constant
+    named `COMPOSE_SYSTEM`, which reads like the prompt this module wants you to use. A
+    comment is not a guard when the name argues the other way."""
+    from aeon_py.compose import (MEASURED_HARMFUL_COMPOSE_SYSTEM,
+                                 assert_system_prompt_is_safe)
+    with pytest.raises(ValueError, match="-13 questions"):
+        assert_system_prompt_is_safe(MEASURED_HARMFUL_COMPOSE_SYSTEM)
+
+
+def test_the_guard_matches_the_clause_not_the_exact_string():
+    """A lightly-edited copy carries the same defect, so equality would be a guard in name
+    only. It is the brevity clause that truncates preference and temporal answers."""
+    from aeon_py.compose import assert_system_prompt_is_safe
+    reworded = ("You are a helpful memory assistant.  Answer   AS CONCISELY AS POSSIBLE "
+                "-- a short phrase, NOT A PARAGRAPH.")
+    with pytest.raises(ValueError):
+        assert_system_prompt_is_safe(reworded)
+
+
+def test_ordinary_and_empty_system_prompts_pass():
+    """The guard must not become a reason to avoid system prompts altogether -- a revised
+    one is expected eventually, and only the measured clause is refused."""
+    from aeon_py.compose import assert_system_prompt_is_safe
+    assert_system_prompt_is_safe("") is None
+    assert_system_prompt_is_safe("You answer questions using the user's memory records.")
+
+
+def test_compose_system_has_no_unsafe_default():
+    """There is deliberately no safe default to reach for; a caller must choose and measure."""
+    from aeon_py.compose import COMPOSE_SYSTEM
+    assert COMPOSE_SYSTEM is None

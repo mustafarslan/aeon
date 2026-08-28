@@ -737,9 +737,25 @@ void TraceManager::compact() {
     throw std::runtime_error("Failed to mmap compacted trace file");
   }
 #else
-  // TODO: Win32 implementation
+  // NOT IMPLEMENTED ON WIN32 -- AND IT NOW SAYS SO.
+  //
+  // This used to `return` silently, so a Windows caller's compact() reported
+  // success while reclaiming nothing: tombstoned events stayed on disk, the
+  // blob arena never GC'd, and the file grew without bound with no error to
+  // act on. A no-op that looks like success is the same failure shape as an
+  // enumeration that returns a silent subset -- the caller cannot distinguish
+  // "done" from "did nothing" and so cannot retry, alert, or fall back.
+  //
+  // Throwing is deliberate over a silent skip: compaction is invoked from a
+  // maintenance path that can handle a failure, and on a platform where it
+  // cannot run, unbounded growth is the strictly worse outcome. Implementing
+  // it properly needs the Win32 file-mapping equivalents used elsewhere in
+  // platform.hpp; that is a separate change, and shipping it untested from a
+  // POSIX host would be worse than reporting honestly.
   compact_in_progress_.store(false, std::memory_order_release);
-  return;
+  throw std::runtime_error(
+      "TraceManager::compact() is not implemented on Windows; the trace file "
+      "was NOT compacted and no space was reclaimed");
 #endif
 
   // Write header

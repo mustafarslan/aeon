@@ -1099,3 +1099,64 @@ TEST_F(AtlasTest, GetChildrenExcludesSelfAndReportsLeavesEmpty) {
   for (const auto &c : atlas.get_children(root))
     EXPECT_NE(c.id, root) << "a node was reported as its own child";
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// compaction_epoch — making reassigned node ids detectable (v4.2)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// compact_mmap() sets dst_hdr->id = new_idx, so a raw node id held anywhere
+// outside the file silently begins addressing a DIFFERENT LIVE NODE after a
+// compaction. That is worse than a dangling reference, which would at least
+// fail. Durable holders (supersession edges, erasure receipts, audit rows)
+// stamp this epoch and refuse to mutate by a stale id.
+TEST_F(AtlasCompactionTest, CompactionEpochIncrementsAndPersists) {
+  std::vector<float> v(768, 0.03608f);
+  uint64_t survivor_before = 0;
+  {
+    aeon::Atlas atlas(test_path);
+    EXPECT_EQ(atlas.compaction_epoch(), 0u) << "a fresh file has never compacted";
+
+    uint64_t root = atlas.insert(0, v, "Root");
+    uint64_t doomed = atlas.insert(root, v, "Doomed");
+    uint64_t survivor = atlas.insert(root, v, "Survivor");
+    survivor_before = survivor;
+
+    atlas.tombstone_node(doomed);
+    atlas.compact_mmap();
+    EXPECT_EQ(atlas.compaction_epoch(), 1u);
+
+    // The reassignment this epoch exists to warn about, demonstrated rather
+    // than asserted in a comment: the survivor moved down into the slot the
+    // tombstoned node vacated, so its OLD id now names something else --
+    // either a different node, or nothing at all once the file shrank.
+    bool old_id_still_names_survivor = false;
+    try {
+      old_id_still_names_survivor =
+          (atlas.get_node_metadata(survivor_before) == "Survivor");
+    } catch (const std::exception &) {
+      old_id_still_names_survivor = false; // the id fell off the end entirely
+    }
+    EXPECT_FALSE(old_id_still_names_survivor)
+        << "if this ever holds, ids stopped being reassigned and the epoch may "
+           "no longer be load-bearing";
+
+    // ...and the survivor is still present, under a NEW id. This is the half
+    // that makes the failure dangerous rather than merely lossy: nothing is
+    // missing, so a stale reference resolves cleanly to the wrong thing.
+    bool survivor_present = false;
+    for (size_t i = 0; i < atlas.size(); ++i) {
+      if (atlas.get_node_metadata(i) == "Survivor") {
+        survivor_present = true;
+        EXPECT_NE(i, survivor_before) << "id did not actually move";
+      }
+    }
+    EXPECT_TRUE(survivor_present) << "compaction dropped a live node";
+    atlas.sync();
+  }
+  {
+    aeon::Atlas reopened(test_path);
+    EXPECT_EQ(reopened.compaction_epoch(), 1u)
+        << "the epoch must be durable; an in-memory counter cannot protect a "
+           "reference that outlives the process";
+  }
+}

@@ -71,3 +71,20 @@ def test_memory_pressure(tmp_path):
     
 if __name__ == "__main__":
     test_memory_pressure(Path("/tmp/aeon_test"))
+
+
+def test_unenforced_access_level_is_refused_rather_than_silently_ignored():
+    """`process_turn(access_level=...)` was accepted and ignored, so a caller passing
+    "admin" received exactly the same rows as one passing "public" -- an API shape that
+    implies an enforcement that does not happen, which is worse than having no parameter.
+
+    Failing closed is the same posture this codebase takes elsewhere for a security-shaped
+    argument it cannot honour (dependencies.py: "fail loudly, not silently allow").
+    """
+    import inspect
+    from aeon_py.context import ContextManager
+    src = inspect.getsource(ContextManager.process_turn)
+    assert 'if access_level != "public"' in src
+    assert "raise ValueError" in src
+    # And the superseded design is not left lying around as a live-looking promise.
+    assert "r['level'] <= access_level" not in src

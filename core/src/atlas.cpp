@@ -90,6 +90,13 @@ size_t Atlas::size() const {
   return 0;
 }
 
+uint64_t Atlas::compaction_epoch() const noexcept {
+  auto guard = epoch_mgr_.enter_guard();
+  std::shared_lock<std::shared_mutex> read_lock(write_mutex_);
+  auto *header = file_->get_header();
+  return header ? header->compaction_epoch : 0;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // scope_union_ maintenance — V4 Stage 2 follow-up (recall-gap fix)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1829,8 +1836,17 @@ void Atlas::compact_mmap() {
   new_header->dim = dim_;
   new_header->metadata_size = metadata_size_;
   new_header->node_byte_stride = node_byte_stride_;
-  std::fill(std::begin(new_header->reserved), std::end(new_header->reserved),
-            0);
+  new_header->_pad_epoch = 0;
+  // Carry the epoch forward and increment it. Node ids are reassigned below
+  // (dst_hdr->id = new_idx), so every raw id held OUTSIDE this file is stale
+  // from here on -- and stale in the dangerous way, addressing a different
+  // live node rather than failing. A durable holder stamps the epoch it read
+  // an id at and compares before mutating by that id.
+  {
+    auto *old_header = file_->get_header();
+    new_header->compaction_epoch =
+        (old_header ? old_header->compaction_epoch : 0) + 1;
+  }
 
   // Build old→new mapping and copy live mmap nodes
   std::vector<uint64_t> old_to_new(snapshot_node_count, UINT64_MAX);
