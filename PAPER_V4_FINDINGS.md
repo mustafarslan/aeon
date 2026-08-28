@@ -455,7 +455,7 @@ effect rather than inflating it.
 
 | contrast | net | McNemar | p |
 |---|---|---|---|
-| composite vs its own oracle, `gemma4` | +9 | +48/−39 | 0.391 |
+| composite vs its own oracle, `gemma4` *(parity control; §8b's +10 is the v1 arm)* | +9 | +48/−39 | 0.391 |
 | composite vs its own oracle, `glm-5.2` | −9 | +27/−36 | 0.314 |
 | **reader swap, composite arms** (clean) | **+20** | +32/−12 | **0.0037** |
 | **reader swap, oracle arms** | **+38** | +49/−11 | **7.6 × 10⁻⁷** |
@@ -550,7 +550,7 @@ saturated; the residual is overwhelmingly reader-bound.**
 
 **The two representations are complementary rather than ranked.** Under `glm-5.2` the composite wins
 **27** questions the oracle loses and the oracle wins 36 the composite loses; their **union is 484
-(96.8%)**, against 457 for the oracle alone. Across all four arms the union is **489 (97.8%)** and only
+(96.8%)**, against 457 for the oracle alone. Across all five arms the union is **489 (97.8%)** — the parity control adds nothing the other four do not already cover — and only
 **11 questions of 500 (2.2%) are failed by every arm**. *This headroom is real but its mechanism is
 not transferable*: the oracle's advantage comes entirely from gold `has_answer` annotations that do not
 exist in production. It bounds what any downstream work could reach; it is not itself a result.
@@ -658,18 +658,22 @@ each was reproduced before being fixed.
       answer-bearing turns handed to it, this generator reaches only 83.8%, and the composite is
       statistically tied with that ceiling. A generator-swap probe (oracle arm, judge held fixed) is
       the direct test and is pre-registered in `v4-plan.md`.
-- [ ] **`event_time` is never written in production**, so session dates fall back to insertion
-      wall-clock — correct for live chat, wrong for imported or backfilled history, and `Record.date`
-      ultimately reads it.
-- [ ] **The consolidation dirty-queue is not durable**: an in-memory set, so process death loses every
-      pending session. The kernel-aligned fix is to make dirty state derivable from a Trace watermark
-      rather than adding a second write-ahead structure.
-- [ ] **429 may be this instrument's ceiling, and that is a finding rather than a gap.** Six
-      interventions produced no net aggregate gain. The residual 71 errors are **33 multi-session and
-      20 temporal-reasoning** — dominated by predicate-boundary judgement ("is a rearranged sofa
-      something I *bought*?") and multi-fact arithmetic. §6.7 establishes that neither is reachable by
-      record hygiene or by instruction; §9 establishes that the write path reaches only the
-      supersession subset, which is too small to measure.
+- [x] **`event_time` is now written through ingestion** (chat request → `CognitiveLoop.chat()` →
+      `ContextManager` → `trace.add_event()`), with 0 kept as the documented "unset" sentinel so live
+      chat is unchanged. Before this it was always 0 and session dates fell back to insertion
+      wall-clock — correct for live chat, wrong for imported history, and `Record.date` reads it.
+- [x] **The consolidation dirty-queue is now recoverable** from a tenant-namespaced Trace watermark,
+      so dirty state is *derivable* rather than held only in memory. `mark_dirty` keeps its O(1)
+      no-I/O fast path; recovery reconciles against the watermarks at start rather than trusting the
+      in-memory set, which only covered in-process failure.
+- [x] **"429 may be this instrument's ceiling" is DISPROVED, and the disproof is §8c.** It was the
+      ceiling of *this reader*, not of the instrument. Swapping the reader alone moves the composite
+      to **448 (+20, p=0.0037)** and the gold-evidence ceiling to **457 (+38, p=7.6×10⁻⁷)**, and the
+      gains land precisely on the multi-session and temporal-reasoning errors that six interventions
+      could not move — they were **reader-capability errors**. What survives from the original entry
+      is its narrower claim: those errors are not reachable *by record hygiene or by instruction*.
+      §8c.6 sharpens it — the write-side residual is ~10 of 500 on both readers and is an upper bound
+      twice over, so extraction is near-saturated and the remainder is reader-bound.
 - [ ] (superseded framing) 28 questions are wrong under oracle AND ETC AND single-shot — perfect evidence,
       wrong answer — and they are dominated by counting/aggregation ("how many albums": gold 3,
       oracle 2). 83.8% bounds *perfect raw-turn selection*, not a memory system that derives answers.
