@@ -1,0 +1,2530 @@
+{
+ "arm": "reproducibility_benchmarks/longmemeval/composite_glm52_n500.json",
+ "reader": "glm-5.2:cloud",
+ "incumbent_judge": "gemma4:31b-cloud (assumed; not recorded in file)",
+ "n": 500,
+ "incumbent_correct": 448,
+ "judges": [
+  {
+   "judge": "deepseek-v4-pro:cloud",
+   "correct": 444,
+   "n": 500,
+   "no_to_yes": 5,
+   "yes_to_no": 9,
+   "net_vs_incumbent": -4,
+   "self_judge": false
+  },
+  {
+   "judge": "glm-5.2:cloud",
+   "correct": 448,
+   "n": 500,
+   "no_to_yes": 3,
+   "yes_to_no": 3,
+   "net_vs_incumbent": 0,
+   "self_judge": true
+  }
+ ],
+ "unanimous": 485,
+ "per_question": {
+  "45dc21b6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e3038f8c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "07741c45": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "60d45044": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3249768e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f685340e_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0e5e2d1a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "07b6f563": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_ab202e7f": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "3ba21379": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_1a1dc16d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e48988bc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_483dd43c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "561fabcd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b6025781": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "71a3fd6b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f9e8c073": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_1916e0ea": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e9327a54": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "72e3ee87": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_1d4ab0c9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0ea62687": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "778164c6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6e984302": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "faba32e5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "06db6396": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d12ceb0e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4dfccbf7": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_8279ba03": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5831f84d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2d58bcd6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "18bc8abd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "09ba9854_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "0ddfec37": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "88432d0a_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "c8090214": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "8b9d4367": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_fe651585": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "65240037": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "80ec1f4f_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_b5700ca0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "681a1674": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a40e080f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "59524333": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_e414231e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1b9b7252": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ccb36322": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_213fd887": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a96c20ee": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6b168ec8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c7dc5443": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bc8a6e93": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "08e075c7": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2698e78f_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ba358f49": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_e061b84f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "afdc33df": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_e072b769": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "15745da0_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4100d0a0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6613b389": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bc8a6e93_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "92a0aa75": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "37d43f65": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e8a79c70": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7a0daae1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4adc0475": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "41275add": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5025383b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "36580ce8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b759caee": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2133c1b5_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": false
+  },
+  "9bbe84a2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_59149c78": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "edced276_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "95bcc1c8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "46a3abf7": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_21adecb5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2c63a862": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c8c3f81d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "21436231": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6aeb4375": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_68e94288": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "01493427": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e831120c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "09d032c9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a3332713": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3d86fd0a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "61f8c8f8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f0853d11": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4baee567": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3e321797": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "26bdc477": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_b0863698": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "618f13b2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2318644b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "28bcfaac": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "50635ada": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "d7c942c3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6222b6eb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1f2b8d4f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d6233ab6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9a707b82": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2bf43736": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "982b5123_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "22d2cb42": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "852ce960": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "945e3d21": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_15e38248": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "86b68151": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d31cdae3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b0479f84": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c8f1aeed": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8464fc84": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "76d63226": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_f2262a51": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7a8d0b71": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6456829e_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8e91e7d9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6c49646a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d23cf73b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1d4e3b97": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eace081b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b6019101": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3fdac837": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6b7dfb22": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b320f3f8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "370a8ff4": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "6e984301": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7161e7e2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8979f9ec": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "75499fd8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a06e4cfe": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_b4a80587": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0bb5a684": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "19b5f2b3_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "15745da0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_f420262d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "c9f37c46": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2ba83207": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "4b24c848": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_93f6379c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7de946e7": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f685340e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "75f70248": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "60bf93ed_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dd2973ad": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "77eafa52": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3f1e9474": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "38146c39": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_59c863d7": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b01defab": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "41698283": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6a1eabeb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "af8d2e46": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_8c8961ae": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d24813b1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_78cf46a3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f8c5f88b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1a8a66a6": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_7abb270c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "89941a94": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_f49edff3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5e1b23de": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_74aed68e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7401057b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "81507db6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4fd1909e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0f05491a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2487a7cb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e56a43b9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_c27434e8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "36b9f61e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a3045048": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1e043500": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4929293a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_c27434e8_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "031748ae": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_88806d6e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2655b836": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7fce9456": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_8e165409": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c960da58": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "aae3761f": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_372c3eed_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "60472f9c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0a995998": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d84a3211": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1c0ddc50": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_2f91af09": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2ebe6c92": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c2ac3c61": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ba61f0b9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "caf9ead2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8e9d538c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "09ba9854": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "720133ac": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4929293b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ba358f49_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_372c3eed": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dccbc061": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7ca326fa": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_0a05b494": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ec81a493": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "cc06de0d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "27016adc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "86f00804": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "89941a93": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3a704032": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "51a45a95": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_468eb064": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a1cc6108": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b5ef892d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "18dcd5a5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "51c32626": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bc149d6b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e5ba910e_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "603deb26": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_59149c77": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "af082822": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eeda8a6d_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "e4e14d04": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4edbafa2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a96c20ee_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "2311e44b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a89d7624": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_e414231f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_70e84552": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "311778f1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4bc144e2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_8279ba02": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a2f3aa27": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8fb83627": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c14c00dd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "cc6d1ec1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7024f17c": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "1da05512": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eeda8a6d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_31ff4165": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2f584639": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_1e4a8aeb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7a87bd0c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "85fa3a3f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "10e09553": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "00ca467f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8a137a7f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8077ef71": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ad7109d1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5c40ec5b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d905b33f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "60159905": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "51b23612": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eac54add": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_a1b77f9c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "32260d93": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a9f6b44c": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "c18a7dc8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0862e8bf": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5a7937c8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "184da446": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "982b5123": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c4ea545c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_ec93e27f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e01b8e2f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_1e4a8aec": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_194be4b3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3b6f954b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "6071bd76": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ed4ddc30": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4cd9eba1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0100672e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ef66a6e5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2133c1b5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dfde3500": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "fca762bc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0bc8ad93": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "6456829e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6ade9755": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e6041065": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b9cfe692": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "66f24dbb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "06878be2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7e00a6cb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "60bf93ed": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0bc8ad92": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_93159ced_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_2f8be40d": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_1d80365e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a346bb18": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e982271f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a1eacc2a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "cc539528": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9ea5eabc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_a2d1d1f6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "75832dbd": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "91b15a6e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0ddfec37_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "06f04340": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_65aabe59": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "70b3e69b": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_e05b82a6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_fa19884c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2e6d26dc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9a707b81": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "cf22b7bf": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8550ddae": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "71017276": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7bc6cf22": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_76048e76": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "89527b6b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_68e94287": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "118b2229": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "505af2f5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_18c2b244": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f523d9fe": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_468eb063": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "efc3f7c2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ef9cf60a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ce6d2d27": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8cf51dda": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dcfa8644": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_385a5000": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c6853660": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "001be529": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2ce6a0f2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b46e15ee": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3fe836c9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dad224aa": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6f9b354f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d6585ce8": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "195a1a1b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_af6db32f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d851d5ba": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2c50253f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "830ce83f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_0b2f1d21": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_731e37d7": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_45189cb4": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4f54b7c9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4d6b87c8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0977f2af": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "031748ae_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "fca70973": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "edced276": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d6585ce9": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "c4a1ceb8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_6dc9b45b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "71017277": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "71315a70": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8752c811": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bb7c3b45": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6cb6f249": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f4f1d8a4_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c7cf7dfd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_61e13b3c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "129d1232": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "58ef2f1c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "3c1045c8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2311e44b_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8aef76bc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_d9af6064": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bf659f65": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "fea54f57": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_85da3956": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "ac031881": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1de5cff2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "29f2956b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_5438fa52": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "37f165cf": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "853b0a1d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0a34ad58": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "57f827a0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_e061b84g": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bbf86515": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "69fee5aa": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "bcbe585f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "db467c8c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d6062bb9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0edc2aef": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "7e974930": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1568498a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "488d3006": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_b5700ca9": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f0e564bc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "55241a1f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6ae235be": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e61a7584": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_93159ced": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "cc5ded98": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f4f1d8a4": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7ddcf75f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4fc4f797": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9ee3ecd6": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "21d02d0d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5809eb10": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "73d42213": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_98f46fc6": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2ebe6c90": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "67e0d0f2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "35a27287": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "19b5f2b3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4388e9dd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "16c90bf4": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e493bb7c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_cd90e484": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e47becba": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e3fc4d6e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7405e8b1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2698e78f": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0e4e4c46": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1cea1afa": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9d25d4e0": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "a4996e51": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "993da5e2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "29f2956b_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d682f1a2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b46e15ed": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "07741c44": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b3c15d39": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d52b4f67": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8ebdbe50": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2a1811e2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4c36ccef": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "60036106": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e66b632c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "577d4d32": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8cf4d046": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "4dfccbf8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_6ed717ea": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0db4c65d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "dc439ea3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c4f10528": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "28dc39ac": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "25e5aa4f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "8c18457d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "58470ed2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1d4da289": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "099778bb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "94f70d80": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a82c026e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "95228167": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_fe651585_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_f420262c": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "10d9b85a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6d550036": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "88432d0a": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "gpt4_2312f94c": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_9a159967": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1a1907b4": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "078150f1": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "80ec1f4f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "caf03d32": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "726462e0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a08a253f": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_5dcc0aab": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "b86304ba": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1192316e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_70e84552_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "ceb54acb": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "157a136e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "6aeb4375_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": true
+  },
+  "8a2466db": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2b8f3739": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "58bf7951": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1c549ce4": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "f35224e0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d3ab962e": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "545bd2b5": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_a56e767c": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "352ab8bd": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "87f22b4a": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d01c6aa8": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_7f6b06db": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "6a27ffc2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a3838d2b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "7527f7e2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "a11281a2": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "0862e8bf_abs": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "9aaed6a3": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_4ef30696": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c5e8278d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5a4f22c0": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eaca4986": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "2788b940": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_5501fe77": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "5d3d2817": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_2f56ae70": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "08f4fc43": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c8090214_abs": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "b29f3365": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "1faac195": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "54026fce": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "eac54adc": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "gpt4_fa19884d": {
+   "incumbent": false,
+   "deepseek-v4-pro:cloud": false,
+   "glm-5.2:cloud": false
+  },
+  "1903aded": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "affe2881": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "d596882b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "c19f7a0b": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "42ec0761": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  },
+  "e25c3b8d": {
+   "incumbent": true,
+   "deepseek-v4-pro:cloud": true,
+   "glm-5.2:cloud": true
+  }
+ }
+}

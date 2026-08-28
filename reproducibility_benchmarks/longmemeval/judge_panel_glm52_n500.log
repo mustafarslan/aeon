@@ -1,0 +1,46 @@
+arm      : composite_glm52_n500.json
+reader   : glm-5.2:cloud
+incumbent judge: gemma4:31b-cloud (assumed; not recorded in file)
+questions: 500   judges: deepseek-v4-pro:cloud, glm-5.2:cloud
+
+judging under deepseek-v4-pro:cloud
+    50/500
+    100/500
+    150/500
+    200/500
+    250/500
+    300/500
+    350/500
+    400/500
+    450/500
+    500/500
+  -> 444/500 = 88.8%
+
+judging under glm-5.2:cloud  <-- SELF-JUDGE
+    50/500
+    100/500
+    150/500
+    200/500
+    250/500
+    300/500
+    350/500
+    400/500
+    450/500
+    500/500
+  -> 448/500 = 89.6%
+
+==========================================================================
+judge                          correct     acc   vs incumbent (no->yes / yes->no)
+gemma4:31b-cloud (assumed; n       448   89.6%   (incumbent)
+deepseek-v4-pro:cloud              444   88.8%   +5 / -9  net -4
+glm-5.2:cloud                      448   89.6%   +3 / -3  net +0   [SELF-JUDGE]
+
+pairwise agreement (all judges incl. incumbent):
+  gemma4:31b-cloud (assume vs deepseek-v4-pro:cloud    486/500 = 97.2%
+  gemma4:31b-cloud (assume vs glm-5.2:cloud            494/500 = 98.8%
+  deepseek-v4-pro:cloud    vs glm-5.2:cloud            490/500 = 98.0%
+
+unanimous across all 3 judges: 485/500 = 97.0%   (contested: 15)
+questions by number of judges calling them correct: 0:46, 1:7, 2:8, 3:439
+
+wrote reproducibility_benchmarks/longmemeval/judge_panel_glm52_n500.json

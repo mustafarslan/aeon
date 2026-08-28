@@ -776,6 +776,61 @@ faster at the median** (1.70 s vs 4.07 s). §8c.4 established that generation la
 property rather than contention; this is a second instance, and the cheaper reader is the faster one
 here.
 
+### 8c.10 Judge severity and self-judging, measured — and two predictions that failed
+
+*Every number here is graded by `gemma4:31b-cloud`, while every published result it is compared
+against is graded by a frontier judge, and LongMemEval specifies GPT-4o. That leaves an unmeasured
+confound underneath every external comparison: if a 31B judge is systematically stricter, part of
+the reported gap is judge severity rather than system quality.* No GPT-4o is reachable here, so the
+confound is attacked by **dispersion** instead — re-judging the committed `glm-5.2` arm's 500
+hypotheses under three judges from unrelated families, generation untouched, using the official
+`get_anscheck_prompt` unchanged (`scripts/longmemeval/judge_panel.py`).
+
+| judge | correct | acc | vs incumbent (no→yes / yes→no) |
+|---|---|---|---|
+| `gemma4:31b-cloud` *(incumbent)* | **448** | 89.6% | — |
+| `deepseek-v4-pro:cloud` *(third party)* | **444** | 88.8% | +5 / −9, **net −4** |
+| `glm-5.2:cloud` *(**self-judge** — generated these answers)* | **448** | 89.6% | +3 / −3, **net 0** |
+
+| pairwise agreement | |
+|---|---|
+| gemma4 vs deepseek | 486/500 = **97.2%** |
+| gemma4 vs glm | 494/500 = **98.8%** |
+| deepseek vs glm | 490/500 = **98.0%** |
+| **unanimous across all three** | **485/500 = 97.0%** (15 contested) |
+
+**Prediction 1 failed: `gemma4` is not a strict judge.** The third-party judge scores this arm
+**lower**, not higher — 444 against 448. Whatever separates 89.6% from the published 94–96%, it is
+not that this project grades itself harshly; the confound runs the *opposite* way and is bounded at
+about **4 questions (0.8 points)** against a gap several times that size. **This closes the confound
+rather than bounding it**, and it closes it in the direction that does not flatter this work, which
+is the only reason it is worth much.
+
+**Prediction 2 failed, and it was the more consequential one: self-judging did not inflate.**
+`glm-5.2` grading its own generations returns **exactly the incumbent's 448**, with symmetric flips
+(+3/−3). §8c.1 argues at length that a self-judged arm "is comparable to nothing", and this project
+spent an 80-question re-judge establishing its own arms were not self-judged. That reasoning was
+about **verifiability**, and it stands. But the stronger reading — that self-judging materially
+inflates a score — is **not supported by the one measurement available**, and any criticism of
+externally reported self-judged results must be stated as *unverifiable*, not as *inflated*.
+
+*Scope, so this is not over-read in either direction.* One model, one benchmark, one judge prompt —
+and that prompt is a near-mechanical yes/no containment check against a reference answer, which is
+the setting offering a self-judge the **least** latitude. Self-preference would plausibly be far
+stronger on open-ended quality judgements. The result licenses "self-judging did not move this
+score", not "self-judging is safe".
+
+**What the dispersion itself says.** Three judges from unrelated families agree on 97% of questions
+and land within 4 of each other. The benchmark's judge choice is therefore a **small lever, not a
+large one** — which supports the comparability of published LongMemEval numbers generally, including
+competitors'. The 15 contested questions split 9/5/9, so no judge is an outlier; they disagree on the
+same small set of genuinely marginal answers.
+
+**The headline does not move, and now has no reason to.** 448 / 89.6% stays the `gemma4`-judged
+figure. The pre-commitment made before running this was that a friendlier judge discovered by a check
+proposed *after* seeing the gap would not be adopted; in the event the third-party judge is
+*harsher*, so the question never arose.
+
 ## 9. The write path: cross-session supersession
 
 **The operation per-session extraction structurally cannot perform.** Extraction runs per session and

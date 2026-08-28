@@ -103,6 +103,16 @@ comparable to nothing — and this project re-judged 80 hypotheses under an expl
 establish that its own arms were not self-judged. Neither of those two reports an equivalent check.
 Mastra and Mem0 both use an external `gpt-4o` judge and are not implicated.
 
+⚠️ **This criticism has since been weakened by measurement, and the weakening is recorded here
+rather than left in the paper (§8c.10).** Running the self-judge configuration deliberately —
+`glm-5.2` grading its own 500 generations — returns **exactly the incumbent judge's 448**, with
+symmetric flips (+3/−3). **Self-judging did not inflate the score.** So the defensible claim about
+Exabase M-1 and OMEGA is that their headline figures are **unverifiable**, not that they are
+inflated: an external check is missing, and the one measurement available says such a check would
+probably have changed little. The scope limit cuts both ways — one model, and a judge prompt that is
+a near-mechanical yes/no containment test, which is where a self-judge has the least room to favour
+itself.
+
 **3. Two headline figures are macro averages; 89.6% is a micro average.** Verbatim:
 
 > Mastra: "gpt-4o is used as the judge model. Each question is evaluated as correct/incorrect
@@ -131,12 +141,17 @@ all 500 with abstention included is the strictest of the available definitions, 
 after seeing them is precisely the manoeuvre this section criticises. The recomputation exists to
 size the gap honestly, not to shrink it by choosing.
 
-**One confound that is NOT resolved.** Every competitor is graded by a frontier judge — `gpt-4o`,
-GPT-4.1, Gemini 3 Flash — and LongMemEval specifies GPT-4o. Aeon is graded by `gemma4:31b`. Whether a
-31B judge is systematically stricter than GPT-4o on this task is **unmeasured**, so an unknown part
-of the residual gap is judge severity rather than system quality. Every *internal* contrast in this
-project is judge-invariant (the same judge scores both sides of every paired test), so the confound
-lives only in this external comparison — but it lives here undismissed, and it is cheap to test.
+**The judge confound, RESOLVED — and it does not run our way (§8c.10).** Every competitor is graded
+by a frontier judge and LongMemEval specifies GPT-4o, while Aeon is graded by `gemma4:31b`. The
+worry was that a 31B judge grades harshly and depresses the number. Re-judging the committed arm
+under a third-party judge (`deepseek-v4-pro`) returns **444 against gemma4's 448** — the outside
+judge is *harsher*, not kinder. Three judges from unrelated families agree on **97% of questions**
+and land within 4 of each other.
+
+So judge severity is **not** where the gap lives: it is bounded at ~4 questions (0.8 points) against
+a gap several times larger, and in the unflattering direction. This also says something about the
+benchmark generally — the judge choice is a small lever, which supports the comparability of
+published LongMemEval numbers rather than undermining it.
 
 ### On reader capability
 
@@ -250,17 +265,22 @@ survives §8c.9**: a second frontier-class reader at identical prompts moved the
 honest statement is that **no currently identified lever reaches 470** — not the memory layer's own
 tracks, and not, on the one datum available, a further reader upgrade.
 
-Two of the three things §2 leaves open sit outside that arithmetic entirely, and both are cheap:
-**judge severity** (unmeasured, and every competitor is graded by a frontier judge while this is
-graded by a 31B one) and **metric definition** (at Mastra's own metric the gap is 2.8 points, not
-5.3). Neither is a lever on the system; both change what the gap is understood to mean. The
-substantive open research question remains dynamic read-time filtered aggregation (§4).
+Of the two things §2 once left open, one is now closed and one stands. **Judge severity is
+resolved** and is not the explanation — a third-party judge scores this arm *lower*, and three
+judges agree within 4 questions (§8c.10). **Metric definition stands**: at Mastra's own metric the
+gap is 2.8 points rather than 5.3, and against OMEGA's raw count it is 18 questions rather than 29.
+That does not change the system; it changes what the gap is understood to be. The substantive open
+research question remains dynamic read-time filtered aggregation (§4).
 
 ## 8. Reproducing anything here
 
 ```bash
 python3 scripts/longmemeval/cross_model_table.py              # §1 arms and contrasts
 python3 scripts/longmemeval/metric_variants.py                # §2, Aeon on each competitor's metric
+.venv/bin/python scripts/longmemeval/judge_panel.py \
+    --arm reproducibility_benchmarks/longmemeval/composite_glm52_n500.json \
+    --judges deepseek-v4-pro:cloud glm-5.2:cloud \
+    --out reproducibility_benchmarks/longmemeval/judge_panel_glm52_n500.json   # §2, judge dispersion
 #   composite_deepseek_dev.json  vs  composite_glm52_n500.json  # §2, the reader-saturation probe
 python3 scripts/longmemeval/residual_error_profile.py         # residual partition
 .venv/bin/python scripts/longmemeval/aggregation_failure_read.py   # §4, aborts unless 68/51/61
