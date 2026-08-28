@@ -534,6 +534,24 @@ context on a reasoning-style reader. Empty generations are now retried and, if t
 they are *counted* rather than silently scored. The fix landed after the parity control launched and
 deliberately was not backported into it, so both composite columns retain identical retry semantics.
 
+**REPAIRED, AND REPORTED AS A REPAIR RATHER THAN A REPLACEMENT** (2026-08-28,
+`composite_glm52_empty_repair.json`). The four questions were re-run under the fixed harness at
+identical config, with `--assert-prompt-parity` enforced against the committed arm: **all four prompts
+matched byte-length exactly (delta 0)**, so the retry semantics are the only thing that changed.
+All four now produce substantive answers where they produced nothing — the empties were transient, not
+a property of those prompts — and **1 of the 4 is correct**.
+
+So the figure is **448 as-scored, +1 repaired**. It is written that way deliberately and 449 does not
+replace 448 anywhere: the committed arm is the artefact every contrast in this section is computed
+against, and silently improving it after the fact would invalidate the parity control it is paired
+with. The remaining 3 are ordinary wrong answers, not missing measurements — which also **retires the
+"lower bound by up to 4" caveat at k=1** rather than leaving it open.
+
+One consequence for §8c.8: the repaired question, `gpt4_7f6b06db`, is in the 3+ stratum, so that
+bucket reads **51/68 as-scored, 52/68 repaired**, and one of the 17 losses read there was a missing
+measurement rather than an aggregation failure. The shape decomposition is unaffected — it was already
+recorded as 16 real losses on exactly that ground.
+
 ### 8c.6 What the residual is made of, and what it implies
 
 Crossing the composite against the oracle **under the same reader and judge** partitions the residual

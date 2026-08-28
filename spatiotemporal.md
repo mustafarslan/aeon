@@ -32,9 +32,11 @@ composite uses no gold annotations at all.
   the 80s the interval admits a real difference of several questions. The defensible sentence is:
   *the composite reaches oracle accuracy from production-available inputs, and no significant
   difference is detectable at n=500.* "Beats the oracle" and "establishes parity" are both wrong.
-- **448 is a lower bound by up to 4.** Four questions returned an empty generation that carried no
-  error marker and was scored as a wrong answer (`PAPER_V4_FINDINGS.md §8c.5`). If ever repaired,
-  it must be reported as "448 as-scored, +k repaired" — never as a replacement number.
+- **448 as-scored, +1 repaired.** Four questions returned an empty generation that carried no error
+  marker and was scored as a wrong answer (`§8c.5`). Re-run under the fixed harness at identical
+  config with prompt parity enforced — all four prompts matched byte-length exactly — all four now
+  answer substantively and **1 is correct**. Written as a repair, never as a replacement: 448 is the
+  artefact every contrast is computed against, and the other 3 are ordinary wrong answers.
 - **The stronger claim, and the one to lead with:** on the **411 of 500 questions (82.2%)** needing
   one or two evidence turns, the composite **beats gold-evidence selection under both readers** —
   92.9% vs 90.7% at one turn, 93.0% vs 91.7% at two. That is sharper and more defensible than any

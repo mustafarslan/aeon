@@ -1,0 +1,95 @@
+{
+  "model": "glm-5.2:cloud",
+  "mode": "composite (records + episodic, 1 call)",
+  "judge_model": "gemma4:31b-cloud",
+  "split": "all",
+  "split_seed": 42,
+  "counting_hint": "current",
+  "weekdays": "off",
+  "prompt_parity_ref": "reproducibility_benchmarks/longmemeval/composite_glm52_n500.json",
+  "merge_records": false,
+  "system_prompt": "",
+  "summary": {
+    "n": 4,
+    "n_errors": 0,
+    "correct": 1,
+    "accuracy": 0.25,
+    "median_records": 260.0,
+    "median_prompt_chars": 25824.5,
+    "median_generation_seconds": 6.412525000501773
+  },
+  "results": [
+    {
+      "question_id": "0bc8ad93",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "No, you did not visit with a friend.",
+      "hypothesis": "Based on the records and conversation excerpts, you visited the Science Museum with a friend who is a chemistry professor. During the behind-the-scenes tour, you both explored the museum's collection of rare minerals and participated in a hands-on experiment with the educational team.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 223,
+      "record_chars": 17076,
+      "episodic_chars": 5222,
+      "prompt_chars": 22594,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 6.254560708999634
+      }
+    },
+    {
+      "question_id": "8550ddae",
+      "question_type": "single-session-user",
+      "report_type": "single-session-user",
+      "reference_answer": "lavender gin fizz",
+      "hypothesis": "Based on the records and conversation excerpts, last weekend (on Sunday, May 28, 2023) you asked for the exact measurements and details to make a **Smokey Mango Mule**. You also expressed excitement to try out citrus-based cocktails, specifically the **Citrus Sunrise** and **Triple Citrus Collins**.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 264,
+      "record_chars": 20828,
+      "episodic_chars": 5888,
+      "prompt_chars": 26842,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 7.077017917006742
+      }
+    },
+    {
+      "question_id": "gpt4_7f6b06db",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "I went on a day hike to Muir Woods National Monument with my family, then I went on a road trip with friends to Big Sur and Monterey, and finally I started my solo camping trip to Yosemite National Park.",
+      "hypothesis": "Based on the records provided, here is the order of the three trips you took in the past three months, from earliest to latest:\n\n1. **Day hike to Muir Woods National Monument** (March 10, 2023)\n2. **Road trip to Big Sur and Monterey** (April 20, 2023)\n3. **Solo camping trip to Yosemite National Park** (Returned on May 15, 2023)",
+      "judge_raw": "yes",
+      "correct": true,
+      "is_error": false,
+      "n_records": 256,
+      "record_chars": 19302,
+      "episodic_chars": 5818,
+      "prompt_chars": 25428,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 5.444337499997346
+      }
+    },
+    {
+      "question_id": "gpt4_fa19884d",
+      "question_type": "temporal-reasoning",
+      "report_type": "temporal-reasoning",
+      "reference_answer": "a bluegrass band that features a banjo player",
+      "hypothesis": "Based on the records and conversation excerpts provided, there is no specific artist mentioned that you started listening to last Friday (2023/03/31). However, on that day, you expressed interest in exploring bluegrass music and asked for recommendations for popular bluegrass artists or bands to check out.",
+      "judge_raw": "no",
+      "correct": false,
+      "is_error": false,
+      "n_records": 272,
+      "record_chars": 20328,
+      "episodic_chars": 5858,
+      "prompt_chars": 26221,
+      "timing_seconds": {
+        "extract": 0.0,
+        "generation": 6.570489292003913
+      }
+    }
+  ]
+}
