@@ -7379,3 +7379,47 @@ change the reader *and* the renderer at once and make the delta unattributable. 
 bar; the oracle probe's +38 at p=7.6e-07 was far outside any plausible noise, but a small delta here
 could not be read the same way. And **absolute numbers remain non-comparable to published leaderboards**
 — a deliberately weaker judge is held fixed to isolate the reader.
+
+**COMPOSITE UNDER glm-5.2 — RESULT (2026-08-28). `n_errors=0`. 224/252. The middle reading, and the
+relationship to the ceiling inverts.**
+
+| dev, n=252, judge fixed | correct | |
+|---|---|---|
+| composite @ `glm-5.2` | **224** (88.9%) | +3 vs its own baseline, McNemar +13/−10, **p=0.678** |
+| composite @ `gemma4` | 221 (87.7%) | the reader-only baseline |
+| oracle @ `glm-5.2` | **232** (92.1%) | the new ceiling — composite is **−8** below it (p=0.256) |
+| oracle @ `gemma4` | 216 (85.7%) | the old ceiling — composite was **+5 above** it |
+
+**Pre-registered verdict: "improves but no longer reaches the ceiling" (222–231).** 224 lands there.
+
+**The finding is not the +3 — it is the 13-question swing in the relationship.** Under the local reader
+the composite stood **+5 above** perfect-evidence selection; under the frontier reader it stands **−8
+below** it. Both gaps are individually inside noise (p=0.678 and p=0.256), so neither is claimable on
+its own; the *direction* of the swing is what matters and it is consistent with the ceiling probe.
+
+**The mechanism, read from the per-type table.** Where the composite gained on the old reader it holds:
+`single-session-preference` **14 vs the oracle's 7** — records still double the oracle on the type that
+rewards synthesis from accumulated preference, and this is now the composite's clearest structural win,
+since it *beats gold evidence* on both readers. Where the new reader gained most, records lag: the
+oracle takes multi-session to 56 and temporal to 61 against the composite's 52 and 58. **A stronger
+reader extracts more from raw gold turns than from consolidated records on exactly the multi-hop types.**
+Consolidation compresses; a weak reader could not exploit what compression discarded, and a strong one
+can.
+
+**One regression is real and is not noise-shaped: abstention 14 → 9.** The composite loses 5 abstention
+questions purely from the reader swap, while the oracle holds 15. This is the *same* over-answering
+tension recorded at n=500 (§8b), amplified: a more capable reader given ~270 records finds even more to
+compute with on questions whose premise is unsupported. **The standing abstention breach is worse on a
+better reader, not better** — which is the opposite of what a "scaling fixes it" reading would predict,
+and it should be stated wherever the two-tier result is reported.
+
+**What this means for the paper's two-tier framing.** "Aeon's precision layer generalises across model
+tiers" is **partly supported and must be qualified**. Supported: the layer improves with the reader and
+its efficiency case (one call, ~26k context) is unchanged. Not supported: the layer's *advantage over
+perfect retrieval* does not transfer — it was partly a property of a reader that could not fully exploit
+gold evidence. **The honest sentence is "the layer's advantage over perfect retrieval narrows and
+reverses on a stronger reader, while its efficiency advantage is unaffected."**
+
+*Not run*: the full n=500 under `glm-5.2`. The dev reading was pre-registered as the gate for it, and
+the outcome that landed is the one that makes the full run a confirmation of a qualified claim rather
+than a headline. Left to an explicit decision rather than launched on momentum.
