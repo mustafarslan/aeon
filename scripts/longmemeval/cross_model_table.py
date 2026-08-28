@@ -30,6 +30,10 @@ RESULTS = os.path.join(HERE, "..", "..", "reproducibility_benchmarks", "longmeme
 # reverted abstention fix (commit 7539192), not a better measurement of the same thing.
 ARMS = [
     ("composite@gemma4", "gemma4:31b", "composite", "composite_arm_n500.json"),
+    # The config-parity control: same compose() config as the glm arm, so the
+    # composite-vs-composite contrast is a reader swap and nothing else. v1 above predates
+    # render_records()'s unconditional group_entities() call and cannot be used for it.
+    ("parity@gemma4",    "gemma4:31b", "composite", "composite_gemma4_parity_n500.json"),
     ("oracle@gemma4",    "gemma4:31b", "oracle",    "oracle_precision_n500_results.json"),
     ("composite@glm5.2", "glm-5.2",    "composite", "composite_glm52_n500.json"),
     ("oracle@glm5.2",    "glm-5.2",    "oracle",    "oracle_glm52_n500.json"),
@@ -39,7 +43,10 @@ ARMS = [
 CONTRASTS = [
     ("composite@gemma4", "oracle@gemma4"),    # can records reach the gold ceiling?
     ("composite@glm5.2", "oracle@glm5.2"),    # ...does that survive a stronger reader?
-    ("composite@glm5.2", "composite@gemma4"), # what does the reader swap alone buy?
+    ("composite@glm5.2", "composite@gemma4"), # CONTAMINATED: spans two compose() configs
+    ("composite@glm5.2", "parity@gemma4"),    # the clean reader swap
+    ("parity@gemma4",    "composite@gemma4"), # what the two render changes cost at n=500
+    ("parity@gemma4",    "oracle@gemma4"),    # parity to its own ceiling
     ("oracle@glm5.2",    "oracle@gemma4"),    # ...and how much of that is reader-only?
 ]
 
