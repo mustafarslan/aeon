@@ -196,7 +196,13 @@ def main() -> None:
             "n": len(sub), "correct": sum(r["correct"] for r in sub),
             "accuracy": sum(r["correct"] for r in sub) / len(sub),
         }
+    # RECORD THE JUDGE, NOT JUST THE READER. `--judge-model` DEFAULTS to `--model`, so a
+    # file that names only the reader cannot tell a held-fixed judge from a self-judge --
+    # and a self-judged arm is not comparable to any other column. Verifying that after
+    # the fact cost an 80-question re-judge of `oracle_glm52_n500.json`; one field here
+    # makes it free forever.
     json.dump({"model": args.model, "mode": "oracle-precision (has_answer turns +/-1)",
+               "judge_model": judge_llm.model,
                "summary": summary, "results": results}, open(args.out, "w"), indent=2)
     print("\n=== summary ===")
     print(json.dumps(summary, indent=2))

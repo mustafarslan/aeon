@@ -212,7 +212,13 @@ def main() -> None:
         "median_generation_seconds": statistics.median(
             [r["timing_seconds"]["generation"] for r in results]),
     }
+    # RECORD THE JUDGE, NOT JUST THE READER. `--judge-model` DEFAULTS to `--model`, so a
+    # file that names only the reader cannot tell a held-fixed judge from a self-judge --
+    # and a self-judged arm is not comparable to any other column. Verifying that after
+    # the fact cost an 80-question re-judge of `oracle_glm52_n500.json`; one field here
+    # makes it free forever.
     json.dump({"model": args.model, "mode": "composite (records + episodic, 1 call)",
+               "judge_model": judge_llm.model,
                "split": args.split, "split_seed": args.split_seed,
                "counting_hint": args.counting_hint, "weekdays": args.weekdays,
                "merge_records": bool(args.merge_records),
