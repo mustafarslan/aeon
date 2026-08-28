@@ -58,24 +58,68 @@ composite uses no gold annotations at all.
 | erasure | automatic lineage cascade keyed on `Provenance.session_id` |
 | point-in-time recall | `as_of` traversal derived from provenance (§5) |
 
-## 2. The leaderboard gap is reader capability
+## 2. The competitor claims, checked against their sources
 
-Published systems reporting 94–96% run frontier readers. **Those numbers need citations and dates
-before they appear in a paper**; they are recorded here as claims, not as verified figures.
+*Every figure below was verified against the publishing source on 2026-08-28. The table in the
+previous draft of this document was wrong in three separate ways, and all three flattered the
+competitors.*
 
-| system | reported | reader |
+| system | claimed | what the number actually is | reader | judge |
+|---|---|---|---|---|
+| MemPalace | 96.6% | **retrieval recall @5, not QA accuracy** — "whether the correct session appears in top-5" | n/a | n/a |
+| Exabase M-1 | 96.4% | QA at top-50 retrieval, all 500 | Gemini 3 Flash | **Gemini 3 Flash — self-judged** |
+| OMEGA | 95.4% | **task-averaged over 5 categories**; raw is **466/500 = 93.2%** | GPT-4.1 | **GPT-4.1 — self-judged** |
+| Mastra | 94.87% | **unweighted average over 6 categories**, `longmemeval_s` | `gpt-5-mini` | `gpt-4o` |
+| Mem0 | 94.4% | reported as overall accuracy | not stated | GPT-4o |
+| **Aeon** | **89.6%** | **raw micro over all 500, abstention included** | `glm-5.2` | `gemma4:31b` |
+
+**Three defects, and this document previously repeated all of them.**
+
+1. **MemPalace's 96.6% is not a QA score.** It is R@5 retrieval recall. Placing it in a column of
+   end-to-end accuracies is a category error — and it is the same error §6.11 records an external
+   evaluation making about *this* work, in the opposite direction.
+2. **Two of the three leaders are self-judged.** Exabase M-1 and OMEGA use one model to both answer
+   and grade. §8c.1 of the findings spends a full section on why that is disqualifying — a self-judged
+   arm is comparable to nothing — and this project re-judged 80 hypotheses under an explicit external
+   judge to prove its own arms were not. Neither of those two did the equivalent.
+3. **"95.4%" and "94.87%" are macro averages; 89.6% is a micro average.** They are different metrics.
+   OMEGA states its own raw score: **466/500**.
+
+### The comparison at matched metrics
+
+Aeon's composite @ `glm-5.2`, recomputed on each competitor's own metric from the committed
+`composite_glm52_n500.json`:
+
+| metric | Aeon | comparator |
 |---|---|---|
-| MemPalace | 96.6% | Gemini Pro class, raw top-50 dumps |
-| Exabase M-1 | 96.4% | Gemini Flash class |
-| OMEGA | 95.4% | frontier |
-| Mastra | 94.87% — **collapsing to 84.23% on `gpt-4o`** | `gpt-5-mini` |
-| Mem0 | 94.4–94.8% | frontier |
+| raw micro, all 500 *(Aeon's headline — the most conservative available)* | **89.6%** (448/500) | OMEGA raw **93.2%** (466/500) |
+| macro over OMEGA's 5 categories | **90.9%** | OMEGA **95.4%** |
+| macro over 6 categories, abstention excluded (Mastra's metric) | **92.1%** | Mastra **94.87%** |
+| raw micro, abstention excluded | **91.3%** (429/470) | — |
 
-Mastra's own 10.6-point collapse under a reader swap is external evidence that these numbers are
-reader-sensitive. This project measures the same thing internally: swapping `gemma4:31b` → `glm-5.2`
-moves the composite **+20** and the gold-evidence ceiling **+38**, and the gold ceiling at `glm-5.2`
-is 91.4%. **Consolidation caps the headroom a stronger reader can exploit** — a record is a lossy
-summary fixed at write time, while raw turns retain everything a better reader might newly extract.
+**The gap is real but roughly half what the original table implied**: against Mastra at Mastra's own
+metric it is **2.8 points**, not 5.3; against OMEGA on raw counts it is **18 questions**, not the 29
+that 89.6 vs 95.4 suggests.
+
+**None of this is a new headline.** 89.6% stays the number this project reports, because micro
+accuracy over all 500 with abstention included is the strictest of the available definitions and
+switching metrics after seeing them is precisely the manoeuvre the table above criticises. The
+recomputation exists to size the gap honestly, not to shrink it by choosing.
+
+**One asymmetry that is not resolved and should be stated as an open confound.** Every competitor is
+graded by a frontier judge — GPT-4o, GPT-4.1, Gemini 3 Flash — and LongMemEval specifies GPT-4o.
+Aeon is graded by `gemma4:31b`. Whether a 31B judge is systematically stricter than GPT-4o on this
+task is **unmeasured here**, and until it is, some unknown part of the residual gap is judge severity
+rather than system quality. That is a cheap experiment (re-judge a committed arm under a second
+judge and measure disagreement) and it has not been run.
+
+### On reader capability
+
+Mastra's own 10.6-point collapse under a reader swap (94.87% on `gpt-5-mini`, 84.23% on `gpt-4o`) is
+external evidence that these numbers are reader-sensitive. This project measures the same thing
+internally: `gemma4:31b` → `glm-5.2` moves the composite **+20** and the gold-evidence ceiling **+38**.
+**Consolidation caps the headroom a stronger reader can exploit** — a record is a lossy summary fixed
+at write time, while raw turns retain everything a better reader might newly extract.
 
 **But the reader lever saturates, and this was tested rather than assumed (§8c.9).** A second
 frontier-class reader, `deepseek-v4-pro:cloud`, run on the dev split at **byte-identical prompts**
@@ -83,11 +127,10 @@ with the judge held fixed and recorded, lands at **223/252 against `glm-5.2`'s 2
 p=1.000**, with only 13 of 252 pairs discordant. One rung of the ladder does not predict the next.
 
 So *"the gap to the 94–96% systems is reader capability"* is **too coarse as stated**, and this
-document previously overstated it. What is established is that a **weak** reader binds — the
-gemma→glm swap is the largest effect measured anywhere in this project. What is **not** established
-is that further reader capability is a lever at all, and one measurement now says it is not. The
-remaining candidates for the difference are the memory pipeline, the benchmark's answer conventions,
-and the judge: the published results use GPT-4o as judge and these do not.
+document previously overstated it. What is established is that a **weak** reader binds. What is
+**not** established is that further reader capability is a lever, and one measurement says it is not.
+Combined with §2's findings, the remaining candidates for the difference are the memory pipeline, the
+metric definition, and the judge.
 
 ## 3. The residual, localised
 
@@ -180,9 +223,13 @@ at +1**. **The ceiling of the memory layer's own tracks is roughly 458–462 (91
 The earlier version of this section said crossing 470 "requires a stronger reader". **That no longer
 survives §8c.9**: a second frontier-class reader at identical prompts moved the result by −1. The
 honest statement is that **no currently identified lever reaches 470** — not the memory layer's own
-tracks, and not, on the one datum available, a further reader upgrade. Closing that gap is an open
-research question, and dynamic read-time filtered aggregation (§4) is this project's candidate for
-where it lives.
+tracks, and not, on the one datum available, a further reader upgrade.
+
+Two of the three things §2 leaves open sit outside that arithmetic entirely, and both are cheap:
+**judge severity** (unmeasured, and every competitor is graded by a frontier judge while this is
+graded by a 31B one) and **metric definition** (at Mastra's own metric the gap is 2.8 points, not
+5.3). Neither is a lever on the system; both change what the gap is understood to mean. The
+substantive open research question remains dynamic read-time filtered aggregation (§4).
 
 ## 8. Reproducing anything here
 
