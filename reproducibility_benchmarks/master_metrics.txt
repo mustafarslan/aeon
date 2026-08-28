@@ -1,6 +1,6 @@
 ============================================================
   Aeon V4.1 — Master Benchmark Report
-  Generated: 2026-08-28T18:39:42Z
+  Generated: 2026-08-28T20:52:13Z
   Host:      Darwin Mustafas-MacBook-Pro.local 25.6.0 arm64
   CPU:       Apple M4 Max
   Cores:     16
@@ -12,37 +12,37 @@
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:39:44+03:00
+2026-08-28T23:52:14+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_kernel_throughput
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 4.38, 4.73, 4.73
+Load Average: 4.92, 4.56, 4.16
 --------------------------------------------------------------------------------------
 Benchmark                            Time             CPU   Iterations UserCounters...
 --------------------------------------------------------------------------------------
-BM_Scalar_mean                    48.1 ns         48.1 ns            5 items_per_second=20.809M/s
-BM_Scalar_median                  48.1 ns         48.1 ns            5 items_per_second=20.7992M/s
-BM_Scalar_stddev                 0.213 ns        0.211 ns            5 items_per_second=91.9102k/s
-BM_Scalar_cv                      0.44 %          0.44 %             5 items_per_second=0.44%
-BM_Scalar_4xUnrolled_mean         88.1 ns         88.1 ns            5 items_per_second=11.3495M/s
-BM_Scalar_4xUnrolled_median       88.1 ns         88.1 ns            5 items_per_second=11.3556M/s
-BM_Scalar_4xUnrolled_stddev      0.207 ns        0.205 ns            5 items_per_second=26.386k/s
-BM_Scalar_4xUnrolled_cv           0.23 %          0.23 %             5 items_per_second=0.23%
-BM_SIMDe_AVX2_mean                63.7 ns         63.7 ns            5 items_per_second=15.7085M/s
-BM_SIMDe_AVX2_median              63.6 ns         63.5 ns            5 items_per_second=15.7357M/s
-BM_SIMDe_AVX2_stddev             0.200 ns        0.199 ns            5 items_per_second=49.0201k/s
-BM_SIMDe_AVX2_cv                  0.31 %          0.31 %             5 items_per_second=0.31%
-BM_SIMDe_AVX512_mean              49.7 ns         49.7 ns            5 items_per_second=20.1117M/s
-BM_SIMDe_AVX512_median            49.8 ns         49.8 ns            5 items_per_second=20.0795M/s
-BM_SIMDe_AVX512_stddev           0.203 ns        0.203 ns            5 items_per_second=82.0566k/s
-BM_SIMDe_AVX512_cv                0.41 %          0.41 %             5 items_per_second=0.41%
-BM_RuntimeDispatched_mean         50.4 ns         50.4 ns            5 items_per_second=19.8553M/s
-BM_RuntimeDispatched_median       50.4 ns         50.4 ns            5 items_per_second=19.8425M/s
-BM_RuntimeDispatched_stddev      0.128 ns        0.127 ns            5 items_per_second=50.1406k/s
-BM_RuntimeDispatched_cv           0.25 %          0.25 %             5 items_per_second=0.25%
+BM_Scalar_mean                    51.9 ns         51.8 ns            5 items_per_second=19.3087M/s
+BM_Scalar_median                  52.7 ns         52.7 ns            5 items_per_second=18.9908M/s
+BM_Scalar_stddev                  1.90 ns         1.88 ns            5 items_per_second=708.031k/s
+BM_Scalar_cv                      3.65 %          3.63 %             5 items_per_second=3.67%
+BM_Scalar_4xUnrolled_mean         99.4 ns         99.3 ns            5 items_per_second=10.0693M/s
+BM_Scalar_4xUnrolled_median       99.3 ns         99.2 ns            5 items_per_second=10.0773M/s
+BM_Scalar_4xUnrolled_stddev      0.852 ns        0.849 ns            5 items_per_second=86.1468k/s
+BM_Scalar_4xUnrolled_cv           0.86 %          0.86 %             5 items_per_second=0.86%
+BM_SIMDe_AVX2_mean                71.2 ns         71.2 ns            5 items_per_second=14.0525M/s
+BM_SIMDe_AVX2_median              72.2 ns         72.2 ns            5 items_per_second=13.8515M/s
+BM_SIMDe_AVX2_stddev              1.82 ns         1.81 ns            5 items_per_second=366.953k/s
+BM_SIMDe_AVX2_cv                  2.55 %          2.55 %             5 items_per_second=2.61%
+BM_SIMDe_AVX512_mean              52.4 ns         52.3 ns            5 items_per_second=19.1112M/s
+BM_SIMDe_AVX512_median            52.4 ns         52.3 ns            5 items_per_second=19.1028M/s
+BM_SIMDe_AVX512_stddev           0.298 ns        0.277 ns            5 items_per_second=101.148k/s
+BM_SIMDe_AVX512_cv                0.57 %          0.53 %             5 items_per_second=0.53%
+BM_RuntimeDispatched_mean         53.5 ns         53.4 ns            5 items_per_second=18.7292M/s
+BM_RuntimeDispatched_median       53.1 ns         53.0 ns            5 items_per_second=18.8596M/s
+BM_RuntimeDispatched_stddev      0.654 ns        0.667 ns            5 items_per_second=233.099k/s
+BM_RuntimeDispatched_cv           1.22 %          1.25 %             5 items_per_second=1.24%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_slb_latency
@@ -50,33 +50,33 @@ BM_RuntimeDispatched_cv           0.25 %          0.25 %             5 items_per
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:40:04+03:00
+2026-08-28T23:52:33+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_slb_latency
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 3.98, 4.61, 4.69
+Load Average: 5.37, 4.69, 4.22
 -------------------------------------------------------------------------------------------------------------------------
 Benchmark                                                               Time             CPU   Iterations UserCounters...
 -------------------------------------------------------------------------------------------------------------------------
-BM_SLB_RawScan_64_mean                                               3556 ns         3556 ns            5 items_per_second=281.246k/s
-BM_SLB_RawScan_64_median                                             3554 ns         3553 ns            5 items_per_second=281.431k/s
-BM_SLB_RawScan_64_stddev                                             9.71 ns         9.68 ns            5 items_per_second=765.315/s
-BM_SLB_RawScan_64_cv                                                 0.27 %          0.27 %             5 items_per_second=0.27%
-BM_SLB_CacheHit_mean                                                 3.56 us         3.56 us            5 items_per_second=280.691k/s
-BM_SLB_CacheHit_median                                               3.56 us         3.56 us            5 items_per_second=280.586k/s
-BM_SLB_CacheHit_stddev                                              0.008 us        0.008 us            5 items_per_second=624.578/s
-BM_SLB_CacheHit_cv                                                   0.23 %          0.22 %             5 items_per_second=0.22%
-AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_mean          528 us          528 us            5 items_per_second=1.89407k/s
-AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_median        528 us          528 us            5 items_per_second=1.89518k/s
-AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_stddev      0.804 us        0.796 us            5 items_per_second=2.8531/s
-AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_cv           0.15 %          0.15 %             5 items_per_second=0.15%
-AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_mean              525 us          525 us            5 items_per_second=1.90583k/s
-AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_median            524 us          524 us            5 items_per_second=1.90695k/s
-AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_stddev           1.17 us         1.16 us            5 items_per_second=4.21209/s
-AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_cv               0.22 %          0.22 %             5 items_per_second=0.22%
+BM_SLB_RawScan_64_mean                                               3769 ns         3764 ns            5 items_per_second=265.689k/s
+BM_SLB_RawScan_64_median                                             3764 ns         3756 ns            5 items_per_second=266.206k/s
+BM_SLB_RawScan_64_stddev                                             31.2 ns         31.6 ns            5 items_per_second=2.22058k/s
+BM_SLB_RawScan_64_cv                                                 0.83 %          0.84 %             5 items_per_second=0.84%
+BM_SLB_CacheHit_mean                                                 3.77 us         3.77 us            5 items_per_second=265.272k/s
+BM_SLB_CacheHit_median                                               3.76 us         3.76 us            5 items_per_second=265.866k/s
+BM_SLB_CacheHit_stddev                                              0.049 us        0.048 us            5 items_per_second=3.35482k/s
+BM_SLB_CacheHit_cv                                                   1.29 %          1.28 %             5 items_per_second=1.26%
+AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_mean          560 us          559 us            5 items_per_second=1.78853k/s
+AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_median        561 us          560 us            5 items_per_second=1.78612k/s
+AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_stddev       3.56 us         3.79 us            5 items_per_second=12.1163/s
+AtlasFixture/BM_SLB_CacheMiss_WarmAtlas/iterations:4096_cv           0.64 %          0.68 %             5 items_per_second=0.68%
+AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_mean              545 us          545 us            5 items_per_second=1.83483k/s
+AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_median            543 us          542 us            5 items_per_second=1.84433k/s
+AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_stddev           8.96 us         8.95 us            5 items_per_second=29.8378/s
+AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_cv               1.64 %          1.64 %             5 items_per_second=1.63%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_multitenant_slb
@@ -84,57 +84,57 @@ AtlasFixture/BM_AtlasTraversal_Only/iterations:4096_cv               0.22 %     
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:40:35+03:00
+2026-08-28T23:53:06+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_multitenant_slb
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 3.62, 4.48, 4.64
+Load Average: 4.68, 4.61, 4.21
 ---------------------------------------------------------------------------------------------------------------
 Benchmark                                                     Time             CPU   Iterations UserCounters...
 ---------------------------------------------------------------------------------------------------------------
-BM_MultiTenant_SLB_Sequential/100_mean                     5.40 us         5.40 us            5 items_per_second=185.063k/s
-BM_MultiTenant_SLB_Sequential/100_median                   5.40 us         5.40 us            5 items_per_second=185.117k/s
-BM_MultiTenant_SLB_Sequential/100_stddev                  0.012 us        0.012 us            5 items_per_second=411.327/s
-BM_MultiTenant_SLB_Sequential/100_cv                       0.22 %          0.22 %             5 items_per_second=0.22%
-BM_MultiTenant_SLB_Sequential/1000_mean                    5.40 us         5.40 us            5 items_per_second=185.157k/s
-BM_MultiTenant_SLB_Sequential/1000_median                  5.40 us         5.40 us            5 items_per_second=185.253k/s
-BM_MultiTenant_SLB_Sequential/1000_stddev                 0.010 us        0.010 us            5 items_per_second=340.11/s
-BM_MultiTenant_SLB_Sequential/1000_cv                      0.19 %          0.18 %             5 items_per_second=0.18%
-BM_MultiTenant_SLB_Sequential/10000_mean                   5.41 us         5.41 us            5 items_per_second=185.015k/s
-BM_MultiTenant_SLB_Sequential/10000_median                 5.40 us         5.40 us            5 items_per_second=185.164k/s
-BM_MultiTenant_SLB_Sequential/10000_stddev                0.013 us        0.013 us            5 items_per_second=454.333/s
-BM_MultiTenant_SLB_Sequential/10000_cv                     0.25 %          0.25 %             5 items_per_second=0.25%
-BM_MultiTenant_SLB_Concurrent/10000/threads:1_mean         5.39 us         5.39 us            5 items_per_second=185.647k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:1_median       5.40 us         5.40 us            5 items_per_second=185.261k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:1_stddev      0.023 us        0.023 us            5 items_per_second=807.276/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:1_cv           0.43 %          0.43 %             5 items_per_second=0.43%
-BM_MultiTenant_SLB_Concurrent/10000/threads:2_mean         2.79 us         5.58 us            5 items_per_second=179.23k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:2_median       2.79 us         5.58 us            5 items_per_second=179.122k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:2_stddev      0.006 us        0.012 us            5 items_per_second=394.73/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:2_cv           0.22 %          0.22 %             5 items_per_second=0.22%
-BM_MultiTenant_SLB_Concurrent/10000/threads:4_mean         1.43 us         5.71 us            5 items_per_second=175.043k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:4_median       1.43 us         5.71 us            5 items_per_second=175.115k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:4_stddev      0.004 us        0.015 us            5 items_per_second=451.733/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:4_cv           0.25 %          0.26 %             5 items_per_second=0.26%
-BM_MultiTenant_SLB_Concurrent/10000/threads:8_mean        0.711 us         5.69 us            5 items_per_second=175.855k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:8_median      0.707 us         5.65 us            5 items_per_second=176.869k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:8_stddev      0.010 us        0.080 us            5 items_per_second=2.43004k/s
-BM_MultiTenant_SLB_Concurrent/10000/threads:8_cv           1.42 %          1.41 %             5 items_per_second=1.38%
-BM_SLB_CacheIsolation/16_mean                             0.869 us        0.869 us            5 hit=1 items_per_second=1.15049M/s
-BM_SLB_CacheIsolation/16_median                           0.869 us        0.868 us            5 hit=1 items_per_second=1.15147M/s
-BM_SLB_CacheIsolation/16_stddev                           0.002 us        0.002 us            5 hit=0 items_per_second=3.28358k/s
-BM_SLB_CacheIsolation/16_cv                                0.29 %          0.29 %             5 hit=0.00% items_per_second=0.29%
-BM_SLB_CacheIsolation/32_mean                              1.75 us         1.75 us            5 hit=1 items_per_second=571.375k/s
-BM_SLB_CacheIsolation/32_median                            1.75 us         1.75 us            5 hit=1 items_per_second=570.457k/s
-BM_SLB_CacheIsolation/32_stddev                           0.010 us        0.009 us            5 hit=0 items_per_second=2.93734k/s
-BM_SLB_CacheIsolation/32_cv                                0.54 %          0.51 %             5 hit=0.00% items_per_second=0.51%
-BM_SLB_CacheIsolation/64_mean                              3.51 us         3.51 us            5 hit=1 items_per_second=284.721k/s
-BM_SLB_CacheIsolation/64_median                            3.51 us         3.51 us            5 hit=1 items_per_second=284.987k/s
-BM_SLB_CacheIsolation/64_stddev                           0.036 us        0.035 us            5 hit=0 items_per_second=2.85934k/s
-BM_SLB_CacheIsolation/64_cv                                1.01 %          1.00 %             5 hit=0.00% items_per_second=1.00%
+BM_MultiTenant_SLB_Sequential/100_mean                     5.53 us         5.53 us            5 items_per_second=180.886k/s
+BM_MultiTenant_SLB_Sequential/100_median                   5.51 us         5.51 us            5 items_per_second=181.55k/s
+BM_MultiTenant_SLB_Sequential/100_stddev                  0.041 us        0.042 us            5 items_per_second=1.3517k/s
+BM_MultiTenant_SLB_Sequential/100_cv                       0.75 %          0.75 %             5 items_per_second=0.75%
+BM_MultiTenant_SLB_Sequential/1000_mean                    5.50 us         5.50 us            5 items_per_second=181.818k/s
+BM_MultiTenant_SLB_Sequential/1000_median                  5.50 us         5.50 us            5 items_per_second=181.914k/s
+BM_MultiTenant_SLB_Sequential/1000_stddev                 0.011 us        0.008 us            5 items_per_second=279.321/s
+BM_MultiTenant_SLB_Sequential/1000_cv                      0.20 %          0.15 %             5 items_per_second=0.15%
+BM_MultiTenant_SLB_Sequential/10000_mean                   5.51 us         5.51 us            5 items_per_second=181.504k/s
+BM_MultiTenant_SLB_Sequential/10000_median                 5.51 us         5.51 us            5 items_per_second=181.559k/s
+BM_MultiTenant_SLB_Sequential/10000_stddev                0.019 us        0.019 us            5 items_per_second=626.285/s
+BM_MultiTenant_SLB_Sequential/10000_cv                     0.35 %          0.35 %             5 items_per_second=0.35%
+BM_MultiTenant_SLB_Concurrent/10000/threads:1_mean         5.47 us         5.47 us            5 items_per_second=182.961k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:1_median       5.47 us         5.46 us            5 items_per_second=182.996k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:1_stddev      0.004 us        0.004 us            5 items_per_second=137.865/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:1_cv           0.08 %          0.08 %             5 items_per_second=0.08%
+BM_MultiTenant_SLB_Concurrent/10000/threads:2_mean         2.81 us         5.62 us            5 items_per_second=178.017k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:2_median       2.80 us         5.61 us            5 items_per_second=178.329k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:2_stddev      0.010 us        0.020 us            5 items_per_second=630.462/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:2_cv           0.36 %          0.36 %             5 items_per_second=0.35%
+BM_MultiTenant_SLB_Concurrent/10000/threads:4_mean         1.43 us         5.72 us            5 items_per_second=174.783k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:4_median       1.43 us         5.72 us            5 items_per_second=174.806k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:4_stddev      0.002 us        0.007 us            5 items_per_second=225.865/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:4_cv           0.15 %          0.13 %             5 items_per_second=0.13%
+BM_MultiTenant_SLB_Concurrent/10000/threads:8_mean        0.707 us         5.65 us            5 items_per_second=176.866k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:8_median      0.707 us         5.65 us            5 items_per_second=176.844k/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:8_stddev      0.001 us        0.007 us            5 items_per_second=209.786/s
+BM_MultiTenant_SLB_Concurrent/10000/threads:8_cv           0.11 %          0.12 %             5 items_per_second=0.12%
+BM_SLB_CacheIsolation/16_mean                             0.864 us        0.864 us            5 hit=1 items_per_second=1.15723M/s
+BM_SLB_CacheIsolation/16_median                           0.863 us        0.863 us            5 hit=1 items_per_second=1.15853M/s
+BM_SLB_CacheIsolation/16_stddev                           0.002 us        0.002 us            5 hit=0 items_per_second=2.45185k/s
+BM_SLB_CacheIsolation/16_cv                                0.21 %          0.21 %             5 hit=0.00% items_per_second=0.21%
+BM_SLB_CacheIsolation/32_mean                              1.71 us         1.71 us            5 hit=1 items_per_second=584.002k/s
+BM_SLB_CacheIsolation/32_median                            1.71 us         1.71 us            5 hit=1 items_per_second=583.841k/s
+BM_SLB_CacheIsolation/32_stddev                           0.003 us        0.003 us            5 hit=0 items_per_second=1.15573k/s
+BM_SLB_CacheIsolation/32_cv                                0.19 %          0.20 %             5 hit=0.00% items_per_second=0.20%
+BM_SLB_CacheIsolation/64_mean                              3.47 us         3.47 us            5 hit=1 items_per_second=288.017k/s
+BM_SLB_CacheIsolation/64_median                            3.47 us         3.47 us            5 hit=1 items_per_second=287.818k/s
+BM_SLB_CacheIsolation/64_stddev                           0.011 us        0.010 us            5 hit=0 items_per_second=836.345/s
+BM_SLB_CacheIsolation/64_cv                                0.31 %          0.29 %             5 hit=0.00% items_per_second=0.29%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_tiered_atlas
@@ -142,29 +142,29 @@ BM_SLB_CacheIsolation/64_cv                                1.01 %          1.00 
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:41:05+03:00
+2026-08-28T23:53:36+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_tiered_atlas
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.79, 4.19, 4.53
+Load Average: 4.01, 4.45, 4.16
 -------------------------------------------------------------------------------------------------------------
 Benchmark                                                   Time             CPU   Iterations UserCounters...
 -------------------------------------------------------------------------------------------------------------
-TieredAtlasFixture/BM_TieredAtlas_WarmQuery_mean         17.1 us         17.1 us            5 cloud_fetch=0 items_per_second=58.6112k/s
-TieredAtlasFixture/BM_TieredAtlas_WarmQuery_median       17.1 us         17.1 us            5 cloud_fetch=0 items_per_second=58.5856k/s
-TieredAtlasFixture/BM_TieredAtlas_WarmQuery_stddev      0.041 us        0.040 us            5 cloud_fetch=0 items_per_second=136.454/s
-TieredAtlasFixture/BM_TieredAtlas_WarmQuery_cv           0.24 %          0.23 %             5 cloud_fetch=nan% items_per_second=0.23%
-TieredAtlasFixture/BM_TieredAtlas_ColdMiss_mean          17.1 us         17.1 us            5 cloud_fetch_triggered=1 items_per_second=58.5621k/s
-TieredAtlasFixture/BM_TieredAtlas_ColdMiss_median        17.0 us         17.0 us            5 cloud_fetch_triggered=1 items_per_second=58.8276k/s
-TieredAtlasFixture/BM_TieredAtlas_ColdMiss_stddev       0.172 us        0.170 us            5 cloud_fetch_triggered=0 items_per_second=574.452/s
-TieredAtlasFixture/BM_TieredAtlas_ColdMiss_cv            1.01 %          0.99 %             5 cloud_fetch_triggered=0.00% items_per_second=0.98%
-TieredAtlasFixture/BM_RawNavigate_Baseline_mean          7.39 us         7.38 us            5 items_per_second=135.498k/s
-TieredAtlasFixture/BM_RawNavigate_Baseline_median        7.37 us         7.37 us            5 items_per_second=135.623k/s
-TieredAtlasFixture/BM_RawNavigate_Baseline_stddev       0.039 us        0.037 us            5 items_per_second=681.256/s
-TieredAtlasFixture/BM_RawNavigate_Baseline_cv            0.53 %          0.51 %             5 items_per_second=0.50%
+TieredAtlasFixture/BM_TieredAtlas_WarmQuery_mean         17.1 us         17.1 us            5 cloud_fetch=0 items_per_second=58.4673k/s
+TieredAtlasFixture/BM_TieredAtlas_WarmQuery_median       17.1 us         17.1 us            5 cloud_fetch=0 items_per_second=58.4846k/s
+TieredAtlasFixture/BM_TieredAtlas_WarmQuery_stddev      0.015 us        0.015 us            5 cloud_fetch=0 items_per_second=50.0554/s
+TieredAtlasFixture/BM_TieredAtlas_WarmQuery_cv           0.09 %          0.09 %             5 cloud_fetch=nan% items_per_second=0.09%
+TieredAtlasFixture/BM_TieredAtlas_ColdMiss_mean          17.1 us         17.1 us            5 cloud_fetch_triggered=1 items_per_second=58.4415k/s
+TieredAtlasFixture/BM_TieredAtlas_ColdMiss_median        17.1 us         17.1 us            5 cloud_fetch_triggered=1 items_per_second=58.5052k/s
+TieredAtlasFixture/BM_TieredAtlas_ColdMiss_stddev       0.052 us        0.051 us            5 cloud_fetch_triggered=0 items_per_second=174.876/s
+TieredAtlasFixture/BM_TieredAtlas_ColdMiss_cv            0.30 %          0.30 %             5 cloud_fetch_triggered=0.00% items_per_second=0.30%
+TieredAtlasFixture/BM_RawNavigate_Baseline_mean          7.26 us         7.26 us            5 items_per_second=137.768k/s
+TieredAtlasFixture/BM_RawNavigate_Baseline_median        7.25 us         7.25 us            5 items_per_second=137.904k/s
+TieredAtlasFixture/BM_RawNavigate_Baseline_stddev       0.023 us        0.023 us            5 items_per_second=429/s
+TieredAtlasFixture/BM_RawNavigate_Baseline_cv            0.32 %          0.31 %             5 items_per_second=0.31%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_quantization_efficiency
@@ -172,41 +172,49 @@ TieredAtlasFixture/BM_RawNavigate_Baseline_cv            0.53 %          0.51 % 
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:41:18+03:00
+2026-08-28T23:53:49+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_quantization_efficiency
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.75, 4.14, 4.50
-------------------------------------------------------------------------------------------------------------------------------------
-Benchmark                                                                          Time             CPU   Iterations UserCounters...
-------------------------------------------------------------------------------------------------------------------------------------
-QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_mean          11.2 us         11.2 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=89.0531k/s
-QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_median        11.2 us         11.2 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=89.3173k/s
-QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_stddev       0.079 us        0.079 us            5 BytesPerNode=39.3101u FileSizeBytes=0 items_per_second=618.604/s
-QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_cv            0.70 %          0.70 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.69%
-QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_mean         14.5 us         14.5 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=69.1169k/s
-QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_median       14.5 us         14.5 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=69.1915k/s
-QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_stddev      0.142 us        0.127 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=605.381/s
-QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_cv           0.98 %          0.88 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.88%
-QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_mean          6.24 us         6.24 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=160.193k/s
-QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_median        6.27 us         6.27 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=159.408k/s
-QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_stddev       0.052 us        0.052 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=1.32757k/s
-QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_cv            0.83 %          0.83 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.83%
-QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_mean         7.48 us         7.48 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=133.719k/s
-QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_median       7.46 us         7.46 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=134.084k/s
-QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_stddev      0.075 us        0.076 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=1.3476k/s
-QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_cv           1.00 %          1.01 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=1.01%
-QuantizationFixture/BM_Insert/10000/0/repeats:5_mean                            2.23 us         2.23 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=449.351k/s
-QuantizationFixture/BM_Insert/10000/0/repeats:5_median                          2.22 us         2.22 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=451.361k/s
-QuantizationFixture/BM_Insert/10000/0/repeats:5_stddev                         0.023 us        0.021 us            5 BytesPerNode=39.3101u FileSizeBytes=0 items_per_second=4.24528k/s
-QuantizationFixture/BM_Insert/10000/0/repeats:5_cv                              1.03 %          0.95 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.94%
-QuantizationFixture/BM_Insert/10000/1/repeats:5_mean                            2.16 us         2.15 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=465.388k/s
-QuantizationFixture/BM_Insert/10000/1/repeats:5_median                          2.16 us         2.16 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=463.801k/s
-QuantizationFixture/BM_Insert/10000/1/repeats:5_stddev                         0.049 us        0.042 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=9.06456k/s
-QuantizationFixture/BM_Insert/10000/1/repeats:5_cv                              2.25 %          1.96 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=1.95%
+Load Average: 3.41, 4.30, 4.11
+--------------------------------------------------------------------------------------------------------------------------------------------
+Benchmark                                                                                  Time             CPU   Iterations UserCounters...
+--------------------------------------------------------------------------------------------------------------------------------------------
+QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_mean                  11.2 us         11.2 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=89.0023k/s
+QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_median                11.2 us         11.2 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=89.0009k/s
+QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_stddev               0.034 us        0.034 us            5 BytesPerNode=39.3101u FileSizeBytes=0 items_per_second=269.155/s
+QuantizationFixture/BM_Navigate/10000/0/iterations:4096/repeats:5_cv                    0.30 %          0.30 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.30%
+QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_mean                 14.6 us         14.6 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=68.6037k/s
+QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_median               14.5 us         14.5 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=68.86k/s
+QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_stddev              0.129 us        0.129 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=607.079/s
+QuantizationFixture/BM_Navigate/100000/0/iterations:4096/repeats:5_cv                   0.89 %          0.89 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.88%
+QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_mean                  6.39 us         6.39 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=156.6k/s
+QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_median                6.39 us         6.39 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=156.551k/s
+QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_stddev               0.030 us        0.030 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=739.031/s
+QuantizationFixture/BM_Navigate/10000/1/iterations:4096/repeats:5_cv                    0.47 %          0.47 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.47%
+QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_mean                 7.66 us         7.66 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=130.485k/s
+QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_median               7.69 us         7.69 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=130.098k/s
+QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_stddev              0.070 us        0.070 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=1.19968k/s
+QuantizationFixture/BM_Navigate/100000/1/iterations:4096/repeats:5_cv                   0.91 %          0.91 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.92%
+QuantizationFixture/BM_Navigate_SLBWarm/100000/0/iterations:4096/repeats:5_mean         10.6 us         10.6 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=94.2128k/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/0/iterations:4096/repeats:5_median       10.6 us         10.6 us            5 BytesPerNode=4.40014k FileSizeBytes=440.014M items_per_second=94.2129k/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/0/iterations:4096/repeats:5_stddev      0.056 us        0.056 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=499.857/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/0/iterations:4096/repeats:5_cv           0.53 %          0.53 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.53%
+QuantizationFixture/BM_Navigate_SLBWarm/100000/1/iterations:4096/repeats:5_mean         3.20 us         3.20 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=312.631k/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/1/iterations:4096/repeats:5_median       3.14 us         3.14 us            5 BytesPerNode=1.41137k FileSizeBytes=141.137M items_per_second=318.581k/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/1/iterations:4096/repeats:5_stddev      0.137 us        0.136 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=12.571k/s
+QuantizationFixture/BM_Navigate_SLBWarm/100000/1/iterations:4096/repeats:5_cv           4.27 %          4.24 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=4.02%
+QuantizationFixture/BM_Insert/10000/0/repeats:5_mean                                    2.29 us         2.28 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=437.848k/s
+QuantizationFixture/BM_Insert/10000/0/repeats:5_median                                  2.29 us         2.29 us            5 BytesPerNode=3.86316k FileSizeBytes=38.6316M items_per_second=437.211k/s
+QuantizationFixture/BM_Insert/10000/0/repeats:5_stddev                                 0.011 us        0.008 us            5 BytesPerNode=39.3101u FileSizeBytes=0 items_per_second=1.58904k/s
+QuantizationFixture/BM_Insert/10000/0/repeats:5_cv                                      0.48 %          0.36 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.36%
+QuantizationFixture/BM_Insert/10000/1/repeats:5_mean                                    2.17 us         2.17 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=461.599k/s
+QuantizationFixture/BM_Insert/10000/1/repeats:5_median                                  2.17 us         2.17 us            5 BytesPerNode=1.23913k FileSizeBytes=12.3913M items_per_second=461.269k/s
+QuantizationFixture/BM_Insert/10000/1/repeats:5_stddev                                 0.018 us        0.012 us            5 BytesPerNode=0 FileSizeBytes=0 items_per_second=2.55225k/s
+QuantizationFixture/BM_Insert/10000/1/repeats:5_cv                                      0.84 %          0.55 %             5 BytesPerNode=0.00% FileSizeBytes=0.00% items_per_second=0.55%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_wal_overhead
@@ -214,25 +222,25 @@ QuantizationFixture/BM_Insert/10000/1/repeats:5_cv                              
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:41:33+03:00
+2026-08-28T23:54:08+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_wal_overhead
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.57, 4.03, 4.46
+Load Average: 3.90, 4.34, 4.13
 --------------------------------------------------------------------------------------------------
 Benchmark                                        Time             CPU   Iterations UserCounters...
 --------------------------------------------------------------------------------------------------
-WalFixture/BM_Insert/0/repeats:5_mean         2.25 us         2.25 us            5 items_per_second=445.372k/s
-WalFixture/BM_Insert/0/repeats:5_median       2.23 us         2.22 us            5 items_per_second=449.51k/s
-WalFixture/BM_Insert/0/repeats:5_stddev      0.049 us        0.048 us            5 items_per_second=9.50386k/s
-WalFixture/BM_Insert/0/repeats:5_cv           2.18 %          2.16 %             5 items_per_second=2.13%
-WalFixture/BM_Insert/1/repeats:5_mean         2.21 us         2.21 us            5 items_per_second=452.855k/s
-WalFixture/BM_Insert/1/repeats:5_median       2.21 us         2.21 us            5 items_per_second=453.269k/s
-WalFixture/BM_Insert/1/repeats:5_stddev      0.008 us        0.008 us            5 items_per_second=1.72457k/s
-WalFixture/BM_Insert/1/repeats:5_cv           0.35 %          0.38 %             5 items_per_second=0.38%
+WalFixture/BM_Insert/0/repeats:5_mean         2.27 us         2.27 us            5 items_per_second=440.884k/s
+WalFixture/BM_Insert/0/repeats:5_median       2.27 us         2.27 us            5 items_per_second=440.72k/s
+WalFixture/BM_Insert/0/repeats:5_stddev      0.005 us        0.004 us            5 items_per_second=785.613/s
+WalFixture/BM_Insert/0/repeats:5_cv           0.21 %          0.18 %             5 items_per_second=0.18%
+WalFixture/BM_Insert/1/repeats:5_mean         2.26 us         2.26 us            5 items_per_second=442.259k/s
+WalFixture/BM_Insert/1/repeats:5_median       2.26 us         2.26 us            5 items_per_second=442.446k/s
+WalFixture/BM_Insert/1/repeats:5_stddev      0.006 us        0.006 us            5 items_per_second=1.15857k/s
+WalFixture/BM_Insert/1/repeats:5_cv           0.28 %          0.26 %             5 items_per_second=0.26%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_trace_gc
@@ -240,29 +248,29 @@ WalFixture/BM_Insert/1/repeats:5_cv           0.35 %          0.38 %            
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:41:45+03:00
+2026-08-28T23:54:20+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_trace_gc
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.79, 4.01, 4.44
+Load Average: 3.61, 4.27, 4.11
 ------------------------------------------------------------------------------------------------------------------
 Benchmark                                                        Time             CPU   Iterations UserCounters...
 ------------------------------------------------------------------------------------------------------------------
-TraceGCFixture/BM_Tombstone/repeats:5_mean                   91590 ns        91557 ns            5 items_per_second=10.9327k/s
-TraceGCFixture/BM_Tombstone/repeats:5_median                 92973 ns        92940 ns            5 items_per_second=10.7596k/s
-TraceGCFixture/BM_Tombstone/repeats:5_stddev                  3173 ns         3156 ns            5 items_per_second=383.378/s
-TraceGCFixture/BM_Tombstone/repeats:5_cv                      3.46 %          3.45 %             5 items_per_second=3.51%
-TraceGCFixture/BM_Compact/iterations:1/repeats:5_mean          925 ms          321 ms            5 EventsAfter=50k EventsBefore=100k FileSizeAfter=51.2001M FileSizeBefore=67.1089M GC_Ratio=0.5 items_per_second=3.11826/s
-TraceGCFixture/BM_Compact/iterations:1/repeats:5_median        899 ms          317 ms            5 EventsAfter=50k EventsBefore=100k FileSizeAfter=51.2001M FileSizeBefore=67.1089M GC_Ratio=0.5 items_per_second=3.15303/s
-TraceGCFixture/BM_Compact/iterations:1/repeats:5_stddev       46.5 ms         9.60 ms            5 EventsAfter=0 EventsBefore=0 FileSizeAfter=0 FileSizeBefore=0 GC_Ratio=0 items_per_second=0.0898537/s
-TraceGCFixture/BM_Compact/iterations:1/repeats:5_cv           5.02 %          2.99 %             5 EventsAfter=0.00% EventsBefore=0.00% FileSizeAfter=0.00% FileSizeBefore=0.00% GC_Ratio=0.00% items_per_second=2.88%
-TraceGCFixture/BM_AppendEvent/repeats:5_mean                 18767 ns         7405 ns            5 items_per_second=135.075k/s
-TraceGCFixture/BM_AppendEvent/repeats:5_median               18427 ns         7348 ns            5 items_per_second=136.091k/s
-TraceGCFixture/BM_AppendEvent/repeats:5_stddev                 534 ns          135 ns            5 items_per_second=2.42106k/s
-TraceGCFixture/BM_AppendEvent/repeats:5_cv                    2.85 %          1.83 %             5 items_per_second=1.79%
+TraceGCFixture/BM_Tombstone/repeats:5_mean                   88985 ns        88973 ns            5 items_per_second=11.2401k/s
+TraceGCFixture/BM_Tombstone/repeats:5_median                 89333 ns        89322 ns            5 items_per_second=11.1955k/s
+TraceGCFixture/BM_Tombstone/repeats:5_stddev                   847 ns          843 ns            5 items_per_second=106.673/s
+TraceGCFixture/BM_Tombstone/repeats:5_cv                      0.95 %          0.95 %             5 items_per_second=0.95%
+TraceGCFixture/BM_Compact/iterations:1/repeats:5_mean          908 ms          323 ms            5 EventsAfter=50k EventsBefore=100k FileSizeAfter=51.2001M FileSizeBefore=67.1089M GC_Ratio=0.5 items_per_second=3.10119/s
+TraceGCFixture/BM_Compact/iterations:1/repeats:5_median        900 ms          323 ms            5 EventsAfter=50k EventsBefore=100k FileSizeAfter=51.2001M FileSizeBefore=67.1089M GC_Ratio=0.5 items_per_second=3.09286/s
+TraceGCFixture/BM_Compact/iterations:1/repeats:5_stddev       26.1 ms         4.67 ms            5 EventsAfter=0 EventsBefore=0 FileSizeAfter=0 FileSizeBefore=0 GC_Ratio=0 items_per_second=0.045029/s
+TraceGCFixture/BM_Compact/iterations:1/repeats:5_cv           2.87 %          1.45 %             5 EventsAfter=0.00% EventsBefore=0.00% FileSizeAfter=0.00% FileSizeBefore=0.00% GC_Ratio=0.00% items_per_second=1.45%
+TraceGCFixture/BM_AppendEvent/repeats:5_mean                 19816 ns         7543 ns            5 items_per_second=132.727k/s
+TraceGCFixture/BM_AppendEvent/repeats:5_median               19087 ns         7535 ns            5 items_per_second=132.715k/s
+TraceGCFixture/BM_AppendEvent/repeats:5_stddev                1856 ns          290 ns            5 items_per_second=5.2243k/s
+TraceGCFixture/BM_AppendEvent/repeats:5_cv                    9.36 %          3.84 %             5 items_per_second=3.94%
 
 ────────────────────────────────────────────────────────────
   RUNNING: aeon_bench
@@ -270,33 +278,33 @@ TraceGCFixture/BM_AppendEvent/repeats:5_cv                    2.85 %          1.
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:42:59+03:00
+2026-08-28T23:55:35+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/aeon_bench
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.06, 3.55, 4.23
+Load Average: 2.43, 3.75, 3.92
 -----------------------------------------------------------------------------------------
 Benchmark                                               Time             CPU   Iterations
 -----------------------------------------------------------------------------------------
-BM_MathKernel_mean                                   50.7 ns         50.7 ns            5
-BM_MathKernel_median                                 50.7 ns         50.7 ns            5
-BM_MathKernel_stddev                                0.052 ns        0.053 ns            5
-BM_MathKernel_cv                                     0.10 %          0.10 %             5
-AtlasFixture/WarmSearch/iterations:4096_mean       529049 ns       528981 ns            5
-AtlasFixture/WarmSearch/iterations:4096_median     529203 ns       529158 ns            5
-AtlasFixture/WarmSearch/iterations:4096_stddev        858 ns          839 ns            5
-AtlasFixture/WarmSearch/iterations:4096_cv           0.16 %          0.16 %             5
-AtlasFixture/ColdSearch/iterations:4096_mean       539500 ns       539413 ns            5
-AtlasFixture/ColdSearch/iterations:4096_median     539086 ns       539016 ns            5
-AtlasFixture/ColdSearch/iterations:4096_stddev       1703 ns         1678 ns            5
-AtlasFixture/ColdSearch/iterations:4096_cv           0.32 %          0.31 %             5
+BM_MathKernel_mean                                   50.3 ns         50.3 ns            5
+BM_MathKernel_median                                 50.3 ns         50.3 ns            5
+BM_MathKernel_stddev                                0.078 ns        0.074 ns            5
+BM_MathKernel_cv                                     0.15 %          0.15 %             5
+AtlasFixture/WarmSearch/iterations:4096_mean       529455 ns       529402 ns            5
+AtlasFixture/WarmSearch/iterations:4096_median     529289 ns       529242 ns            5
+AtlasFixture/WarmSearch/iterations:4096_stddev        683 ns          688 ns            5
+AtlasFixture/WarmSearch/iterations:4096_cv           0.13 %          0.13 %             5
+AtlasFixture/ColdSearch/iterations:4096_mean       542824 ns       542740 ns            5
+AtlasFixture/ColdSearch/iterations:4096_median     542916 ns       542842 ns            5
+AtlasFixture/ColdSearch/iterations:4096_stddev       1149 ns         1159 ns            5
+AtlasFixture/ColdSearch/iterations:4096_cv           0.21 %          0.21 %             5
 AtlasFixture/ConversationalDrift_mean                 110 ns          110 ns            5
 AtlasFixture/ConversationalDrift_median               110 ns          110 ns            5
-AtlasFixture/ConversationalDrift_stddev             0.626 ns        0.623 ns            5
-AtlasFixture/ConversationalDrift_cv                  0.57 %          0.57 %             5
+AtlasFixture/ConversationalDrift_stddev             0.848 ns        0.867 ns            5
+AtlasFixture/ConversationalDrift_cv                  0.77 %          0.79 %             5
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_scalability (long-running, 3 reps)
@@ -304,41 +312,41 @@ AtlasFixture/ConversationalDrift_cv                  0.57 %          0.57 %     
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:43:46+03:00
+2026-08-28T23:56:22+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_scalability
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 2.82, 3.52, 4.18
+Load Average: 2.94, 3.71, 3.90
 ------------------------------------------------------------------------------------------------------------------------------
 Benchmark                                                                    Time             CPU   Iterations UserCounters...
 ------------------------------------------------------------------------------------------------------------------------------
-BM_FlatScan/10000/iterations:3_mean                                      0.628 ms        0.628 ms            3 items_per_second=16.6379M/s
-BM_FlatScan/10000/iterations:3_median                                    0.530 ms        0.530 ms            3 items_per_second=18.8798M/s
-BM_FlatScan/10000/iterations:3_stddev                                    0.171 ms        0.171 ms            3 items_per_second=3.92437M/s
-BM_FlatScan/10000/iterations:3_cv                                        27.28 %         27.30 %             3 items_per_second=23.59%
-BM_FlatScan/100000/iterations:3_mean                                      7.39 ms         7.39 ms            3 items_per_second=14.3593M/s
-BM_FlatScan/100000/iterations:3_median                                    6.03 ms         6.03 ms            3 items_per_second=16.5764M/s
-BM_FlatScan/100000/iterations:3_stddev                                    2.37 ms         2.37 ms            3 items_per_second=3.89044M/s
-BM_FlatScan/100000/iterations:3_cv                                       32.11 %         32.12 %             3 items_per_second=27.09%
-BM_FlatScan/1000000/iterations:3_mean                                     81.5 ms         81.5 ms            3 items_per_second=12.8971M/s
-BM_FlatScan/1000000/iterations:3_median                                   83.4 ms         83.4 ms            3 items_per_second=11.9932M/s
-BM_FlatScan/1000000/iterations:3_stddev                                   21.3 ms         21.3 ms            3 items_per_second=3.60812M/s
-BM_FlatScan/1000000/iterations:3_cv                                      26.16 %         26.16 %             3 items_per_second=27.98%
-ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_mean           11.2 us         11.2 us            3 items_per_second=89.376k/s
-ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_median         11.2 us         11.2 us            3 items_per_second=89.2453k/s
-ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_stddev        0.045 us        0.044 us            3 items_per_second=354.496/s
-ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_cv             0.40 %          0.40 %             3 items_per_second=0.40%
-ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_mean          14.4 us         14.4 us            3 items_per_second=69.3906k/s
-ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_median        14.4 us         14.4 us            3 items_per_second=69.459k/s
-ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_stddev       0.030 us        0.030 us            3 items_per_second=145.876/s
-ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_cv            0.21 %          0.21 %             3 items_per_second=0.21%
-ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_mean         22.0 us         22.0 us            3 items_per_second=45.3647k/s
-ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_median       22.0 us         22.0 us            3 items_per_second=45.4985k/s
-ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_stddev      0.144 us        0.143 us            3 items_per_second=293.807/s
-ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_cv           0.65 %          0.65 %             3 items_per_second=0.65%
+BM_FlatScan/10000/iterations:3_mean                                      0.571 ms        0.571 ms            3 items_per_second=17.7024M/s
+BM_FlatScan/10000/iterations:3_median                                    0.529 ms        0.529 ms            3 items_per_second=18.9036M/s
+BM_FlatScan/10000/iterations:3_stddev                                    0.077 ms        0.077 ms            3 items_per_second=2.21712M/s
+BM_FlatScan/10000/iterations:3_cv                                        13.50 %         13.50 %             3 items_per_second=12.52%
+BM_FlatScan/100000/iterations:3_mean                                      7.87 ms         7.87 ms            3 items_per_second=13.2821M/s
+BM_FlatScan/100000/iterations:3_median                                    7.58 ms         7.58 ms            3 items_per_second=13.1949M/s
+BM_FlatScan/100000/iterations:3_stddev                                    2.05 ms         2.05 ms            3 items_per_second=3.37989M/s
+BM_FlatScan/100000/iterations:3_cv                                       26.05 %         26.03 %             3 items_per_second=25.45%
+BM_FlatScan/1000000/iterations:3_mean                                     82.3 ms         82.3 ms            3 items_per_second=12.8188M/s
+BM_FlatScan/1000000/iterations:3_median                                   83.9 ms         83.9 ms            3 items_per_second=11.9195M/s
+BM_FlatScan/1000000/iterations:3_stddev                                   22.3 ms         22.3 ms            3 items_per_second=3.71335M/s
+BM_FlatScan/1000000/iterations:3_cv                                      27.14 %         27.15 %             3 items_per_second=28.97%
+ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_mean           11.4 us         11.4 us            3 items_per_second=87.8246k/s
+ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_median         11.4 us         11.4 us            3 items_per_second=87.8838k/s
+ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_stddev        0.050 us        0.050 us            3 items_per_second=381.698/s
+ScalabilityFixture/BM_AtlasTraversal/10000/iterations:4096_cv             0.44 %          0.44 %             3 items_per_second=0.43%
+ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_mean          14.6 us         14.6 us            3 items_per_second=68.6762k/s
+ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_median        14.6 us         14.6 us            3 items_per_second=68.65k/s
+ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_stddev       0.029 us        0.029 us            3 items_per_second=137.816/s
+ScalabilityFixture/BM_AtlasTraversal/100000/iterations:4096_cv            0.20 %          0.20 %             3 items_per_second=0.20%
+ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_mean         22.2 us         22.2 us            3 items_per_second=45.0492k/s
+ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_median       22.3 us         22.3 us            3 items_per_second=44.8592k/s
+ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_stddev      0.344 us        0.343 us            3 items_per_second=700.13/s
+ScalabilityFixture/BM_AtlasTraversal/1000000/iterations:4096_cv           1.55 %          1.55 %             3 items_per_second=1.55%
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_ebr_contention
@@ -352,17 +360,17 @@ Measure iters:    100000 per reader
 Total samples:    1500000
 
 --- Results ---
-Writer retirements: 10802
+Writer retirements: 12656
 Total read samples: 1500000
 
-  Mean:        198.6 ns
-  P50:           167 ns
-  P90:           416 ns
-  P99:           666 ns
-  P99.9:         875 ns
-  Max:       2829000 ns
+  Mean:        256.1 ns
+  P50:           250 ns
+  P90:           458 ns
+  P99:           708 ns
+  P99.9:         958 ns
+  Max:       1696292 ns
 
-✅ PASS: P99 = 666 ns (< 1µs) — cache-line padding eliminates false sharing.
+✅ PASS: P99 = 708 ns (< 1µs) — cache-line padding eliminates false sharing.
 
 ────────────────────────────────────────────────────────────
   RUNNING: bench_beam_search
@@ -374,34 +382,34 @@ Queries:    1000 per configuration (modulo-rotated)
 Dim:        768
 
 Building 1000000-node synthetic tree...
-Build time: 4.46 s (1000000 nodes)
+Build time: 4.55 s (1000000 nodes)
 
 Benchmarking beam_width=1 (Greedy)...
-  Mean:     25.1 µs
-  P50:      24.8 µs
-  P90:      31.8 µs
-  P99:      43.0 µs
+  Mean:     25.6 µs
+  P50:      25.3 µs
+  P90:      31.4 µs
+  P99:      42.4 µs
   ResultNodes (total): 4046  (mean: 4.0/query)
 
 Benchmarking beam_width=3...
-  Mean:     45.2 µs
-  P50:      42.6 µs
-  P90:      58.0 µs
-  P99:      88.8 µs
+  Mean:     46.9 µs
+  P50:      46.2 µs
+  P90:      59.7 µs
+  P99:      92.9 µs
   ResultNodes (total): 4090  (mean: 4.1/query)
 
 Benchmarking beam_width=3 + CSLS...
-  Mean:     30.6 µs
-  P50:      29.9 µs
-  P90:      33.0 µs
-  P99:      42.0 µs
+  Mean:     30.7 µs
+  P50:      30.1 µs
+  P90:      32.3 µs
+  P99:      42.2 µs
   ResultNodes (total): 4090  (mean: 4.1/query)
 
 --- Scaling Analysis ---
-beam=3 / beam=1 P50 ratio: 1.71x
-✅ PASS: beam_width=3 scales sub-linearly (1.71x <= 3.5x)
+beam=3 / beam=1 P50 ratio: 1.82x
+✅ PASS: beam_width=3 scales sub-linearly (1.82x <= 3.5x)
 
-CSLS overhead vs beam=3: -29.7%
+CSLS overhead vs beam=3: -34.8%
 
 --- Pruning Analysis (Algorithmic vs CPU Artifact) ---
 ResultNodes/query  beam=1: 4.0  beam=3: 4.1  CSLS: 4.1
@@ -414,42 +422,42 @@ Hypothesis REJECTED: CSLS speedup with same node count suggests CPU pipeline art
 Unable to determine clock rate from sysctl: hw.cpufrequency: No such file or directory
 This does not affect benchmark measurements, only the metadata output.
 ***WARNING*** Failed to set thread affinity. Estimated CPU frequency may be incorrect.
-2026-08-28T21:44:12+03:00
+2026-08-28T23:56:48+03:00
 Running /Volumes/AI_SSD/Projects/aeon/build/bench_quantization
 Run on (16 X 24 MHz CPU s)
 CPU Caches:
   L1 Data 64 KiB
   L1 Instruction 128 KiB
   L2 Unified 4096 KiB (x16)
-Load Average: 3.37, 3.61, 4.19
+Load Average: 3.37, 3.75, 3.91
 ----------------------------------------------------------------------------------------------------------------------
 Benchmark                                                            Time             CPU   Iterations UserCounters...
 ----------------------------------------------------------------------------------------------------------------------
-QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_mean         26.7 ns         26.7 ns            5 items_per_second=37.4612M/s
-QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_median       26.6 ns         26.6 ns            5 items_per_second=37.5744M/s
-QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_stddev      0.207 ns        0.207 ns            5 items_per_second=288.206k/s
-QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_cv           0.77 %          0.77 %             5 items_per_second=0.77%
-QuantMicroFixture/BM_INT8_DotScalar/repeats:5_mean                8.46 ns         8.40 ns            5 Speedup_vs_FP32=0 items_per_second=119.039M/s
-QuantMicroFixture/BM_INT8_DotScalar/repeats:5_median              8.47 ns         8.42 ns            5 Speedup_vs_FP32=0 items_per_second=118.793M/s
-QuantMicroFixture/BM_INT8_DotScalar/repeats:5_stddev             0.139 ns        0.074 ns            5 Speedup_vs_FP32=0 items_per_second=1.04365M/s
-QuantMicroFixture/BM_INT8_DotScalar/repeats:5_cv                  1.65 %          0.88 %             5 Speedup_vs_FP32=nan% items_per_second=0.88%
-QuantMicroFixture/BM_INT8_DotBest/repeats:5_mean                  4.51 ns         4.50 ns            5 items_per_second=222.198M/s
-QuantMicroFixture/BM_INT8_DotBest/repeats:5_median                4.51 ns         4.50 ns            5 items_per_second=222.048M/s
-QuantMicroFixture/BM_INT8_DotBest/repeats:5_stddev               0.033 ns        0.018 ns            5 items_per_second=867.014k/s
-QuantMicroFixture/BM_INT8_DotBest/repeats:5_cv                    0.74 %          0.39 %             5 items_per_second=0.39%
-QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_mean            4.75 ns         4.74 ns            5 items_per_second=210.846M/s
-QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_median          4.76 ns         4.75 ns            5 items_per_second=210.522M/s
-QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_stddev         0.027 ns        0.021 ns            5 items_per_second=926.85k/s
-QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_cv              0.57 %          0.44 %             5 items_per_second=0.44%
-QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_mean             51.6 ns         51.6 ns            5 items_per_second=19.3977M/s
-QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_median           51.6 ns         51.5 ns            5 items_per_second=19.4097M/s
-QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_stddev          0.163 ns        0.178 ns            5 items_per_second=66.731k/s
-QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_cv               0.32 %          0.34 %             5 items_per_second=0.34%
-BM_FootprintAndAccuracy/repeats:3_mean                            4.20 ns         4.20 ns            3 CompressionRatio=2.63636 FP32_Stride=1.856k INT8_Stride=704 RelativeError_pct=0.0690936
-BM_FootprintAndAccuracy/repeats:3_median                          4.19 ns         4.19 ns            3 CompressionRatio=2.63636 FP32_Stride=1.856k INT8_Stride=704 RelativeError_pct=0.0690936
-BM_FootprintAndAccuracy/repeats:3_stddev                         0.025 ns        0.024 ns            3 CompressionRatio=0 FP32_Stride=0 INT8_Stride=0 RelativeError_pct=0
-BM_FootprintAndAccuracy/repeats:3_cv                              0.59 %          0.57 %             3 CompressionRatio=0.00% FP32_Stride=0.00% INT8_Stride=0.00% RelativeError_pct=0.00%
+QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_mean         27.7 ns         27.7 ns            5 items_per_second=36.1108M/s
+QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_median       27.7 ns         27.7 ns            5 items_per_second=36.1426M/s
+QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_stddev      0.053 ns        0.054 ns            5 items_per_second=70.1132k/s
+QuantMicroFixture/BM_FP32_CosineSimilarity/repeats:5_cv           0.19 %          0.19 %             5 items_per_second=0.19%
+QuantMicroFixture/BM_INT8_DotScalar/repeats:5_mean                8.32 ns         8.31 ns            5 Speedup_vs_FP32=0 items_per_second=120.274M/s
+QuantMicroFixture/BM_INT8_DotScalar/repeats:5_median              8.32 ns         8.32 ns            5 Speedup_vs_FP32=0 items_per_second=120.259M/s
+QuantMicroFixture/BM_INT8_DotScalar/repeats:5_stddev             0.022 ns        0.022 ns            5 Speedup_vs_FP32=0 items_per_second=323.144k/s
+QuantMicroFixture/BM_INT8_DotScalar/repeats:5_cv                  0.27 %          0.27 %             5 Speedup_vs_FP32=nan% items_per_second=0.27%
+QuantMicroFixture/BM_INT8_DotBest/repeats:5_mean                  4.44 ns         4.44 ns            5 items_per_second=225.016M/s
+QuantMicroFixture/BM_INT8_DotBest/repeats:5_median                4.44 ns         4.44 ns            5 items_per_second=225.132M/s
+QuantMicroFixture/BM_INT8_DotBest/repeats:5_stddev               0.004 ns        0.004 ns            5 items_per_second=189.329k/s
+QuantMicroFixture/BM_INT8_DotBest/repeats:5_cv                    0.08 %          0.08 %             5 items_per_second=0.08%
+QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_mean            4.72 ns         4.72 ns            5 items_per_second=211.915M/s
+QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_median          4.72 ns         4.72 ns            5 items_per_second=211.94M/s
+QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_stddev         0.021 ns        0.020 ns            5 items_per_second=880.598k/s
+QuantMicroFixture/BM_INT8_DotDequantize/repeats:5_cv              0.44 %          0.42 %             5 items_per_second=0.42%
+QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_mean             51.5 ns         51.5 ns            5 items_per_second=19.4336M/s
+QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_median           51.4 ns         51.4 ns            5 items_per_second=19.4447M/s
+QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_stddev          0.094 ns        0.094 ns            5 items_per_second=35.3598k/s
+QuantMicroFixture/BM_QuantizeSymmetric/repeats:5_cv               0.18 %          0.18 %             5 items_per_second=0.18%
+BM_FootprintAndAccuracy/repeats:3_mean                            4.56 ns         4.19 ns            3 CompressionRatio=2.63636 FP32_Stride=1.856k INT8_Stride=704 RelativeError_pct=0.0690936
+BM_FootprintAndAccuracy/repeats:3_median                          4.19 ns         4.18 ns            3 CompressionRatio=2.63636 FP32_Stride=1.856k INT8_Stride=704 RelativeError_pct=0.0690936
+BM_FootprintAndAccuracy/repeats:3_stddev                         0.697 ns        0.087 ns            3 CompressionRatio=0 FP32_Stride=0 INT8_Stride=0 RelativeError_pct=0
+BM_FootprintAndAccuracy/repeats:3_cv                             15.30 %          2.09 %             3 CompressionRatio=0.00% FP32_Stride=0.00% INT8_Stride=0.00% RelativeError_pct=0.00%
 
 ============================================================
-  COMPLETE — 2026-08-28T18:44:33Z
+  COMPLETE — 2026-08-28T20:57:10Z
 ============================================================

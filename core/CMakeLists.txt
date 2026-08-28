@@ -317,6 +317,14 @@ if(BUILD_TESTING)
     target_link_libraries(bench_quantization_efficiency PRIVATE aeon_core benchmark::benchmark)
     target_compile_features(bench_quantization_efficiency PRIVATE cxx_std_23)
 
+    # V4.2: scope-filter overhead on navigate() — checks the hive-mind verdict
+    # document's "~0.4% of query time" estimate against the mechanism that shipped.
+    add_executable(bench_scope_filter
+        benchmarks/bench_scope_filter.cpp
+    )
+    target_link_libraries(bench_scope_filter PRIVATE aeon_core benchmark::benchmark)
+    target_compile_features(bench_scope_filter PRIVATE cxx_std_23)
+
     # V4.1 Test 9: WAL Overhead — Durability Cost Measurement
     add_executable(bench_wal_overhead
         benchmarks/bench_wal_overhead.cpp

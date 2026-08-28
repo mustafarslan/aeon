@@ -60,6 +60,7 @@ BENCH_TARGETS=(
   bench_quantization_efficiency
   bench_wal_overhead
   bench_trace_gc
+  bench_scope_filter
 )
 
 echo ""
