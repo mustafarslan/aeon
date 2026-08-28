@@ -44,6 +44,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--model", default="gemma4:31b-cloud")
+    # HOLD THE JUDGE FIXED WHEN SWAPPING THE READER. Defaults to --model, so every
+    # invocation predating this flag reproduces exactly. Changing generator and judge
+    # together makes a delta unattributable: a stronger reader writes different answers
+    # AND a different judge scores them differently, and the two cannot be separated
+    # after the fact.
+    ap.add_argument("--judge-model", default=None)
     ap.add_argument("--out", required=True)
     ap.add_argument("--records-cache", required=True)
     ap.add_argument("--num-questions", type=int, default=60)
@@ -76,6 +82,12 @@ def main() -> None:
     os.environ["AEON_LLM_MODEL"] = args.model
     from aeon_py.llm import OllamaProvider
     llm = OllamaProvider()
+    if args.judge_model and args.judge_model != args.model:
+        os.environ["AEON_LLM_MODEL"] = args.judge_model
+        judge_llm = OllamaProvider()
+        os.environ["AEON_LLM_MODEL"] = args.model
+    else:
+        judge_llm = llm
     providers = ThreadLocalResource(OllamaProvider)
 
     ds = json.load(open(args.dataset))
@@ -170,7 +182,7 @@ def main() -> None:
         if not err:
             jp = get_anscheck_prompt(q["question_type"], q["question"], q["answer"], hyp,
                                      abstention="_abs" in qid)
-            judge = _generate_with_retry(llm, jp, system_prompt="", temperature=0.0)
+            judge = _generate_with_retry(judge_llm, jp, system_prompt="", temperature=0.0)
             correct = judge.strip().lower().startswith("yes")
 
         results.append({

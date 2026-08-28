@@ -7259,3 +7259,40 @@ There is none, and the instrument could not have shown one.
 and one negative; the write path produced a working mechanism with no measurable aggregate. **429 remains
 this instrument's ceiling**, and the remaining 71 errors are still 33 multi-session and 20
 temporal-reasoning — untouched by everything built today.
+
+**READER-CEILING PROBE, PRE-REGISTERED 2026-08-28 before running.** Motivated by published
+LongMemEval scores of 94–96% and the question of why Aeon sits at 85.8%.
+
+*First, a metric correction that removes one comparison entirely.* **MemPalace's 96.6% is retrieval
+recall @ top-5, not QA accuracy** — its own `BENCHMARKS.md` says so and warns that "retrieval recall
+and QA accuracy are not comparable". Aeon's comparable figure is **94.6%** (evidence reached the model
+on 473 of 500; 27 verified retrieval misses). On that metric the systems are at parity, and it was
+never the axis Aeon was optimising.
+
+*The remaining comparisons are QA accuracy* (Exabase M-1 96.4% on Gemini 3 Flash, OMEGA 95.4%, Mastra
+94.87% on gpt-5-mini) **and this repo's own oracle already predicts the cause**: handed the gold
+answer-bearing turns, `gemma4:31b-cloud` scores **419/500 = 83.8%** — with perfect evidence and nothing
+to retrieve, single-session-preference is 50%, multi-session 79%, temporal 79%. The composite's 429 is
+**statistically tied with that ceiling** (+10, McNemar +54/−44, p=0.363; the repo's own threshold is
+~12 questions), reached without gold annotations.
+
+*The probe*: re-run the **oracle-precision arm** — the ceiling itself — with the generator swapped to
+`glm-5.2:cloud`, **judge held fixed at `gemma4:31b-cloud`**. A new `--judge-model` flag on both
+harnesses makes that possible; it defaults to `--model`, so every prior invocation reproduces exactly.
+Holding the judge fixed is the whole point: swapping both would make any delta unattributable, since a
+stronger reader writes different answers *and* a different judge scores them differently.
+
+*Baseline*: **419/500 (83.8%)**, committed in `oracle_precision_n500_results.json`.
+
+*This is a DIRECTIONAL probe with no bar, and that is stated rather than discovered.* The new model's
+own noise floor is unmeasured, so no pre-registered threshold is available; the repo's standing
+"~12 questions at n=500" is the smallest delta worth calling a move, borrowed from a different
+instrument and used only as a rough guide.
+
+*Committed readings*:
+- **Ceiling moves substantially** → reader-bound is confirmed as a property of this stack. The gap to
+  the 94–96% systems is reader capability, not memory architecture, and Aeon's own retrieval (94.6%)
+  and 93%-non-retrieval error profile already say a better retriever buys nothing here.
+- **Ceiling does not move** → the more interesting result, and it would refute the reader-bound
+  diagnosis: it would mean the residual errors are not reader-capability-bound either, and the
+  remaining explanation would be the judge, the benchmark's own answer conventions, or both.
