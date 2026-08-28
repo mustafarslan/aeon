@@ -409,7 +409,33 @@ Atlas::navigate_internal(std::span<const float> query, uint32_t beam_width,
           NodeHeader *child = reinterpret_cast<NodeHeader *>(
               child_base + i * node_byte_stride_);
 
-          // Prefetch next child's centroid into L1
+          // Prefetch next child's centroid into L1.
+          //
+          // ONE LINE, DISTANCE ONE -- AND WIDENING IT WAS MEASURED AND
+          // REJECTED (v4.2). A prefetch instruction fetches one 64-byte line
+          // while the centroid it covers is dim bytes at INT8 and 4*dim at
+          // FP32: at dim=768 this hint covers 8% and 2% of what the
+          // comparison below streams. That looks like an obvious gap, and it
+          // is not one. Three variants, against a baseline of 7.33us INT8 /
+          // 14.1us FP32 at 100K nodes (BM_Navigate, 5 reps, ~2% run-to-run
+          // drift on this host):
+          //
+          //   full centroid (12/48 lines)   7.50us / 19.0us  -- HARMFUL, FP32 +35%
+          //   capped at 4 lines             7.40us / 14.2us  -- null
+          //   one line, distance 2          7.36us / 14.3us  -- null
+          //
+          // The reason nothing helps: the comparison kernels scan the
+          // centroid LINEARLY, which the hardware prefetcher already handles,
+          // and the child stride is constant, which it also handles. Extra
+          // software hints add instructions and, at full width, saturate the
+          // prefetch queue -- hence the FP32 collapse.
+          //
+          // Traversal is ~79% fixed navigation cost, not vector math: solving
+          // total = fixed + n*compare across the two formats gives ~322
+          // comparisons and a ~5.9us floor that an infinitely fast kernel
+          // would not beat. Whatever remains to be won is in TLB/page
+          // behaviour over a 141MB (INT8) or 440MB (FP32) working set, or in
+          // the beam bookkeeping -- not here. Do not re-tune this hint.
           if (i + 1 < current->child_count) {
             auto *next_hdr = reinterpret_cast<NodeHeader *>(
                 child_base + (i + 1) * node_byte_stride_);
