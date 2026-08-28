@@ -30,8 +30,15 @@ echo "════════════════════════�
 echo "  [1/3] CMake Configure (Release, -O3, -march=native, LTO)"
 echo "══════════════════════════════════════════════════════════════"
 
+# -DBUILD_TESTING=ON is REQUIRED, not optional tidiness: every benchmark target in
+# core/CMakeLists.txt is declared inside `if(BUILD_TESTING)`, so without it this script
+# configures cleanly, then fails at the build step with "No rule to make target
+# 'aeon_bench'" -- and the paper's performance numbers cannot be regenerated at all.
+# Found when the v4 manuscript's kernel claims were re-verified; the sweep had been
+# unrunnable for some time, which is why master_metrics.txt had gone stale.
 cmake -S "${REPO_ROOT}/core" -B "${BUILD_DIR}" \
   -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_TESTING=ON \
   -DCMAKE_CXX_FLAGS="-O3 -march=native -flto -ffast-math" \
   -Wno-dev
 
