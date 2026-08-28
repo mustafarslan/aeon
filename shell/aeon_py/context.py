@@ -1,6 +1,6 @@
 import numpy as np
-from typing import List, Any, Union, Optional
-from .architect import Architect
+from typing import Any, Callable, List, Optional, Union
+from .architect import Architect, SituatingContext
 from .client import ALL_SCOPES_VISIBLE, AeonClient, decode_store_id, encode_store_id
 from .trace import EdgeType, TraceGraph
 
@@ -60,6 +60,8 @@ class ContextManager:
         access_level: str = "public",
         session_id: Optional[str] = None,
         event_time: int = 0,
+        situating_context: Optional["SituatingContext"] = None,
+        embed: Optional[Callable[[str], List[float]]] = None,
     ) -> np.ndarray:
         """
         Process a single user interaction turn.
@@ -103,6 +105,11 @@ class ContextManager:
                 default) is accepted; any other value raises ValueError
                 rather than being silently ignored. Use
                 `query_stores(shared_scope_mask=...)` for real scoping.
+            situating_context: Optional `SituatingContext` (task id, subsystem, error
+                class) prepended to the admitted fragment before embedding. Requires
+                `embed`. None, the default, leaves ingestion unchanged.
+            embed: Encoder used to re-embed the contextualised fragment. Required only
+                when `situating_context` is supplied.
             session_id: Caller's authenticated identity (pass the verified
                 user_id from server.py's get_current_user_id). Required to
                 actually isolate one user's trace history from another's --
@@ -194,7 +201,11 @@ class ContextManager:
         # was built for but that nothing called until Stage 2 task 3.
         # Architect.ingest() always writes to the PRIVATE store (see
         # __init__'s doc comment) -- is_shared=False always here too.
-        node_id, is_duplicate = self.architect.ingest(user_query, q_vec.tolist())
+        # v4-plan.md Stage 4 task 4: situating context is prepended before embedding, so
+        # the admitted fragment carries its task/subsystem/error in the vector rather than
+        # only in the reader's head. Passing None reproduces the previous behaviour exactly.
+        node_id, is_duplicate = self.architect.ingest(
+            user_query, q_vec.tolist(), context=situating_context, embed=embed)
         encoded_id = encode_store_id(node_id, is_shared=False)
         if is_duplicate:
             self.trace.add_event(
