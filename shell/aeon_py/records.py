@@ -486,9 +486,16 @@ class RecordStore:
 
     @staticmethod
     def rehydrate(records: Iterable[Record], trace, *, neighbours: int = 1,
-                  max_turns: int = 12, history_limit: int = 200) -> list[str]:
+                  max_turns: int = 12, history_limit: int = 200,
+                  as_of: Optional[int] = None) -> list[str]:
         """Return the source turns behind these records, with `neighbours` turns of
         conversational context on each side.
+
+        `as_of` (v4.2 Track A) drops turns whose valid-time is after that moment. It is
+        NOT optional politeness: `visible_at()` can hide a record written after `as_of`,
+        but the episodic half is rehydrated from raw turns, so without the same cut a
+        historical view leaks the very conversation it is supposed to predate -- the record
+        block says March and the excerpts quote June. The two filters are one feature.
 
         The neighbourhood is the point. Bare facts lose pragmatic licensing -- the measured
         cost was 12 questions when compression dropped it -- and one turn either side was
@@ -513,6 +520,13 @@ class RecordStore:
             hist = list(reversed(hist))          # get_history is reverse-chronological
             for i in sorted(idxs):
                 if 0 <= i < len(hist):
+                    # Imported lazily: `timeline` imports this module, so a module-level
+                    # import the other way would be a cycle -- the same reason
+                    # `timeline._date_sort_key` imports `compose` inside the function.
+                    if as_of is not None:
+                        from .trace import event_time_of
+                        if event_time_of(hist[i]) > as_of:
+                            continue
                     picked.append(hist[i])
                     if len(picked) >= max_turns:
                         break

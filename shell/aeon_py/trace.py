@@ -73,6 +73,23 @@ except ImportError:
     )
 
 
+def event_time_of(event: dict) -> int:
+    """The valid-time of one Trace event: when the thing HAPPENED.
+
+    `event_time` is caller-supplied and is the axis any temporal query wants.
+    `timestamp` is when the row was WRITTEN, and on a bulk-ingested corpus every
+    row shares one ingest run -- so it answers no temporal question at all. It is
+    used only as the fallback the kernel itself prescribes: `bindings.cpp` documents
+    that "a reader wanting 'when this happened' should fall back to timestamp when
+    event_time is 0".
+
+    Lives here rather than in `timeline.py` because it is a property of a Trace event,
+    and because `records.py` needs it too -- `trace.py` imports nothing from this
+    package, so this is the one place both can reach without a cycle.
+    """
+    return int(event.get("event_time") or 0) or int(event.get("timestamp") or 0)
+
+
 class TraceGraph:
     """Episodic trace graph backed by C++ mmap TraceManager.
 
@@ -221,7 +238,18 @@ class TraceGraph:
 
         Returns:
             List of event dicts with keys: id, prev_id, atlas_id,
-            timestamp, role, flags, session_id, text.
+            timestamp, event_time, role, flags, session_id,
+            text_preview, text, blob_offset, blob_size, edge_type,
+            supersedes_id, reason_code.
+
+            CORRECTED (v4.2). This list previously omitted `event_time`,
+            `edge_type`, `supersedes_id` and `reason_code`, which the
+            binding has returned all along (`bindings.cpp`, the
+            get_history lambda). The omission was load-bearing rather
+            than cosmetic: `event_time` is the only valid-time axis this
+            layer has, and a reader trusting this docstring would
+            conclude point-in-time queries need a schema change. They do
+            not -- see `timeline.visible_at()`.
         """
         if self._manager is None:
             return []

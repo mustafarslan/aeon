@@ -399,7 +399,8 @@ def compose(records: Iterable[Record], episodic_lines: Sequence[str], question_b
 
 def compose_from_store(store, trace, question_block: str, *,
                        neighbours: int = 1, max_turns: int = 12,
-                       buckets: Optional[Sequence[str]] = None) -> dict:
+                       buckets: Optional[Sequence[str]] = None,
+                       as_of: Optional[int] = None, tenant: str = "") -> dict:
     """Production-shaped assembly: all records (optionally category-filtered), with the
     episodic component rehydrated from those records' own provenance.
 
@@ -409,6 +410,18 @@ def compose_from_store(store, trace, question_block: str, *,
 
     `query_embedding` was a parameter of this function and was never read -- removed rather
     than left as a signature that implies a vector search this path does not do.
+
+    `as_of` (v4.2 Track A) projects the whole assembly to a past moment -- both halves, since
+    a record block cut to March beside excerpts quoting June is not a historical view. It
+    changes the ENUMERATION too, not just the filter: the default read path excludes
+    superseded records, but a historical view needs exactly those back, so `as_of` switches
+    to `include_superseded=True` and lets `visible_at()` date each retirement against the
+    edge log. `tenant` is what makes that log reachable; without it retirement times are
+    unknown and the projection degrades to today's default view rather than to a wrong
+    historical answer.
+
+    `as_of=None` is byte-identical to the measured read path -- same call, same records,
+    same prompt. Pinned by `test_as_of_none_is_byte_identical`.
     """
     # The bucket filter stays a Python scan, and that is now a DELIBERATE choice rather than
     # an oversight. `records.py`'s docstring calls the category scan "a kernel subtree walk,
@@ -424,10 +437,14 @@ def compose_from_store(store, trace, question_block: str, *,
     # exists for, and a partial category scan turns a complete answer into a plausible wrong
     # one. So the O(n) filter is CORRECT and the O(subtree) walk is BROKEN, and correctness
     # wins until the kernel can hold a non-contiguous child set.
-    records = store.all_records()
+    records = store.all_records(include_superseded=as_of is not None)
     if buckets:
         records = select_records(records, buckets=buckets)
-    episodic = store.rehydrate(records, trace, neighbours=neighbours, max_turns=max_turns)
+    if as_of is not None:
+        from .timeline import visible_at
+        records = visible_at(records, trace, as_of, tenant=tenant)
+    episodic = store.rehydrate(records, trace, neighbours=neighbours, max_turns=max_turns,
+                               as_of=as_of)
     prompt = compose(records, episodic, question_block)
     return {"prompt": prompt, "records": records, "episodic": episodic,
             "record_count": len(records), "chars": len(prompt)}

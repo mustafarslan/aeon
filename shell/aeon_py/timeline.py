@@ -67,7 +67,7 @@ from typing import Iterable, Optional, Sequence
 
 from .entities import canonical_key
 from .records import Record
-from .trace import EdgeType, ReasonCode
+from .trace import EdgeType, ReasonCode, event_time_of
 
 # Edges live in their own tenant-namespaced session. That is what solves the "five writers,
 # zero readers" problem without a kernel change: `get_history()` is the only exposed way to
@@ -330,3 +330,140 @@ def supersedes(trace, node_id: int, *, tenant: str, limit: int = 1000) -> list[i
     return [int(e["supersedes_id"]) for e in read_supersession_edges(trace, tenant=tenant,
                                                                      limit=limit)
             if int(e.get("atlas_id", 0)) == node_id]
+
+
+# --- point-in-time projection (v4.2 Track A) ----------------------------------------
+#
+# WHAT THIS IS, AND WHAT IT DELIBERATELY IS NOT. `as_of` answers "what did this memory
+# hold on 2023/06/01?" without a schema change, a kernel change, or a new field --
+# the same derived-overlay discipline the rest of this module follows.
+#
+# THE DESIGN THE SPEC ASKED FOR DOES NOT EXIST. `spatiotemporal.md` proposed filtering
+# records on a per-record `timestamp`. There is none: records are Atlas nodes, `NodeHeader`
+# is full at 64 bytes (`schema.hpp` says so in as many words -- "no further per-node field
+# fits without a side structure"), and `Record.encode()` writes exactly seven \x1f fields
+# while `decode()` does `text=_SEP.join(parts[6:])`, so an eighth is silently swallowed
+# into the TEXT of every record by every existing reader.
+#
+# So validity is DERIVED from provenance instead, which is better rather than merely
+# cheaper: `Provenance` already names the session and the turns a record came from, and
+# those turns carry `event_time`. That makes a record's validity the time its EVIDENCE was
+# said -- valid-time -- rather than the time its row happened to be written. "What did I
+# know in March" is a question about the conversation, not about the consolidator's
+# schedule.
+#
+# NO ACCURACY CLAIM IS ATTACHED. LongMemEval asks every question at T_now and its corpora
+# predate the question date, so this cannot move a benchmark number and is not gated on one.
+# It is a product capability with correctness tests, and that is the whole of its warrant.
+#
+# THE FIDELITY BOUND, STATED RATHER THAN HIDDEN. `consolidate()` + `run_merge()` REMOVE a
+# stale record rather than superseding it (see this module's header). So `as_of`
+# reconstructs what supersession RETIRED; it cannot reconstruct what the merge DROPPED.
+# Making the merge supersede-not-drop would close that gap and is a real decision with its
+# own measurement -- deliberately not smuggled in here.
+
+def session_event_times(trace, session_id: str, *, history_limit: int = 200) -> list[int]:
+    """Valid-times of one session's turns, in the order `Provenance.turn_indices` numbers
+    them against.
+
+    `get_history()` is newest-first and `RecordStore.rehydrate()` reverses it before
+    indexing. That reversal is repeated here rather than reinvented: a provenance index
+    that meant one thing in rehydration and another here would be a silent
+    off-by-everything, and the two must move together.
+    """
+    try:
+        hist = trace.get_history(session_id, history_limit)
+    except Exception:
+        return []
+    return [event_time_of(ev) for ev in reversed(hist)]
+
+
+def validity_start(record: Record, times: Sequence[int]) -> Optional[int]:
+    """When `record`'s evidence became complete: the LATEST valid-time among its source
+    turns.
+
+    Latest, not earliest -- a record derived from turns 3 and 4 is not assertable until
+    turn 4 has been said. A record whose citation was lost carries whole-session provenance
+    instead (`parse_records()` does that on write), and the session's last turn is then the
+    honest answer rather than a guess at which turn it meant.
+
+    Returns None when the session is unknown to this Trace. The caller decides what an
+    unresolvable record means, because the answer differs between an audit view and a read
+    path -- see `visible_at(unresolved=...)`.
+    """
+    if not times:
+        return None
+    idx = [i for i in record.provenance.turn_indices if 0 <= i < len(times)]
+    return max(times[i] for i in idx) if idx else max(times)
+
+
+def edges_before(trace, *, tenant: str, as_of: int, limit: int = 1000) -> list[dict]:
+    """Supersession edges asserted at or before `as_of`, newest first.
+
+    `<=` rather than `<`: `as_of` names a moment, and a supersession recorded AT that
+    moment had already happened by it. The boundary is stated because an off-by-one here
+    silently returns the wrong version of a fact.
+    """
+    return [e for e in read_supersession_edges(trace, tenant=tenant, limit=limit)
+            if event_time_of(e) <= as_of]
+
+
+def visible_at(records: Sequence[Record], trace, as_of: Optional[int], *,
+               tenant: str = "", unresolved: str = "include",
+               history_limit: int = 200, edge_limit: int = 1000) -> list[Record]:
+    """The records that were live at `as_of`.
+
+    `as_of=None` returns the input unchanged, so threading this through a read path costs
+    exactly nothing until someone asks a temporal question.
+
+    Two filters, and they are not the same filter:
+
+      1. **Not yet true.** A record whose evidence was said after `as_of` is dropped.
+      2. **No longer true.** A record superseded at or before `as_of` is dropped -- and,
+         symmetrically, one superseded AFTER `as_of` is KEPT even though today's default
+         view excludes it. That second half is why a caller wants
+         `all_records(include_superseded=True)` here: the retired records are the whole
+         point of a historical view, and `_decode()` filters them out of the live one.
+
+    `tenant` is what makes supersession datable, since the edge log lives in that tenant's
+    `edge_session()`. **Without it the retirement times are unknown**, so this falls back to
+    today's default view -- already-superseded records are dropped rather than dated. That
+    is a degradation to present-day semantics, never to a wrong historical answer.
+
+    `unresolved` governs records whose session is not in this Trace: `"include"` (default)
+    matches `RecordStore._decode()`'s posture, which degrades toward showing a record rather
+    than vanishing it from a user's memory. An audit caller that must not show a fact it
+    cannot date passes `"exclude"`.
+    """
+    if as_of is None:
+        return list(records)
+    if unresolved not in ("include", "exclude"):
+        raise ValueError(f"unresolved must be 'include' or 'exclude', got {unresolved!r}")
+
+    retired_ids: Optional[set[int]] = None
+    if tenant:
+        retired_ids = {int(e.get("supersedes_id", 0))
+                       for e in edges_before(trace, tenant=tenant, as_of=as_of,
+                                             limit=edge_limit)}
+        retired_ids.discard(0)
+
+    times: dict[str, list[int]] = {}
+    out: list[Record] = []
+    for r in records:
+        sid = r.provenance.session_id
+        if sid and sid not in times:
+            times[sid] = session_event_times(trace, sid, history_limit=history_limit)
+        start = validity_start(r, times.get(sid, ())) if sid else None
+        if start is None:
+            if unresolved == "include":
+                out.append(r)
+            continue
+        if start > as_of:
+            continue
+        if retired_ids is None:
+            if r.superseded:
+                continue
+        elif r.node_id is not None and int(r.node_id) in retired_ids:
+            continue
+        out.append(r)
+    return out
