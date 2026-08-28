@@ -406,6 +406,155 @@ nothing to compute with; the composite holds ~270 records and therefore always h
 compute with. **The same density that recovers 22 of 27 known retrieval misses is what induces
 over-answering on unsupported premises.** The obvious fix was measured and rejected (§6.9).
 
+## 8c. Cross-model evaluation: what the consolidated layer does as the reader gets stronger
+
+*All five arms are n=500, judged by the official `anscheck` prompt under `gemma4:31b-cloud`, and every
+cell is regenerated from a committed result file by `scripts/longmemeval/cross_model_table.py` — no
+figure in this section is transcribed.*
+
+| arm | correct | acc | median ctx chars | median gen s |
+|---|---|---|---|---|
+| composite @ `gemma4:31b` *(v1 config, §8b headline)* | 429 | 85.8% | 26,056 | 0.85 |
+| **composite @ `gemma4:31b`** *(config-parity control)* | **428** | 85.6% | 25,822 | 0.93 |
+| oracle-precision @ `gemma4:31b` | 419 | 83.8% | 5,654 | 0.51 |
+| **composite @ `glm-5.2`** | **448** | **89.6%** | 25,822 | 4.17 |
+| oracle-precision @ `glm-5.2` | 457 | 91.4% | 5,654 | 0.78 |
+
+### 8c.1 Two parity checks the table depends on — one of which failed silently
+
+*A cross-model comparison is worth exactly the parity of everything that is not the model.* Both were
+checked against the artefacts rather than assumed, and the second is the methodological contribution.
+
+**Judge parity — passes, after verification.** `--judge-model` **defaults to `--model`** in both
+harnesses and the result files recorded only the reader, so a held-fixed judge was indistinguishable
+from a self-judge — and a self-judged arm is comparable to nothing. 80 hypotheses from
+`oracle_glm52_n500.json` were re-judged under an explicit `gemma4:31b-cloud` judge, sampling **all 40
+of its `no` verdicts** (where a self-judge would diverge) plus 40 of its `yes` verdicts: **80/80
+agreement.** Both harnesses now write `judge_model` into the result metadata.
+
+**Config parity — failed, and the flags could not show it.** Both composite arms logged identical
+flags. But `n_records` was identical for all 500 while `prompt_chars` differed on **495 of 500**, by a
+median **−212 chars**. The cause was `render_records()`, which had gained an **unconditional**
+`group_entities()` call — no flag to log — after the v1 arm ran. **A library moved underneath matching
+flags.** The composite-vs-composite contrast was therefore a reader swap *plus two render changes*.
+
+*The fix generalises past this incident.* `--assert-prompt-parity` takes a prior result file and
+aborts the run on the first prompt whose length differs, before spending an LLM call on it. Parity
+becomes an **enforced invariant of the artefact** rather than a claim made about it in a log, and it
+was verified in both directions before use — passing against the glm arm, aborting on question 1
+against v1 with a −355 char delta. *A gate that never fires proves nothing.*
+
+**The control was pre-registered with both branches fixed in advance** (v4-plan.md, 2026-08-28): inside
+the standing ~12-question band → render changes null at scale; outside → a new finding with its own
+section. Either way it is the comparison column and the committed 429 stays the §8b headline. It
+landed at **428, −1, McNemar +11/−12, p=1.000** — inside the band, and the dev nulls confirmed at
+n=500. **The contaminated contrast was +19; the clean one is +20**, so the confound had *deflated* the
+effect rather than inflating it.
+
+### 8c.2 The result
+
+| contrast | net | McNemar | p |
+|---|---|---|---|
+| composite vs its own oracle, `gemma4` | +9 | +48/−39 | 0.391 |
+| composite vs its own oracle, `glm-5.2` | −9 | +27/−36 | 0.314 |
+| **reader swap, composite arms** (clean) | **+20** | +32/−12 | **0.0037** |
+| **reader swap, oracle arms** | **+38** | +49/−11 | **7.6 × 10⁻⁷** |
+
+**The consolidated layer holds statistical parity with perfect gold-evidence selection on both reader
+tiers** — nominally ahead on the 31B open-weights reader, nominally behind on the frontier reader,
+neither significant — while using **no gold annotations**. The dev split predicted this: it put the
+composite 8 behind its own ceiling and the full run put it 9 behind.
+
+**The stronger reader helps gold evidence roughly twice as much as it helps consolidated records**
+(+38 vs +20). Both effects are significant and the ratio's confidence interval is wide, so this is
+reported as a **direction, not a factor**: a record is a lossy summary fixed at write time, and a
+better reader cannot recover from it what was never written down, whereas raw turns retain everything
+a better reader might newly extract. **Consolidation caps the headroom a stronger reader can exploit.**
+
+### 8c.3 Where the two representations differ — and they differ by kind, not by rank
+
+| type | `gemma4` composite v oracle | `glm-5.2` composite v oracle |
+|---|---|---|
+| single-session-preference | **28 v 15 (+13), p=2.4×10⁻⁴** | **26 v 18 (+8), p=0.022** |
+| knowledge-update | 68 v 65 (+3), p=0.51 | 68 v 65 (+3), p=0.55 |
+| multi-session + temporal | 190 v 195 (−5), p=0.59 | **217 v 229 (−12), p=0.029** |
+| abstention | 25 v 28 (−3), p=0.25 | **19 v 29 (−10), p=0.0020** |
+
+**Preference synthesis is where compression wins, and it wins on both readers** — but *the multiple is
+reader-specific*: **1.87×** gold raw evidence on `gemma4`, **1.44×** on `glm-5.2`. Quoting a single
+multiple across tiers is not supported.
+
+**Multi-hop implicature is where raw evidence wins — but only once the reader is strong enough to
+exploit it.** On `gemma4` the difference is −5 at p=0.59; on `glm-5.2` it is −12 at p=0.029. This is
+an advantage that *emerges with reader capability*, not a standing property of raw turns, and an
+earlier draft of this claim asserted the standing version.
+
+**Knowledge-update is a tie with a nominal composite edge on both readers** (+3, p≈0.5). Two opposite
+claims were made about this cell and neither survives: it is not evidence that compression is *optimal*
+for state tracking, and an earlier rejection of that claim rested on a 36-question dev cell that the
+full run does not reproduce.
+
+**Abstention is the one significant composite deficit, and it worsens on the better reader** (−3 →
+−10). §8b's diagnosis holds and sharpens: the density that recovers hard retrieval misses is what
+induces over-answering on unsupported premises, and a more capable reader is *more* willing to commit.
+
+### 8c.4 Latency does not transfer, and the earlier claim was wrong
+
+| arm | median | mean | p90 |
+|---|---|---|---|
+| composite @ `gemma4` | 0.93 s | 1.15 s | 1.77 s |
+| composite @ `glm-5.2` | **4.17 s** | **9.21 s** | **14.37 s** |
+
+At an identical 25,822-char prompt the frontier reader is **4.5× slower at the median and 8× at the
+mean**, with a heavy tail. This is a property of the reader, not of contention or context: generation
+latency is flat across both run-order quintiles (3.92 / 3.89 / 4.68 / 4.20 / 3.98 s) and prompt-size
+quintiles, the arm's extract leg was 0.00 s for all 500 (fully cached), and the oracle harness contains
+no concurrency primitives. **The 3.9× context efficiency over extract-then-compute holds on both tiers
+by construction; the sub-second generation claim does not survive the reader swap** and a draft
+sentence quoting "1.65 s" was carried from a dev split rather than from these files.
+
+### 8c.5 A harness defect the cross-model run exposed
+
+`composite_glm52_n500.json` reports `n_errors=0` while containing **4 questions whose hypothesis is the
+empty string**. An empty generation carried no error marker, so it returned on the first pass, went to
+the judge, came back `no`, and was recorded with `is_error=False` — **indistinguishable from a
+substantive wrong answer.** That arm's 448 is a **lower bound by up to 4**, and its −9 gap to its own
+oracle is correspondingly an upper bound.
+
+Only the long-context frontier arm produced them: **0 in either `gemma4` arm and 0 in the `glm-5.2`
+oracle**, whose prompts are ~4× shorter — consistent with the visible answer being crowded out at long
+context on a reasoning-style reader. Empty generations are now retried and, if they persist, marked so
+they are *counted* rather than silently scored. The fix landed after the parity control launched and
+deliberately was not backported into it, so both composite columns retain identical retry semantics.
+
+### 8c.6 What the residual is made of, and what it implies
+
+Crossing the composite against the oracle **under the same reader and judge** partitions the residual
+into buckets that imply different work. Abstention is held out: its gold answer is a prose statement of
+non-answerability that can never appear in a record, so a containment test files every abstention error
+as evidence-absent and doubles the actionable bucket.
+
+| bucket | `glm-5.2` (52 errors) | `gemma4` (72 errors) |
+|---|---|---|
+| benchmark/reader floor — oracle fails too | 15 (29%) | 31 (43%) |
+| read-side — evidence in records, unused | 16 (31%) | 27 (38%) |
+| **write-side — evidence absent from records** | **10 (19%)** | **9 (13%)** |
+| abstention — calibration | 11 (21%) | 5 (7%) |
+
+**The write-side bucket is ~10 of 500 on both readers while every other bucket moves with reader
+capability.** It is also an *upper* bound twice over: the containment test counts a paraphrase as
+absent, and reading all ten cases individually — rather than trusting the classifier — shows most are
+counting or aggregation failures over evidence that *is* present (five items reported as four, four
+properties as five), with only about three being true extraction loss. **Record extraction is close to
+saturated; the residual is overwhelmingly reader-bound.**
+
+**The two representations are complementary rather than ranked.** Under `glm-5.2` the composite wins
+**27** questions the oracle loses and the oracle wins 36 the composite loses; their **union is 484
+(96.8%)**, against 457 for the oracle alone. Across all four arms the union is **489 (97.8%)** and only
+**11 questions of 500 (2.2%) are failed by every arm**. *This headroom is real but its mechanism is
+not transferable*: the oracle's advantage comes entirely from gold `has_answer` annotations that do not
+exist in production. It bounds what any downstream work could reach; it is not itself a result.
+
 ## 9. The write path: cross-session supersession
 
 **The operation per-session extraction structurally cannot perform.** Extraction runs per session and
