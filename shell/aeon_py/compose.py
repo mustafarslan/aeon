@@ -465,20 +465,16 @@ def compose_from_store(store, trace, question_block: str, *,
     `as_of=None` is byte-identical to the measured read path -- same call, same records,
     same prompt. Pinned by `test_as_of_none_is_byte_identical`.
     """
-    # The bucket filter stays a Python scan, and that is now a DELIBERATE choice rather than
-    # an oversight. `records.py`'s docstring calls the category scan "a kernel subtree walk,
-    # not a Python filter" and names it the scaling path -- but the walk is unsound for any
-    # realistic write order. Atlas requires a node's children to be PHYSICALLY ADJACENT in
-    # the file, and `insert()` appends at the tail, so a bucket's child block can only grow
-    # while that bucket is the last thing written. Measured: write MEDIA, POSSESSION, MEDIA
-    # and `records_in_bucket("MEDIA")` returns ONE of the two -- while `all_records()`
-    # returns all three. Extraction emits records across many buckets per session, so
-    # interleaving is the normal case, not the exception.
+    # The bucket filter stays a Python scan. It became one because the kernel's subtree walk
+    # was unsound for any realistic write order: Atlas required a node's children to be
+    # PHYSICALLY ADJACENT and `insert()` appends at the tail, so a bucket's child block could
+    # only grow while that bucket was the last thing written. Measured then: write MEDIA,
+    # POSSESSION, MEDIA and the walk returned ONE of the two.
     #
-    # A silent subset is the one failure this layer must never have: counting is what it
-    # exists for, and a partial category scan turns a complete answer into a plausible wrong
-    # one. So the O(n) filter is CORRECT and the O(subtree) walk is BROKEN, and correctness
-    # wins until the kernel can hold a non-contiguous child set.
+    # THE KERNEL NOW HOLDS A NON-CONTIGUOUS CHILD SET (v4.2) -- `get_children()` enumerates by
+    # `parent_offset` and is complete under interleaving -- so the correctness argument for
+    # the filter has been retired. It stays because the fixed call is also O(nodes) at this
+    # scale, so switching buys nothing and costs a second enumeration path.
     records = store.all_records(include_superseded=as_of is not None)
     if buckets:
         records = select_records(records, buckets=buckets)

@@ -53,15 +53,16 @@ instead of Python equivalents:
     The closed bucket taxonomy IS a tree, so each bucket is a node and its records are its
     children, and that parent link is what the beam-search hierarchy descends.
 
-    **CORRECTED (v4.1).** This bullet used to continue: "A category scan ... is therefore
-    `get_children()`, a kernel subtree walk, not a Python filter over every record." That was
-    false in production and `records_in_bucket()` is now a filter. Atlas registers a child only
-    when its byte offset is the next slot after the parent's existing children, and `insert()`
-    appends at the tail -- so a bucket's child block can only grow while that bucket is the
-    last thing written, and every later child is invisible to `get_children()` forever.
-    Extraction emits records across many buckets per session, so interleaving is the normal
-    case: insert MEDIA, POSSESSION, MEDIA and the walk returns one of the two MEDIA records.
-    The subset failure this layer must never have is exactly the one the walk produced.
+    **CORRECTED TWICE.** v4.1 recorded that the subtree walk was unsound: Atlas registered a
+    child only when its byte offset was the next slot after the parent's existing children,
+    so interleaved writes -- the normal case, since extraction emits records across many
+    buckets per session -- made later children invisible to `get_children()` forever.
+    **v4.2 fixed that in the kernel**: `get_children()` enumerates by `parent_offset`, which
+    `insert()` always wrote correctly, so the walk is now complete.
+
+    `records_in_bucket()` stays a Python filter regardless. The correctness argument is gone;
+    what remains is that the fixed kernel call is also O(nodes), so a walk buys nothing
+    measurable while adding a binding round-trip and a second code path. Deliberate, not stale.
   * **`session_id` scoping** on `insert()`, with `drop_session()` for teardown. The first
     version passed neither, which is invisible in a benchmark (one store per question) and
     fatal in a multi-tenant product.
@@ -326,25 +327,23 @@ class RecordStore:
     def records_in_bucket(self, bucket: str) -> list[Record]:
         """Every record in a bucket.
 
-        REIMPLEMENTED AS A FILTER (v4.1), and the docstrings that claimed otherwise are
-        corrected with it. `records.py` used to say a category scan "is therefore
-        `get_children()`, a kernel subtree walk, not a Python filter over every record."
-        **That is false in production.** `atlas.cpp` registers a child only when its byte
-        offset equals `first_child_offset + child_count * stride`; `insert()` appends at the
-        tail, so a bucket's child block can only grow while that bucket is the last thing
-        written, and any other child is invisible to `get_children()` forever.
+        A FILTER SINCE v4.1, KEPT FOR A DIFFERENT REASON SINCE v4.2. It became a filter
+        because the kernel's subtree walk returned a silent subset under interleaved writes
+        -- `atlas.cpp` registered a child only when its byte offset equalled
+        `first_child_offset + child_count * stride`, and `insert()` appends at the tail.
+        Measured then: insert MEDIA, POSSESSION, MEDIA and the walk returned ONE of the two
+        MEDIA records.
 
-        Extraction emits records across many buckets per session, so interleaving is the
-        normal case. Measured: insert MEDIA, POSSESSION, MEDIA and the subtree walk returns
-        ONE of the two MEDIA records while `all_records()` returns all three.
+        **That kernel defect is fixed** (v4.2): `get_children()` enumerates by
+        `parent_offset` and is complete under interleaving, pinned by
+        `AtlasTest.GetChildrenSurvivesInterleavedWrites`.
 
-        A silent subset is the one failure this layer must never have -- counting is what it
-        exists for, and `compose.py` says so in as many words about vector top-k. So the O(n)
-        filter is correct and the subtree walk is not, at a record-store scale (a few hundred
-        records per user) where `all_records()` was already being paid on every read.
+        This stays a filter anyway, and the reason is now cost rather than correctness: the
+        fixed kernel call is also O(nodes), so a walk buys nothing measurable here while
+        adding a binding round-trip and a second enumeration path to keep correct. At
+        record-store scale `all_records()` is already paid on every read.
 
-        The bucket nodes stay on disk: they are the physical parent link the beam-search
-        hierarchy uses. Only the enumeration claim is withdrawn.
+        The bucket nodes are the physical parent link the beam-search hierarchy uses.
         """
         return [r for r in self.all_records() if r.bucket == bucket]
 

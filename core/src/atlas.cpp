@@ -657,23 +657,49 @@ std::vector<Atlas::ResultNode> Atlas::get_children(uint64_t parent_id,
   }
 
   NodeHeader *parent = file_->get_node(parent_id);
-  if (!parent || parent->child_count == 0 || parent->first_child_offset == 0) {
+  if (!parent) {
     return children;
   }
 
-  uint8_t *file_base = reinterpret_cast<uint8_t *>(header);
-  uint8_t *child_base = file_base + parent->first_child_offset;
+  // ── BUG FIX (v4.2): enumerate by parent_offset, NOT by the contiguous
+  //    [first_child_offset, child_count) block.
+  //
+  // insert() registers a child in that block ONLY when the new node lands at
+  // exactly `first_child_offset + child_count * stride`, and it appends at the
+  // tail of the file. So a parent's child block can only grow while that parent
+  // is the last thing written: interleave a second parent's child and every
+  // subsequent child of the first is EXCLUDED FROM child_count FOREVER, while
+  // its own parent_offset still points here correctly.
+  //
+  // The old walk therefore returned a SILENT SUBSET -- no error, no short read,
+  // just fewer children than exist. Reproduced: insert MEDIA, POSSESSION, then
+  // MEDIA again, and the walk returns one of the two MEDIA children. That is
+  // the worst failure shape available for an enumeration API, and it reached
+  // every C-ABI consumer (Unity, Unreal, Node), for which this is the only
+  // supported integration point. The Python shell had already been forced to
+  // abandon this call and filter in Python instead (records.py); this restores
+  // the kernel primitive it was working around.
+  //
+  // COMPLEXITY CHANGES from O(children) to O(nodes), deliberately.
+  // `get_children()` is not on the search path -- navigate() walks
+  // first_child_offset inline and is untouched -- its only callers are the
+  // C-ABI and the Python bindings. Correctness wins over a walk that is fast
+  // and wrong, which is the same trade the shell already made and documented.
+  //
+  // This also repairs files written BEFORE the fix: nothing is rebuilt or
+  // migrated, because parent_offset was always written correctly. It was only
+  // ever the enumeration that was wrong.
+  const uint64_t parent_abs_offset =
+      reinterpret_cast<uint8_t *>(parent) - reinterpret_cast<uint8_t *>(header);
 
-  children.reserve(parent->child_count);
-  for (uint16_t i = 0; i < parent->child_count; ++i) {
-    NodeHeader *child =
-        reinterpret_cast<NodeHeader *>(child_base + i * node_byte_stride_);
-
-    // Bounds check
-    if (reinterpret_cast<uint8_t *>(child) >=
-        file_base + sizeof(AtlasHeader) +
-            (header->capacity * node_byte_stride_))
-      break;
+  for (uint64_t i = 0; i < header->node_count; ++i) {
+    NodeHeader *child = file_->get_node(i);
+    if (!child || child->parent_offset != parent_abs_offset)
+      continue;
+    // The root is its own parent in some layouts; never report a node as its
+    // own child.
+    if (i == parent_id)
+      continue;
 
     // V4 Stage 2 task 2: the graph-expansion-boundary enforcement point --
     // see this function's doc comment in atlas.hpp.
@@ -1567,9 +1593,13 @@ uint64_t Atlas::consolidate_subgraph(std::span<const uint64_t> old_node_ids,
   // own, so Phase 3 below never needs to rewire anything for this specific
   // consolidation). Left un-registered (parent_node->child_count untouched,
   // exactly insert()'s own existing behavior for a non-contiguous target)
-  // when it doesn't land contiguously -- a pre-existing property of this
-  // tree's flat-array child representation, not something this fix
-  // resolves in general; see this function's own doc comment (atlas.hpp)
+  // when it doesn't land contiguously. That WAS "a pre-existing property of
+  // this tree's flat-array child representation, not something this fix
+  // resolves in general" -- and v4.2 resolves it in general on the READ side
+  // instead: get_children() enumerates by parent_offset, so a summary that
+  // never registered in the block is still enumerable, because
+  // summary->parent_offset above has always been correct. child_count stays a
+  // fast-path hint for navigate(), no longer the source of truth; see this function's own doc comment (atlas.hpp)
   // for the narrower residual gap this leaves (Phase 3's rewired children,
   // when old_node_ids are non-leaves, are not similarly registered under
   // the summary -- flagged for Stage 5, not fixed here).

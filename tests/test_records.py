@@ -469,24 +469,33 @@ def test_compose_from_store_bucket_filter_uses_the_subtree_after_a_reopen(tmp_ro
     assert "a hammer" not in out["prompt"]
 
 
-def test_kernel_subtree_walk_is_unsound_for_interleaved_writes(tmp_root, unit_vec):
-    """PINS THE KERNEL LIMITATION that forced `records_in_bucket()` to become a filter, so it
-    cannot be rediscovered as a mystery -- and so nobody "optimises" the filter back into a
-    subtree walk.
+def test_kernel_subtree_walk_is_sound_for_interleaved_writes(tmp_root, unit_vec):
+    """INVERTED (v4.2), AND THE OLD VERSION INVITED THIS.
 
-    Atlas registers a child only when its byte offset is exactly the next slot after the
-    parent's existing children, and `insert()` appends at the tail. Interleave two buckets and
-    the later children are invisible to `get_children()` forever. This asserts the KERNEL's
-    behaviour directly; if it ever starts failing, the kernel gained non-contiguous children
-    and the filter can go back to being a walk."""
+    This test used to pin the kernel DEFECT: Atlas registered a child only when its byte
+    offset was exactly the next slot after the parent's existing children, so interleaving
+    two buckets made every later child invisible to `get_children()` forever. Its docstring
+    said "if it ever starts failing, the kernel gained non-contiguous children" -- which is
+    precisely what happened, so the assertion is inverted rather than deleted.
+
+    `Atlas::get_children()` now enumerates by `parent_offset`, which `insert()` always wrote
+    correctly; only the enumeration was ever wrong. The walk is complete under interleaving.
+
+    `records_in_bucket()` nonetheless STAYS a Python filter. The old justification was
+    correctness and no longer applies; the current one is that the fixed kernel call is also
+    O(nodes), so a walk buys nothing measurable while adding a binding round-trip and a second
+    code path to keep correct. Recorded so the choice reads as deliberate rather than stale.
+    """
     store = RecordStore(tmp_root / "r.atlas", dim=DIM)
     for text, bucket in (("A", "MEDIA"), ("H", "POSSESSION"), ("C", "MEDIA")):
         store.add(Record(kind="ITEM", text=text, bucket=bucket, subtype="x",
                          provenance=Provenance("s", (0,))), unit_vec)
-    walked = store._decode(np.frombuffer(
-        bytes(store.atlas.get_children_raw(store._bucket_nodes["MEDIA"])), dtype=np.uint64))
-    assert [r.text for r in walked] == ["A"]                                  # kernel: subset
-    assert sorted(r.text for r in store.records_in_bucket("MEDIA")) == ["A", "C"]   # filter: complete
+    result_dtype = np.dtype([("id", "<u8"), ("sim", "<f4"), ("prev", "<f4", 3),
+                             ("cloud", "?")], align=True)
+    raw = bytes(store.atlas.get_children_raw(store._bucket_nodes["MEDIA"]))
+    walked = store._decode(np.frombuffer(raw, dtype=result_dtype)["id"])
+    assert sorted(r.text for r in walked) == ["A", "C"]                       # kernel: complete
+    assert sorted(r.text for r in store.records_in_bucket("MEDIA")) == ["A", "C"]  # filter: agrees
 
 
 def test_category_scan_is_complete_under_interleaved_writes(tmp_root, unit_vec):

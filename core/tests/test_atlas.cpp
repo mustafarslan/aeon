@@ -812,54 +812,68 @@ TEST_F(AtlasTest, ConsolidateSubgraphSummaryIsReachableViaNavigateWhenContiguous
 // behavior for the identical non-contiguous scenario), not incorrectly
 // incremented in a way that would make navigate() read past the real
 // children into unrelated node bytes.
-TEST_F(AtlasTest, ConsolidateSubgraphSummaryNotRegisteredWhenNonContiguousButNoCorruption) {
+TEST_F(AtlasTest, ConsolidateSubgraphSummaryIsEnumerableEvenWhenNonContiguous) {
+  // RENAMED AND STRENGTHENED (v4.2). This test previously asserted that a
+  // non-contiguously placed summary is NOT enumerated as its parent's child,
+  // pinning the symptom of a gap consolidate_subgraph()'s own comment called
+  // "a pre-existing property of this tree's flat-array child representation,
+  // not something this fix resolves in general". get_children() now enumerates
+  // by parent_offset rather than by the contiguous child block, which resolves
+  // it in general -- so the summary, whose parent_offset consolidate_subgraph()
+  // has always set correctly, is now visible.
+  //
+  // The test's REAL concern is preserved and made explicit below: the danger was
+  // never the summary, it was a phantom -- forcing child_count upward while
+  // first_child_offset still pointed at the old block made get_children() return
+  // whatever unrelated node happened to occupy that address. Enumerating by
+  // parent_offset makes that class of corruption unrepresentable, so the check
+  // is now stated directly rather than inferred from a count.
   aeon::Atlas atlas(test_path);
   std::vector<float> root(768, 0.0f);
   uint64_t root_id = atlas.insert(0, root, "Root");
   std::vector<float> leaf(768, 1.0f);
   uint64_t leaf_id = atlas.insert(root_id, leaf, "Leaf");
 
-  // Insert an unrelated node under a DIFFERENT parent (leaf_id itself) --
-  // this lands physically between leaf_id and the summary the upcoming
-  // consolidate_subgraph() call will create, breaking contiguity with
-  // root's existing child block.
+  // Lands physically between leaf_id and the summary, breaking contiguity with
+  // root's child block. It is a child of LEAF, never of root.
   std::vector<float> other(768, 0.3f);
-  atlas.insert(leaf_id, other, "Other"); // NOT a child of root
+  uint64_t other_id = atlas.insert(leaf_id, other, "Other");
 
-  uint64_t root_child_count_before =
-      atlas.get_children(root_id).size(); // 1 (leaf_id) -- root's OWN
-                                          // enumerated children, unaffected
-                                          // by the grandchild just inserted
   uint64_t summary_id = atlas.consolidate_subgraph(
       std::vector<uint64_t>{leaf_id}, leaf, "Summary");
 
-  auto results = atlas.navigate(leaf, /*beam_width=*/4, /*apply_csls=*/true);
-  bool found_summary = false;
-  for (const auto &r : results) {
-    if (r.id == summary_id) found_summary = true;
-  }
-  // NOTE: this EXPECT_FALSE is NOT the assertion that actually
-  // discriminates the contiguity gate -- it holds true both with the
-  // gate enabled (correctly not registered) AND with registration
-  // temporarily forced unconditionally (verified via a discrimination
-  // check, v4-plan.md), because in the forced-registration case
-  // root->child_count is bumped but root->first_child_offset still
-  // points at leaf_id's existing block, so the "extra child" navigate()
-  // would scan is actually the unrelated `Other` node sitting at that
-  // address, not the summary (summary sits one slot further and is
-  // still never reached). Kept as a same-symptom sanity check, not
-  // deleted, since it IS true and worth asserting regardless.
-  EXPECT_FALSE(found_summary)
-      << "non-contiguous placement should leave the summary unregistered, "
-         "not corrupt root's child enumeration by pretending otherwise";
-  // THIS is the assertion that actually discriminates the contiguity
-  // gate: forcing registration unconditionally makes root->child_count
-  // increment despite nothing new actually landing contiguously with
-  // root's existing children, so get_children(root_id) returns the
-  // unrelated `Other` node as a phantom second child of root -- a real
-  // structural corruption this check catches even though found_summary
-  // above does not.
-  EXPECT_EQ(atlas.get_children(root_id).size(), root_child_count_before);
+  std::vector<uint64_t> root_children;
+  for (const auto &c : atlas.get_children(root_id))
+    root_children.push_back(c.id);
+
+  // The summary inherits leaf's parent (root), so root is exactly where it
+  // belongs -- and it is reachable rather than orphaned.
+  EXPECT_NE(std::find(root_children.begin(), root_children.end(), summary_id),
+            root_children.end())
+      << "the summary is a child of root by parent_offset and must enumerate";
+
+  // THE PHANTOM CHECK, which is what this test always existed to catch: a
+  // grandchild must never be reported as a child, whatever the byte layout.
+  EXPECT_EQ(std::find(root_children.begin(), root_children.end(), other_id),
+            root_children.end())
+      << "a grandchild appeared as a child -- the phantom corruption";
+
+  // And `Other` enumerates under whichever node now owns it. Phase 3 of
+  // consolidate_subgraph() REWIRES the children of a consolidated node onto the
+  // summary, so after consolidation `Other` belongs to the summary rather than
+  // to the tombstoned leaf. Asserted as "exactly one of the two, never both and
+  // never neither", so this pins reachability without hard-coding which side of
+  // the rewire it lands on.
+  auto contains = [&](uint64_t parent, uint64_t child) {
+    for (const auto &c : atlas.get_children(parent))
+      if (c.id == child)
+        return true;
+    return false;
+  };
+  EXPECT_TRUE(contains(summary_id, other_id) || contains(leaf_id, other_id))
+      << "the rewired grandchild became unreachable from either parent";
+  EXPECT_FALSE(contains(summary_id, other_id) && contains(leaf_id, other_id))
+      << "the same node enumerated under two parents at once";
 }
 
 // Supersession is deliberately reversible (unlike tombstoning) -- a
@@ -1020,4 +1034,68 @@ TEST_F(AtlasCompactionTest, MetadataSizeOptionSurvivesCompaction) {
 
   EXPECT_EQ(atlas.metadata_size(), 512u);
   EXPECT_EQ(atlas.get_node_metadata(id), long_text);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// get_children() enumeration — the interleaved-write regression (v4.2)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// insert() registers a child in the parent's [first_child_offset, child_count)
+// block ONLY when the node lands at exactly the next slot, and it appends at
+// the file tail. So a parent's block can only grow while that parent is the
+// last thing written. Interleaving a second parent's child used to exclude
+// every later child of the first FOREVER -- silently, with no error and no
+// short read, while the child's own parent_offset still pointed at the parent
+// correctly.
+//
+// This is the worst failure shape an enumeration API can have, and it reached
+// every C-ABI consumer, for which get_children() is the only supported way to
+// walk the concept graph. The Python shell had already abandoned the call and
+// filtered in Python to route around it.
+//
+// Interleaving is the NORMAL case, not a corner: any writer that groups nodes
+// under more than one parent produces it on the second parent's first child.
+TEST_F(AtlasTest, GetChildrenSurvivesInterleavedWrites) {
+  aeon::Atlas atlas(test_path.string(), 8);
+  std::vector<float> v(8, 0.35355339f);
+
+  uint64_t root = atlas.insert(0, v, "ROOT");
+  uint64_t a = atlas.insert(root, v, "BUCKET_A");
+  uint64_t b = atlas.insert(root, v, "BUCKET_B");
+
+  // Interleave deliberately: a1, b1, a2, b2, a3.
+  uint64_t a1 = atlas.insert(a, v, "a1");
+  uint64_t b1 = atlas.insert(b, v, "b1");
+  uint64_t a2 = atlas.insert(a, v, "a2");
+  uint64_t b2 = atlas.insert(b, v, "b2");
+  uint64_t a3 = atlas.insert(a, v, "a3");
+
+  auto ids = [&](uint64_t parent) {
+    std::vector<uint64_t> out;
+    for (const auto &c : atlas.get_children(parent))
+      out.push_back(c.id);
+    std::sort(out.begin(), out.end());
+    return out;
+  };
+
+  EXPECT_EQ(ids(a), (std::vector<uint64_t>{a1, a2, a3}))
+      << "a silent subset here is the exact defect this test exists for";
+  EXPECT_EQ(ids(b), (std::vector<uint64_t>{b1, b2}));
+  EXPECT_EQ(ids(root), (std::vector<uint64_t>{a, b}));
+}
+
+// A node must never appear among its own children, and a childless node must
+// enumerate empty rather than reporting whatever happens to follow it.
+TEST_F(AtlasTest, GetChildrenExcludesSelfAndReportsLeavesEmpty) {
+  aeon::Atlas atlas(test_path.string(), 8);
+  std::vector<float> v(8, 0.35355339f);
+
+  uint64_t root = atlas.insert(0, v, "ROOT");
+  uint64_t leaf = atlas.insert(root, v, "leaf");
+  atlas.insert(root, v, "sibling");
+
+  EXPECT_TRUE(atlas.get_children(leaf).empty())
+      << "a leaf enumerated its file-adjacent sibling";
+  for (const auto &c : atlas.get_children(root))
+    EXPECT_NE(c.id, root) << "a node was reported as its own child";
 }

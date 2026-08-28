@@ -154,6 +154,20 @@ public:
   /**
    * @brief Returns a node's direct children.
    *
+   * ENUMERATES BY `parent_offset`, NOT by the contiguous
+   * [first_child_offset, child_count) block (v4.2 bug fix). insert()
+   * registers a child in that block only when it lands at exactly the
+   * next slot and it appends at the file tail, so interleaving writes
+   * under two parents excluded every later child of the first FOREVER
+   * -- silently, with no error, while the child's own parent_offset
+   * pointed here correctly. Complexity is therefore O(nodes) rather
+   * than O(children), which is deliberate: this is not on the search
+   * path (navigate() walks first_child_offset inline and is untouched)
+   * and its only callers are the C-ABI and the Python bindings, so a
+   * walk that is fast and wrong is the worse trade. Files written
+   * before the fix are repaired implicitly -- parent_offset was always
+   * correct; only the enumeration was not.
+   *
    * @param scope_mask  V4 Stage 2 task 2: same semantics as navigate()'s
    *                     scope_mask -- ALL_SCOPES_VISIBLE (default) means
    *                     no filtering. This is the enforcement point for
