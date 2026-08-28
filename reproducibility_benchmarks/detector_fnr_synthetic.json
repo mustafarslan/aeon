@@ -1,0 +1,19 @@
+{
+ "corpus": "synthetic",
+ "n_positive": 15,
+ "n_negative": 10,
+ "false_negatives": 4,
+ "false_positives": 2,
+ "fnr": 0.26666666666666666,
+ "fpr": 0.2,
+ "fn_cases": [
+  "Alice Chen owns the billing service",
+  "fixed in abc123, see the diff",
+  "reach me at alice dot chen at example dot com",
+  "the box at 10.0.14.22 was unreachable"
+ ],
+ "fp_cases": [
+  "the cafebabe magic number in the header",
+  "deadbeef is the classic fill pattern"
+ ]
+}
