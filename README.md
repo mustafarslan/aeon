@@ -3,12 +3,13 @@
 [![CI](https://github.com/mustafarslan/aeon/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/mustafarslan/aeon/actions)
 [![Version](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/mustafarslan/aeon/releases)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![arXiv](https://img.shields.io/badge/arXiv-2601.15311-b31b1b.svg)](https://arxiv.org/abs/2601.15311)
 
 **Aeon** is a persistent, crash-recoverable **Semantic Memory Engine** for AI agents, game engines, and robotics. It provides a shared memory substrate where thousands of independent agents — or a single massively parallel system — can *remember, retrieve, and forget* knowledge in real time.
 
 > **V3 Frontier Release:** Write-Ahead Log for crash recovery, Sidecar Blob Arena for unlimited text storage, and INT8 Scalar Quantization for 3.1× file compression with 5.6× math speedup.
 
-> **ArXiv Preprint:** arXiv:2601.15311
+> **ArXiv Preprint:** [arXiv:2601.15311](https://arxiv.org/abs/2601.15311)
 ---
 
 ## Key Features
