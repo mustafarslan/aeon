@@ -16,6 +16,10 @@
  *     (TraceEvent carries the offset+size metadata)
  */
 
+#include <atomic>
+#include <mutex>
+#include <utility>
+#include <vector>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -44,8 +48,13 @@ struct BlobRef {
  * Each blob is a contiguous byte range in the file. Reads return a
  * string_view directly over the mmap'd region (zero-copy).
  *
- * Thread safety: the caller (TraceManager) holds its locks around
- * append/read calls. BlobArena itself is NOT thread-safe.
+ * Thread safety (Aleph Zero fix, found by agy): append, scrub, grow and close
+ * are serialized by the arena's own mutex -- TraceManager::append_event()
+ * writes blobs outside its locks, so two appends raced on write_offset_ and on
+ * grow()'s remap. read() takes no lock: the mapping and the write offset are
+ * atomics, the offset published only after the bytes are copied, and grow()
+ * retires the old mapping instead of unmapping it, so a view a reader holds
+ * stays valid until close().
  */
 class BlobArena {
 public:
@@ -62,6 +71,7 @@ public:
       throw std::runtime_error("BlobArena: failed to open " + path_.string());
     }
 
+    size_t written = 0;
     if (exists) {
       // Get existing file size
       struct stat st{};
@@ -71,10 +81,9 @@ public:
         throw std::runtime_error("BlobArena: fstat failed");
       }
       file_size_ = static_cast<size_t>(st.st_size);
-      write_offset_ = file_size_;
+      written = file_size_;
     } else {
       file_size_ = 0;
-      write_offset_ = 0;
     }
 
     // Ensure minimum allocation for mmap (can't mmap zero-length file)
@@ -87,15 +96,16 @@ public:
       }
     }
 
-    mapped_base_ = static_cast<uint8_t *>(::mmap(
+    auto *base = static_cast<uint8_t *>(::mmap(
         nullptr, file_size_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
-    if (mapped_base_ == MAP_FAILED) {
-      mapped_base_ = nullptr;
+    if (base == MAP_FAILED) {
       ::close(fd_);
       fd_ = -1;
       throw std::runtime_error("BlobArena: mmap failed");
     }
     mapped_size_ = file_size_;
+    mapped_base_.store(base, std::memory_order_release);
+    write_offset_.store(written, std::memory_order_release);
 #endif
   }
 
@@ -117,26 +127,28 @@ public:
     }
 
 #ifndef _WIN32
+    std::lock_guard<std::mutex> guard(mutex_);
+    size_t at = write_offset_.load(std::memory_order_relaxed);
     // Grow file if needed
-    if (write_offset_ + size > file_size_) {
-      grow(write_offset_ + size);
+    if (at + size > file_size_) {
+      grow(at + size);
     }
+    uint8_t *base = mapped_base_.load(std::memory_order_relaxed);
 
-    // Copy data into mmap
-    std::memcpy(mapped_base_ + write_offset_, data, size);
+    // Copy data into mmap, then publish the new end to readers
+    std::memcpy(base + at, data, size);
+    write_offset_.store(at + size, std::memory_order_release);
 
     BlobRef ref{};
-    ref.offset = write_offset_;
+    ref.offset = at;
     ref.size = static_cast<uint32_t>(size);
-
-    write_offset_ += size;
 
     // Flush to disk (msync the written region)
     size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGESIZE));
     size_t page_start = (ref.offset / page_size) * page_size;
     size_t sync_len =
-        (write_offset_ - page_start + page_size - 1) / page_size * page_size;
-    ::msync(mapped_base_ + page_start, sync_len, MS_SYNC);
+        (at + size - page_start + page_size - 1) / page_size * page_size;
+    ::msync(base + page_start, sync_len, MS_SYNC);
 
     return ref;
 #else
@@ -151,13 +163,15 @@ public:
    * @return string_view over the mapped region
    */
   std::string_view read(uint64_t offset, uint32_t size) const {
-    if (!mapped_base_ || size == 0) {
+    uint64_t written = write_offset_.load(std::memory_order_acquire);
+    uint8_t *base = mapped_base_.load(std::memory_order_acquire);
+    if (!base || size == 0) {
       return {};
     }
-    if (offset + size > write_offset_) {
+    if (offset > written || size > written - offset) {
       return {}; // Out of bounds — return empty
     }
-    return {reinterpret_cast<const char *>(mapped_base_ + offset), size};
+    return {reinterpret_cast<const char *>(base + offset), size};
   }
 
   /**
@@ -167,14 +181,16 @@ public:
    */
   bool scrub(uint64_t offset, uint32_t size) {
 #ifndef _WIN32
-    if (!mapped_base_ || size == 0 || offset > write_offset_ ||
-        size > write_offset_ - offset)
+    std::lock_guard<std::mutex> guard(mutex_);
+    uint64_t written = write_offset_.load(std::memory_order_relaxed);
+    uint8_t *base = mapped_base_.load(std::memory_order_relaxed);
+    if (!base || size == 0 || offset > written || size > written - offset)
       return false;
-    std::memset(mapped_base_ + offset, 0, size);
+    std::memset(base + offset, 0, size);
     size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGESIZE));
     size_t page_start = (offset / page_size) * page_size;
     size_t sync_len = (offset + size - page_start + page_size - 1) / page_size * page_size;
-    ::msync(mapped_base_ + page_start, sync_len, MS_SYNC);
+    ::msync(base + page_start, sync_len, MS_SYNC);
     return true;
 #else
     (void)offset;
@@ -183,18 +199,23 @@ public:
 #endif
   }
 
-  /// Close the arena file and unmap.
+  /// Close the arena file and unmap (retired mappings too).
   void close() {
 #ifndef _WIN32
-    if (mapped_base_) {
-      ::munmap(mapped_base_, mapped_size_);
-      mapped_base_ = nullptr;
+    std::lock_guard<std::mutex> guard(mutex_);
+    uint8_t *base = mapped_base_.exchange(nullptr, std::memory_order_acq_rel);
+    if (base) {
+      ::munmap(base, mapped_size_);
       mapped_size_ = 0;
     }
+    for (auto &[old_base, old_size] : retired_)
+      ::munmap(old_base, old_size);
+    retired_.clear();
     if (fd_ >= 0) {
       // Truncate file to actual data size before closing
-      if (write_offset_ > 0) {
-        ::ftruncate(fd_, static_cast<off_t>(write_offset_));
+      uint64_t written = write_offset_.load(std::memory_order_relaxed);
+      if (written > 0) {
+        ::ftruncate(fd_, static_cast<off_t>(written));
       }
       ::close(fd_);
       fd_ = -1;
@@ -203,7 +224,7 @@ public:
   }
 
   /// Current write offset (total bytes written).
-  size_t write_offset() const { return write_offset_; }
+  size_t write_offset() const { return write_offset_.load(std::memory_order_acquire); }
 
   /// File path.
   const std::filesystem::path &path() const { return path_; }
@@ -214,12 +235,15 @@ private:
 
   std::filesystem::path path_;
   int fd_ = -1;
-  uint8_t *mapped_base_ = nullptr;
+  std::atomic<uint8_t *> mapped_base_{nullptr};
   size_t mapped_size_ = 0;
   size_t file_size_ = 0;
-  size_t write_offset_ = 0;
+  std::atomic<uint64_t> write_offset_{0};
+  std::mutex mutex_;
+  std::vector<std::pair<uint8_t *, size_t>> retired_; // mappings replaced by grow(), unmapped at close()
 
-  /// Grow the file and re-mmap.
+  /// Grow the file and map it again; the old mapping is retired, not unmapped
+  /// (a reader may hold a view into it). Caller holds mutex_.
   void grow(size_t needed) {
 #ifndef _WIN32
     size_t new_size = file_size_;
@@ -227,26 +251,21 @@ private:
       new_size = std::max(new_size * kGrowthFactor, needed);
     }
 
-    // Unmap current
-    if (mapped_base_) {
-      ::munmap(mapped_base_, mapped_size_);
-      mapped_base_ = nullptr;
-    }
-
     // Extend file
     if (::ftruncate(fd_, static_cast<off_t>(new_size)) < 0) {
       throw std::runtime_error("BlobArena: grow ftruncate failed");
     }
-    file_size_ = new_size;
 
-    // Re-mmap
-    mapped_base_ = static_cast<uint8_t *>(::mmap(
-        nullptr, file_size_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
-    if (mapped_base_ == MAP_FAILED) {
-      mapped_base_ = nullptr;
+    auto *base = static_cast<uint8_t *>(::mmap(
+        nullptr, new_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
+    if (base == MAP_FAILED) {
       throw std::runtime_error("BlobArena: grow mmap failed");
     }
-    mapped_size_ = file_size_;
+    uint8_t *old = mapped_base_.exchange(base, std::memory_order_acq_rel);
+    if (old)
+      retired_.emplace_back(old, mapped_size_);
+    file_size_ = new_size;
+    mapped_size_ = new_size;
 #endif
   }
 };

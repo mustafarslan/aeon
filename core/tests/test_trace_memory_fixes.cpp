@@ -24,6 +24,7 @@
 #include <gtest/gtest.h>
 #include <iterator>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -334,4 +335,29 @@ TEST_F(TraceMemoryFixesTest, AfterACompactionDroppedEventsNoLongerCrowdTheSearch
   auto found = trace.semantic_search(axis(dim, 3), 1);
   ASSERT_EQ(found.size(), 1u); // the one left, not an empty answer behind 19 dead entries
   EXPECT_EQ(found[0].id, ids[19]);
+}
+
+TEST_F(TraceMemoryFixesTest, ThreadsAppendingAtOnceKeepEveryText) {
+  // append_event writes blobs outside the trace's locks: the arena has its own.
+  aeon::TraceManager trace(trace_path_);
+  constexpr int threads = 8, each = 200;
+  std::vector<std::thread> workers;
+  for (int t = 0; t < threads; ++t) {
+    workers.emplace_back([&trace, t] {
+      for (int i = 0; i < each; ++i) {
+        std::string text = "t" + std::to_string(t) + "-" + std::to_string(i) + "-" + std::string(300 + i, 'x');
+        trace.append_event(("s" + std::to_string(t)).c_str(), 0, text.c_str());
+      }
+    });
+  }
+  for (auto &w : workers)
+    w.join();
+  for (int t = 0; t < threads; ++t) {
+    auto history = trace.get_history(("s" + std::to_string(t)).c_str(), each + 1);
+    ASSERT_EQ(history.size(), static_cast<size_t>(each));
+    for (const auto &ev : history) {
+      std::string text = trace.get_event_text(ev.blob_offset, ev.blob_size);
+      ASSERT_EQ(text.rfind("t" + std::to_string(t) + "-", 0), 0u) << "a blob was overwritten by another thread";
+    }
+  }
 }
