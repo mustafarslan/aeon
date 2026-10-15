@@ -1037,6 +1037,22 @@ bool TraceManager::has_session(const char *session_id) const {
 }
 
 bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
+  // Nothing is logged for an event that does not exist (yet), or for one with
+  // nothing left to do: a record for an id not yet given would tombstone the
+  // event that later gets it, at the next replay (agy). An existing event
+  // cannot vanish before the record is written: only compact() removes events,
+  // and only tombstoned ones.
+  {
+    std::shared_lock check(rw_mutex_);
+    const TraceEvent *cev = resolve_event(event_id);
+    if (!cev)
+      return false;
+    bool dead = (cev->flags & TRACE_FLAG_TOMBSTONE) != 0;
+    bool text = cev->blob_size || cev->evidence_blob_size ||
+                cev->embedding_blob_size || cev->text_preview[0];
+    if (dead && !(erase_text && text))
+      return false;
+  }
   // WAL first, under wal_mutex_ alone (ARCHITECTURE §4.2's order): a crash
   // after this cannot leave a RAM-delta event alive, and replay applies it
   // again harmlessly to an event already in the file.
@@ -1070,7 +1086,7 @@ bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
   apply_tombstone(ev, erase_text);
   if (compact_in_progress_.load(std::memory_order_acquire))
     pending_tombstones_.emplace_back(event_id, erase_text);
-  return !was_dead;
+  return true; // tombstoned now, or erased now: something was done
 }
 
 void TraceManager::apply_tombstone(TraceEvent *ev, bool erase_text) {
@@ -1221,6 +1237,7 @@ void TraceManager::replay_wal() {
              wal_hdr.payload_size == sizeof(WalTraceTombstoneRecord)) {
       WalTraceTombstoneRecord rec{};
       std::memcpy(&rec, payload.data(), sizeof(rec));
+      next_event_id_ = std::max(next_event_id_, rec.event_id + 1);
       if (const TraceEvent *cev = resolve_event(rec.event_id)) {
         apply_tombstone(const_cast<TraceEvent *>(cev), rec.erase_text != 0);
         ++replayed;

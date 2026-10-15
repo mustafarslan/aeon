@@ -225,3 +225,24 @@ TEST_F(TraceMemoryFixesTest, ATombstoneOnlyInTheLogIsAppliedAtTheNextOpen) {
   aeon::TraceManager trace(trace_path_);
   EXPECT_FALSE(trace.tombstone_event(1, true)); // already done by the replay
 }
+
+TEST_F(TraceMemoryFixesTest, ATombstoneForAnIdNotYetGivenNeverHitsTheEventThatGetsIt) {
+  {
+    aeon::TraceManager trace(trace_path_);
+    EXPECT_FALSE(trace.tombstone_event(2, true)); // no event 2 yet
+    trace.append_event("s", 0, "one");
+    trace.append_event("s", 0, "two, alive"); // gets id 2
+  }
+  aeon::TraceManager trace(trace_path_);
+  auto history = trace.get_history("s", 10);
+  ASSERT_EQ(history.size(), 2u);
+  EXPECT_EQ(history[0].id, 2u);
+}
+
+TEST_F(TraceMemoryFixesTest, ErasingATombstonedEventSaysItDidSomething) {
+  aeon::TraceManager trace(trace_path_);
+  uint64_t id = trace.append_event("s", 0, "first hidden, then erased");
+  EXPECT_TRUE(trace.tombstone_event(id));
+  EXPECT_TRUE(trace.tombstone_event(id, true));  // the text goes now: that is something done
+  EXPECT_FALSE(trace.tombstone_event(id, true)); // nothing left to do
+}

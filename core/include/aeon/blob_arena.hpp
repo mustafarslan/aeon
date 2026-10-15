@@ -167,7 +167,8 @@ public:
    */
   bool scrub(uint64_t offset, uint32_t size) {
 #ifndef _WIN32
-    if (!mapped_base_ || size == 0 || offset + size > write_offset_)
+    if (!mapped_base_ || size == 0 || offset > write_offset_ ||
+        size > write_offset_ - offset)
       return false;
     std::memset(mapped_base_ + offset, 0, size);
     size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGESIZE));
