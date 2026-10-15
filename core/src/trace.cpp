@@ -64,14 +64,16 @@ TraceManager::TraceManager(std::filesystem::path path)
   blob_path += ".blobs";
   blob_arena_ = std::make_unique<BlobArena>(blob_path);
 
-  // ── V4 Stage 2 task 3: rebuild the (unpersisted) semantic block index
-  // from durable embedding blobs, now that blob_arena_ is open ──
-  rebuild_block_index();
-
-  // ── V4.1 WAL: crash recovery ──
+  // ── V4.1 WAL: crash recovery, BEFORE the index is rebuilt (Aleph Zero
+  // fix): replay_wal() writes recovered events into the trace file itself,
+  // so the rebuild below indexes them like any other ──
   wal_path_ = trace_path_;
   wal_path_ += ".wal";
   replay_wal();
+
+  // ── V4 Stage 2 task 3: rebuild the (unpersisted) semantic block index
+  // from durable embedding blobs, now that blob_arena_ is open ──
+  rebuild_block_index();
   open_wal();
 }
 
@@ -429,9 +431,18 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
   // own narrow critical section rather than holding rw_mutex_ for this
   // whole function, preserving Step 1's "expensive work outside any lock"
   // design intent (matching Atlas::insert_delta()) for everything else.
-  if (!embedding.empty()) {
+  // Also reserves the event's id and its place in its session's chain (Aleph
+  // Zero fix): both are in the WAL record written in Step 2, so a replay after
+  // a crash keeps the id the caller was given and the chain it joined, instead
+  // of inventing them. The lock is brief and never held across the WAL write.
+  std::string sid(session_id ? session_id : "");
+  uint64_t reserved_id = 0;
+  uint64_t reserved_prev = 0;
+  {
     std::unique_lock dim_lock(rw_mutex_);
-    if (embedding_dim_ == 0) {
+    if (embedding.empty()) {
+      // nothing to establish or validate
+    } else if (embedding_dim_ == 0) {
       embedding_dim_ = static_cast<uint32_t>(embedding.size());
       block_index_ = std::make_unique<TraceBlockIndex>(embedding_dim_);
       if (mapped_base_) {
@@ -445,13 +456,20 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
           std::to_string(embedding_dim_) + ", got " +
           std::to_string(embedding.size()) + ")");
     }
+    reserved_id = next_event_id_++;
+    auto tail = session_tails_.find(sid);
+    reserved_prev = tail != session_tails_.end() ? tail->second : 0;
+    session_tails_[sid] = reserved_id;
   }
 
+  try {
   // ── Step 1: Serialize data & write blob (NO LOCK) ──
   // Build the TraceEvent payload outside of any lock.
   TraceEvent ev{};
   std::memset(&ev, 0, sizeof(TraceEvent));
 
+  ev.id = reserved_id;
+  ev.prev_id = reserved_prev;
   ev.timestamp = now_micros();
   ev.atlas_id = atlas_id;
   ev.role = role;
@@ -524,20 +542,9 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
     }
   }
 
-  // ── Step 3: lock(rw_mutex_) → assign IDs, append to buffer → unlock ──
+  // ── Step 3: lock(rw_mutex_) → append to buffer → unlock ──
+  // (id and prev_id were reserved in Step 0.)
   std::unique_lock lock(rw_mutex_);
-
-  // Determine prev_id for this session
-  uint64_t prev_id = 0;
-  std::string sid(session_id ? session_id : "");
-  auto it = session_tails_.find(sid);
-  if (it != session_tails_.end()) {
-    prev_id = it->second;
-  }
-
-  // Assign sequential event ID and prev_id
-  ev.id = next_event_id_++;
-  ev.prev_id = prev_id;
 
   uint64_t event_id;
 
@@ -573,9 +580,21 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
                          static_cast<double>(ev.timestamp));
   }
 
-  // Update session tail
-  session_tails_[sid] = event_id;
   return event_id;
+  } catch (...) {
+    // The event never landed: its session's chain goes back to where it was,
+    // unless another append has already chained to it (then that chain is cut
+    // here; a single writer, as Aleph Zero is under its file lock, never sees it).
+    std::unique_lock lock(rw_mutex_);
+    auto tail = session_tails_.find(sid);
+    if (tail != session_tails_.end() && tail->second == reserved_id) {
+      if (reserved_prev)
+        tail->second = reserved_prev;
+      else
+        session_tails_.erase(tail);
+    }
+    throw;
+  }
 }
 
 // ===========================================================================
@@ -989,7 +1008,8 @@ bool TraceManager::has_session(const char *session_id) const {
   return session_tails_.contains(std::string(session_id ? session_id : ""));
 }
 
-bool TraceManager::tombstone_event(uint64_t event_id) {
+bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
+  (void)erase_text; // group 2
   std::unique_lock lock(rw_mutex_);
 
   // Locate the event (const resolve, then cast — safe: we hold unique_lock
@@ -1042,6 +1062,7 @@ void TraceManager::replay_wal() {
     return;
 
   uint64_t bytes_consumed = 0;
+  size_t replayed = 0;
 
   while (in.good() && !in.eof()) {
     // Read WAL record header
@@ -1078,27 +1099,65 @@ void TraceManager::replay_wal() {
         wal_hdr.payload_size == sizeof(TraceEvent)) {
       TraceEvent ev{};
       std::memcpy(&ev, payload.data(), sizeof(TraceEvent));
-
-      // ── Record is valid: reconstruct delta buffer ──
-      // Re-chain: look up current session tail to set prev_id
       std::string sid(ev.session_id,
                       std::min(std::strlen(ev.session_id), size_t{35}));
+
+      if (ev.id == 0) {
+        // A record from before ids were reserved ahead of the WAL write: it
+        // gets the next id and joins its session's chain, as it always did.
+        auto it = session_tails_.find(sid);
+        ev.prev_id = (it != session_tails_.end()) ? it->second : 0;
+        ev.id = next_event_id_++;
+      } else if (resolve_event(ev.id)) {
+        continue; // already in the file: a crash after a replay, before the log was emptied
+      } else {
+        // The id and prev_id the event was given when it was appended.
+        next_event_id_ = std::max(next_event_id_, ev.id + 1);
+      }
+
+      // The first embedding of a file may be one only the log holds.
+      if (embedding_dim_ == 0 && ev.embedding_blob_size > 0 &&
+          ev.embedding_blob_size % sizeof(float) == 0) {
+        embedding_dim_ = ev.embedding_blob_size / sizeof(float);
+        if (mapped_base_)
+          reinterpret_cast<TraceFileHeader *>(mapped_base_)->embedding_dim = embedding_dim_;
+      }
+
+      // Into the trace file, not a RAM buffer: an event only in RAM made a
+      // later append to the file chain to it, and the next replay chain it
+      // back again (a prev_id cycle).
+      grow_mmap(1);
+      if (mapped_base_) {
+        auto *dst = reinterpret_cast<TraceEvent *>(
+            mapped_base_ + sizeof(TraceFileHeader) + mmap_event_count_ * sizeof(TraceEvent));
+        std::memcpy(dst, &ev, sizeof(TraceEvent));
+        ++mmap_event_count_;
+        auto *hdr = reinterpret_cast<TraceFileHeader *>(mapped_base_);
+        hdr->event_count = mmap_event_count_;
+        hdr->next_event_id = next_event_id_;
+      } else {
+        size_t old_size = delta_bytes_.size();
+        delta_bytes_.resize(old_size + sizeof(TraceEvent));
+        std::memcpy(delta_bytes_.data() + old_size, &ev, sizeof(TraceEvent));
+      }
       auto it = session_tails_.find(sid);
-      uint64_t prev_id = (it != session_tails_.end()) ? it->second : 0;
-
-      // Assign sequential event ID and re-chain prev_id
-      ev.id = next_event_id_++;
-      ev.prev_id = prev_id;
-
-      // Append to delta buffer
-      size_t old_size = delta_bytes_.size();
-      delta_bytes_.resize(old_size + sizeof(TraceEvent));
-      std::memcpy(delta_bytes_.data() + old_size, &ev, sizeof(TraceEvent));
-
-      // Update session tail for this event
-      session_tails_[sid] = ev.id;
+      if (it == session_tails_.end() || ev.id > it->second)
+        session_tails_[sid] = ev.id;
+      ++replayed;
     }
     // else: skip (payload already fully consumed above), continue replay.
+  }
+  in.close();
+
+  // What was replayed is in the file now: make it durable, then empty the log
+  // (a crash between the two replays the same records again, and those already
+  // in the file are skipped by id).
+  if (replayed > 0 && mapped_base_) {
+#ifndef _WIN32
+    ::msync(mapped_base_, mapped_size_, MS_SYNC);
+#endif
+    std::error_code ec;
+    std::filesystem::remove(wal_path_, ec);
   }
 }
 

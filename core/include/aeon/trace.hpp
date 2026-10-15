@@ -211,7 +211,7 @@ public:
    * @return true if the event was found and tombstoned, false if not found
    *         or already tombstoned.
    */
-  bool tombstone_event(uint64_t event_id);
+  bool tombstone_event(uint64_t event_id, bool erase_text = false);
 
   /// Drop a session's tail pointer (does NOT delete events from disk).
   /// Used for session cleanup when an NPC despawns.

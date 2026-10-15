@@ -214,6 +214,7 @@ if(BUILD_TESTING)
         tests/test_hierarchical_slb.cpp
         tests/test_scope_recall.cpp
         tests/test_trace_semantic_search.cpp
+        tests/test_trace_memory_fixes.cpp
     )
 
     target_link_libraries(aeon_tests PRIVATE 
