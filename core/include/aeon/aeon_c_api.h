@@ -580,6 +580,21 @@ AEON_API aeon_error_t aeon_trace_tombstone_event(aeon_trace_t *trace,
                                                  uint64_t event_id);
 
 /**
+ * @brief Tombstone a trace event and, with erase_text non-zero, overwrite its
+ * text, evidence and embedding on disk now (a "forget" that leaves the disk).
+ * WAL-logged, so a crash cannot undo it.
+ *
+ * @param[in] trace      Trace handle.
+ * @param[in] event_id   Event ID to tombstone.
+ * @param[in] erase_text Non-zero to overwrite the event's blobs and preview.
+ * @return AEON_OK if tombstoned, AEON_ERR_NODE_NOT_FOUND if not found or
+ *         already tombstoned.
+ */
+AEON_API aeon_error_t aeon_trace_tombstone_event_ex(aeon_trace_t *trace,
+                                                    uint64_t event_id,
+                                                    int erase_text);
+
+/**
  * @brief Retrieve the full text for a trace event from the blob arena.
  *
  * Zero-heap: caller provides the output buffer. Returns

@@ -616,6 +616,22 @@ static_assert(std::is_trivially_copyable_v<WalGovernanceRecord>);
 /// no-op). See Atlas::tombstone_node(uint64_t).
 constexpr uint32_t WAL_RECORD_ATLAS_TOMBSTONE = 0x06;
 
+/// A Trace event tombstoned, and with erase_text its text, evidence and
+/// embedding overwritten (Aleph Zero fix: a memory a user forgets leaves the
+/// disk). Written before the event is changed, so a crash cannot undo a
+/// tombstone of an event that lived only in the RAM delta. Idempotent on replay.
+constexpr uint32_t WAL_RECORD_TRACE_TOMBSTONE = 0x07;
+
+/// Payload for WAL_RECORD_TRACE_TOMBSTONE records.
+struct WalTraceTombstoneRecord {
+  uint64_t event_id;
+  uint8_t erase_text;
+  uint8_t _pad[7];
+};
+static_assert(sizeof(WalTraceTombstoneRecord) == 16,
+              "WalTraceTombstoneRecord must be 16 bytes");
+static_assert(std::is_trivially_copyable_v<WalTraceTombstoneRecord>);
+
 /// Payload for WAL_RECORD_ATLAS_TOMBSTONE records.
 struct WalTombstoneRecord {
   uint64_t node_id;

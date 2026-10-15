@@ -399,6 +399,12 @@ NB_MODULE(core, m) {
            "Create or open mmap-backed trace file")
       .def("size", &aeon::TraceManager::size,
            "Total event count (mmap + delta)")
+      .def("tombstone_event", &aeon::TraceManager::tombstone_event,
+           "event_id"_a, "erase_text"_a = false,
+           "Tombstone an event: left out of semantic_search() and dropped at the "
+           "next compact(). With erase_text, its text, evidence and embedding "
+           "are overwritten on disk now. Durable (WAL-logged). Returns False if "
+           "the event is unknown or was already tombstoned.")
       .def("mmap_event_count", &aeon::TraceManager::mmap_event_count,
            "Event count in mmap file")
       .def("delta_event_count", &aeon::TraceManager::delta_event_count,

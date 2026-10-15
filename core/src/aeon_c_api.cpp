@@ -593,6 +593,20 @@ AEON_API aeon_error_t aeon_trace_tombstone_event(aeon_trace_t *trace,
     return AEON_ERR_UNKNOWN;
   }
 }
+AEON_API aeon_error_t aeon_trace_tombstone_event_ex(aeon_trace_t *trace,
+                                                    uint64_t event_id,
+                                                    int erase_text) {
+  if (!trace)
+    return AEON_ERR_NULL_PTR;
+
+  try {
+    bool found = to_trace(trace)->tombstone_event(event_id, erase_text != 0);
+    return found ? AEON_OK : AEON_ERR_NODE_NOT_FOUND;
+  } catch (...) {
+    return AEON_ERR_UNKNOWN;
+  }
+}
+
 AEON_API aeon_error_t aeon_trace_get_event_text(
     aeon_trace_t *trace, uint64_t blob_offset, uint32_t blob_size,
     char *out_buf, size_t buf_capacity, size_t *out_len) {

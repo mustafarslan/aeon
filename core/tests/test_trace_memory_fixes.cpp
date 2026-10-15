@@ -204,3 +204,24 @@ TEST_F(TraceMemoryFixesTest, ATombstoneWithoutErasureKeepsTheTextButHidesTheEven
   EXPECT_TRUE(trace.semantic_search(axis(dim, 4), 5).empty());
   EXPECT_FALSE(trace.tombstone_event(999999)); // unknown id
 }
+
+TEST_F(TraceMemoryFixesTest, ATombstoneOnlyInTheLogIsAppliedAtTheNextOpen) {
+  { aeon::TraceManager trace(trace_path_); }
+  {
+    std::ofstream wal(wal_path_, std::ios::binary | std::ios::trunc);
+    write_wal_event(wal, 1, "s", "PREVIEW-to-erase");
+    aeon::WalTraceTombstoneRecord rec{};
+    rec.event_id = 1;
+    rec.erase_text = 1;
+    aeon::WalRecordHeader hdr{};
+    hdr.record_type = aeon::WAL_RECORD_TRACE_TOMBSTONE;
+    hdr.payload_size = sizeof(rec);
+    hdr.checksum = aeon::hash::fnv1a_64(&rec, sizeof(rec));
+    wal.write(reinterpret_cast<const char *>(&hdr), sizeof(hdr));
+    wal.write(reinterpret_cast<const char *>(&rec), sizeof(rec));
+  }
+  { aeon::TraceManager trace(trace_path_); }
+  EXPECT_EQ(slurp(trace_path_).find("PREVIEW-to-erase"), std::string::npos);
+  aeon::TraceManager trace(trace_path_);
+  EXPECT_FALSE(trace.tombstone_event(1, true)); // already done by the replay
+}

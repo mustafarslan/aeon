@@ -160,6 +160,28 @@ public:
     return {reinterpret_cast<const char *>(mapped_base_ + offset), size};
   }
 
+  /**
+   * @brief Overwrite a blob with zeros in place and flush it (Aleph Zero fix:
+   * erasing a tombstoned event's text from the disk).
+   * @return false when the range is not a written blob of this arena
+   */
+  bool scrub(uint64_t offset, uint32_t size) {
+#ifndef _WIN32
+    if (!mapped_base_ || size == 0 || offset + size > write_offset_)
+      return false;
+    std::memset(mapped_base_ + offset, 0, size);
+    size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGESIZE));
+    size_t page_start = (offset / page_size) * page_size;
+    size_t sync_len = (offset + size - page_start + page_size - 1) / page_size * page_size;
+    ::msync(mapped_base_ + page_start, sync_len, MS_SYNC);
+    return true;
+#else
+    (void)offset;
+    (void)size;
+    return false;
+#endif
+  }
+
   /// Close the arena file and unmap.
   void close() {
 #ifndef _WIN32

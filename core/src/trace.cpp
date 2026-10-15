@@ -1037,24 +1037,67 @@ bool TraceManager::has_session(const char *session_id) const {
 }
 
 bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
-  (void)erase_text; // group 2
+  // WAL first, under wal_mutex_ alone (ARCHITECTURE §4.2's order): a crash
+  // after this cannot leave a RAM-delta event alive, and replay applies it
+  // again harmlessly to an event already in the file.
+  {
+    WalTraceTombstoneRecord rec{};
+    rec.event_id = event_id;
+    rec.erase_text = erase_text ? 1 : 0;
+    WalRecordHeader wal_hdr{};
+    wal_hdr.record_type = WAL_RECORD_TRACE_TOMBSTONE;
+    wal_hdr.payload_size = static_cast<uint32_t>(sizeof(rec));
+    wal_hdr.checksum = hash::fnv1a_64(&rec, sizeof(rec));
+    std::lock_guard<std::mutex> wal_lock(wal_mutex_);
+    if (wal_stream_.is_open()) {
+      wal_stream_.write(reinterpret_cast<const char *>(&wal_hdr), sizeof(wal_hdr));
+      wal_stream_.write(reinterpret_cast<const char *>(&rec), sizeof(rec));
+      wal_stream_.flush();
+    }
+  }
+
   std::unique_lock lock(rw_mutex_);
-
-  // Locate the event (const resolve, then cast — safe: we hold unique_lock
-  // and the target memory is mutable mmap or delta buffer).
-  const TraceEvent *cev = resolve_event(event_id);
-  if (!cev)
-    return false; // event not found
-
-  // Already tombstoned? No-op.
-  if (cev->flags & TRACE_FLAG_TOMBSTONE)
-    return false;
-
   // const_cast is safe: we hold the exclusive write lock, and the underlying
   // storage (mmap region or delta buffer) is inherently mutable.
-  auto *ev = const_cast<TraceEvent *>(cev);
+  auto *ev = const_cast<TraceEvent *>(resolve_event(event_id));
+  if (!ev)
+    return false; // event not found
+  bool was_dead = (ev->flags & TRACE_FLAG_TOMBSTONE) != 0;
+  bool text_left = ev->blob_size || ev->evidence_blob_size ||
+                   ev->embedding_blob_size || ev->text_preview[0];
+  if (was_dead && !(erase_text && text_left))
+    return false; // already tombstoned (and erased, if that was asked)
+  apply_tombstone(ev, erase_text);
+  if (compact_in_progress_.load(std::memory_order_acquire))
+    pending_tombstones_.emplace_back(event_id, erase_text);
+  return !was_dead;
+}
+
+void TraceManager::apply_tombstone(TraceEvent *ev, bool erase_text) {
   ev->flags |= TRACE_FLAG_TOMBSTONE;
-  return true;
+  if (erase_text) {
+    if (blob_arena_) {
+      blob_arena_->scrub(ev->blob_offset, ev->blob_size);
+      blob_arena_->scrub(ev->evidence_blob_offset, ev->evidence_blob_size);
+      blob_arena_->scrub(ev->embedding_blob_offset, ev->embedding_blob_size);
+    }
+    // Sizes cleared too: compact() copies nothing and rebuild_block_index()
+    // indexes nothing for it from now on.
+    ev->blob_offset = ev->blob_size = 0;
+    ev->evidence_blob_offset = ev->evidence_blob_size = 0;
+    ev->embedding_blob_offset = ev->embedding_blob_size = 0;
+    std::memset(ev->text_preview, 0, sizeof(ev->text_preview));
+  }
+#ifndef _WIN32
+  auto *at = reinterpret_cast<uint8_t *>(ev);
+  if (mapped_base_ && at >= mapped_base_ && at + sizeof(TraceEvent) <= mapped_base_ + mapped_size_) {
+    size_t page_size = static_cast<size_t>(::sysconf(_SC_PAGESIZE));
+    size_t offset = static_cast<size_t>(at - mapped_base_);
+    size_t page_start = (offset / page_size) * page_size;
+    size_t sync_len = (offset + sizeof(TraceEvent) - page_start + page_size - 1) / page_size * page_size;
+    ::msync(mapped_base_ + page_start, sync_len, MS_SYNC);
+  }
+#endif
 }
 
 bool TraceManager::drop_session(const char *session_id) {
@@ -1173,6 +1216,15 @@ void TraceManager::replay_wal() {
       if (it == session_tails_.end() || ev.id > it->second)
         session_tails_[sid] = ev.id;
       ++replayed;
+    }
+    else if (wal_hdr.record_type == WAL_RECORD_TRACE_TOMBSTONE &&
+             wal_hdr.payload_size == sizeof(WalTraceTombstoneRecord)) {
+      WalTraceTombstoneRecord rec{};
+      std::memcpy(&rec, payload.data(), sizeof(rec));
+      if (const TraceEvent *cev = resolve_event(rec.event_id)) {
+        apply_tombstone(const_cast<TraceEvent *>(cev), rec.erase_text != 0);
+        ++replayed;
+      }
     }
     // else: skip (payload already fully consumed above), continue replay.
   }

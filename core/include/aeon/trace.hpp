@@ -265,6 +265,13 @@ private:
   /// fix): appends chain to it, readers never see it; session_tails_ is set when
   /// the event lands (append_event Step 3).
   std::unordered_map<std::string, uint64_t> pending_tails_;
+  /// Tombstones set while a compaction copies the events: applied again to the
+  /// new generation when it is installed (they would be lost with the old one).
+  std::vector<std::pair<uint64_t, bool>> pending_tombstones_;
+  /// Sets the tombstone flag and, with erase_text, overwrites the event's text,
+  /// evidence and embedding blobs and its preview; flushes the event if it lives
+  /// in the file. Caller holds rw_mutex_ (or is the constructor).
+  void apply_tombstone(TraceEvent *ev, bool erase_text);
 
   // -----------------------------------------------------------------------
   // Semantic Trace Search (V4 Stage 2 task 3)
