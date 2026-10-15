@@ -98,6 +98,8 @@ Step 3: APPLY TO RAM (delta_mutex_ only)
 
 **Lock ordering invariant:** `serialize (no lock) → wal_mutex_ → delta_mutex_`. Since WAL disk I/O is completed before the delta lock is acquired, game engine threads waiting on `navigate()` are never blocked by `fdatasync()` latency.
 
+**Trace (Aleph Zero fixes, 2026-10-15).** `TraceManager::append_event()` takes a *brief* reservation under `rw_mutex_` before Step 1 — the embedding-dim check, the event's id and its `prev_id` — and releases it before the WAL write, so the WAL record carries the id and chain the caller was given; the lock is never held across WAL I/O. The chain is reserved in `pending_tails_`; `session_tails_` (what readers see) is set only when the event lands in Step 3. Between reservation and landing a reader's `get_history()` does not yet show the event (microseconds). A Step 3 that finds a compaction started after Step 2's lock-free check writes the WAL record first. Every append and tombstone also holds `writers_mutex_` shared; `compact()` takes it exclusively only for its cutover. Full order: `writers_mutex_ → rw_mutex_ (brief) → wal_mutex_ → rw_mutex_`. `BlobArena` has its own mutex for appends (`read()` is lock-free; a grow retires the old mapping instead of unmapping it).
+
 ### 4.3 Crash Recovery
 
 On next open, `replay_wal()` scans the `.wal` file:
@@ -105,9 +107,12 @@ On next open, `replay_wal()` scans the `.wal` file:
 1. Read each `WalRecordHeader` (16 bytes).
 2. Read the payload (`payload_size` bytes).
 3. Recompute FNV-1a checksum. If it doesn't match, discard this record and all subsequent records (torn write).
-4. Replay the payload into the delta buffer.
+4. Replay the payload: a `WAL_RECORD_TRACE` event keeps the id and `prev_id` it carries (a legacy record with id 0 gets the next one) and is written **into the trace file**, not the RAM delta (an id already in the file is skipped); a `WAL_RECORD_TRACE_TOMBSTONE` (id + erase flag) is applied in log order.
+5. The file is synced and the log removed; the semantic index is rebuilt afterwards, so recovered events are searchable.
 
-After compaction, `truncate_wal()` deletes the journal file.
+`TraceManager::tombstone_event(id, erase_text)` writes its WAL record first (only for an event that exists), then sets the flag; with `erase_text` the text, evidence and embedding blobs are overwritten on disk (`BlobArena::scrub`) and their sizes cleared. During a compaction it only hides and queues the event; the cutover applies it to the new generation.
+
+`compact()` drops tombstoned events and relinks survivors' `prev_id` past them. At its cutover (writers excluded) it copies the blobs of events appended meanwhile out of the old arena, drains them into the new file, applies queued tombstones, swaps in a semantic index built during the copy, syncs, takes the stable file names, and only then truncates the WAL. One compaction at a time.
 
 ### 4.4 Empirical Proof: < 1% Overhead
 

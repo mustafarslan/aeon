@@ -11,11 +11,18 @@ authors = [
   { name = "Aeon Team", email = "dev@aeon.os" },
 ]
 requires-python = ">=3.10"
+# What `import aeon_py` needs, and nothing more: a library user (Aleph Zero's
+# memory) must not download PyTorch. The server, its auth and crypto, and the
+# sentence-transformers embedder are extras: `pip install aeon_py[server]`,
+# `[embeddings]`, or `[all]`.
 dependencies = [
     "numpy>=1.26.0",
     "psutil",
     "requests",
-    "sentence-transformers>=2.2.0",
+]
+
+[project.optional-dependencies]
+server = [
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
     "sse-starlette>=2.0.0",
@@ -25,8 +32,12 @@ dependencies = [
     # not hand-rolled.
     "cryptography>=42.0.0",
 ]
-
-[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=2.2.0",
+]
+all = [
+    "aeon_py[server,embeddings]",
+]
 # `pip install -e .[test]` then `pytest tests/`. Not previously declared
 # anywhere (nor run in CI, see .github/workflows/build_and_test.yml) --
 # found while fixing this file's separate cmake.targets->build.targets

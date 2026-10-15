@@ -9,9 +9,6 @@ from numpy.typing import NDArray
 
 
 class EpochGuard:
-    def __init__(self, /, *args, **kwargs):
-        """Initialize self.  See help(type(self)) for accurate signature."""
-
     def __enter__(self) -> object: ...
 
     def __exit__(self, *args) -> None: ...
@@ -26,9 +23,6 @@ def version() -> str:
     """Get the library version"""
 
 class BuildInfo:
-    def __init__(self, /, *args, **kwargs):
-        """Initialize self.  See help(type(self)) for accurate signature."""
-
     @property
     def compiler(self) -> str: ...
 
@@ -59,6 +53,12 @@ class Atlas:
     def size(self) -> int: ...
 
     @property
+    def compaction_epoch(self) -> int:
+        """
+        Completed compactions (0 = never). compact_mmap() REASSIGNS node ids, so a raw id held outside the file silently begins addressing a DIFFERENT LIVE NODE once it runs. Stamp this alongside any durably stored node id and refuse to mutate by that id when the epoch has moved.
+        """
+
+    @property
     def metadata_size(self) -> int:
         """
         Metadata field size (bytes) of this Atlas instance -- callers writing an encoded payload into the metadata field must length-check against this BEFORE calling insert(), since insert() truncates silently rather than raising on overflow.
@@ -72,7 +72,7 @@ class Atlas:
     def prune_delta_tail(self, n: int) -> int:
         """Remove last N nodes from delta buffer (for rollback)"""
 
-    def navigate_raw(self, query: Sequence[float], beam_width: int = 1, apply_csls: bool = False, session_id: str | None = None, scope_mask: int | None = 18446744073709551615) -> Annotated[NDArray[numpy.uint8], dict(shape=(None,), writable=False)]:
+    def navigate_raw(self, query: Sequence[float], beam_width: int = 1, apply_csls: bool = False, session_id: str | None = None, scope_mask: int = 18446744073709551615) -> Annotated[NDArray[numpy.uint8], dict(shape=(None,), writable=False)]:
         """
         Beam search navigate. beam_width=1 is greedy. apply_csls=True applies hub penalty. session_id scopes the SLB cache lookup to the caller's session (v4-plan.md Stage 0) -- omit for the shared default session. scope_mask (v4-plan.md Stage 2) filters results to nodes matching scope_mask & node.scope_bitmap != 0; omit (ALL_SCOPES_VISIBLE) for unfiltered pre-Stage-2 behavior.
         """
@@ -203,6 +203,11 @@ class TraceManager:
     def size(self) -> int:
         """Total event count (mmap + delta)"""
 
+    def tombstone_event(self, event_id: int, erase_text: bool = False) -> bool:
+        """
+        Tombstone an event: left out of semantic_search() and dropped at the next compact(). With erase_text, its text, evidence and embedding are overwritten on disk now. Durable (WAL-logged). Returns False if the event is unknown or was already tombstoned.
+        """
+
     def mmap_event_count(self) -> int:
         """Event count in mmap file"""
 
@@ -211,7 +216,7 @@ class TraceManager:
 
     def append_event(self, session_id: str, role: int, text: str, atlas_id: int = 0, embedding: Sequence[float] = [], edge_type: int = 0, supersedes_id: int = 0, reason_code: int = 0, event_time: int = 0) -> int:
         """
-        Append an episodic event. Returns the new event ID. embedding (v4-plan.md Stage 2 task 3): optional, empty by default = not embedded (excluded from semantic_search()). The FIRST non-empty embedding ever appended to this trace file fixes its embedding_dim; a later mismatched size raises ValueError. edge_type/supersedes_id/reason_code (v4-plan.md Stage 1/2 task 4): EdgeType/ReasonCode enum values (see schema.hpp) for a version/admission edge this event carries -- 0/None (default) means no edge. supersedes_id is in practice always a store-encoded Atlas node id, not a TraceEvent id -- see schema.hpp's TraceEvent doc comment (V4 STAGE 4 note).
+        Append an episodic event. Returns the new event ID. embedding (v4-plan.md Stage 2 task 3): optional, empty by default = not embedded (excluded from semantic_search()). The FIRST non-empty embedding ever appended to this trace file fixes its embedding_dim; a later mismatched size raises ValueError. edge_type/supersedes_id/reason_code (v4-plan.md Stage 1/2 task 4): EdgeType/ReasonCode enum values (see schema.hpp) for a version/admission edge this event carries -- 0/None (default) means no edge. supersedes_id is in practice always a store-encoded Atlas node id, not a TraceEvent id -- see schema.hpp's TraceEvent doc comment (V4 STAGE 4 note). event_time (v4-plan.md Stage 7 Track 2): optional caller-supplied event time (epoch microseconds), distinct from the event's timestamp (always Aeon's own insertion wall-clock). 0/default = not supplied -- callers ordering by 'when this happened' should fall back to timestamp when event_time is 0.
         """
 
     def semantic_search(self, query: Sequence[float], top_k: int = 10) -> list:
