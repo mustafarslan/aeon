@@ -296,3 +296,42 @@ TEST_F(TraceMemoryFixesTest, ATombstoneSetDuringACompactionHoldsInTheNewGenerati
   for (const auto &ev : trace.semantic_search(axis(dim, 1), 5))
     EXPECT_NE(ev.id, gone);
 }
+
+TEST_F(TraceMemoryFixesTest, AnEventAppendedDuringACompactionKeepsItsTextAndVector) {
+  constexpr uint32_t dim = 8;
+  uint64_t during = 0;
+  {
+    aeon::TraceManager trace(trace_path_);
+    trace.append_event("s", 0, "before", 0, axis(dim, 1));
+    trace.set_compaction_hook_for_testing([&] {
+      during = trace.append_event("s", 0, "the text written during the compaction", 0, axis(dim, 5));
+    });
+    trace.compact();
+    auto history = trace.get_history("s", 1);
+    ASSERT_EQ(history.size(), 1u);
+    EXPECT_EQ(trace.get_event_text(history[0].blob_offset, history[0].blob_size),
+              "the text written during the compaction");
+  }
+  aeon::TraceManager trace(trace_path_);
+  auto history = trace.get_history("s", 1);
+  ASSERT_EQ(history.size(), 1u);
+  EXPECT_EQ(trace.get_event_text(history[0].blob_offset, history[0].blob_size),
+            "the text written during the compaction");
+  auto found = trace.semantic_search(axis(dim, 5), 1);
+  ASSERT_EQ(found.size(), 1u);
+  EXPECT_EQ(found[0].id, during);
+}
+
+TEST_F(TraceMemoryFixesTest, AfterACompactionDroppedEventsNoLongerCrowdTheSearch) {
+  constexpr uint32_t dim = 8;
+  aeon::TraceManager trace(trace_path_);
+  std::vector<uint64_t> ids;
+  for (int i = 0; i < 20; ++i)
+    ids.push_back(trace.append_event("s", 0, ("same " + std::to_string(i)).c_str(), 0, axis(dim, 3)));
+  for (int i = 0; i < 19; ++i)
+    ASSERT_TRUE(trace.tombstone_event(ids[i]));
+  trace.compact();
+  auto found = trace.semantic_search(axis(dim, 3), 1);
+  ASSERT_EQ(found.size(), 1u); // the one left, not an empty answer behind 19 dead entries
+  EXPECT_EQ(found[0].id, ids[19]);
+}

@@ -301,6 +301,13 @@ private:
   // -----------------------------------------------------------------------
 
   mutable std::shared_mutex rw_mutex_;
+  /// Held shared by every append and tombstone from start to end, and
+  /// exclusively by compact() only for its cutover (Aleph Zero fix): then no
+  /// writer is half-way, every RAM-delta event's blobs are still in the old
+  /// arena to be copied over, and no WAL record is written while the log is
+  /// emptied. Readers never take it. Order: writers_mutex_ before rw_mutex_
+  /// and wal_mutex_.
+  mutable std::shared_mutex writers_mutex_;
 
   // -----------------------------------------------------------------------
   // Internal Helpers

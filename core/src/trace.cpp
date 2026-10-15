@@ -425,6 +425,7 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
                                     std::span<const float> embedding,
                                     uint8_t edge_type, uint64_t supersedes_id,
                                     uint8_t reason_code, uint64_t event_time) {
+  std::shared_lock writers(writers_mutex_); // see writers_mutex_ in trace.hpp
   // ── Step 0: Establish/validate embedding dimensionality (brief lock) ──
   // V4 Stage 2 task 3. Must happen BEFORE Step 2's WAL write below -- a
   // dim-mismatch throw after the WAL record is written would leave a
@@ -855,6 +856,10 @@ void TraceManager::compact() {
   // there (Aleph Zero fix, found by agy). Two passes: after a WAL replay,
   // ids in the file need not be in order.
   std::unordered_map<uint64_t, uint64_t> dropped; // dropped id -> its prev_id
+  // Read under the lock tombstone_event() writes under; what is dropped is
+  // decided here once, and a tombstone set after this is queued and applied
+  // to the new generation at the cutover.
+  std::shared_lock flags_read(rw_mutex_);
   for (size_t i = 0; i < snapshot_mmap_count; ++i) {
     const TraceEvent *ev = mmap_event_at(i);
     if (ev && (ev->flags & TRACE_FLAG_TOMBSTONE))
@@ -866,20 +871,21 @@ void TraceManager::compact() {
     if (ev->flags & TRACE_FLAG_TOMBSTONE)
       dropped[ev->id] = ev->prev_id;
   }
+  flags_read.unlock();
   auto survivor = [&dropped](uint64_t id) {
     for (size_t hops = 0; id != 0 && hops <= dropped.size(); ++hops) {
       auto it = dropped.find(id);
       if (it == dropped.end())
-        break;
+        return id;
       id = it->second;
     }
-    return id;
+    return dropped.count(id) ? uint64_t{0} : id; // a cycle: no surviving ancestor
   };
 
   size_t write_idx = 0;
   for (size_t i = 0; i < snapshot_mmap_count; ++i) {
     const TraceEvent *ev = mmap_event_at(i);
-    if (!ev || (ev->flags & TRACE_FLAG_TOMBSTONE))
+    if (!ev || dropped.count(ev->id))
       continue;
 
     auto *dst = reinterpret_cast<TraceEvent *>(
@@ -900,7 +906,7 @@ void TraceManager::compact() {
   for (size_t i = 0; i < frozen_count; ++i) {
     const auto *ev = reinterpret_cast<const TraceEvent *>(
         frozen_delta_bytes_.data() + i * sizeof(TraceEvent));
-    if (ev->flags & TRACE_FLAG_TOMBSTONE)
+    if (dropped.count(ev->id))
       continue;
 
     auto *dst = reinterpret_cast<TraceEvent *>(
@@ -970,12 +976,31 @@ void TraceManager::compact() {
   uint8_t *old_base = nullptr;
   size_t old_size = 0;
   int old_fd = -1;
+  // The cutover: no writer is half-way from here to the end (writers_mutex_).
+  std::unique_lock writers(writers_mutex_);
   {
     std::unique_lock lock(rw_mutex_);
 
     old_base = mapped_base_;
     old_size = mapped_size_;
     old_fd = fd_;
+
+    // Events appended during the compaction wrote their text, evidence and
+    // embedding to the OLD arena: copied to the new one now, while the old is
+    // still open (Aleph Zero fix, found by agy: they were left pointing at
+    // offsets of an arena about to close).
+    std::vector<TraceEvent> drained(delta_bytes_.size() / sizeof(TraceEvent));
+    for (size_t i = 0; i < drained.size(); ++i) {
+      std::memcpy(&drained[i], delta_bytes_.data() + i * sizeof(TraceEvent), sizeof(TraceEvent));
+      TraceEvent &ev = drained[i];
+      uint64_t off = ev.blob_offset, eoff = ev.evidence_blob_offset, voff = ev.embedding_blob_offset;
+      uint32_t size = ev.blob_size, esize = ev.evidence_blob_size, vsize = ev.embedding_blob_size;
+      gc_blob_pair(off, size, ev.blob_offset, ev.blob_size);
+      gc_blob_pair(eoff, esize, ev.evidence_blob_offset, ev.evidence_blob_size);
+      gc_blob_pair(voff, vsize, ev.embedding_blob_offset, ev.embedding_blob_size);
+      ev.prev_id = survivor(ev.prev_id);
+    }
+    delta_bytes_.clear();
 
     // Swap blob arena — close old (now-unlinked inode, still valid via
     // its own open fd until closed), install new
@@ -997,31 +1022,19 @@ void TraceManager::compact() {
     frozen_delta_bytes_.clear();
     frozen_delta_bytes_.shrink_to_fit();
 
-    // Tombstones set while the events were being copied landed on the old
-    // generation: set them again on the new one (Aleph Zero fix).
-    for (const auto &[id, erase] : pending_tombstones_) {
-      if (const TraceEvent *cev = resolve_event(id))
-        apply_tombstone(const_cast<TraceEvent *>(cev), erase);
-    }
-    pending_tombstones_.clear();
-
     // Events appended during the compaction went to the RAM delta, protected
     // only by WAL records that the truncate below deletes: they go into the
-    // new file now, relinked past dropped events like the rest (Aleph Zero
-    // fix, found by agy). The delta is empty afterwards: no event lives only
-    // in RAM, so no later append to the file can chain to one.
-    size_t new_delta_count = delta_bytes_.size() / sizeof(TraceEvent);
-    for (size_t i = 0; i < new_delta_count; ++i) {
-      TraceEvent ev{};
-      std::memcpy(&ev, delta_bytes_.data() + i * sizeof(TraceEvent), sizeof(TraceEvent));
-      ev.prev_id = survivor(ev.prev_id);
+    // new file now, their blobs already copied and relinked past dropped
+    // events like the rest (Aleph Zero fix, found by agy). The delta is empty
+    // afterwards: no event lives only in RAM, so no later append to the file
+    // can chain to one.
+    for (const TraceEvent &ev : drained) {
       grow_mmap(1);
       auto *dst = reinterpret_cast<TraceEvent *>(
           mapped_base_ + sizeof(TraceFileHeader) + mmap_event_count_ * sizeof(TraceEvent));
       std::memcpy(dst, &ev, sizeof(TraceEvent));
       ++mmap_event_count_;
     }
-    delta_bytes_.clear();
     auto *hdr = reinterpret_cast<TraceFileHeader *>(mapped_base_);
     hdr->event_count = mmap_event_count_;
     hdr->next_event_id = next_event_id_;
@@ -1029,12 +1042,27 @@ void TraceManager::compact() {
     ::msync(mapped_base_, mapped_size_, MS_SYNC);
 #endif
 
-    // Session tails from the compacted file, the drained events included
+    // Tombstones set while the events were being copied landed on the old
+    // generation: set them again on the new one, drained events included
+    // (Aleph Zero fix).
+    for (const auto &[id, erase] : pending_tombstones_) {
+      if (const TraceEvent *cev = resolve_event(id))
+        apply_tombstone(const_cast<TraceEvent *>(cev), erase);
+    }
+    pending_tombstones_.clear();
+
+    // Session tails from the compacted file, the drained events included;
+    // what a failed append left to chain to is relinked like the rest.
     rebuild_session_tails();
+    for (auto &[sid, id] : pending_tails_)
+      id = survivor(id);
+
+    // The semantic index holds dropped events' entries, which crowd a search
+    // that over-fetches only a few (found by agy): rebuilt from the new file.
+    rebuild_block_index();
+    compact_in_progress_.store(false, std::memory_order_release);
   }
   // Lock released — reads now see new file
-
-  compact_in_progress_.store(false, std::memory_order_release);
 
   // -----------------------------------------------------------------------
   // Step 4: Background Cleanup — close the old (already-unlinked-by-
@@ -1092,6 +1120,7 @@ bool TraceManager::has_session(const char *session_id) const {
 }
 
 bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
+  std::shared_lock writers(writers_mutex_); // see writers_mutex_ in trace.hpp
   // Nothing is logged for an event that does not exist (yet), or for one with
   // nothing left to do: a record for an id not yet given would tombstone the
   // event that later gets it, at the next replay (agy). An existing event
