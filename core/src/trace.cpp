@@ -651,8 +651,8 @@ std::vector<TraceEvent> TraceManager::get_history(const char *session_id,
     if (!ev)
       break;
 
-    // Skip tombstoned events
-    if (!(ev->flags & TRACE_FLAG_TOMBSTONE)) {
+    // Skip tombstoned events (and those being tombstoned during a compaction)
+    if (!(ev->flags & TRACE_FLAG_TOMBSTONE) && !tombstoning_.count(ev->id)) {
       result.push_back(*ev); // Flat 512-byte copy — trivially copyable
     }
 
@@ -689,6 +689,8 @@ TraceManager::semantic_search(std::span<const float> query,
     if (!ev)
       continue; // compacted away since indexing; stale block-index entry
     if (ev->flags & (TRACE_FLAG_TOMBSTONE | TRACE_FLAG_SUPERSEDED))
+      continue;
+    if (tombstoning_.count(ev->id))
       continue;
     result.push_back(*ev);
   }
@@ -730,6 +732,8 @@ void TraceManager::compact() {
   size_t snapshot_mmap_count;
   {
     std::unique_lock lock(rw_mutex_);
+    if (compact_in_progress_.load(std::memory_order_acquire))
+      return; // one at a time: a second would overwrite the first's frozen delta (agy)
     compact_in_progress_.store(true, std::memory_order_release);
     frozen_delta_bytes_ = std::move(delta_bytes_);
     delta_bytes_.clear();
@@ -882,6 +886,25 @@ void TraceManager::compact() {
     return dropped.count(id) ? uint64_t{0} : id; // a cycle: no surviving ancestor
   };
 
+  // The new generation's semantic index, built while copying (no lock held):
+  // the cutover then only adds what it drains, instead of re-reading every
+  // embedding with readers locked out (agy).
+  uint32_t index_dim = embedding_dim_;
+  std::unique_ptr<TraceBlockIndex> new_index =
+      index_dim ? std::make_unique<TraceBlockIndex>(index_dim) : nullptr;
+  auto index_copy = [&](const TraceEvent *dst) {
+    if (!new_index || dst->embedding_blob_size != index_dim * sizeof(float))
+      return;
+    // The new arena: still `new_blob_arena` during the copy, `blob_arena_` once the cutover installed it.
+    BlobArena *arena = new_blob_arena ? new_blob_arena.get() : blob_arena_.get();
+    if (!arena)
+      return;
+    auto view = arena->read(dst->embedding_blob_offset, dst->embedding_blob_size);
+    if (view.size() == dst->embedding_blob_size)
+      new_index->append(dst->id, std::span<const float>(reinterpret_cast<const float *>(view.data()), index_dim),
+                        static_cast<double>(dst->timestamp));
+  };
+
   size_t write_idx = 0;
   for (size_t i = 0; i < snapshot_mmap_count; ++i) {
     const TraceEvent *ev = mmap_event_at(i);
@@ -899,6 +922,7 @@ void TraceManager::compact() {
                 dst->evidence_blob_offset, dst->evidence_blob_size);
     gc_blob_pair(ev->embedding_blob_offset, ev->embedding_blob_size,
                 dst->embedding_blob_offset, dst->embedding_blob_size);
+    index_copy(dst);
     ++write_idx;
   }
 
@@ -920,6 +944,7 @@ void TraceManager::compact() {
                 dst->evidence_blob_offset, dst->evidence_blob_size);
     gc_blob_pair(ev->embedding_blob_offset, ev->embedding_blob_size,
                 dst->embedding_blob_offset, dst->embedding_blob_size);
+    index_copy(dst);
     ++write_idx;
   }
 
@@ -941,33 +966,6 @@ void TraceManager::compact() {
 #ifndef _WIN32
   ::msync(new_base, alloc_size, MS_SYNC);
 #endif
-
-  {
-    std::error_code ec;
-    std::filesystem::rename(new_path, trace_path_, ec);
-    if (ec) {
-      ::munmap(new_base, alloc_size);
-      ::close(new_fd);
-      compact_in_progress_.store(false, std::memory_order_release);
-      throw std::runtime_error("compact: failed to install new generation "
-                               "at stable path: " +
-                               ec.message());
-    }
-    std::filesystem::rename(new_blob_path, stable_blob_path, ec);
-    if (ec) {
-      // Main file already renamed (now durable and self-consistent) --
-      // the blob rename failing here is a real problem for any NEW
-      // blob-referencing field written after this point, but not a
-      // reason to unwind the already-successful main-file rename half.
-      // Surface it; the caller can retry compaction.
-      ::munmap(new_base, alloc_size);
-      ::close(new_fd);
-      compact_in_progress_.store(false, std::memory_order_release);
-      throw std::runtime_error("compact: failed to install new blob "
-                               "generation at stable path: " +
-                               ec.message());
-    }
-  }
 
   // -----------------------------------------------------------------------
   // Step 3: µs Freeze — swap in-process pointers to the (already renamed)
@@ -1038,6 +1036,7 @@ void TraceManager::compact() {
     auto *hdr = reinterpret_cast<TraceFileHeader *>(mapped_base_);
     hdr->event_count = mmap_event_count_;
     hdr->next_event_id = next_event_id_;
+    hdr->embedding_dim = embedding_dim_; // the first vector may have come during the compaction
 #ifndef _WIN32
     ::msync(mapped_base_, mapped_size_, MS_SYNC);
 #endif
@@ -1057,9 +1056,39 @@ void TraceManager::compact() {
     for (auto &[sid, id] : pending_tails_)
       id = survivor(id);
 
-    // The semantic index holds dropped events' entries, which crowd a search
-    // that over-fetches only a few (found by agy): rebuilt from the new file.
-    rebuild_block_index();
+    tombstoning_.clear();
+
+    // The semantic index built during the copy (dropped events left out, so
+    // they no longer crowd a search that over-fetches only a few: agy), plus
+    // the drained events.
+    if (embedding_dim_ != 0) {
+      if (!new_index || index_dim != embedding_dim_) {
+        index_dim = embedding_dim_;
+        new_index = std::make_unique<TraceBlockIndex>(index_dim);
+        for (size_t i = 0; i < mmap_event_count_; ++i)
+          index_copy(mmap_event_at(i)); // the first vector came during the compaction
+      } else {
+        for (size_t i = write_idx; i < mmap_event_count_; ++i)
+          index_copy(mmap_event_at(i));
+      }
+      block_index_ = std::move(new_index);
+    }
+
+    // Only now, with the drained events in the new files and flushed, the new
+    // generation takes the stable names (agy: renamed before the drain, a crash
+    // in between left WAL records pointing into a blob file already replaced).
+    // A crash before this keeps the old files and the log; after it, the log's
+    // records are already in the file and are skipped by id.
+    {
+      std::error_code ec;
+      std::filesystem::rename(new_path, trace_path_, ec);
+      if (!ec)
+        std::filesystem::rename(new_blob_path, stable_blob_path, ec);
+      if (ec) {
+        compact_in_progress_.store(false, std::memory_order_release);
+        throw std::runtime_error("compact: failed to install the new generation at the stable path: " + ec.message());
+      }
+    }
     compact_in_progress_.store(false, std::memory_order_release);
   }
   // Lock released — reads now see new file
@@ -1084,6 +1113,19 @@ void TraceManager::compact() {
 // ===========================================================================
 // Full Text Retrieval (V4.1)
 // ===========================================================================
+
+std::string TraceManager::event_text(uint64_t event_id) const {
+  std::shared_lock lock(rw_mutex_);
+  const TraceEvent *ev = resolve_event(event_id);
+  if (!ev || (ev->flags & TRACE_FLAG_TOMBSTONE) || tombstoning_.count(event_id))
+    return {};
+  if (ev->blob_size > 0 && blob_arena_) {
+    auto view = blob_arena_->read(ev->blob_offset, ev->blob_size);
+    if (!view.empty())
+      return std::string(view);
+  }
+  return std::string(ev->text_preview);
+}
 
 std::string TraceManager::get_event_text(uint64_t blob_offset,
                                          uint32_t blob_size) const {
@@ -1131,7 +1173,8 @@ bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
     const TraceEvent *cev = resolve_event(event_id);
     if (!cev)
       return false;
-    bool dead = (cev->flags & TRACE_FLAG_TOMBSTONE) != 0;
+    bool dead = (cev->flags & TRACE_FLAG_TOMBSTONE) != 0 ||
+                (tombstoning_.count(event_id) && !erase_text);
     bool text = cev->blob_size || cev->evidence_blob_size ||
                 cev->embedding_blob_size || cev->text_preview[0];
     if (dead && !(erase_text && text))
@@ -1157,6 +1200,16 @@ bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
   }
 
   std::unique_lock lock(rw_mutex_);
+  if (compact_in_progress_.load(std::memory_order_acquire)) {
+    // The compaction is copying events without a lock: this one is not changed
+    // in place now (agy: a data race), only hidden, and tombstoned (and erased)
+    // in the new generation at the cutover.
+    if (!resolve_event(event_id))
+      return false;
+    tombstoning_.insert(event_id);
+    pending_tombstones_.emplace_back(event_id, erase_text);
+    return true;
+  }
   // const_cast is safe: we hold the exclusive write lock, and the underlying
   // storage (mmap region or delta buffer) is inherently mutable.
   auto *ev = const_cast<TraceEvent *>(resolve_event(event_id));
@@ -1168,8 +1221,6 @@ bool TraceManager::tombstone_event(uint64_t event_id, bool erase_text) {
   if (was_dead && !(erase_text && text_left))
     return false; // already tombstoned (and erased, if that was asked)
   apply_tombstone(ev, erase_text);
-  if (compact_in_progress_.load(std::memory_order_acquire))
-    pending_tombstones_.emplace_back(event_id, erase_text);
   return true; // tombstoned now, or erased now: something was done
 }
 

@@ -463,7 +463,7 @@ NB_MODULE(core, m) {
               d["text_preview"] = nb::str(ev.text_preview);
               if (ev.blob_size > 0) {
                 d["text"] = nb::str(
-                    self.get_event_text(ev.blob_offset, ev.blob_size).c_str());
+                    self.event_text(ev.id).c_str());
               } else {
                 d["text"] = nb::str(ev.text_preview);
               }
@@ -512,7 +512,7 @@ NB_MODULE(core, m) {
               // Fetch full text from blob arena
               if (ev.blob_size > 0) {
                 d["text"] = nb::str(
-                    self.get_event_text(ev.blob_offset, ev.blob_size).c_str());
+                    self.event_text(ev.id).c_str());
               } else {
                 d["text"] = nb::str(ev.text_preview);
               }

@@ -361,3 +361,58 @@ TEST_F(TraceMemoryFixesTest, ThreadsAppendingAtOnceKeepEveryText) {
     }
   }
 }
+
+TEST_F(TraceMemoryFixesTest, ACompactionStartedDuringACompactionDoesNothing) {
+  aeon::TraceManager trace(trace_path_);
+  trace.append_event("s", 0, "one");
+  trace.append_event("s", 0, "two");
+  bool nested = false;
+  trace.set_compaction_hook_for_testing([&] {
+    if (nested)
+      return;
+    nested = true;
+    trace.compact(); // must return at once, not clobber the one running
+  });
+  trace.compact();
+  EXPECT_EQ(trace.get_history("s", 10).size(), 2u);
+}
+
+TEST_F(TraceMemoryFixesTest, TextIsFoundByIdAcrossACompaction) {
+  aeon::TraceManager trace(trace_path_);
+  uint64_t dropped = trace.append_event("s", 0, "dropped text, to move the offsets");
+  uint64_t kept = trace.append_event("s", 0, "kept text");
+  ASSERT_TRUE(trace.tombstone_event(dropped));
+  trace.compact();
+  EXPECT_EQ(trace.event_text(kept), "kept text");
+  EXPECT_EQ(trace.event_text(dropped), ""); // gone with the compaction
+}
+
+TEST_F(TraceMemoryFixesTest, AnEventTombstonedDuringACompactionIsHiddenAtOnce) {
+  constexpr uint32_t dim = 8;
+  aeon::TraceManager trace(trace_path_);
+  uint64_t gone = trace.append_event("s", 0, "to forget", 0, axis(dim, 6));
+  trace.set_compaction_hook_for_testing([&] {
+    ASSERT_TRUE(trace.tombstone_event(gone, true));
+    for (const auto &ev : trace.semantic_search(axis(dim, 6), 5))
+      EXPECT_NE(ev.id, gone); // hidden while the compaction is still copying
+    EXPECT_TRUE(trace.get_history("s", 10).empty());
+  });
+  trace.compact();
+  EXPECT_TRUE(trace.semantic_search(axis(dim, 6), 5).empty());
+}
+
+TEST_F(TraceMemoryFixesTest, TheFirstVectorArrivingDuringACompactionIsSearchableAfterAReopen) {
+  constexpr uint32_t dim = 8;
+  uint64_t during = 0;
+  {
+    aeon::TraceManager trace(trace_path_);
+    trace.append_event("s", 0, "no vector yet");
+    trace.set_compaction_hook_for_testing(
+        [&] { during = trace.append_event("s", 0, "the first vector", 0, axis(dim, 2)); });
+    trace.compact();
+  }
+  aeon::TraceManager trace(trace_path_);
+  auto found = trace.semantic_search(axis(dim, 2), 1);
+  ASSERT_EQ(found.size(), 1u);
+  EXPECT_EQ(found[0].id, during);
+}

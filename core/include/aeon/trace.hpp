@@ -35,6 +35,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace aeon {
@@ -188,6 +189,12 @@ public:
    */
   std::string get_event_text(uint64_t blob_offset, uint32_t blob_size) const;
 
+  /// The full text of an event, by its id, read under the lock (Aleph Zero
+  /// fix): an offset taken from an event copied out before a compaction names
+  /// a place in the old arena, which the compaction replaced. Empty for an
+  /// unknown or tombstoned event.
+  std::string event_text(uint64_t event_id) const;
+
   /// Total event count (mmap + delta).
   size_t size() const;
 
@@ -276,6 +283,10 @@ private:
   /// Tombstones set while a compaction copies the events: applied again to the
   /// new generation when it is installed (they would be lost with the old one).
   std::vector<std::pair<uint64_t, bool>> pending_tombstones_;
+  /// Events tombstoned while a compaction copies: not changed in place (the
+  /// copy is reading them), hidden from search and history until the cutover
+  /// tombstones them in the new generation.
+  std::unordered_set<uint64_t> tombstoning_;
   std::function<void()> compaction_hook_;
   /// Sets the tombstone flag and, with erase_text, overwrites the event's text,
   /// evidence and embedding blobs and its preview; flushes the event if it lives
