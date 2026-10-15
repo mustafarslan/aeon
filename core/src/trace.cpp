@@ -457,9 +457,11 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
           std::to_string(embedding.size()) + ")");
     }
     reserved_id = next_event_id_++;
+    auto pending = pending_tails_.find(sid);
     auto tail = session_tails_.find(sid);
-    reserved_prev = tail != session_tails_.end() ? tail->second : 0;
-    session_tails_[sid] = reserved_id;
+    reserved_prev = pending != pending_tails_.end() ? pending->second
+                    : tail != session_tails_.end() ? tail->second : 0;
+    pending_tails_[sid] = reserved_id; // what the next append chains to; not yet what readers see
   }
 
   try {
@@ -525,8 +527,8 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
   // unnecessary (but harmless) WAL write.
   bool needs_wal =
       compact_in_progress_.load(std::memory_order_acquire) || !mapped_base_;
-
-  if (needs_wal) {
+  bool wal_written = false;
+  auto write_wal = [&] {
     std::lock_guard<std::mutex> wal_lock(wal_mutex_);
     if (wal_stream_.is_open()) {
       WalRecordHeader wal_hdr{};
@@ -540,11 +542,24 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
                         sizeof(TraceEvent));
       wal_stream_.flush();
     }
-  }
+    wal_written = true;
+  };
+
+  if (needs_wal)
+    write_wal();
 
   // ── Step 3: lock(rw_mutex_) → append to buffer → unlock ──
-  // (id and prev_id were reserved in Step 0.)
+  // (id and prev_id were reserved in Step 0.) A compaction that began after
+  // the lock-free check above sends the event to the RAM delta: it must not
+  // land there without its WAL record, so the record is written first, with
+  // no lock held, and the lock taken again.
   std::unique_lock lock(rw_mutex_);
+  if (!wal_written &&
+      (compact_in_progress_.load(std::memory_order_acquire) || !mapped_base_)) {
+    lock.unlock();
+    write_wal();
+    lock.lock();
+  }
 
   uint64_t event_id;
 
@@ -580,18 +595,31 @@ uint64_t TraceManager::append_event(const char *session_id, uint16_t role,
                          static_cast<double>(ev.timestamp));
   }
 
+  // Readers see the event now: the newest landed id of its session is the tail.
+  auto tail = session_tails_.find(sid);
+  if (tail == session_tails_.end() || event_id > tail->second)
+    session_tails_[sid] = event_id;
+  auto pending = pending_tails_.find(sid);
+  if (pending != pending_tails_.end() && pending->second == event_id)
+    pending_tails_.erase(pending);
   return event_id;
   } catch (...) {
-    // The event never landed: its session's chain goes back to where it was,
-    // unless another append has already chained to it (then that chain is cut
-    // here; a single writer, as Aleph Zero is under its file lock, never sees it).
+    // The event never landed: what the next append chains to goes back to
+    // where it was, unless another append has already chained to it (then that
+    // chain is cut here; a single writer, as Aleph Zero is under its file
+    // lock, never sees it). A WAL record already written is replayed later as
+    // an event the caller was told failed: the rare cost of a write that
+    // fails after its record (out of memory, a full disk).
     std::unique_lock lock(rw_mutex_);
-    auto tail = session_tails_.find(sid);
-    if (tail != session_tails_.end() && tail->second == reserved_id) {
-      if (reserved_prev)
-        tail->second = reserved_prev;
+    auto pending = pending_tails_.find(sid);
+    if (pending != pending_tails_.end() && pending->second == reserved_id) {
+      auto landed = session_tails_.find(sid);
+      if (landed != session_tails_.end() && landed->second == reserved_prev)
+        pending_tails_.erase(pending);
+      else if (reserved_prev)
+        pending->second = reserved_prev;
       else
-        session_tails_.erase(tail);
+        pending_tails_.erase(pending);
     }
     throw;
   }
@@ -1109,6 +1137,7 @@ void TraceManager::replay_wal() {
         ev.prev_id = (it != session_tails_.end()) ? it->second : 0;
         ev.id = next_event_id_++;
       } else if (resolve_event(ev.id)) {
+        next_event_id_ = std::max(next_event_id_, ev.id + 1);
         continue; // already in the file: a crash after a replay, before the log was emptied
       } else {
         // The id and prev_id the event was given when it was appended.
@@ -1152,9 +1181,13 @@ void TraceManager::replay_wal() {
   // What was replayed is in the file now: make it durable, then empty the log
   // (a crash between the two replays the same records again, and those already
   // in the file are skipped by id).
-  if (replayed > 0 && mapped_base_) {
+  // Also when nothing was new (every record already in the file, after a crash
+  // between the msync and the removal): the log is spent either way.
+  if (mapped_base_) {
+    reinterpret_cast<TraceFileHeader *>(mapped_base_)->next_event_id = next_event_id_;
 #ifndef _WIN32
-    ::msync(mapped_base_, mapped_size_, MS_SYNC);
+    if (replayed > 0)
+      ::msync(mapped_base_, mapped_size_, MS_SYNC);
 #endif
     std::error_code ec;
     std::filesystem::remove(wal_path_, ec);

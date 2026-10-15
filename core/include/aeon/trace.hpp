@@ -261,6 +261,10 @@ private:
   /// Maps session_id → last event_id for that session.
   /// Protected by rw_mutex_.
   std::unordered_map<std::string, uint64_t> session_tails_;
+  /// The newest id reserved per session by an append still in flight (Aleph Zero
+  /// fix): appends chain to it, readers never see it; session_tails_ is set when
+  /// the event lands (append_event Step 3).
+  std::unordered_map<std::string, uint64_t> pending_tails_;
 
   // -----------------------------------------------------------------------
   // Semantic Trace Search (V4 Stage 2 task 3)

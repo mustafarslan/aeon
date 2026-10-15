@@ -126,9 +126,14 @@ TEST_F(TraceMemoryFixesTest, TheSameLogReplayedAgainAddsNothing) {
   write_log();
   { aeon::TraceManager trace(trace_path_); }
   write_log();
-  aeon::TraceManager trace(trace_path_);
-  EXPECT_EQ(trace.get_history("s", 10).size(), 2u);
-  EXPECT_EQ(trace.size(), 2u);
+  {
+    aeon::TraceManager trace(trace_path_);
+    EXPECT_EQ(trace.get_history("s", 10).size(), 2u);
+    EXPECT_EQ(trace.size(), 2u);
+    EXPECT_EQ(trace.append_event("s", 0, "next"), 9u); // the counter passed the skipped ids
+  }
+  // Nothing in the log was new, and it is gone all the same (agy: it stayed).
+  EXPECT_TRUE(!fs::exists(wal_path_) || fs::file_size(wal_path_) == 0);
 }
 
 TEST_F(TraceMemoryFixesTest, LegacyRecordsWithoutAnIdStillGetOne) {
