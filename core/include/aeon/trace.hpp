@@ -27,6 +27,7 @@
 #include <atomic>
 #include <cstring>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <memory>
 #include <mutex>
@@ -213,6 +214,13 @@ public:
    */
   bool tombstone_event(uint64_t event_id, bool erase_text = false);
 
+  /// For tests only: runs inside compact() after the events are copied and
+  /// before the new generation is installed, where appends and tombstones race
+  /// the compaction. Empty by default.
+  void set_compaction_hook_for_testing(std::function<void()> hook) {
+    compaction_hook_ = std::move(hook);
+  }
+
   /// Drop a session's tail pointer (does NOT delete events from disk).
   /// Used for session cleanup when an NPC despawns.
   bool drop_session(const char *session_id);
@@ -268,6 +276,7 @@ private:
   /// Tombstones set while a compaction copies the events: applied again to the
   /// new generation when it is installed (they would be lost with the old one).
   std::vector<std::pair<uint64_t, bool>> pending_tombstones_;
+  std::function<void()> compaction_hook_;
   /// Sets the tombstone flag and, with erase_text, overwrites the event's text,
   /// evidence and embedding blobs and its preview; flushes the event if it lives
   /// in the file. Caller holds rw_mutex_ (or is the constructor).

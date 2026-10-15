@@ -246,3 +246,53 @@ TEST_F(TraceMemoryFixesTest, ErasingATombstonedEventSaysItDidSomething) {
   EXPECT_TRUE(trace.tombstone_event(id, true));  // the text goes now: that is something done
   EXPECT_FALSE(trace.tombstone_event(id, true)); // nothing left to do
 }
+
+// ---- compaction -----------------------------------------------------------
+
+TEST_F(TraceMemoryFixesTest, CompactionKeepsAHistoryWholeAroundATombstonedEvent) {
+  aeon::TraceManager trace(trace_path_);
+  uint64_t one = trace.append_event("s", 0, "one");
+  uint64_t two = trace.append_event("s", 0, "two");
+  uint64_t three = trace.append_event("s", 0, "three");
+  ASSERT_TRUE(trace.tombstone_event(two));
+  trace.compact();
+  auto history = trace.get_history("s", 10);
+  ASSERT_EQ(history.size(), 2u); // three's prev was the dropped two: now it is one
+  EXPECT_EQ(history[0].id, three);
+  EXPECT_EQ(history[1].id, one);
+}
+
+TEST_F(TraceMemoryFixesTest, AnEventAppendedDuringACompactionSurvivesACrashRightAfterIt) {
+  uint64_t during = 0;
+  {
+    aeon::TraceManager trace(trace_path_);
+    trace.append_event("s", 0, "before");
+    trace.set_compaction_hook_for_testing(
+        [&] { during = trace.append_event("s", 0, "during the compaction"); });
+    trace.compact();
+  } // no further compaction, no clean save of RAM: as a crash would leave it
+  aeon::TraceManager trace(trace_path_);
+  auto history = trace.get_history("s", 10);
+  ASSERT_EQ(history.size(), 2u);
+  EXPECT_EQ(history[0].id, during);
+  EXPECT_EQ(trace.append_event("s", 0, "after"), during + 1);
+}
+
+TEST_F(TraceMemoryFixesTest, ATombstoneSetDuringACompactionHoldsInTheNewGeneration) {
+  constexpr uint32_t dim = 8;
+  const std::string secret = "SECRET-forgotten-during-a-compaction";
+  uint64_t gone = 0;
+  {
+    aeon::TraceManager trace(trace_path_);
+    gone = trace.append_event("s", 0, secret.c_str(), 0, axis(dim, 1));
+    trace.append_event("s", 0, "kept", 0, axis(dim, 2));
+    trace.set_compaction_hook_for_testing([&] { EXPECT_TRUE(trace.tombstone_event(gone, true)); });
+    trace.compact();
+    for (const auto &ev : trace.semantic_search(axis(dim, 1), 5))
+      EXPECT_NE(ev.id, gone);
+  }
+  EXPECT_EQ(slurp(blob_path_).find("SECRET-"), std::string::npos);
+  aeon::TraceManager trace(trace_path_);
+  for (const auto &ev : trace.semantic_search(axis(dim, 1), 5))
+    EXPECT_NE(ev.id, gone);
+}

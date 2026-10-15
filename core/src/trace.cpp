@@ -13,6 +13,8 @@
  */
 
 #include "aeon/trace.hpp"
+
+#include <unordered_map>
 #include "aeon/hash.hpp"
 
 #include <algorithm>
@@ -848,6 +850,32 @@ void TraceManager::compact() {
   };
 
   // Copy live mmap events — re-pointing blob offsets to new blob file
+  // Tombstoned events are dropped: a survivor whose prev_id named one is
+  // relinked to the nearest surviving ancestor, or get_history() would stop
+  // there (Aleph Zero fix, found by agy). Two passes: after a WAL replay,
+  // ids in the file need not be in order.
+  std::unordered_map<uint64_t, uint64_t> dropped; // dropped id -> its prev_id
+  for (size_t i = 0; i < snapshot_mmap_count; ++i) {
+    const TraceEvent *ev = mmap_event_at(i);
+    if (ev && (ev->flags & TRACE_FLAG_TOMBSTONE))
+      dropped[ev->id] = ev->prev_id;
+  }
+  for (size_t i = 0; i < frozen_count; ++i) {
+    const auto *ev = reinterpret_cast<const TraceEvent *>(
+        frozen_delta_bytes_.data() + i * sizeof(TraceEvent));
+    if (ev->flags & TRACE_FLAG_TOMBSTONE)
+      dropped[ev->id] = ev->prev_id;
+  }
+  auto survivor = [&dropped](uint64_t id) {
+    for (size_t hops = 0; id != 0 && hops <= dropped.size(); ++hops) {
+      auto it = dropped.find(id);
+      if (it == dropped.end())
+        break;
+      id = it->second;
+    }
+    return id;
+  };
+
   size_t write_idx = 0;
   for (size_t i = 0; i < snapshot_mmap_count; ++i) {
     const TraceEvent *ev = mmap_event_at(i);
@@ -857,6 +885,7 @@ void TraceManager::compact() {
     auto *dst = reinterpret_cast<TraceEvent *>(
         new_base + sizeof(TraceFileHeader) + write_idx * sizeof(TraceEvent));
     std::memcpy(dst, ev, sizeof(TraceEvent));
+    dst->prev_id = survivor(ev->prev_id);
 
     gc_blob_pair(ev->blob_offset, ev->blob_size, dst->blob_offset,
                 dst->blob_size);
@@ -877,6 +906,7 @@ void TraceManager::compact() {
     auto *dst = reinterpret_cast<TraceEvent *>(
         new_base + sizeof(TraceFileHeader) + write_idx * sizeof(TraceEvent));
     std::memcpy(dst, ev, sizeof(TraceEvent));
+    dst->prev_id = survivor(ev->prev_id);
 
     gc_blob_pair(ev->blob_offset, ev->blob_size, dst->blob_offset,
                 dst->blob_size);
@@ -886,6 +916,9 @@ void TraceManager::compact() {
                 dst->embedding_blob_offset, dst->embedding_blob_size);
     ++write_idx;
   }
+
+  if (compaction_hook_)
+    compaction_hook_(); // tests: appends and tombstones that race the compaction
 
   new_hdr->event_count = write_idx;
   new_hdr->next_event_id = next_event_id_;
@@ -964,18 +997,40 @@ void TraceManager::compact() {
     frozen_delta_bytes_.clear();
     frozen_delta_bytes_.shrink_to_fit();
 
-    // Rebuild session tails from the compacted file
-    rebuild_session_tails();
+    // Tombstones set while the events were being copied landed on the old
+    // generation: set them again on the new one (Aleph Zero fix).
+    for (const auto &[id, erase] : pending_tombstones_) {
+      if (const TraceEvent *cev = resolve_event(id))
+        apply_tombstone(const_cast<TraceEvent *>(cev), erase);
+    }
+    pending_tombstones_.clear();
 
-    // Also account for any events added to delta_bytes_ during compaction
+    // Events appended during the compaction went to the RAM delta, protected
+    // only by WAL records that the truncate below deletes: they go into the
+    // new file now, relinked past dropped events like the rest (Aleph Zero
+    // fix, found by agy). The delta is empty afterwards: no event lives only
+    // in RAM, so no later append to the file can chain to one.
     size_t new_delta_count = delta_bytes_.size() / sizeof(TraceEvent);
     for (size_t i = 0; i < new_delta_count; ++i) {
-      const auto *ev = reinterpret_cast<const TraceEvent *>(
-          delta_bytes_.data() + i * sizeof(TraceEvent));
-      std::string sid(ev->session_id,
-                      std::min(std::strlen(ev->session_id), size_t{35}));
-      session_tails_[sid] = ev->id;
+      TraceEvent ev{};
+      std::memcpy(&ev, delta_bytes_.data() + i * sizeof(TraceEvent), sizeof(TraceEvent));
+      ev.prev_id = survivor(ev.prev_id);
+      grow_mmap(1);
+      auto *dst = reinterpret_cast<TraceEvent *>(
+          mapped_base_ + sizeof(TraceFileHeader) + mmap_event_count_ * sizeof(TraceEvent));
+      std::memcpy(dst, &ev, sizeof(TraceEvent));
+      ++mmap_event_count_;
     }
+    delta_bytes_.clear();
+    auto *hdr = reinterpret_cast<TraceFileHeader *>(mapped_base_);
+    hdr->event_count = mmap_event_count_;
+    hdr->next_event_id = next_event_id_;
+#ifndef _WIN32
+    ::msync(mapped_base_, mapped_size_, MS_SYNC);
+#endif
+
+    // Session tails from the compacted file, the drained events included
+    rebuild_session_tails();
   }
   // Lock released — reads now see new file
 
